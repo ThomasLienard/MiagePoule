@@ -1,0 +1,54 @@
+version: '3.8'
+
+services:
+  # Base de données PostgreSQL
+  postgres:
+    image: postgres:15
+    container_name: postgres_miagepoule
+    environment:
+      POSTGRES_DB: miagepoule
+      POSTGRES_USER: miageuser
+      POSTGRES_PASSWORD: miagepassword
+    ports:
+      - "5433:5432"  # Changé de 5432 à 5433
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    networks:
+      - miage-network
+    restart: unless-stopped
+
+  # API Spring Boot
+  poule-api:
+    build:
+      context: ./pouleAPI
+      dockerfile: Dockerfile
+    container_name: spring_miagepoule
+    environment:
+      SPRING_DATASOURCE_URL: jdbc:postgresql://postgres:5432/miagepoule
+      SPRING_DATASOURCE_USERNAME: miageuser
+      SPRING_DATASOURCE_PASSWORD: miagepassword
+      SPRING_JPA_HIBERNATE_DDL_AUTO: update
+    ports:
+      - "8080:8080"
+    depends_on:
+      - postgres
+    networks:
+      - miage-network
+    restart: unless-stopped
+
+  # Frontend React Native (Node.js 22)
+  frontend:
+    build: ./front
+    container_name: react_miagepoule
+    ports:
+      - "3000:3000"  # Un seul port exposé
+    networks:
+      - miage-network
+    restart: unless-stopped
+
+volumes:
+  postgres_data:
+
+networks:
+  miage-network:
+    driver: bridge
