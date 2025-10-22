@@ -46,8 +46,39 @@ services:
       - miage-network
     restart: unless-stopped
 
+    #Cerberus Testing
+  cerberus-mysql:
+    image: mysql:8.0
+    container_name: cerberus-mysql
+    restart: always
+    environment:
+      MYSQL_ROOT_PASSWORD: root
+      MYSQL_DATABASE: cerberus
+      MYSQL_USER: cerberus
+      MYSQL_PASSWORD: cerberus
+    ports:
+      - "3307:3306"
+    volumes:
+      - cerberus_mysql_data:/var/lib/mysql
+
+  cerberus:
+    image: cerberustesting/cerberus:latest
+    container_name: cerberus
+    depends_on:
+      - cerberus-mysql
+    ports:
+      - "8082:8080"
+    environment:
+      CERBERUS_DB_HOST: cerberus-mysql
+      CERBERUS_DB_PORT: 3306
+      CERBERUS_DB_NAME: cerberus
+      CERBERUS_DB_USER: cerberus
+      CERBERUS_DB_PASSWORD: cerberus
+
+
 volumes:
   postgres_data:
+  cerberus_mysql_data:
 
 networks:
   miage-network:
