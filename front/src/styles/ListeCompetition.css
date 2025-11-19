@@ -1,0 +1,23 @@
+.competition-page {
+    padding: 2rem;
+    background: #f3f4f6;        /* gris très doux */
+    min-height: 100vh;
+}
+
+.competition-title {
+    font-family: "Comic Sans MS", cursive;
+    font-size: 2.4rem;
+    margin-bottom: 2rem;
+    font-weight: 700;
+    color: #1e3a8a;             /* bleu natation */
+    text-align: center;
+    letter-spacing: 0.05rem;
+}
+
+.competition-container {
+    font-family: "Comic Sans MS", cursive;
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 2rem;
+}
