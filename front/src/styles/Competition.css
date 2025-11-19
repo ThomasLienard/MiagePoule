@@ -1,0 +1,49 @@
+.competition {
+    background: #ffffff;
+    font-family: "Comic Sans MS", cursive;
+    border: 0.1rem solid #d1d5db;   /* gris doux */
+    border-radius: 1rem;
+    padding: 1.6rem;
+    width: 18rem;
+    margin: 1rem;
+    box-shadow: 0 0.3rem 0.8rem rgba(0,0,0,0.08);
+    transition: transform 0.25s ease, box-shadow 0.25s ease, border-color 0.25s ease;
+    display: flex;
+    flex-direction: column;
+    gap: 0.8rem;
+}
+
+.competition:hover {
+    transform: translateY(-0.35rem);
+    border-color: #3b82f6;                  /* bleu moyen */
+    box-shadow: 0 0.6rem 1.2rem rgba(59,130,246,0.25);
+}
+
+.competition h3 {
+    margin: 0;
+    font-size: 1.5rem;
+    font-weight: 600;
+    color: #1e3a8a;                          /* bleu profond */
+}
+
+.competition p {
+    margin: 0.3rem 0;
+    font-size: 1rem;
+    color: #374151;                           /* gris foncé */
+}
+
+.competition strong {
+    color: #1e3a8a;
+}
+
+/* Tags visuels */
+.competition .tag {
+    display: inline-block;
+    background: #dbeafe;                      /* bleu très clair */
+    color: #1e3a8a;
+    padding: 0.3rem 0.6rem;
+    border-radius: 0.5rem;
+    font-size: 0.85rem;
+    font-weight: 500;
+}
+
