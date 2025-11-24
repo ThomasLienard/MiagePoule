@@ -44,16 +44,16 @@ VALUES ('MEETING'),
 -- ======================
 --  Championships
 -- ======================
-INSERT INTO Championship (id_championship, description_championship, name_championship)
-VALUES (1, 'World level championship', 'World Cup'),
-       (2, 'National level championship', 'National League');
+INSERT INTO Championship (id_championship, description_championship, name_championship, start_date_championship, end_date_championship)
+VALUES (1, 'World level championship', 'World Cup', "2025-01-01","2025-01-02"),
+       (2, 'National level championship', 'National League', "2025-01-01","2025-01-02");
 
 -- ======================
 --  Competitions
 -- ======================
-INSERT INTO Competition (id_competition, name_competition, description_competition, id_championship)
-VALUES (1, '100m Sprint', 'Short distance run', 1),
-       (2, 'Marathon', 'Long distance run', 1);
+INSERT INTO Competition (id_competition, name_competition, description_competition, id_championship, start_date_competition, end_date_competition)
+VALUES (1, '100m Sprint', 'Short distance run', 1, "2025-01-01","2025-01-02"),
+       (2, 'Marathon', 'Long distance run', 1, "2025-01-01","2025-01-02");
 
 -- ======================
 --  Places
@@ -73,15 +73,15 @@ VALUES (1, '2025-01-01 09:00:00', '2025-01-01 10:00:00'),
 -- ======================
 --  Events
 -- ======================
-INSERT INTO Event (id_event, name_event, description_event, type_event_name, id_place, id_time_slot)
-VALUES (1, 'Morning Sprint Session', 'Speed training', 'TRAINING', 1, 1),
-       (2, 'Final Sprint Race', 'Official competition', 'COMPETITION', 1, 2);
+INSERT INTO Event (id_event, name_event, description_event, type_event_name, id_place, id_time_slot, id_competition)
+VALUES (1, 'Morning Sprint Session', 'Speed training', 'TRAINING', 1, 1, 1),
+       (2, 'Final Sprint Race', 'Official competition', 'COMPETITION', 1, 2, 2);
 
 -- ======================
 --  Trials
 -- ======================
-INSERT INTO Trial (id_trial, id_competition, id_event)
-VALUES (1, 1, 2);
+INSERT INTO Trial (id_trial, id_event)
+VALUES (1, 2);
 
 -- ======================
 --  Users
