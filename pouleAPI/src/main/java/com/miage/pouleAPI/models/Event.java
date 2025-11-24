@@ -31,4 +31,9 @@ public class Event {
     @JoinColumn(name = "id_time_slot", nullable = false)
     private TimeSlot timeSlot;
 
+    @ManyToOne
+    @JoinColumn(name = "id_competition", nullable = false)
+    private Competition competition;
+
+
 }

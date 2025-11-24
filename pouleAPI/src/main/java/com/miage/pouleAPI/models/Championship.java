@@ -4,6 +4,9 @@ import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.Setter;
 
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+
 @Getter
 @Setter
 @Entity
@@ -19,5 +22,11 @@ public class Championship {
 
     @Column(name = "name_championship", nullable = false)
     private String name;
+
+    @Column(name = "start_date_championship", nullable = false)
+    private LocalDate start;
+
+    @Column(name = "end_date_championship", nullable = false)
+    private LocalDate end;
 
 }

@@ -15,12 +15,7 @@ public class Trial {
     private Integer id;
 
     @ManyToOne
-    @JoinColumn(name = "id_competition", nullable = false)
-    private Competition competition;
-
-    @ManyToOne
     @JoinColumn(name = "id_event", unique = true, nullable = false)
     private Event event;
 
-    // Getters & setters
 }
