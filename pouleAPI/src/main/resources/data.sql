@@ -45,15 +45,15 @@ VALUES ('MEETING'),
 --  Championships
 -- ======================
 INSERT INTO Championship (id_championship, description_championship, name_championship, start_date_championship, end_date_championship)
-VALUES (1, 'World level championship', 'World Cup', "2025-01-01","2025-01-02"),
-       (2, 'National level championship', 'National League', "2025-01-01","2025-01-02");
+VALUES (1, 'World level championship', 'World Cup', '2025-01-01','2025-01-02'),
+       (2, 'National level championship', 'National League', '2025-01-01','2025-01-02');
 
 -- ======================
 --  Competitions
 -- ======================
 INSERT INTO Competition (id_competition, name_competition, description_competition, id_championship, start_date_competition, end_date_competition)
-VALUES (1, '100m Sprint', 'Short distance run', 1, "2025-01-01","2025-01-02"),
-       (2, 'Marathon', 'Long distance run', 1, "2025-01-01","2025-01-02");
+VALUES (1, '100m Sprint', 'Short distance run', 1, '2025-01-01','2025-01-02'),
+       (2, 'Marathon', 'Long distance run', 1, '2025-01-01','2025-01-02');
 
 -- ======================
 --  Places
@@ -114,7 +114,7 @@ VALUES (1, 1),
 -- ======================
 --  Participation
 -- ======================
-INSERT INTO patricipate_at (id_team, id_trial, trial_result_team)
+INSERT INTO participate_at (id_team, id_trial, trial_result_team)
 VALUES (1, 1, '12.4s'),
        (2, 1, '11.9s');
 
