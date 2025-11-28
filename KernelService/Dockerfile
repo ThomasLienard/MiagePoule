@@ -11,4 +11,4 @@ COPY src ./src
 RUN mvn clean package -DskipTests
 
 EXPOSE 8082
-ENTRYPOINT ["java", "-jar", "target/KernelService-0.0.1-SNAPSHOT.jar"]
+ENTRYPOINT ["java", "-jar", "target/pouleAPI-0.0.1-SNAPSHOT.jar"]
