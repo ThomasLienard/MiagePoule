@@ -20,7 +20,7 @@ services:
   # API Spring Boot
   poule-api:
     build:
-      context: ./pouleAPI
+      context: ./KernelService
       dockerfile: Dockerfile
     container_name: spring_miagepoule
     environment:
@@ -29,7 +29,7 @@ services:
       SPRING_DATASOURCE_PASSWORD: miagepassword
       SPRING_JPA_HIBERNATE_DDL_AUTO: update
     ports:
-      - "8080:8080"
+      - "8082:8082"
     depends_on:
       - postgres
     networks:
@@ -46,8 +46,43 @@ services:
       - miage-network
     restart: unless-stopped
 
+  cerberus-mysql:
+    image: mysql:8.0
+    container_name: cerberus-mysql
+    restart: always
+    environment:
+      MYSQL_ROOT_PASSWORD: root
+      MYSQL_DATABASE: cerberus
+      MYSQL_USER: cerberus
+      MYSQL_PASSWORD: cerberus
+    ports:
+      - "3307:3306"
+    volumes:
+      - cerberus_mysql_data:/var/lib/mysql
+    networks:
+      - miage-network
+
+  cerberus:
+    build:
+      context: ./cerberus
+      dockerfile: Dockerfile
+    container_name: cerberus
+    depends_on:
+      - cerberus-mysql
+    ports:
+      - "8082:8080"
+    environment:
+      CERBERUS_DB_HOST: cerberus-mysql
+      CERBERUS_DB_PORT: 3306
+      CERBERUS_DB_NAME: cerberus
+      CERBERUS_DB_USER: cerberus
+      CERBERUS_DB_PASSWORD: cerberus
+    networks:
+      - miage-network
+
 volumes:
   postgres_data:
+  cerberus_mysql_data:
 
 networks:
   miage-network:

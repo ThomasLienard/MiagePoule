@@ -9,7 +9,7 @@
 		<relativePath/> <!-- lookup parent from repository -->
 	</parent>
 	<groupId>com.miage</groupId>
-	<artifactId>pouleAPI</artifactId>
+	<artifactId>KernelService</artifactId>
 	<version>0.0.1-SNAPSHOT</version>
 	<name>pouleAPI</name>
 	<description>back of miagePoule application</description>
@@ -33,6 +33,11 @@
 		<dependency>
 			<groupId>org.springframework.boot</groupId>
 			<artifactId>spring-boot-starter-data-jpa</artifactId>
+		</dependency>
+
+		<dependency>
+			<groupId>org.springframework.boot</groupId>
+			<artifactId>spring-boot-starter-web</artifactId>
 		</dependency>
 
 		<dependency>
@@ -78,6 +83,13 @@
 					</excludes>
 				</configuration>
 			</plugin>
+
+					<plugin>
+						<groupId>org.sonarsource.scanner.maven</groupId>
+						<artifactId>sonar-maven-plugin</artifactId>
+						<version>3.10.0.2594</version>
+					</plugin>
+
 		</plugins>
 	</build>
 
