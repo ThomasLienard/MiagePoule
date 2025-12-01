@@ -1,11 +1,16 @@
-package com.miage.pouleAPI.models;
+package com.miage.pouleAPI.entity;
+
+import java.util.HashSet;
+import java.util.Set;
 
 import jakarta.persistence.*;
+import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.Setter;
 
 @Getter
 @Setter
+@AllArgsConstructor
 @Entity
 @Table(name = "Team")
 public class Team {
@@ -20,5 +25,8 @@ public class Team {
     @ManyToOne
     @JoinColumn(name = "Country_code", nullable = false)
     private Country country;
+
+    @ManyToMany(mappedBy = "teams")
+    private Set<ApplicationUser> users = new HashSet<>();
 
 }

@@ -1,11 +1,16 @@
-package com.miage.pouleAPI.models;
+package com.miage.pouleAPI.entity;
+
+import java.util.HashSet;
+import java.util.Set;
 
 import jakarta.persistence.*;
+import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.Setter;
 
 @Getter
 @Setter
+@AllArgsConstructor
 @Entity
 @Table(name = "Event")
 public class Event {
@@ -14,6 +19,7 @@ public class Event {
     @Column(name = "id_event")
     private Integer id;
 
+    @Column(name = "name_event")
     private String name;
 
     @Column(name = "description_event", length = 1500)
@@ -34,6 +40,17 @@ public class Event {
     @ManyToOne
     @JoinColumn(name = "id_competition", nullable = false)
     private Competition competition;
+
+    @ManyToMany(mappedBy = "events")
+    private Set<ApplicationUser> users = new HashSet<>();
+
+    @ManyToMany
+    @JoinTable(
+        name = "is_associated_to",
+        joinColumns = @JoinColumn(name = "id"),
+        inverseJoinColumns = @JoinColumn(name = "id_task")
+    )
+    private Set<Task> tasks = new HashSet<>();
 
 
 }
