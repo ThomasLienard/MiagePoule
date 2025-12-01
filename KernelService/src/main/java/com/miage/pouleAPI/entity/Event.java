@@ -52,5 +52,7 @@ public class Event {
     )
     private Set<Task> tasks = new HashSet<>();
 
+    @ManyToMany(mappedBy = "metricsEvents")
+    private Set<Metrics> metrics = new HashSet<>();
 
 }
