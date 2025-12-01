@@ -1,6 +1,6 @@
 package com.miage.pouleAPI.repositories;
 
-import com.miage.pouleAPI.entity.Competition;
+import com.miage.pouleAPI.models.Competition;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 import java.util.List;
@@ -12,6 +12,4 @@ public interface CompetitionRepository extends JpaRepository<Competition, Intege
     List<Competition> findAll();
     Optional<Competition> findById(Integer id);
     Competition save (Competition competitionEntity);
-    List<Competition> findByChampionshipId(Integer idChampionship);
-
 }
