@@ -18,4 +18,12 @@ public class ChampionshipModel {
     private LocalDate start;
 
     private LocalDate end;
+
+    public ChampionshipModel(String description, LocalDate end, Integer id, String name, LocalDate start) {
+        this.description = description;
+        this.end = end;
+        this.id = id;
+        this.name = name;
+        this.start = start;
+    }
 }
