@@ -2,7 +2,7 @@ package com.miage.pouleAPI.repositories.adapters;
 
 import com.miage.pouleAPI.domains.CompetitionModel;
 import com.miage.pouleAPI.domains.ports.CompetitionPort;
-import com.miage.pouleAPI.entity.Competition;
+import com.miage.pouleAPI.models.Competition;
 import com.miage.pouleAPI.repositories.CompetitionRepository;
 
 import java.util.List;
@@ -19,27 +19,17 @@ public class CompetitionJpaAdapter implements CompetitionPort {
 
     @Override
     public List<CompetitionModel> findAll() {
-        return repository.findAll().stream().map(this::toDomain).toList();
+        return repository.findAll().stream().map(this::toDomain);
     }
 
     @Override
     public Optional<CompetitionModel> findById(Integer id) {
-        return repository.findById(id).map(this::toDomain);
+        return Optional.empty();
     }
 
     @Override
-    public CompetitionModel save(CompetitionModel model) {
-        Competition entity = toEntity(model);
-        Competition saved = repository.save(entity);
-        return toDomain(saved);
-    }
-
-    @Override
-    public List<CompetitionModel> findByChampionshipId(Integer championshipId) {
-        return repository.findByChampionshipId(championshipId)
-                .stream()
-                .map(this::toDomain)
-                .toList();
+    public CompetitionModel save(CompetitionModel competitionEntity) {
+        return null;
     }
 
     private CompetitionModel toDomain(Competition competition){
@@ -60,11 +50,11 @@ public class CompetitionJpaAdapter implements CompetitionPort {
             return  null;
         }
         return new Competition(
+                competition.getChampionship(),
+                competition.getDescription(),
+                competition.getEnd(),
                 competition.getId(),
                 competition.getName(),
-                competition.getDescription(),
-                competition.getChampionship(),
-                competition.getEnd(),
                 competition.getStart());
     }
 }

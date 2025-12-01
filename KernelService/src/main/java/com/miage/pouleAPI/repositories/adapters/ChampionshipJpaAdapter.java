@@ -1,9 +1,12 @@
 package com.miage.pouleAPI.repositories.adapters;
 
 import com.miage.pouleAPI.domains.ChampionshipModel;
+import com.miage.pouleAPI.domains.CompetitionModel;
 import com.miage.pouleAPI.domains.ports.ChampionshipPort;
-import com.miage.pouleAPI.entity.Championship;
+import com.miage.pouleAPI.domains.ports.CompetitionPort;
+import com.miage.pouleAPI.models.Competition;
 import com.miage.pouleAPI.repositories.ChampionshipRepository;
+import com.miage.pouleAPI.repositories.CompetitionRepository;
 
 import java.util.List;
 import java.util.Optional;
@@ -19,42 +22,42 @@ public class ChampionshipJpaAdapter implements ChampionshipPort {
 
     @Override
     public List<ChampionshipModel> findAll() {
-        return repository.findAll().stream().map(this::toDomain).toList();
+        return repository.findAll().stream().map(this::toDomain);
     }
 
     @Override
     public Optional<ChampionshipModel> findById(Integer id) {
-        return repository.findById(id).map(this::toDomain);
+        return Optional.empty();
     }
 
     @Override
     public ChampionshipModel save(ChampionshipModel championshipModel) {
-        Championship entity = toEntity(championshipModel);
-        Championship saved = repository.save(entity);
-        return toDomain(saved);
+        return null;
     }
 
-    private ChampionshipModel toDomain(Championship championship){
-        if (championship == null){
+    private CompetitionModel toDomain(Competition competition){
+        if (competition == null){
             return  null;
         }
-        return new ChampionshipModel(
-                championship.getDescription(),
-                championship.getEnd(),
-                championship.getId(),
-                championship.getName(),
-                championship.getStart());
+        return new CompetitionModel(
+                competition.getChampionship(),
+                competition.getDescription(),
+                competition.getEnd(),
+                competition.getId(),
+                competition.getName(),
+                competition.getStart());
     }
 
-    private Championship toEntity(ChampionshipModel championship){
-        if (championship == null){
+    private Competition toEntity(CompetitionModel competition){
+        if (competition == null){
             return  null;
         }
-        return new Championship(
-                championship.getId(),
-                championship.getDescription(),
-                championship.getName(),
-                championship.getStart(),
-                championship.getEnd());
+        return new Competition(
+                competition.getChampionship(),
+                competition.getDescription(),
+                competition.getEnd(),
+                competition.getId(),
+                competition.getName(),
+                competition.getStart());
     }
 }
