@@ -50,11 +50,11 @@ public class CompetitionJpaAdapter implements CompetitionPort {
             return  null;
         }
         return new Competition(
-                competition.getChampionship(),
-                competition.getDescription(),
-                competition.getEnd(),
                 competition.getId(),
                 competition.getName(),
+                competition.getDescription(),
+                competition.getChampionship(),
+                competition.getEnd(),
                 competition.getStart());
     }
 }
