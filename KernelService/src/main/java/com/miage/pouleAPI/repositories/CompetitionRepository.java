@@ -1,6 +1,6 @@
 package com.miage.pouleAPI.repositories;
 
-import com.miage.pouleAPI.models.Competition;
+import com.miage.pouleAPI.entity.Competition;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 import java.util.List;
