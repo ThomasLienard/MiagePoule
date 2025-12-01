@@ -1,6 +1,6 @@
 package com.miage.pouleAPI.domains;
 
-import com.miage.pouleAPI.models.Championship;
+import com.miage.pouleAPI.entity.Championship;
 import lombok.Getter;
 import lombok.Setter;
 

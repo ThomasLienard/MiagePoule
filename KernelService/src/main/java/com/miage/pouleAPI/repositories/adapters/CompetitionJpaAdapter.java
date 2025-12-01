@@ -2,7 +2,7 @@ package com.miage.pouleAPI.repositories.adapters;
 
 import com.miage.pouleAPI.domains.CompetitionModel;
 import com.miage.pouleAPI.domains.ports.CompetitionPort;
-import com.miage.pouleAPI.models.Competition;
+import com.miage.pouleAPI.entity.Competition;
 import com.miage.pouleAPI.repositories.CompetitionRepository;
 
 import java.util.List;
@@ -19,7 +19,7 @@ public class CompetitionJpaAdapter implements CompetitionPort {
 
     @Override
     public List<CompetitionModel> findAll() {
-        return repository.findAll().stream().map(this::toDomain);
+        return repository.findAll().stream().map(this::toDomain).toList();
     }
 
     @Override
