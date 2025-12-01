@@ -2,11 +2,14 @@ package com.miage.pouleAPI.entity;
 
 import jakarta.persistence.*;
 import java.math.BigDecimal;
+
+import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.Setter;
 
 @Getter
 @Setter
+@AllArgsConstructor
 @Entity
 @Table(name = "Place")
 public class Place {

@@ -4,11 +4,13 @@ import java.util.HashSet;
 import java.util.Set;
 
 import jakarta.persistence.*;
+import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.Setter;
 
 @Getter
 @Setter
+@AllArgsConstructor
 @Entity
 @Table(name = "Task")
 public class Task {
