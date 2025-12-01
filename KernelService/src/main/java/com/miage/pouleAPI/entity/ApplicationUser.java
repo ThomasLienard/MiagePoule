@@ -79,4 +79,7 @@ public class ApplicationUser {
         inverseJoinColumns = @JoinColumn(name = "id_notification")
     )
     private Set<Notification> notifications = new HashSet<>();
+
+    @ManyToMany(mappedBy = "users")
+    private Set<Metrics> metrics = new HashSet<>();
 }
