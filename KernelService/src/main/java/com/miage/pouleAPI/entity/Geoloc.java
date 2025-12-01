@@ -1,7 +1,10 @@
-package com.miage.pouleAPI.models;
+package com.miage.pouleAPI.entity;
 
 import jakarta.persistence.*;
 import java.math.BigDecimal;
+import java.util.HashSet;
+import java.util.Set;
+
 import lombok.Getter;
 import lombok.Setter;
 
@@ -20,5 +23,9 @@ public class Geoloc {
 
     @Column(name = "longitude_geoloc")
     private BigDecimal longitude;
+
+    @ManyToMany(mappedBy = "geolocs")
+    private Set<ApplicationUser> users = new HashSet<>();
+
 
 }

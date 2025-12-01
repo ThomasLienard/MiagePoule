@@ -1,4 +1,4 @@
-package com.miage.pouleAPI.models;
+package com.miage.pouleAPI.entity;
 
 import jakarta.persistence.*;
 import java.time.LocalDateTime;

@@ -1,4 +1,7 @@
-package com.miage.pouleAPI.models;
+package com.miage.pouleAPI.entity;
+
+import java.util.HashSet;
+import java.util.Set;
 
 import jakarta.persistence.*;
 import lombok.Getter;
@@ -19,5 +22,11 @@ public class Task {
 
     @Column(name = "task_description", length = 1500)
     private String description;
+
+    @ManyToMany(mappedBy = "tasks")
+    private Set<Event> events = new HashSet<>();
+
+    @ManyToMany(mappedBy = "dailyTasks")
+    private Set<ApplicationUser> users = new HashSet<>();
 
 }

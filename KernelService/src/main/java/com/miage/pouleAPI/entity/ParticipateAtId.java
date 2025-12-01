@@ -1,4 +1,4 @@
-package com.miage.pouleAPI.models;
+package com.miage.pouleAPI.entity;
 
 import jakarta.persistence.*;
 import lombok.EqualsAndHashCode;
@@ -11,12 +11,14 @@ import java.io.Serializable;
 @Setter
 @EqualsAndHashCode
 @Embeddable
-public class IsConvenedToId implements Serializable {
+public class ParticipateAtId implements Serializable {
 
-    @Column(name = "id")
-    private Integer userId;
+    @Column(name = "id_team")
+    private Integer teamId;
 
     @Column(name = "id_trial")
     private Integer trialId;
+
+    // equals & hashCode
 }
 
