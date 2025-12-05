@@ -1,0 +1,19 @@
+package com.miage.pouleAPI.entity;
+
+import jakarta.persistence.*;
+import lombok.AllArgsConstructor;
+import lombok.Getter;
+import lombok.Setter;
+
+@Getter
+@Setter
+@AllArgsConstructor
+@Entity
+@Table(name = "Country")
+public class Country {
+
+    @Id
+    @Column(name = "Country_code")
+    private String code;
+
+}
