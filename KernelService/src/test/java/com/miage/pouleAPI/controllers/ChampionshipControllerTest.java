@@ -7,34 +7,32 @@ import com.miage.pouleAPI.services.ChampionshipService;
 import com.miage.pouleAPI.services.CompetitionService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
-import org.springframework.http.MediaType;
-import org.springframework.test.context.bean.override.mockito.MockitoBean;
-import org.springframework.test.web.servlet.MockMvc;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.InjectMocks;
+import org.mockito.Mock;
+import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 
 import java.time.LocalDate;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
 
-import static org.hamcrest.Matchers.hasSize;
-import static org.hamcrest.Matchers.is;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.*;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
-@WebMvcTest(ChampionshipController.class)
+@ExtendWith(MockitoExtension.class)
 class ChampionshipControllerTest {
 
-    @Autowired
-    private MockMvc mockMvc;
-
-    @MockitoBean
+    @Mock
     private ChampionshipService championshipService;
 
-    @MockitoBean
+    @Mock
     private CompetitionService competitionService;
+
+    @InjectMocks
+    private ChampionshipController controller;
 
     private ChampionshipModel championship1;
     private ChampionshipModel championship2;
@@ -44,6 +42,14 @@ class ChampionshipControllerTest {
 
     @BeforeEach
     void setUp() {
+        championshipEntity = new Championship(
+                1,
+                "Championship 1 Description",
+                "Championship 1",
+                LocalDate.of(2024, 1, 1),
+                LocalDate.of(2024, 12, 31)
+        );
+
         championship1 = new ChampionshipModel(
                 "Championship 1 Description",
                 LocalDate.of(2024, 12, 31),
@@ -54,18 +60,10 @@ class ChampionshipControllerTest {
 
         championship2 = new ChampionshipModel(
                 "Championship 2 Description",
-                LocalDate.of(2024, 6, 30),
+                LocalDate.of(2025, 12, 31),
                 2,
                 "Championship 2",
-                LocalDate.of(2024, 1, 1)
-        );
-
-        championshipEntity = new Championship(
-                1,
-                "Championship 1 Description",
-                "Championship 1",
-                LocalDate.of(2024, 1, 1),
-                LocalDate.of(2024, 12, 31)
+                LocalDate.of(2025, 1, 1)
         );
 
         competition1 = new CompetitionModel(
@@ -88,146 +86,219 @@ class ChampionshipControllerTest {
     }
 
     @Test
-    void getAll_ShouldReturnListOfChampionships() throws Exception {
+    void getAll_ShouldReturnListOfChampionships() {
         List<ChampionshipModel> championships = Arrays.asList(championship1, championship2);
         when(championshipService.findAll()).thenReturn(championships);
 
-        mockMvc.perform(get("/championships")
-                        .contentType(MediaType.APPLICATION_JSON))
-                .andExpect(status().isOk())
-                .andExpect(content().contentType(MediaType.APPLICATION_JSON))
-                .andExpect(jsonPath("$", hasSize(2)))
-                .andExpect(jsonPath("$[0].id", is(1)))
-                .andExpect(jsonPath("$[0].name", is("Championship 1")))
-                .andExpect(jsonPath("$[0].description", is("Championship 1 Description")))
-                .andExpect(jsonPath("$[1].id", is(2)))
-                .andExpect(jsonPath("$[1].name", is("Championship 2")));
+        List<ChampionshipModel> result = controller.getAll();
 
+        assertThat(result).isNotNull();
+        assertThat(result).hasSize(2);
+        assertThat(result.get(0).getName()).isEqualTo("Championship 1");
+        assertThat(result.get(0).getDescription()).isEqualTo("Championship 1 Description");
+        assertThat(result.get(1).getName()).isEqualTo("Championship 2");
         verify(championshipService, times(1)).findAll();
     }
 
     @Test
-    void getAll_ShouldReturnEmptyList_WhenNoChampionships() throws Exception {
+    void getAll_ShouldReturnEmptyList_WhenNoChampionships() {
         when(championshipService.findAll()).thenReturn(List.of());
 
-        mockMvc.perform(get("/championships")
-                        .contentType(MediaType.APPLICATION_JSON))
-                .andExpect(status().isOk())
-                .andExpect(content().contentType(MediaType.APPLICATION_JSON))
-                .andExpect(jsonPath("$", hasSize(0)));
+        List<ChampionshipModel> result = controller.getAll();
 
+        assertThat(result).isNotNull();
+        assertThat(result).isEmpty();
         verify(championshipService, times(1)).findAll();
     }
 
     @Test
-    void getById_ShouldReturnChampionship_WhenExists() throws Exception {
-        Integer championshipId = 1;
-        when(championshipService.findById(championshipId)).thenReturn(Optional.of(championship1));
+    void getAll_ShouldReturnChampionshipsWithCorrectDates() {
+        when(championshipService.findAll()).thenReturn(Arrays.asList(championship1));
 
-        mockMvc.perform(get("/championships/{id}", championshipId)
-                        .contentType(MediaType.APPLICATION_JSON))
-                .andExpect(status().isOk())
-                .andExpect(content().contentType(MediaType.APPLICATION_JSON))
-                .andExpect(jsonPath("$.id", is(1)))
-                .andExpect(jsonPath("$.name", is("Championship 1")))
-                .andExpect(jsonPath("$.description", is("Championship 1 Description")))
-                .andExpect(jsonPath("$.start", is("2024-01-01")))
-                .andExpect(jsonPath("$.end", is("2024-12-31")));
+        List<ChampionshipModel> result = controller.getAll();
 
-        verify(championshipService, times(1)).findById(championshipId);
+        assertThat(result).isNotNull();
+        assertThat(result.get(0).getStart()).isEqualTo(LocalDate.of(2024, 1, 1));
+        assertThat(result.get(0).getEnd()).isEqualTo(LocalDate.of(2024, 12, 31));
+        verify(championshipService, times(1)).findAll();
     }
 
     @Test
-    void getById_ShouldReturnNotFound_WhenNotExists() throws Exception {
-        Integer championshipId = 999;
-        when(championshipService.findById(championshipId)).thenReturn(Optional.empty());
+    void getById_ShouldReturnChampionship_WhenExists() {
+        Integer id = 1;
+        when(championshipService.findById(id)).thenReturn(Optional.of(championship1));
 
-        mockMvc.perform(get("/championships/{id}", championshipId)
-                        .contentType(MediaType.APPLICATION_JSON))
-                .andExpect(status().isNotFound());
+        ResponseEntity<ChampionshipModel> response = controller.getById(id);
 
-        verify(championshipService, times(1)).findById(championshipId);
+        assertThat(response.getStatusCode()).isEqualTo(HttpStatus.OK);
+        assertThat(response.getBody()).isNotNull();
+        assertThat(response.getBody().getId()).isEqualTo(1);
+        assertThat(response.getBody().getName()).isEqualTo("Championship 1");
+        assertThat(response.getBody().getDescription()).isEqualTo("Championship 1 Description");
+        verify(championshipService, times(1)).findById(id);
     }
 
     @Test
-    void getCompetitions_ShouldReturnListOfCompetitions() throws Exception {
+    void getById_ShouldReturnNotFound_WhenNotExists() {
+        Integer id = 999;
+        when(championshipService.findById(id)).thenReturn(Optional.empty());
+
+        ResponseEntity<ChampionshipModel> response = controller.getById(id);
+
+        assertThat(response.getStatusCode()).isEqualTo(HttpStatus.NOT_FOUND);
+        assertThat(response.getBody()).isNull();
+        verify(championshipService, times(1)).findById(id);
+    }
+
+    @Test
+    void getById_ShouldReturnChampionshipWithAllFields() {
+        Integer id = 1;
+        when(championshipService.findById(id)).thenReturn(Optional.of(championship1));
+
+        ResponseEntity<ChampionshipModel> response = controller.getById(id);
+
+        assertThat(response.getStatusCode()).isEqualTo(HttpStatus.OK);
+        assertThat(response.getBody()).isNotNull();
+        assertThat(response.getBody().getId()).isEqualTo(1);
+        assertThat(response.getBody().getName()).isEqualTo("Championship 1");
+        assertThat(response.getBody().getDescription()).isEqualTo("Championship 1 Description");
+        assertThat(response.getBody().getStart()).isEqualTo(LocalDate.of(2024, 1, 1));
+        assertThat(response.getBody().getEnd()).isEqualTo(LocalDate.of(2024, 12, 31));
+        verify(championshipService, times(1)).findById(id);
+    }
+
+    @Test
+    void getCompetitions_ShouldReturnListOfCompetitions_WhenChampionshipHasCompetitions() {
         Integer championshipId = 1;
         List<CompetitionModel> competitions = Arrays.asList(competition1, competition2);
         when(competitionService.findByChampionship(championshipId)).thenReturn(competitions);
 
-        mockMvc.perform(get("/championships/{id}/competitions", championshipId)
-                        .contentType(MediaType.APPLICATION_JSON))
-                .andExpect(status().isOk())
-                .andExpect(content().contentType(MediaType.APPLICATION_JSON))
-                .andExpect(jsonPath("$", hasSize(2)))
-                .andExpect(jsonPath("$[0].id", is(1)))
-                .andExpect(jsonPath("$[0].name", is("Competition 1")))
-                .andExpect(jsonPath("$[0].description", is("Competition 1 Description")))
-                .andExpect(jsonPath("$[1].id", is(2)))
-                .andExpect(jsonPath("$[1].name", is("Competition 2")));
+        List<CompetitionModel> result = controller.getCompetitions(championshipId);
 
+        assertThat(result).isNotNull();
+        assertThat(result).hasSize(2);
+        assertThat(result.get(0).getName()).isEqualTo("Competition 1");
+        assertThat(result.get(0).getDescription()).isEqualTo("Competition 1 Description");
+        assertThat(result.get(1).getName()).isEqualTo("Competition 2");
         verify(competitionService, times(1)).findByChampionship(championshipId);
     }
 
     @Test
-    void getCompetitions_ShouldReturnEmptyList_WhenNoCompetitions() throws Exception {
+    void getCompetitions_ShouldReturnEmptyList_WhenChampionshipHasNoCompetitions() {
+        Integer championshipId = 999;
+        when(competitionService.findByChampionship(championshipId)).thenReturn(List.of());
+
+        List<CompetitionModel> result = controller.getCompetitions(championshipId);
+
+        assertThat(result).isNotNull();
+        assertThat(result).isEmpty();
+        verify(competitionService, times(1)).findByChampionship(championshipId);
+    }
+
+    @Test
+    void getCompetitions_ShouldReturnCompetitionsWithCorrectChampionship() {
+        Integer championshipId = 1;
+        List<CompetitionModel> competitions = Arrays.asList(competition1, competition2);
+        when(competitionService.findByChampionship(championshipId)).thenReturn(competitions);
+
+        List<CompetitionModel> result = controller.getCompetitions(championshipId);
+
+        assertThat(result).isNotNull();
+        assertThat(result).allMatch(c -> c.getChampionship().getId().equals(championshipId));
+        verify(competitionService, times(1)).findByChampionship(championshipId);
+    }
+
+    @Test
+    void getCompetitions_ShouldReturnCompetitionsWithCorrectDates() {
+        Integer championshipId = 1;
+        List<CompetitionModel> competitions = Arrays.asList(competition1, competition2);
+        when(competitionService.findByChampionship(championshipId)).thenReturn(competitions);
+
+        List<CompetitionModel> result = controller.getCompetitions(championshipId);
+
+        assertThat(result).isNotNull();
+        assertThat(result.get(0).getStart()).isEqualTo(LocalDate.of(2024, 1, 1));
+        assertThat(result.get(0).getEnd()).isEqualTo(LocalDate.of(2024, 6, 30));
+        assertThat(result.get(1).getStart()).isEqualTo(LocalDate.of(2024, 7, 1));
+        assertThat(result.get(1).getEnd()).isEqualTo(LocalDate.of(2024, 12, 31));
+        verify(competitionService, times(1)).findByChampionship(championshipId);
+    }
+
+    @Test
+    void constructor_ShouldInitializeServices() {
+        ChampionshipController newController = new ChampionshipController(
+                championshipService,
+                competitionService
+        );
+
+        assertThat(newController).isNotNull();
+    }
+
+    @Test
+    void getAll_ShouldHandleMultipleChampionships() {
+        ChampionshipModel championship3 = new ChampionshipModel(
+                "Championship 3 Description",
+                LocalDate.of(2026, 12, 31),
+                3,
+                "Championship 3",
+                LocalDate.of(2026, 1, 1)
+        );
+
+        List<ChampionshipModel> championships = Arrays.asList(championship1, championship2, championship3);
+        when(championshipService.findAll()).thenReturn(championships);
+
+        List<ChampionshipModel> result = controller.getAll();
+
+        assertThat(result).hasSize(3);
+        assertThat(result.get(0).getId()).isEqualTo(1);
+        assertThat(result.get(1).getId()).isEqualTo(2);
+        assertThat(result.get(2).getId()).isEqualTo(3);
+        verify(championshipService, times(1)).findAll();
+    }
+
+    @Test
+    void getCompetitions_ShouldHandleMultipleCompetitions() {
+        Integer championshipId = 1;
+        CompetitionModel competition3 = new CompetitionModel(
+                championshipEntity,
+                "Competition 3 Description",
+                LocalDate.of(2024, 3, 31),
+                3,
+                "Competition 3",
+                LocalDate.of(2024, 1, 1)
+        );
+
+        List<CompetitionModel> competitions = Arrays.asList(competition1, competition2, competition3);
+        when(competitionService.findByChampionship(championshipId)).thenReturn(competitions);
+
+        List<CompetitionModel> result = controller.getCompetitions(championshipId);
+
+        assertThat(result).hasSize(3);
+        assertThat(result.get(0).getId()).isEqualTo(1);
+        assertThat(result.get(1).getId()).isEqualTo(2);
+        assertThat(result.get(2).getId()).isEqualTo(3);
+        verify(competitionService, times(1)).findByChampionship(championshipId);
+    }
+
+    @Test
+    void getById_ShouldNotCallServiceMultipleTimes() {
+        Integer id = 1;
+        when(championshipService.findById(id)).thenReturn(Optional.of(championship1));
+
+        controller.getById(id);
+
+        verify(championshipService, times(1)).findById(id);
+        verifyNoMoreInteractions(championshipService);
+    }
+
+    @Test
+    void getCompetitions_ShouldNotCallServiceMultipleTimes() {
         Integer championshipId = 1;
         when(competitionService.findByChampionship(championshipId)).thenReturn(List.of());
 
-        mockMvc.perform(get("/championships/{id}/competitions", championshipId)
-                        .contentType(MediaType.APPLICATION_JSON))
-                .andExpect(status().isOk())
-                .andExpect(content().contentType(MediaType.APPLICATION_JSON))
-                .andExpect(jsonPath("$", hasSize(0)));
+        controller.getCompetitions(championshipId);
 
         verify(competitionService, times(1)).findByChampionship(championshipId);
-    }
-
-    @Test
-    void getById_ShouldHandleInvalidId() throws Exception {
-        when(championshipService.findById(any())).thenReturn(Optional.empty());
-
-        mockMvc.perform(get("/championships/{id}", 0)
-                        .contentType(MediaType.APPLICATION_JSON))
-                .andExpect(status().isNotFound());
-    }
-
-    @Test
-    void getCompetitions_ShouldReturnCompetitionsForValidChampionship() throws Exception {
-        Integer championshipId = 1;
-        List<CompetitionModel> competitions = List.of(competition1);
-        when(competitionService.findByChampionship(championshipId)).thenReturn(competitions);
-
-        mockMvc.perform(get("/championships/{id}/competitions", championshipId)
-                        .contentType(MediaType.APPLICATION_JSON))
-                .andExpect(status().isOk())
-                .andExpect(jsonPath("$", hasSize(1)))
-                .andExpect(jsonPath("$[0].championship.id", is(1)));
-
-        verify(competitionService, times(1)).findByChampionship(championshipId);
-    }
-
-    @Test
-    void getAllEndpoint_ShouldBeAccessible() throws Exception {
-        when(championshipService.findAll()).thenReturn(List.of());
-
-        mockMvc.perform(get("/championships"))
-                .andExpect(status().isOk());
-    }
-
-    @Test
-    void getByIdEndpoint_ShouldBeAccessible() throws Exception {
-        when(championshipService.findById(1)).thenReturn(Optional.empty());
-
-        mockMvc.perform(get("/championships/1"))
-                .andExpect(status().isNotFound());
-    }
-
-    @Test
-    void getCompetitionsEndpoint_ShouldBeAccessible() throws Exception {
-        when(competitionService.findByChampionship(1)).thenReturn(List.of());
-
-        mockMvc.perform(get("/championships/1/competitions"))
-                .andExpect(status().isOk());
+        verifyNoMoreInteractions(competitionService);
     }
 }

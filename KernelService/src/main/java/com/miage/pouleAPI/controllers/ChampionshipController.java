@@ -15,11 +15,15 @@ import java.util.List;
 
 @RestController
 @RequestMapping("/championships")
-@RequiredArgsConstructor
 public class ChampionshipController {
 
     private final ChampionshipService championshipService;
     private final CompetitionService competitionService;
+
+    public ChampionshipController(ChampionshipService championshipService, CompetitionService competitionService) {
+        this.championshipService = championshipService;
+        this.competitionService = competitionService;
+    }
 
     @GetMapping
     public List<ChampionshipModel> getAll() {
