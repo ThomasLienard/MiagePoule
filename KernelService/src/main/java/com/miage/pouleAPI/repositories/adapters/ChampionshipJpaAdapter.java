@@ -24,12 +24,14 @@ public class ChampionshipJpaAdapter implements ChampionshipPort {
 
     @Override
     public Optional<ChampionshipModel> findById(Integer id) {
-        return Optional.empty();
+        return repository.findById(id).map(this::toDomain);
     }
 
     @Override
     public ChampionshipModel save(ChampionshipModel championshipModel) {
-        return null;
+        Championship entity = toEntity(championshipModel);
+        Championship saved = repository.save(entity);
+        return toDomain(saved);
     }
 
     private ChampionshipModel toDomain(Championship championship){

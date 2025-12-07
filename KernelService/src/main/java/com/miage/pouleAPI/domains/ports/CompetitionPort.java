@@ -9,4 +9,6 @@ public interface CompetitionPort {
     List<CompetitionModel> findAll();
     Optional<CompetitionModel> findById(Integer id);
     CompetitionModel save (CompetitionModel competitionEntity);
+    List<CompetitionModel> findByChampionshipId(Integer idChampionship);
+
 }

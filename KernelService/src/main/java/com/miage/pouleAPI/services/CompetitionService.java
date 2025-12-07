@@ -9,4 +9,5 @@ public interface CompetitionService {
     List<CompetitionModel> findAll();
     Optional<CompetitionModel> findById(Integer id);
     CompetitionModel save (CompetitionModel competition);
+    List<CompetitionModel> findByChampionship(Integer championshipId);
 }

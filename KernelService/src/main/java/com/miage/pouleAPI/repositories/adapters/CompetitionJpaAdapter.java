@@ -24,12 +24,22 @@ public class CompetitionJpaAdapter implements CompetitionPort {
 
     @Override
     public Optional<CompetitionModel> findById(Integer id) {
-        return Optional.empty();
+        return repository.findById(id).map(this::toDomain);
     }
 
     @Override
-    public CompetitionModel save(CompetitionModel competitionEntity) {
-        return null;
+    public CompetitionModel save(CompetitionModel model) {
+        Competition entity = toEntity(model);
+        Competition saved = repository.save(entity);
+        return toDomain(saved);
+    }
+
+    @Override
+    public List<CompetitionModel> findByChampionshipId(Integer championshipId) {
+        return repository.findByChampionshipId(championshipId)
+                .stream()
+                .map(this::toDomain)
+                .toList();
     }
 
     private CompetitionModel toDomain(Competition competition){

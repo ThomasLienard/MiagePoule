@@ -12,4 +12,6 @@ public interface CompetitionRepository extends JpaRepository<Competition, Intege
     List<Competition> findAll();
     Optional<Competition> findById(Integer id);
     Competition save (Competition competitionEntity);
+    List<Competition> findByChampionshipId(Integer idChampionship);
+
 }
