@@ -74,7 +74,7 @@ public class GatewayConfig {
                                 .POST("/championship/{champId}/events/create", http())
                                 .PUT("/championship/{champId}/events/{eventId}/update", http())
                                 .DELETE("/championship/{champId}/events/{eventId}/delete", http())
-                                .GET("/public/championship/{champId}/events/{eventId}", http())
+                                .GET("/public/championship/{champId}/comp/{compId}/events/{eventId}", http())
 
                                 .GET("/public/championship/{champId}/events/{eventId}/athletes", http())
                                 .PUT("/championship/{champId}/events/{eventId}/athletes/{athleteId}/update", http())
