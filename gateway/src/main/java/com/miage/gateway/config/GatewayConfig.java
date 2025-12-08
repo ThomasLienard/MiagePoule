@@ -59,13 +59,14 @@ public class GatewayConfig {
                                 .PUT("/account/settings", http())
                                 .GET("/account/settings/notifications", http())
 
-                                .GET("/my-events", http())
-                                .POST("/my-events/forfeit", http())
-
                                 // Athlete / Volunteer / Commissaire validation
                                 .POST("/account/athlete/validation", http())
                                 .POST("/account/volunteer/validation", http())
                                 .POST("/account/superintendant/validation", http())
+
+                                .GET("/public/events", http())
+                                .GET("/my-events", http())
+                                .POST("/my-events/forfeit", http())
 
                                 // Championship / events management used by commissaire / responsable
                                 .POST("/championship/create", http())
@@ -73,17 +74,17 @@ public class GatewayConfig {
                                 .POST("/championship/{champId}/events/create", http())
                                 .PUT("/championship/{champId}/events/{eventId}/update", http())
                                 .DELETE("/championship/{champId}/events/{eventId}/delete", http())
-                                .GET("/championship/{champId}/events/{eventId}", http())
+                                .GET("/public/championship/{champId}/comp/{compId}", http())
+                                .GET("/public/championship/{champId}/comp/{compId}/events", http())
+                                .GET("/public/championship/{champId}/comp/{compId}/events/{eventId}", http())
 
-                                .POST("/championship/{champId}/events/{eventId}/results/update", http())
-                                .GET("/championship/{champId}/events/{eventId}/athletes", http())
+                                .GET("/public/championship/{champId}/events/{eventId}/athletes", http())
                                 .PUT("/championship/{champId}/events/{eventId}/athletes/{athleteId}/update", http())
                                 .POST("/championship/{champId}/events/{eventId}/athletes/add", http())
+                                .POST("/championship/{champId}/events/{eventId}/results/update", http())
 
                                 .POST("/championship/{champId}/map/fanzone/add", http())
                                 .PUT("/championship/{champId}/map/fanzone/{fanzoneId}/update", http())
-
-                                .GET("/championship/{champId}/super-map", http())
 
                                 .PUT("/championship/{champId}/events/{eventId}/update", http())
                                 .DELETE("/championship/{champId}/events/{eventId}/delete", http())
@@ -98,7 +99,8 @@ public class GatewayConfig {
                 return route("map_service")
                                 .GET("/public/map", http())
                                 .GET("/championship/{champId}/super-map", http())
-                                .GET("/championship/{champId}/map/fanzone/{fanzoneId}", http())
+                                .GET("/public/championship/{champId}/map/fanzone", http())
+                                .GET("/public/championship/{champId}/map/fanzone/{fanzoneId}", http())
                                 .before(uri(mapServiceUrl))
                                 .build();
         }
@@ -141,16 +143,6 @@ public class GatewayConfig {
                                 .POST("/crypto/encrypt", http())
                                 .POST("/crypto/decrypt", http())
                                 .before(uri(cryptoServiceUrl))
-                                .build();
-        }
-
-        // Public read-only endpoints
-        @Bean
-        public RouterFunction<ServerResponse> publicRoutes() {
-                return route("public_routes")
-                                .GET("/public/events", http())
-                                .GET("/public/map", http())
-                                .before(uri(kernelServiceUrl))
                                 .build();
         }
 
