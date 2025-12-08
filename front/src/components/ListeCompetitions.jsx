@@ -3,20 +3,19 @@ import axios from "axios";
 import Competition from "./Competition.jsx";
 import competitionsData from "../dataTest/competitions.json";
 import "../styles/ListeCompetition.css";
+import { useParams } from "react-router-dom";
 
 
 const ListeCompetitions = () => {
+    const {id: championshipId} = useParams();
     const [competitions, setCompetitions] = useState([]);
-    //const [loading, setLoading] = useState(true);
-    //const [error, setError] = useState(null);
+    const [loading, setLoading] = useState(true);
+    const [error, setError] = useState(null);
 
     useEffect(() => {
-        //response de test en attendant le back
-        setCompetitions(competitionsData);
-        /*const fetchCompetitions = async () => {
+        const fetchCompetitions = async () => {
             try {
-                //response à changer, en attente du backend
-                const response = await axios.get("`http://localhost:8080/public/championships/${id}/competitions`");
+                const response = await axios.get(`http://localhost:8080/public/championships/${championshipId}/competitions`);
                 setCompetitions(response.data);
             } catch (err) {
                 setError("Erreur lors du chargement des compétitions");
@@ -25,11 +24,11 @@ const ListeCompetitions = () => {
             }
         };
 
-        fetchCompetitions();*/
+        fetchCompetitions();
     }, []);
 
-    //if (loading) return <p>Chargement...</p>;
-    //if (error) return <p>{error}</p>;
+    if (loading) return <p>Chargement...</p>;
+    if (error) return <p>{error}</p>;
     if (competitions.length === 0) return <p>Aucune compétition disponible.</p>;
 
     return (

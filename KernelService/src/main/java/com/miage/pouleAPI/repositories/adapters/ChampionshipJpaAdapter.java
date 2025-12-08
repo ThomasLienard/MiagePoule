@@ -4,10 +4,12 @@ import com.miage.pouleAPI.domains.ChampionshipModel;
 import com.miage.pouleAPI.domains.ports.ChampionshipPort;
 import com.miage.pouleAPI.entity.Championship;
 import com.miage.pouleAPI.repositories.ChampionshipRepository;
+import org.springframework.stereotype.Service;
 
 import java.util.List;
 import java.util.Optional;
 
+@Service
 public class ChampionshipJpaAdapter implements ChampionshipPort {
 
     private final ChampionshipRepository repository;
