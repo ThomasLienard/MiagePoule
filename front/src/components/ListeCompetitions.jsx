@@ -16,7 +16,7 @@ const ListeCompetitions = () => {
         /*const fetchCompetitions = async () => {
             try {
                 //response à changer, en attente du backend
-                const response = await axios.get("http://localhost:8080/competitions");
+                const response = await axios.get("`http://localhost:8080/public/championships/${id}/competitions`");
                 setCompetitions(response.data);
             } catch (err) {
                 setError("Erreur lors du chargement des compétitions");
