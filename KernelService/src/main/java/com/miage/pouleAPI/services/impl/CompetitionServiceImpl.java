@@ -32,4 +32,13 @@ public class CompetitionServiceImpl implements CompetitionService {
     public CompetitionModel save(CompetitionModel competition) {
         return competitionPort.save(competition);
     }
+
+    @Override
+    public List<CompetitionModel> findByChampionship(Integer championshipId) {
+        return competitionPort.findByChampionshipId(championshipId);
+
+
+    }
+
+
 }

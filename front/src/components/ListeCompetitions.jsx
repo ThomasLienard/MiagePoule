@@ -15,7 +15,7 @@ const ListeCompetitions = () => {
     useEffect(() => {
         const fetchCompetitions = async () => {
             try {
-                const response = await axios.get(`http://localhost:8080/public/championships/${championshipId}/competitions`);
+                const response = await axios.get(`http://localhost:8080/public/championship/${championshipId}/comp`);
                 setCompetitions(response.data);
             } catch (err) {
                 setError("Erreur lors du chargement des compétitions");

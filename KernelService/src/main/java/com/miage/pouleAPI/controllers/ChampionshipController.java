@@ -13,7 +13,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import java.util.List;
 
 @Controller
-@RequestMapping("/public/championships")
+@RequestMapping("/public/championship")
 public class ChampionshipController {
 
     private final ChampionshipService championshipService;
@@ -36,7 +36,7 @@ public class ChampionshipController {
                 .orElse(ResponseEntity.notFound().build());
     }
 
-    @GetMapping("/{id}/competitions")
+    @GetMapping("/{id}/comp")
     public List<CompetitionModel> getCompetitions(@PathVariable Integer id) {
         return competitionService.findByChampionship(id);
     }

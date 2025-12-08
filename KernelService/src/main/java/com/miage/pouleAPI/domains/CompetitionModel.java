@@ -15,14 +15,14 @@ public class CompetitionModel {
 
     private String description;
 
-    private Championship championship;
+    private Integer championshipId;
 
     private LocalDate start;
 
     private LocalDate end;
 
-    public CompetitionModel(Championship championship, String description, LocalDate end, Integer id, String name, LocalDate start) {
-        this.championship = championship;
+    public CompetitionModel(Integer championshipId, String description, LocalDate end, Integer id, String name, LocalDate start) {
+        this.championshipId = championshipId;
         this.description = description;
         this.end = end;
         this.id = id;

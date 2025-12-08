@@ -9,7 +9,7 @@ function App() {
     <>
         <Router>
             <Routes>
-                <Route path="/competitions" element={<ListeCompetitions />} />
+                <Route path="/public/championship/:id/comp" element={<ListeCompetitions />} />
             </Routes>
         </Router>
     </>

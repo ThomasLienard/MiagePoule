@@ -45,7 +45,7 @@ class CompetitionServiceImplTest {
         );
 
         competitionModel1 = new CompetitionModel(
-                championship,
+                championship.getId(),
                 "Competition 1 Description",
                 LocalDate.of(2024, 6, 30),
                 1,
@@ -54,7 +54,7 @@ class CompetitionServiceImplTest {
         );
 
         competitionModel2 = new CompetitionModel(
-                championship,
+                championship.getId(),
                 "Competition 2 Description",
                 LocalDate.of(2024, 9, 30),
                 2,
@@ -98,7 +98,7 @@ class CompetitionServiceImplTest {
         assertThat(actualCompetition.get()).isEqualTo(competitionModel1);
         assertThat(actualCompetition.get().getId()).isEqualTo(competitionId);
         assertThat(actualCompetition.get().getName()).isEqualTo("Competition 1");
-        assertThat(actualCompetition.get().getChampionship()).isEqualTo(championship);
+        assertThat(actualCompetition.get().getChampionshipId()).isEqualTo(championship.getId());
         verify(competitionPort, times(1)).findById(competitionId);
     }
 
@@ -116,7 +116,7 @@ class CompetitionServiceImplTest {
     @Test
     void save_ShouldReturnSavedCompetition() {
         CompetitionModel newCompetition = new CompetitionModel(
-                championship,
+                championship.getId(),
                 "New Competition Description",
                 LocalDate.of(2025, 6, 30),
                 null,
@@ -125,7 +125,7 @@ class CompetitionServiceImplTest {
         );
 
         CompetitionModel savedCompetition = new CompetitionModel(
-                championship,
+                championship.getId(),
                 "New Competition Description",
                 LocalDate.of(2025, 6, 30),
                 3,
@@ -143,14 +143,14 @@ class CompetitionServiceImplTest {
         assertThat(result.getDescription()).isEqualTo("New Competition Description");
         assertThat(result.getStart()).isEqualTo(LocalDate.of(2025, 1, 1));
         assertThat(result.getEnd()).isEqualTo(LocalDate.of(2025, 6, 30));
-        assertThat(result.getChampionship()).isEqualTo(championship);
+        assertThat(result.getChampionshipId()).isEqualTo(championship.getId());
         verify(competitionPort, times(1)).save(newCompetition);
     }
 
     @Test
     void save_ShouldUpdateExistingCompetition() {
         CompetitionModel updatedCompetition = new CompetitionModel(
-                championship,
+                championship.getId(),
                 "Updated Description",
                 LocalDate.of(2024, 6, 30),
                 1,
@@ -180,7 +180,7 @@ class CompetitionServiceImplTest {
         assertThat(actualCompetitions).isNotNull();
         assertThat(actualCompetitions).hasSize(2);
         assertThat(actualCompetitions).containsExactlyInAnyOrder(competitionModel1, competitionModel2);
-        assertThat(actualCompetitions).allMatch(c -> c.getChampionship().getId().equals(championshipId));
+        assertThat(actualCompetitions).allMatch(c -> c.getChampionshipId().equals(championshipId));
         verify(competitionPort, times(1)).findByChampionshipId(championshipId);
     }
 
@@ -205,7 +205,7 @@ class CompetitionServiceImplTest {
         List<CompetitionModel> actualCompetitions = competitionService.findByChampionship(championshipId);
 
         assertThat(actualCompetitions).hasSize(1);
-        assertThat(actualCompetitions.get(0).getChampionship().getId()).isEqualTo(championshipId);
+        assertThat(actualCompetitions.get(0).getChampionshipId()).isEqualTo(championshipId);
         verify(competitionPort, times(1)).findByChampionshipId(championshipId);
     }
 

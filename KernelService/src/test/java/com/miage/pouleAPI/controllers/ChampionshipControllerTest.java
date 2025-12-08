@@ -67,7 +67,7 @@ class ChampionshipControllerTest {
         );
 
         competition1 = new CompetitionModel(
-                championshipEntity,
+                championshipEntity.getId(),
                 "Competition 1 Description",
                 LocalDate.of(2024, 6, 30),
                 1,
@@ -76,7 +76,7 @@ class ChampionshipControllerTest {
         );
 
         competition2 = new CompetitionModel(
-                championshipEntity,
+                championshipEntity.getId(),
                 "Competition 2 Description",
                 LocalDate.of(2024, 12, 31),
                 2,
@@ -204,7 +204,7 @@ class ChampionshipControllerTest {
         List<CompetitionModel> result = controller.getCompetitions(championshipId);
 
         assertThat(result).isNotNull();
-        assertThat(result).allMatch(c -> c.getChampionship().getId().equals(championshipId));
+        assertThat(result).allMatch(c -> c.getChampionshipId().equals(championshipId));
         verify(competitionService, times(1)).findByChampionship(championshipId);
     }
 
@@ -260,7 +260,7 @@ class ChampionshipControllerTest {
     void getCompetitions_ShouldHandleMultipleCompetitions() {
         Integer championshipId = 1;
         CompetitionModel competition3 = new CompetitionModel(
-                championshipEntity,
+                championshipEntity.getId(),
                 "Competition 3 Description",
                 LocalDate.of(2024, 3, 31),
                 3,
