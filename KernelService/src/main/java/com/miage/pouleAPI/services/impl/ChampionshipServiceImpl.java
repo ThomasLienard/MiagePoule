@@ -3,13 +3,15 @@ package com.miage.pouleAPI.services.impl;
 import com.miage.pouleAPI.domains.ChampionshipModel;
 import com.miage.pouleAPI.domains.ports.ChampionshipPort;
 import com.miage.pouleAPI.services.ChampionshipService;
+import org.springframework.stereotype.Service;
 
 import java.util.List;
 import java.util.Optional;
 
+@Service
 public class ChampionshipServiceImpl implements ChampionshipService {
 
-    private ChampionshipPort championshipPort;
+    private final ChampionshipPort championshipPort;
 
     public ChampionshipServiceImpl(ChampionshipPort championshipPort) {
         this.championshipPort = championshipPort;
