@@ -4,17 +4,16 @@ import com.miage.pouleAPI.domains.ChampionshipModel;
 import com.miage.pouleAPI.domains.CompetitionModel;
 import com.miage.pouleAPI.services.ChampionshipService;
 import com.miage.pouleAPI.services.CompetitionService;
-import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
+import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
 
 import java.util.List;
 
-@RestController
-@RequestMapping("/championships")
+@Controller
+@RequestMapping("/public/championships")
 public class ChampionshipController {
 
     private final ChampionshipService championshipService;
