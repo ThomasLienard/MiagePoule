@@ -2,7 +2,6 @@ import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import '../styles/ListeEvenements.css';
 
-
 const ListeEvenements = () => {
     const [events, setEvents] = useState([]);
     const [trials, setTrials] = useState([]);
@@ -28,7 +27,13 @@ const ListeEvenements = () => {
             if (!trialsResponse.ok) throw new Error('Erreur chargement épreuves');
             const trialsData = await trialsResponse.json();
             
-            setEvents(eventsData);
+            // Extraire les IDs des événements qui sont des trials
+            const trialEventIds = trialsData.map(trial => trial.event?.id).filter(id => id != null);
+            
+            // Filtrer les événements pour exclure ceux qui sont déjà des trials
+            const nonTrialEvents = eventsData.filter(event => !trialEventIds.includes(event.id));
+            
+            setEvents(nonTrialEvents);
             setTrials(trialsData);
         } catch (err) {
             setError(err.message);
@@ -38,11 +43,11 @@ const ListeEvenements = () => {
     };
 
     const handleEventClick = (id) => {
-        navigate(`/public/event/${id}`);
+        navigate(`/public/events/${id}`);
     };
 
     const handleTrialClick = (id) => {
-        navigate(`/public/trial/${id}`);
+        navigate(`/public/trials/${id}`);
     };
 
     if (loading) return <div className="loading">Chargement des événements...</div>;
@@ -52,6 +57,27 @@ const ListeEvenements = () => {
         <div className="liste-evenements">
             <h1>Liste des Événements</h1>
             
+            <section>
+                <h2>Épreuves Sportives</h2>
+                <div className="events-grid">
+                    {trials.length === 0 ? (
+                        <p>Aucune épreuve disponible</p>
+                    ) : (
+                        trials.map(trial => (
+                            <div 
+                                key={`trial-${trial.id}`} 
+                                className="event-card trial-card"
+                                onClick={() => handleTrialClick(trial.id)}
+                            >
+                                <h3>{trial.event?.name || `Épreuve #${trial.id}`}</h3>
+                                <p className="description">{trial.event?.description || ''}</p>
+                                <p className="type">{trial.event?.typeEvent?.name || 'Épreuve sportive'}</p>
+                            </div>
+                        ))
+                    )}
+                </div>
+            </section>
+
             <section>
                 <h2>Événements Non Sportifs</h2>
                 <div className="events-grid">
@@ -67,27 +93,6 @@ const ListeEvenements = () => {
                                 <h3>{event.name}</h3>
                                 <p className="description">{event.description}</p>
                                 <p className="type">{event.typeEvent?.name || 'N/A'}</p>
-                            </div>
-                        ))
-                    )}
-                </div>
-            </section>
-
-            <section>
-                <h2>Épreuves Sportives</h2>
-                <div className="events-grid">
-                    {trials.length === 0 ? (
-                        <p>Aucune épreuve disponible</p>
-                    ) : (
-                        trials.map(trial => (
-                            <div 
-                                key={`trial-${trial.id}`} 
-                                className="event-card trial-card"
-                                onClick={() => handleTrialClick(trial.id)}
-                            >
-                                <h3>Épreuve #{trial.id}</h3>
-                                <p><strong>Événement:</strong> {trial.event?.name || 'N/A'}</p>
-                                <p className="description">{trial.event?.description || ''}</p>
                             </div>
                         ))
                     )}
