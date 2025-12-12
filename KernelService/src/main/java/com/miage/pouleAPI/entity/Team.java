@@ -3,16 +3,17 @@ package com.miage.pouleAPI.entity;
 import java.util.HashSet;
 import java.util.Set;
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
-import lombok.Getter;
 import lombok.NoArgsConstructor;
+import lombok.Getter;
 import lombok.Setter;
 
 @Getter
 @Setter
-@AllArgsConstructor
 @NoArgsConstructor
+@AllArgsConstructor
 @Entity
 @Table(name = "Team")
 public class Team {
@@ -26,9 +27,10 @@ public class Team {
 
     @ManyToOne
     @JoinColumn(name = "Country_code", nullable = false)
+    @JsonIgnoreProperties({"hibernateLazyInitializer", "handler"})
     private Country country;
 
     @ManyToMany(mappedBy = "teams")
+    @JsonIgnoreProperties({"teams", "events", "geolocs", "dailyTasks", "notifications", "metrics", "password"})
     private Set<ApplicationUser> users = new HashSet<>();
-
 }
