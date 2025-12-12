@@ -1,4 +1,4 @@
-package com.miage.pouleAPI.repositories;
+package com.miage.pouleAPI.repositories.interfaces;
 
 import com.miage.pouleAPI.entity.Event;
 import org.springframework.data.jpa.repository.JpaRepository;

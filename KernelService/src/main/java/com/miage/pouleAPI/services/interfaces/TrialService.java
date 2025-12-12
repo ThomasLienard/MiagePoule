@@ -1,14 +1,14 @@
-package main.java.com.miage.pouleAPI.services;
+package com.miage.pouleAPI.services.interfaces;
 
 import java.util.List;
+import java.util.Optional;
 
 import com.miage.pouleAPI.entity.Trial;
-
-import main.java.com.miage.pouleAPI.repositories.TrialRepository;
 
 public interface TrialService {
 
     public List<Trial> getAllTrials() ;
-    
 
+    Optional<Trial> getTrialById(Integer id);
+    
 }

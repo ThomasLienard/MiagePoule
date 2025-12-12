@@ -1,7 +1,8 @@
-package main.java.com.miage.pouleAPI.controllers;
+package com.miage.pouleAPI.controllers;
 
 import com.miage.pouleAPI.entity.Trial;
-import com.miage.pouleAPI.service.TrialService;
+import com.miage.pouleAPI.services.interfaces.TrialService;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 import java.util.List;
