@@ -5,14 +5,14 @@ import com.miage.pouleAPI.domains.CompetitionModel;
 import com.miage.pouleAPI.services.ChampionshipService;
 import com.miage.pouleAPI.services.CompetitionService;
 import org.springframework.http.ResponseEntity;
-import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
 
 import java.util.List;
 
-@Controller
+@RestController
 @RequestMapping("/public/championship")
 public class ChampionshipController {
 
