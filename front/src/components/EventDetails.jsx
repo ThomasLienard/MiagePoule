@@ -20,7 +20,7 @@ const EventDetails = () => {
             
             // Déterminer si c'est un trial ou un event
             const currentPath = window.location.pathname;
-            const isTrialPath = currentPath.includes('/trial/');
+            const isTrialPath = currentPath.includes('/trials/');
             setIsTrial(isTrialPath);
             
             const endpoint = isTrialPath 
