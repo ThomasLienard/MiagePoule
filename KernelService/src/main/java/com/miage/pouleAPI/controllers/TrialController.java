@@ -4,6 +4,7 @@ import com.miage.pouleAPI.entity.Trial;
 import com.miage.pouleAPI.services.interfaces.TrialService;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import java.util.List;
 import java.util.Optional;
@@ -21,9 +22,11 @@ public class TrialController {
         return trialService.getAllTrials();
     }
 
-    @GetMapping("/{eventId}")
-    public Optional<Trial> getTrialsByEventId(@PathVariable Integer eventId) {
-        return trialService.getTrialById(eventId);
+    @GetMapping("/{trialId}")
+    public ResponseEntity<Trial> getTrialsById(@PathVariable Integer trialId) {
+        return trialService.getTrialById(trialId)
+                .map(ResponseEntity::ok)
+                .orElse(ResponseEntity.notFound().build());
     }
     
 }

@@ -11,12 +11,15 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
+import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
@@ -123,6 +126,123 @@ class TrialControllerTest {
         verify(trialService, times(1)).getAllTrials();
     }
 
+    // ===== TESTS POUR LA ROUTE GET /{eventId} AVEC ResponseEntity =====
+    
+    @Test
+    @DisplayName("GET /public/trials/{eventId} - Devrait retourner une épreuve par eventId")
+    void testGetTrialsByEventId_Success() throws Exception {
+        // Given
+        when(trialService.getTrialById(1)).thenReturn(Optional.of(trial1));
+
+        // When & Then
+        mockMvc.perform(get("/public/trials/1"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.id").value(1))
+                .andExpect(jsonPath("$.event.id").value(1))
+                .andExpect(jsonPath("$.event.name").value("Marathon de Paris"))
+                .andExpect(jsonPath("$.event.description").value("42km course"));
+
+        verify(trialService, times(1)).getTrialById(1);
+    }
+
+    @Test
+    @DisplayName("GET /public/trials/{eventId} - Devrait retourner 404 si l'épreuve n'existe pas")
+    void testGetTrialsByEventId_NotFound() throws Exception {
+        // Given
+        when(trialService.getTrialById(999)).thenReturn(Optional.empty());
+
+        // When & Then
+        mockMvc.perform(get("/public/trials/999"))
+                .andExpect(status().isNotFound());
+
+        verify(trialService, times(1)).getTrialById(999);
+    }
+
+    @Test
+    @DisplayName("GET /public/trials/{eventId} - Test avec méthode directe du controller retournant 200")
+    void testGetTrialsByEventId_DirectCall_Success() {
+        // Given
+        when(trialService.getTrialById(1)).thenReturn(Optional.of(trial1));
+
+        // When
+        ResponseEntity<Trial> response = trialController.getTrialsByEventId(1);
+
+        // Then
+        assertEquals(HttpStatus.OK, response.getStatusCode());
+        assertNotNull(response.getBody());
+        assertEquals(1, response.getBody().getId());
+        assertEquals("Marathon de Paris", response.getBody().getEvent().getName());
+        verify(trialService, times(1)).getTrialById(1);
+    }
+
+    @Test
+    @DisplayName("GET /public/trials/{eventId} - Test avec méthode directe retournant 404")
+    void testGetTrialsByEventId_DirectCall_NotFound() {
+        // Given
+        when(trialService.getTrialById(999)).thenReturn(Optional.empty());
+
+        // When
+        ResponseEntity<Trial> response = trialController.getTrialsByEventId(999);
+
+        // Then
+        assertEquals(HttpStatus.NOT_FOUND, response.getStatusCode());
+        assertNull(response.getBody());
+        verify(trialService, times(1)).getTrialById(999);
+    }
+
+    @Test
+    @DisplayName("GET /public/trials/{eventId} - Devrait gérer les IDs négatifs")
+    void testGetTrialsByEventId_NegativeId() throws Exception {
+        // Given
+        when(trialService.getTrialById(-1)).thenReturn(Optional.empty());
+
+        // When & Then
+        mockMvc.perform(get("/public/trials/-1"))
+                .andExpect(status().isNotFound());
+
+        verify(trialService, times(1)).getTrialById(-1);
+    }
+
+    @Test
+    @DisplayName("GET /public/trials/{eventId} - Devrait retourner trial avec toutes les relations")
+    void testGetTrialsByEventId_WithFullRelations() throws Exception {
+        // Given
+        when(trialService.getTrialById(1)).thenReturn(Optional.of(trial1));
+
+        // When & Then
+        mockMvc.perform(get("/public/trials/1"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.event").exists())
+                .andExpect(jsonPath("$.event.typeEvent").exists())
+                .andExpect(jsonPath("$.event.typeEvent.name").value("Épreuve Sportive"));
+
+        verify(trialService, times(1)).getTrialById(1);
+    }
+
+    @Test
+    @DisplayName("GET /public/trials/{eventId} - Devrait retourner différentes épreuves selon l'ID")
+    void testGetTrialsByEventId_DifferentIds() {
+        // Given
+        when(trialService.getTrialById(1)).thenReturn(Optional.of(trial1));
+        when(trialService.getTrialById(2)).thenReturn(Optional.of(trial2));
+
+        // When
+        ResponseEntity<Trial> response1 = trialController.getTrialsByEventId(1);
+        ResponseEntity<Trial> response2 = trialController.getTrialsByEventId(2);
+
+        // Then
+        assertEquals(HttpStatus.OK, response1.getStatusCode());
+        assertEquals("Marathon de Paris", response1.getBody().getEvent().getName());
+        
+        assertEquals(HttpStatus.OK, response2.getStatusCode());
+        assertEquals("100m Sprint", response2.getBody().getEvent().getName());
+        
+        verify(trialService, times(1)).getTrialById(1);
+        verify(trialService, times(1)).getTrialById(2);
+    }
+
+    // ===== TESTS EXISTANTS =====
+
     @Test
     @DisplayName("GET /public/trials - Devrait gérer les trials sans event associé")
     void testGetAllTrials_WithNullEvent() {
@@ -157,10 +277,46 @@ class TrialControllerTest {
     }
 
     @Test
-    @DisplayName("Vérifier que le CORS est configuré pour localhost:5173")
-    void testCorsConfiguration() throws Exception {
+    @DisplayName("GET /public/trials/{eventId} - Devrait propager les exceptions du service")
+    void testGetTrialsByEventId_ServiceException() {
+        // Given
+        when(trialService.getTrialById(1)).thenThrow(new RuntimeException("Database error"));
+
+        // When & Then
+        assertThrows(RuntimeException.class, () -> trialController.getTrialsByEventId(1));
+        verify(trialService, times(1)).getTrialById(1);
+    }
+
+    @Test
+    @DisplayName("Vérifier que le CORS est configuré pour localhost:5173 - getAllTrials")
+    void testCorsConfiguration_GetAll() throws Exception {
+        when(trialService.getAllTrials()).thenReturn(Collections.emptyList());
+        
         mockMvc.perform(get("/public/trials")
                 .header("Origin", "http://localhost:5173"))
                 .andExpect(status().isOk());
+    }
+
+    @Test
+    @DisplayName("Vérifier que le CORS est configuré pour localhost:5173 - getById")
+    void testCorsConfiguration_GetById() throws Exception {
+        when(trialService.getTrialById(1)).thenReturn(Optional.of(trial1));
+        
+        mockMvc.perform(get("/public/trials/1")
+                .header("Origin", "http://localhost:5173"))
+                .andExpect(status().isOk());
+    }
+
+    @Test
+    @DisplayName("GET /public/trials/{eventId} - Devrait gérer l'ID 0")
+    void testGetTrialsByEventId_ZeroId() throws Exception {
+        // Given
+        when(trialService.getTrialById(0)).thenReturn(Optional.empty());
+
+        // When & Then
+        mockMvc.perform(get("/public/trials/0"))
+                .andExpect(status().isNotFound());
+
+        verify(trialService, times(1)).getTrialById(0);
     }
 }
