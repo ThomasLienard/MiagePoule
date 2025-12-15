@@ -1,9 +1,7 @@
 import React, { useEffect, useState } from "react";
 import axios from "axios";
-import Competition from "./Competition.jsx";
-import competitionsData from "../dataTest/competitions.json";
 import "../styles/ListeCompetition.css";
-import { useParams } from "react-router-dom";
+import { useParams, Link } from "react-router-dom";
 
 
 const ListeCompetitions = () => {
@@ -15,17 +13,17 @@ const ListeCompetitions = () => {
     useEffect(() => {
         const fetchCompetitions = async () => {
             try {
-                const response = await axios.get(`http://localhost:8080/public/championship/${championshipId}/comp`);
+                const response = await axios.get(`http://localhost:8083/public/championship/${championshipId}/comp`);
                 setCompetitions(response.data);
             } catch (err) {
-                setError("Erreur lors du chargement des compétitions");
+                setError("Erreur lors du chargement des compétitions" + err);
             } finally {
                 setLoading(false);
             }
         };
 
         fetchCompetitions();
-    }, []);
+    }, [championshipId]);
 
     if (loading) return <p>Chargement...</p>;
     if (error) return <p>{error}</p>;
@@ -36,7 +34,13 @@ const ListeCompetitions = () => {
             <h2 className="competition-title">Liste des compétitions</h2>
             <div className="competition-container">
                 {competitions.map((c) => (
-                    <Competition key={c.id} competition={c} />
+                    <div key={c.id}>
+                        <h2>{c.name}</h2>
+                        <Link to={`/championship/${championshipId}/comp/${c.id}`}>
+                            <button>Voir les détails</button>
+                        </Link>
+
+                    </div>
                 ))}
             </div>
         </div>
