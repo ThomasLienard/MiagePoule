@@ -1,8 +1,9 @@
 package com.miage.pouleAPI.controllers;
 
-import com.miage.pouleAPI.entity.Event;
-import com.miage.pouleAPI.entity.Trial;
-import com.miage.pouleAPI.entity.TypeEvent;
+import com.miage.pouleAPI.dto.place.PlaceDTO;
+import com.miage.pouleAPI.dto.timeslot.TimeSlotDTO;
+import com.miage.pouleAPI.dto.trial.TrialDetailDTO;
+import com.miage.pouleAPI.dto.trial.TrialSummaryDTO;
 import com.miage.pouleAPI.services.interfaces.TrialService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
@@ -16,6 +17,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 
+import java.time.LocalDateTime;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
@@ -37,45 +39,45 @@ class TrialControllerTest {
     private TrialController trialController;
 
     private MockMvc mockMvc;
-    private Trial trial1;
-    private Trial trial2;
-    private Event event1;
-    private Event event2;
-    private TypeEvent typeEvent;
+    private TrialSummaryDTO trialSummary1;
+    private TrialSummaryDTO trialSummary2;
+    private TrialDetailDTO trialDetail;
 
     @BeforeEach
     void setUp() {
         mockMvc = MockMvcBuilders.standaloneSetup(trialController).build();
         
-        typeEvent = new TypeEvent();
-        typeEvent.setName("Épreuve Sportive");
-
-        event1 = new Event();
-        event1.setId(1);
-        event1.setName("Marathon de Paris");
-        event1.setDescription("42km course");
-        event1.setTypeEvent(typeEvent);
-
-        event2 = new Event();
-        event2.setId(2);
-        event2.setName("100m Sprint");
-        event2.setDescription("Sprint rapide");
-        event2.setTypeEvent(typeEvent);
-
-        trial1 = new Trial();
-        trial1.setId(1);
-        trial1.setEvent(event1);
-
-        trial2 = new Trial();
-        trial2.setId(2);
-        trial2.setEvent(event2);
+        trialSummary1 = new TrialSummaryDTO(1, "Marathon de Paris", "42km course");
+        trialSummary2 = new TrialSummaryDTO(2, "100m Sprint", "Sprint rapide");
+        
+        TimeSlotDTO timeSlot = new TimeSlotDTO(
+            LocalDateTime.of(2025, 6, 20, 8, 0),
+            LocalDateTime.of(2025, 6, 20, 14, 0)
+        );
+        
+        PlaceDTO place = new PlaceDTO();
+        place.setId(2);
+        place.setName("Stade Olympique");
+        place.setCity("Paris");
+        place.setStreet("Avenue Pierre de Coubertin");
+        place.setNumber("1");
+        place.setZip("75012");
+        
+        trialDetail = new TrialDetailDTO(
+            1,
+            "Marathon de Paris",
+            "42km course",
+            "Championnats de France",
+            timeSlot,
+            place
+        );
     }
 
     @Test
     @DisplayName("GET /public/trials - Devrait retourner toutes les épreuves")
     void testGetAllTrials_Success() throws Exception {
         // Given
-        List<Trial> trials = Arrays.asList(trial1, trial2);
+        List<TrialSummaryDTO> trials = Arrays.asList(trialSummary1, trialSummary2);
         when(trialService.getAllTrials()).thenReturn(trials);
 
         // When & Then
@@ -84,9 +86,10 @@ class TrialControllerTest {
                 .andExpect(jsonPath("$").isArray())
                 .andExpect(jsonPath("$.length()").value(2))
                 .andExpect(jsonPath("$[0].id").value(1))
-                .andExpect(jsonPath("$[0].event.name").value("Marathon de Paris"))
+                .andExpect(jsonPath("$[0].name").value("Marathon de Paris"))
+                .andExpect(jsonPath("$[0].description").value("42km course"))
                 .andExpect(jsonPath("$[1].id").value(2))
-                .andExpect(jsonPath("$[1].event.name").value("100m Sprint"));
+                .andExpect(jsonPath("$[1].name").value("100m Sprint"));
 
         verify(trialService, times(1)).getAllTrials();
     }
@@ -107,47 +110,49 @@ class TrialControllerTest {
     }
 
     @Test
-    @DisplayName("GET /public/trials - Test avec méthode directe du controller")
+    @DisplayName("GET /public/trials - Test avec appel direct du controller")
     void testGetAllTrials_DirectCall() {
         // Given
-        List<Trial> trials = Arrays.asList(trial1, trial2);
+        List<TrialSummaryDTO> trials = Arrays.asList(trialSummary1, trialSummary2);
         when(trialService.getAllTrials()).thenReturn(trials);
 
         // When
-        List<Trial> result = trialController.getAllTrials();
+        List<TrialSummaryDTO> result = trialController.getAllTrials();
 
         // Then
         assertNotNull(result);
         assertEquals(2, result.size());
         assertEquals(1, result.get(0).getId());
-        assertEquals("Marathon de Paris", result.get(0).getEvent().getName());
+        assertEquals("Marathon de Paris", result.get(0).getName());
         assertEquals(2, result.get(1).getId());
-        assertEquals("100m Sprint", result.get(1).getEvent().getName());
+        assertEquals("100m Sprint", result.get(1).getName());
         verify(trialService, times(1)).getAllTrials();
     }
 
-    // ===== TESTS POUR LA ROUTE GET /{eventId} AVEC ResponseEntity =====
-    
     @Test
-    @DisplayName("GET /public/trials/{eventId} - Devrait retourner une épreuve par eventId")
-    void testGetTrialsByEventId_Success() throws Exception {
+    @DisplayName("GET /public/trials/{id} - Devrait retourner une épreuve détaillée par ID")
+    void testGetTrialById_Success() throws Exception {
         // Given
-        when(trialService.getTrialById(1)).thenReturn(Optional.of(trial1));
+        when(trialService.getTrialById(1)).thenReturn(Optional.of(trialDetail));
 
         // When & Then
         mockMvc.perform(get("/public/trials/1"))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.id").value(1))
-                .andExpect(jsonPath("$.event.id").value(1))
-                .andExpect(jsonPath("$.event.name").value("Marathon de Paris"))
-                .andExpect(jsonPath("$.event.description").value("42km course"));
+                .andExpect(jsonPath("$.name").value("Marathon de Paris"))
+                .andExpect(jsonPath("$.description").value("42km course"))
+                .andExpect(jsonPath("$.competitionName").value("Championnats de France"))
+                .andExpect(jsonPath("$.timeSlot").exists())
+                .andExpect(jsonPath("$.place").exists())
+                .andExpect(jsonPath("$.place.name").value("Stade Olympique"))
+                .andExpect(jsonPath("$.place.city").value("Paris"));
 
         verify(trialService, times(1)).getTrialById(1);
     }
 
     @Test
-    @DisplayName("GET /public/trials/{eventId} - Devrait retourner 404 si l'épreuve n'existe pas")
-    void testGetTrialsByEventId_NotFound() throws Exception {
+    @DisplayName("GET /public/trials/{id} - Devrait retourner 404 si l'épreuve n'existe pas")
+    void testGetTrialById_NotFound() throws Exception {
         // Given
         when(trialService.getTrialById(999)).thenReturn(Optional.empty());
 
@@ -159,30 +164,31 @@ class TrialControllerTest {
     }
 
     @Test
-    @DisplayName("GET /public/trials/{eventId} - Test avec méthode directe du controller retournant 200")
-    void testGetTrialsByEventId_DirectCall_Success() {
+    @DisplayName("GET /public/trials/{id} - Test avec appel direct retournant 200")
+    void testGetTrialById_DirectCall_Success() {
         // Given
-        when(trialService.getTrialById(1)).thenReturn(Optional.of(trial1));
+        when(trialService.getTrialById(1)).thenReturn(Optional.of(trialDetail));
 
         // When
-        ResponseEntity<Trial> response = trialController.getTrialsById(1);
+        ResponseEntity<TrialDetailDTO> response = trialController.getTrialById(1);
 
         // Then
         assertEquals(HttpStatus.OK, response.getStatusCode());
         assertNotNull(response.getBody());
         assertEquals(1, response.getBody().getId());
-        assertEquals("Marathon de Paris", response.getBody().getEvent().getName());
+        assertEquals("Marathon de Paris", response.getBody().getName());
+        assertEquals("Championnats de France", response.getBody().getCompetitionName());
         verify(trialService, times(1)).getTrialById(1);
     }
 
     @Test
-    @DisplayName("GET /public/trials/{eventId} - Test avec méthode directe retournant 404")
-    void testGetTrialsByEventId_DirectCall_NotFound() {
+    @DisplayName("GET /public/trials/{id} - Test avec appel direct retournant 404")
+    void testGetTrialById_DirectCall_NotFound() {
         // Given
         when(trialService.getTrialById(999)).thenReturn(Optional.empty());
 
         // When
-        ResponseEntity<Trial> response = trialController.getTrialsById(999);
+        ResponseEntity<TrialDetailDTO> response = trialController.getTrialById(999);
 
         // Then
         assertEquals(HttpStatus.NOT_FOUND, response.getStatusCode());
@@ -191,82 +197,7 @@ class TrialControllerTest {
     }
 
     @Test
-    @DisplayName("GET /public/trials/{eventId} - Devrait gérer les IDs négatifs")
-    void testGetTrialsByEventId_NegativeId() throws Exception {
-        // Given
-        when(trialService.getTrialById(-1)).thenReturn(Optional.empty());
-
-        // When & Then
-        mockMvc.perform(get("/public/trials/-1"))
-                .andExpect(status().isNotFound());
-
-        verify(trialService, times(1)).getTrialById(-1);
-    }
-
-    @Test
-    @DisplayName("GET /public/trials/{eventId} - Devrait retourner trial avec toutes les relations")
-    void testGetTrialsByEventId_WithFullRelations() throws Exception {
-        // Given
-        when(trialService.getTrialById(1)).thenReturn(Optional.of(trial1));
-
-        // When & Then
-        mockMvc.perform(get("/public/trials/1"))
-                .andExpect(status().isOk())
-                .andExpect(jsonPath("$.event").exists())
-                .andExpect(jsonPath("$.event.typeEvent").exists())
-                .andExpect(jsonPath("$.event.typeEvent.name").value("Épreuve Sportive"));
-
-        verify(trialService, times(1)).getTrialById(1);
-    }
-
-    @Test
-    @DisplayName("GET /public/trials/{eventId} - Devrait retourner différentes épreuves selon l'ID")
-    void testGetTrialsByEventId_DifferentIds() {
-        // Given
-        when(trialService.getTrialById(1)).thenReturn(Optional.of(trial1));
-        when(trialService.getTrialById(2)).thenReturn(Optional.of(trial2));
-
-        // When
-        ResponseEntity<Trial> response1 = trialController.getTrialsById(1);
-        ResponseEntity<Trial> response2 = trialController.getTrialsById(2);
-
-        // Then
-        assertEquals(HttpStatus.OK, response1.getStatusCode());
-        assertEquals("Marathon de Paris", response1.getBody().getEvent().getName());
-        
-        assertEquals(HttpStatus.OK, response2.getStatusCode());
-        assertEquals("100m Sprint", response2.getBody().getEvent().getName());
-        
-        verify(trialService, times(1)).getTrialById(1);
-        verify(trialService, times(1)).getTrialById(2);
-    }
-
-    // ===== TESTS EXISTANTS =====
-
-    @Test
-    @DisplayName("GET /public/trials - Devrait gérer les trials sans event associé")
-    void testGetAllTrials_WithNullEvent() {
-        // Given
-        Trial trialWithoutEvent = new Trial();
-        trialWithoutEvent.setId(3);
-        trialWithoutEvent.setEvent(null);
-        
-        List<Trial> trials = Arrays.asList(trial1, trialWithoutEvent);
-        when(trialService.getAllTrials()).thenReturn(trials);
-
-        // When
-        List<Trial> result = trialController.getAllTrials();
-
-        // Then
-        assertNotNull(result);
-        assertEquals(2, result.size());
-        assertNotNull(result.get(0).getEvent());
-        assertNull(result.get(1).getEvent());
-        verify(trialService, times(1)).getAllTrials();
-    }
-
-    @Test
-    @DisplayName("GET /public/trials - Devrait gérer les erreurs du service")
+    @DisplayName("GET /public/trials - Devrait gérer les exceptions du service")
     void testGetAllTrials_ServiceException() {
         // Given
         when(trialService.getAllTrials()).thenThrow(new RuntimeException("Database error"));
@@ -277,19 +208,19 @@ class TrialControllerTest {
     }
 
     @Test
-    @DisplayName("GET /public/trials/{eventId} - Devrait propager les exceptions du service")
-    void testGetTrialsByEventId_ServiceException() {
+    @DisplayName("GET /public/trials/{id} - Devrait propager les exceptions du service")
+    void testGetTrialById_ServiceException() {
         // Given
         when(trialService.getTrialById(1)).thenThrow(new RuntimeException("Database error"));
 
         // When & Then
-        assertThrows(RuntimeException.class, () -> trialController.getTrialsById(1));
+        assertThrows(RuntimeException.class, () -> trialController.getTrialById(1));
         verify(trialService, times(1)).getTrialById(1);
     }
 
     @Test
-    @DisplayName("Vérifier que le CORS est configuré pour localhost:5173 - getAllTrials")
-    void testCorsConfiguration_GetAll() throws Exception {
+    @DisplayName("Vérifier que le CORS est configuré pour localhost:5173")
+    void testCorsConfiguration() throws Exception {
         when(trialService.getAllTrials()).thenReturn(Collections.emptyList());
         
         mockMvc.perform(get("/public/trials")
@@ -298,25 +229,35 @@ class TrialControllerTest {
     }
 
     @Test
-    @DisplayName("Vérifier que le CORS est configuré pour localhost:5173 - getById")
-    void testCorsConfiguration_GetById() throws Exception {
-        when(trialService.getTrialById(1)).thenReturn(Optional.of(trial1));
-        
-        mockMvc.perform(get("/public/trials/1")
-                .header("Origin", "http://localhost:5173"))
-                .andExpect(status().isOk());
+    @DisplayName("GET /public/trials/{id} - Devrait retourner épreuve sans TimeSlot ni Place")
+    void testGetTrialById_WithoutOptionalFields() {
+        // Given
+        TrialDetailDTO minimalTrial = new TrialDetailDTO(
+            1, "Minimal Trial", "Description", null, null, null
+        );
+        when(trialService.getTrialById(1)).thenReturn(Optional.of(minimalTrial));
+
+        // When
+        ResponseEntity<TrialDetailDTO> response = trialController.getTrialById(1);
+
+        // Then
+        assertEquals(HttpStatus.OK, response.getStatusCode());
+        assertNotNull(response.getBody());
+        assertNull(response.getBody().getCompetitionName());
+        assertNull(response.getBody().getTimeSlot());
+        assertNull(response.getBody().getPlace());
     }
 
     @Test
-    @DisplayName("GET /public/trials/{eventId} - Devrait gérer l'ID 0")
-    void testGetTrialsByEventId_ZeroId() throws Exception {
+    @DisplayName("GET /public/trials/{id} - Devrait gérer les IDs négatifs")
+    void testGetTrialById_NegativeId() throws Exception {
         // Given
-        when(trialService.getTrialById(0)).thenReturn(Optional.empty());
+        when(trialService.getTrialById(-1)).thenReturn(Optional.empty());
 
         // When & Then
-        mockMvc.perform(get("/public/trials/0"))
+        mockMvc.perform(get("/public/trials/-1"))
                 .andExpect(status().isNotFound());
 
-        verify(trialService, times(1)).getTrialById(0);
+        verify(trialService, times(1)).getTrialById(-1);
     }
 }

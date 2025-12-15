@@ -32,11 +32,13 @@ public class TrialAdapter {
     }
     
     public List<TrialSummaryDTO> entityListToSummaryDtoList(List<Trial> trials) {
-        if (trials == null) return null;
-        return trials.stream()
-            .map(this::entityToSummaryDto)
-            .collect(Collectors.toList());
-    }
+    if (trials == null) return null;
+    return trials.stream()
+        .map(this::entityToSummaryDto)
+        .filter(dto -> dto != null)  // ← Ajouter ce filtre
+        .collect(Collectors.toList());
+}
+
     
     public TrialDetailDTO entityToDetailDto(Trial trial) {
         if (trial == null || trial.getEvent() == null) return null;

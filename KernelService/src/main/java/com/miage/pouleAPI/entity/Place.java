@@ -1,7 +1,6 @@
 package com.miage.pouleAPI.entity;
 
 import jakarta.persistence.*;
-import java.math.BigDecimal;
 
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -42,8 +41,8 @@ public class Place {
     private String description;
 
     @Column(name = "latitude_place")
-    private BigDecimal latitude;
+    private Double latitude;
 
     @Column(name = "longitude_place")
-    private BigDecimal longitude;
+    private Double longitude;
 }

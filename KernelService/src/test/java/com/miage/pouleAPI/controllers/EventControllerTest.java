@@ -1,7 +1,9 @@
 package com.miage.pouleAPI.controllers;
 
-import com.miage.pouleAPI.entity.Event;
-import com.miage.pouleAPI.entity.TypeEvent;
+import com.miage.pouleAPI.dto.event.EventDetailDTO;
+import com.miage.pouleAPI.dto.event.EventSummaryDTO;
+import com.miage.pouleAPI.dto.place.PlaceDTO;
+import com.miage.pouleAPI.dto.timeslot.TimeSlotDTO;
 import com.miage.pouleAPI.services.interfaces.EventService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
@@ -15,13 +17,13 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 
+import java.time.LocalDateTime;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.*;
-import static org.mockito.ArgumentMatchers.anyInt;
 import static org.mockito.Mockito.*;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
@@ -37,35 +39,45 @@ class EventControllerTest {
     private EventController eventController;
 
     private MockMvc mockMvc;
-    private Event event1;
-    private Event event2;
-    private TypeEvent typeEvent;
+    private EventSummaryDTO eventSummary1;
+    private EventSummaryDTO eventSummary2;
+    private EventDetailDTO eventDetail;
 
     @BeforeEach
     void setUp() {
         mockMvc = MockMvcBuilders.standaloneSetup(eventController).build();
         
-        typeEvent = new TypeEvent();
-        typeEvent.setName("Conférence");
-
-        event1 = new Event();
-        event1.setId(1);
-        event1.setName("Tech Conference 2025");
-        event1.setDescription("Annual technology conference");
-        event1.setTypeEvent(typeEvent);
-
-        event2 = new Event();
-        event2.setId(2);
-        event2.setName("Music Festival");
-        event2.setDescription("Summer music festival");
-        event2.setTypeEvent(typeEvent);
+        eventSummary1 = new EventSummaryDTO(1, "Tech Conference 2025", "Annual technology conference");
+        eventSummary2 = new EventSummaryDTO(2, "Music Festival", "Summer music festival");
+        
+        TimeSlotDTO timeSlot = new TimeSlotDTO(
+            LocalDateTime.of(2025, 6, 15, 9, 0),
+            LocalDateTime.of(2025, 6, 15, 18, 0)
+        );
+        
+        PlaceDTO place = new PlaceDTO();
+        place.setId(1);
+        place.setName("Convention Center");
+        place.setCity("Paris");
+        place.setStreet("Rue de la Paix");
+        place.setNumber("10");
+        place.setZip("75001");
+        
+        eventDetail = new EventDetailDTO(
+            1,
+            "Tech Conference 2025",
+            "Annual technology conference",
+            "TechWorld 2025",
+            timeSlot,
+            place
+        );
     }
 
     @Test
     @DisplayName("GET /public/events - Devrait retourner tous les événements")
     void testGetAllEvents_Success() throws Exception {
         // Given
-        List<Event> events = Arrays.asList(event1, event2);
+        List<EventSummaryDTO> events = Arrays.asList(eventSummary1, eventSummary2);
         when(eventService.getAllEvents()).thenReturn(events);
 
         // When & Then
@@ -75,6 +87,7 @@ class EventControllerTest {
                 .andExpect(jsonPath("$.length()").value(2))
                 .andExpect(jsonPath("$[0].id").value(1))
                 .andExpect(jsonPath("$[0].name").value("Tech Conference 2025"))
+                .andExpect(jsonPath("$[0].description").value("Annual technology conference"))
                 .andExpect(jsonPath("$[1].id").value(2))
                 .andExpect(jsonPath("$[1].name").value("Music Festival"));
 
@@ -97,14 +110,14 @@ class EventControllerTest {
     }
 
     @Test
-    @DisplayName("GET /public/events - Test avec méthode directe du controller")
+    @DisplayName("GET /public/events - Test avec appel direct du controller")
     void testGetAllEvents_DirectCall() {
         // Given
-        List<Event> events = Arrays.asList(event1, event2);
+        List<EventSummaryDTO> events = Arrays.asList(eventSummary1, eventSummary2);
         when(eventService.getAllEvents()).thenReturn(events);
 
         // When
-        List<Event> result = eventController.getAllEvents();
+        List<EventSummaryDTO> result = eventController.getAllEvents();
 
         // Then
         assertNotNull(result);
@@ -115,17 +128,22 @@ class EventControllerTest {
     }
 
     @Test
-    @DisplayName("GET /public/events/{id} - Devrait retourner un événement par ID")
+    @DisplayName("GET /public/events/{id} - Devrait retourner un événement détaillé par ID")
     void testGetEventById_Success() throws Exception {
         // Given
-        when(eventService.getEventById(1)).thenReturn(Optional.of(event1));
+        when(eventService.getEventById(1)).thenReturn(Optional.of(eventDetail));
 
         // When & Then
         mockMvc.perform(get("/public/events/1"))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.id").value(1))
                 .andExpect(jsonPath("$.name").value("Tech Conference 2025"))
-                .andExpect(jsonPath("$.description").value("Annual technology conference"));
+                .andExpect(jsonPath("$.description").value("Annual technology conference"))
+                .andExpect(jsonPath("$.competitionName").value("TechWorld 2025"))
+                .andExpect(jsonPath("$.timeSlot").exists())
+                .andExpect(jsonPath("$.place").exists())
+                .andExpect(jsonPath("$.place.name").value("Convention Center"))
+                .andExpect(jsonPath("$.place.city").value("Paris"));
 
         verify(eventService, times(1)).getEventById(1);
     }
@@ -144,30 +162,31 @@ class EventControllerTest {
     }
 
     @Test
-    @DisplayName("GET /public/events/{id} - Test avec méthode directe du controller")
+    @DisplayName("GET /public/events/{id} - Test avec appel direct retournant 200")
     void testGetEventById_DirectCall_Success() {
         // Given
-        when(eventService.getEventById(1)).thenReturn(Optional.of(event1));
+        when(eventService.getEventById(1)).thenReturn(Optional.of(eventDetail));
 
         // When
-        ResponseEntity<Event> response = eventController.getEventById(1);
+        ResponseEntity<EventDetailDTO> response = eventController.getEventById(1);
 
         // Then
         assertEquals(HttpStatus.OK, response.getStatusCode());
         assertNotNull(response.getBody());
         assertEquals(1, response.getBody().getId());
         assertEquals("Tech Conference 2025", response.getBody().getName());
+        assertEquals("TechWorld 2025", response.getBody().getCompetitionName());
         verify(eventService, times(1)).getEventById(1);
     }
 
     @Test
-    @DisplayName("GET /public/events/{id} - Test avec méthode directe retournant 404")
+    @DisplayName("GET /public/events/{id} - Test avec appel direct retournant 404")
     void testGetEventById_DirectCall_NotFound() {
         // Given
         when(eventService.getEventById(999)).thenReturn(Optional.empty());
 
         // When
-        ResponseEntity<Event> response = eventController.getEventById(999);
+        ResponseEntity<EventDetailDTO> response = eventController.getEventById(999);
 
         // Then
         assertEquals(HttpStatus.NOT_FOUND, response.getStatusCode());
@@ -176,7 +195,7 @@ class EventControllerTest {
     }
 
     @Test
-    @DisplayName("GET /public/events - Devrait gérer les erreurs du service")
+    @DisplayName("GET /public/events - Devrait gérer les exceptions du service")
     void testGetAllEvents_ServiceException() {
         // Given
         when(eventService.getAllEvents()).thenThrow(new RuntimeException("Database error"));
@@ -187,10 +206,43 @@ class EventControllerTest {
     }
 
     @Test
+    @DisplayName("GET /public/events/{id} - Devrait propager les exceptions du service")
+    void testGetEventById_ServiceException() {
+        // Given
+        when(eventService.getEventById(1)).thenThrow(new RuntimeException("Database error"));
+
+        // When & Then
+        assertThrows(RuntimeException.class, () -> eventController.getEventById(1));
+        verify(eventService, times(1)).getEventById(1);
+    }
+
+    @Test
     @DisplayName("Vérifier que le CORS est configuré pour localhost:5173")
     void testCorsConfiguration() throws Exception {
+        when(eventService.getAllEvents()).thenReturn(Collections.emptyList());
+        
         mockMvc.perform(get("/public/events")
                 .header("Origin", "http://localhost:5173"))
                 .andExpect(status().isOk());
+    }
+
+    @Test
+    @DisplayName("GET /public/events/{id} - Devrait retourner événement sans TimeSlot ni Place")
+    void testGetEventById_WithoutOptionalFields() {
+        // Given
+        EventDetailDTO minimalEvent = new EventDetailDTO(
+            1, "Minimal Event", "Description", null, null, null
+        );
+        when(eventService.getEventById(1)).thenReturn(Optional.of(minimalEvent));
+
+        // When
+        ResponseEntity<EventDetailDTO> response = eventController.getEventById(1);
+
+        // Then
+        assertEquals(HttpStatus.OK, response.getStatusCode());
+        assertNotNull(response.getBody());
+        assertNull(response.getBody().getCompetitionName());
+        assertNull(response.getBody().getTimeSlot());
+        assertNull(response.getBody().getPlace());
     }
 }

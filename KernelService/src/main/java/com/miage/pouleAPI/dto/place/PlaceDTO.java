@@ -1,6 +1,5 @@
 package com.miage.pouleAPI.dto.place;
 
-import java.math.BigDecimal;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -18,7 +17,7 @@ public class PlaceDTO {
     private String city;
     private String zip;
     private Boolean parking;
-    private BigDecimal latitude;
-    private BigDecimal longitude;
+    private Double latitude;
+    private Double longitude;
 }
 
