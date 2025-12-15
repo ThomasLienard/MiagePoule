@@ -1,7 +1,6 @@
 package com.miage.pouleAPI.repositories.adapters;
 
 import com.miage.pouleAPI.domains.CompetitionModel;
-import com.miage.pouleAPI.domains.ports.CompetitionPort;
 import com.miage.pouleAPI.entity.Championship;
 import com.miage.pouleAPI.entity.Competition;
 import com.miage.pouleAPI.repositories.ChampionshipRepository;
@@ -12,7 +11,7 @@ import java.util.List;
 import java.util.Optional;
 
 @Service
-public class CompetitionJpaAdapter implements CompetitionPort {
+public class CompetitionJpaAdapter {
 
     private final CompetitionRepository repository;
     private final ChampionshipRepository championshipRepository;
@@ -23,24 +22,20 @@ public class CompetitionJpaAdapter implements CompetitionPort {
     }
 
 
-    @Override
     public List<CompetitionModel> findAll() {
         return repository.findAll().stream().map(this::toDomain).toList();
     }
 
-    @Override
     public Optional<CompetitionModel> findById(Integer id) {
         return repository.findById(id).map(this::toDomain);
     }
 
-    @Override
     public CompetitionModel save(CompetitionModel model) {
         Competition entity = toEntity(model);
         Competition saved = repository.save(entity);
         return toDomain(saved);
     }
 
-    @Override
     public List<CompetitionModel> findByChampionshipId(Integer championshipId) {
         return repository.findByChampionship_Id(championshipId)
                 .stream()

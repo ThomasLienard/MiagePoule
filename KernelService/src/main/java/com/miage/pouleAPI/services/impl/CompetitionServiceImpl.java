@@ -1,7 +1,7 @@
 package com.miage.pouleAPI.services.impl;
 
 import com.miage.pouleAPI.domains.CompetitionModel;
-import com.miage.pouleAPI.domains.ports.CompetitionPort;
+import com.miage.pouleAPI.repositories.adapters.CompetitionJpaAdapter;
 import com.miage.pouleAPI.services.CompetitionService;
 import org.springframework.stereotype.Service;
 
@@ -11,31 +11,31 @@ import java.util.Optional;
 @Service
 public class CompetitionServiceImpl implements CompetitionService {
 
-    private CompetitionPort competitionPort;
+    private CompetitionJpaAdapter competitionJpaAdapter;
 
-    public CompetitionServiceImpl(CompetitionPort competitionPort) {
-        this.competitionPort = competitionPort;
+    public CompetitionServiceImpl(CompetitionJpaAdapter competitionJpaAdapter) {
+        this.competitionJpaAdapter = competitionJpaAdapter;
     }
 
 
     @Override
     public List<CompetitionModel> findAll() {
-        return competitionPort.findAll();
+        return competitionJpaAdapter.findAll();
     }
 
     @Override
     public Optional<CompetitionModel> findById(Integer id) {
-        return competitionPort.findById(id);
+        return competitionJpaAdapter.findById(id);
     }
 
     @Override
     public CompetitionModel save(CompetitionModel competition) {
-        return competitionPort.save(competition);
+        return competitionJpaAdapter.save(competition);
     }
 
     @Override
     public List<CompetitionModel> findByChampionship(Integer championshipId) {
-        return competitionPort.findByChampionshipId(championshipId);
+        return competitionJpaAdapter.findByChampionshipId(championshipId);
 
 
     }

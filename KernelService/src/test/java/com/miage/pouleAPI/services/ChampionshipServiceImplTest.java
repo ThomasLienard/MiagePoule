@@ -1,7 +1,7 @@
 package com.miage.pouleAPI.services;
 
 import com.miage.pouleAPI.domains.ChampionshipModel;
-import com.miage.pouleAPI.domains.ports.ChampionshipPort;
+import com.miage.pouleAPI.repositories.adapters.ChampionshipJpaAdapter;
 import com.miage.pouleAPI.services.impl.ChampionshipServiceImpl;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -17,14 +17,13 @@ import java.util.Optional;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.anyInt;
 import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
 class ChampionshipServiceImplTest {
 
     @Mock
-    private ChampionshipPort championshipPort;
+    private ChampionshipJpaAdapter championshipJpaAdapter;
 
     @InjectMocks
     private ChampionshipServiceImpl championshipService;
@@ -54,31 +53,31 @@ class ChampionshipServiceImplTest {
     @Test
     void findAll_ShouldReturnAllChampionships() {
         List<ChampionshipModel> expectedChampionships = Arrays.asList(championshipModel1, championshipModel2);
-        when(championshipPort.findAll()).thenReturn(expectedChampionships);
+        when(championshipJpaAdapter.findAll()).thenReturn(expectedChampionships);
 
         List<ChampionshipModel> actualChampionships = championshipService.findAll();
 
         assertThat(actualChampionships).isNotNull();
         assertThat(actualChampionships).hasSize(2);
         assertThat(actualChampionships).containsExactlyInAnyOrder(championshipModel1, championshipModel2);
-        verify(championshipPort, times(1)).findAll();
+        verify(championshipJpaAdapter, times(1)).findAll();
     }
 
     @Test
     void findAll_ShouldReturnEmptyList_WhenNoChampionships() {
-        when(championshipPort.findAll()).thenReturn(List.of());
+        when(championshipJpaAdapter.findAll()).thenReturn(List.of());
 
         List<ChampionshipModel> actualChampionships = championshipService.findAll();
 
         assertThat(actualChampionships).isNotNull();
         assertThat(actualChampionships).isEmpty();
-        verify(championshipPort, times(1)).findAll();
+        verify(championshipJpaAdapter, times(1)).findAll();
     }
 
     @Test
     void findById_ShouldReturnChampionship_WhenExists() {
         Integer championshipId = 1;
-        when(championshipPort.findById(championshipId)).thenReturn(Optional.of(championshipModel1));
+        when(championshipJpaAdapter.findById(championshipId)).thenReturn(Optional.of(championshipModel1));
 
         Optional<ChampionshipModel> actualChampionship = championshipService.findById(championshipId);
 
@@ -86,18 +85,18 @@ class ChampionshipServiceImplTest {
         assertThat(actualChampionship.get()).isEqualTo(championshipModel1);
         assertThat(actualChampionship.get().getId()).isEqualTo(championshipId);
         assertThat(actualChampionship.get().getName()).isEqualTo("Championship 1");
-        verify(championshipPort, times(1)).findById(championshipId);
+        verify(championshipJpaAdapter, times(1)).findById(championshipId);
     }
 
     @Test
     void findById_ShouldReturnEmpty_WhenNotExists() {
         Integer championshipId = 999;
-        when(championshipPort.findById(championshipId)).thenReturn(Optional.empty());
+        when(championshipJpaAdapter.findById(championshipId)).thenReturn(Optional.empty());
 
         Optional<ChampionshipModel> actualChampionship = championshipService.findById(championshipId);
 
         assertThat(actualChampionship).isEmpty();
-        verify(championshipPort, times(1)).findById(championshipId);
+        verify(championshipJpaAdapter, times(1)).findById(championshipId);
     }
 
     @Test
@@ -118,7 +117,7 @@ class ChampionshipServiceImplTest {
                 LocalDate.of(2025, 1, 1)
         );
 
-        when(championshipPort.save(any(ChampionshipModel.class))).thenReturn(savedChampionship);
+        when(championshipJpaAdapter.save(any(ChampionshipModel.class))).thenReturn(savedChampionship);
 
         ChampionshipModel result = championshipService.save(newChampionship);
 
@@ -128,7 +127,7 @@ class ChampionshipServiceImplTest {
         assertThat(result.getDescription()).isEqualTo("New Championship Description");
         assertThat(result.getStart()).isEqualTo(LocalDate.of(2025, 1, 1));
         assertThat(result.getEnd()).isEqualTo(LocalDate.of(2025, 12, 31));
-        verify(championshipPort, times(1)).save(newChampionship);
+        verify(championshipJpaAdapter, times(1)).save(newChampionship);
     }
 
     @Test
@@ -141,7 +140,7 @@ class ChampionshipServiceImplTest {
                 LocalDate.of(2024, 1, 1)
         );
 
-        when(championshipPort.save(any(ChampionshipModel.class))).thenReturn(updatedChampionship);
+        when(championshipJpaAdapter.save(any(ChampionshipModel.class))).thenReturn(updatedChampionship);
 
         ChampionshipModel result = championshipService.save(updatedChampionship);
 
@@ -149,12 +148,12 @@ class ChampionshipServiceImplTest {
         assertThat(result.getId()).isEqualTo(1);
         assertThat(result.getName()).isEqualTo("Updated Championship");
         assertThat(result.getDescription()).isEqualTo("Updated Description");
-        verify(championshipPort, times(1)).save(updatedChampionship);
+        verify(championshipJpaAdapter, times(1)).save(updatedChampionship);
     }
 
     @Test
     void constructor_ShouldInitializePort() {
-        ChampionshipServiceImpl service = new ChampionshipServiceImpl(championshipPort);
+        ChampionshipServiceImpl service = new ChampionshipServiceImpl(championshipJpaAdapter);
 
         assertThat(service).isNotNull();
     }
