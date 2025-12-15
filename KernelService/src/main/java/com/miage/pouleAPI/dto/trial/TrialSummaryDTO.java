@@ -9,6 +9,7 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 public class TrialSummaryDTO {
     private Integer id;
+    private Integer idEvent;
     private String name;
     private String description;
 }

@@ -27,15 +27,23 @@ const ListeEvenements = () => {
             if (!trialsResponse.ok) throw new Error('Erreur chargement épreuves');
             const trialsData = await trialsResponse.json();
             
-            // Extraire les IDs des événements qui sont des trials
-            const trialEventIds = trialsData.map(trial => trial.event?.id).filter(id => id != null);
+            console.log('Events:', eventsData); // Debug
+            console.log('Trials:', trialsData); // Debug
             
-            // Filtrer les événements pour exclure ceux qui sont déjà des trials
-            const nonTrialEvents = eventsData.filter(event => !trialEventIds.includes(event.id));
+            // Créer un Set des IDs d'événements qui sont des trials
+            const trialEventIds = new Set(trialsData.map(trial => trial.idEvent));
+            
+            console.log('Trial Event IDs:', Array.from(trialEventIds)); // Debug
+            
+            // Filtrer les événements pour exclure ceux qui sont des trials
+            const nonTrialEvents = eventsData.filter(event => !trialEventIds.has(event.id));
+            
+            console.log('Filtered events:', nonTrialEvents); // Debug
             
             setEvents(nonTrialEvents);
             setTrials(trialsData);
         } catch (err) {
+            console.error('Fetch error:', err);
             setError(err.message);
         } finally {
             setLoading(false);
@@ -57,11 +65,12 @@ const ListeEvenements = () => {
         <div className="liste-evenements">
             <h1>Liste des Événements</h1>
             
-            <section>
-                <h2>Épreuves Sportives</h2>
+            {/* Section Épreuves Sportives */}
+            <section className="events-section">
+                <h2>🏆 Épreuves Sportives</h2>
                 <div className="events-grid">
                     {trials.length === 0 ? (
-                        <p>Aucune épreuve disponible</p>
+                        <p className="empty-message">Aucune épreuve disponible</p>
                     ) : (
                         trials.map(trial => (
                             <div 
@@ -69,20 +78,24 @@ const ListeEvenements = () => {
                                 className="event-card trial-card"
                                 onClick={() => handleTrialClick(trial.id)}
                             >
-                                <h3>{trial.event?.name || `Épreuve #${trial.id}`}</h3>
-                                <p className="description">{trial.event?.description || ''}</p>
-                                <p className="type">{trial.event?.typeEvent?.name || 'Épreuve sportive'}</p>
+                                <div className="card-badge">Épreuve</div>
+                                <h3>{trial.name}</h3>
+                                <p className="description">
+                                    {trial.description || 'Aucune description'}
+                                </p>
+                                <button className="view-details">Voir les détails →</button>
                             </div>
                         ))
                     )}
                 </div>
             </section>
 
-            <section>
-                <h2>Événements Non Sportifs</h2>
+            {/* Section Événements Non Sportifs */}
+            <section className="events-section">
+                <h2>📅 Événements</h2>
                 <div className="events-grid">
                     {events.length === 0 ? (
-                        <p>Aucun événement disponible</p>
+                        <p className="empty-message">Aucun événement disponible</p>
                     ) : (
                         events.map(event => (
                             <div 
@@ -91,8 +104,10 @@ const ListeEvenements = () => {
                                 onClick={() => handleEventClick(event.id)}
                             >
                                 <h3>{event.name}</h3>
-                                <p className="description">{event.description}</p>
-                                <p className="type">{event.typeEvent?.name || 'N/A'}</p>
+                                <p className="description">
+                                    {event.description || 'Aucune description'}
+                                </p>
+                                <button className="view-details">Voir les détails →</button>
                             </div>
                         ))
                     )}
@@ -103,3 +118,5 @@ const ListeEvenements = () => {
 };
 
 export default ListeEvenements;
+
+

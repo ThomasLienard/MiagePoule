@@ -26,6 +26,7 @@ public class TrialAdapter {
         
         return new TrialSummaryDTO(
             trial.getId(),
+            trial.getEvent().getId(),
             event.getName(),
             event.getDescription()
         );
