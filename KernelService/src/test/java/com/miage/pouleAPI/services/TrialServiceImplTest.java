@@ -24,6 +24,7 @@ import java.util.List;
 import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.*;
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
@@ -82,8 +83,8 @@ class TrialServiceImplTest {
         trial2.setId(2);
         trial2.setEvent(event2);
 
-        summary1 = new TrialSummaryDTO(1, "Marathon de Paris", "42km course");
-        summary2 = new TrialSummaryDTO(2, "100m Sprint", "Sprint rapide");
+        summary1 = new TrialSummaryDTO(1, 10, "Marathon de Paris", "42km course");
+        summary2 = new TrialSummaryDTO(2, 20, "100m Sprint", "Sprint rapide");
 
         detailDTO = new TrialDetailDTO();
         detailDTO.setId(1);

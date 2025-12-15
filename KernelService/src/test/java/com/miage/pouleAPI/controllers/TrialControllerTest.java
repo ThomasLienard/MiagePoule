@@ -47,8 +47,9 @@ class TrialControllerTest {
     void setUp() {
         mockMvc = MockMvcBuilders.standaloneSetup(trialController).build();
         
-        trialSummary1 = new TrialSummaryDTO(1, "Marathon de Paris", "42km course");
-        trialSummary2 = new TrialSummaryDTO(2, "100m Sprint", "Sprint rapide");
+        // Mise à jour avec idEvent
+        trialSummary1 = new TrialSummaryDTO(1, 10, "Marathon de Paris", "42km course");
+        trialSummary2 = new TrialSummaryDTO(2, 20, "100m Sprint", "Sprint rapide");
         
         TimeSlotDTO timeSlot = new TimeSlotDTO(
             LocalDateTime.of(2025, 6, 20, 8, 0),
@@ -74,7 +75,7 @@ class TrialControllerTest {
     }
 
     @Test
-    @DisplayName("GET /public/trials - Devrait retourner toutes les épreuves")
+    @DisplayName("GET /public/trials - Devrait retourner toutes les épreuves avec idEvent")
     void testGetAllTrials_Success() throws Exception {
         // Given
         List<TrialSummaryDTO> trials = Arrays.asList(trialSummary1, trialSummary2);
@@ -86,9 +87,11 @@ class TrialControllerTest {
                 .andExpect(jsonPath("$").isArray())
                 .andExpect(jsonPath("$.length()").value(2))
                 .andExpect(jsonPath("$[0].id").value(1))
+                .andExpect(jsonPath("$[0].idEvent").value(10))
                 .andExpect(jsonPath("$[0].name").value("Marathon de Paris"))
                 .andExpect(jsonPath("$[0].description").value("42km course"))
                 .andExpect(jsonPath("$[1].id").value(2))
+                .andExpect(jsonPath("$[1].idEvent").value(20))
                 .andExpect(jsonPath("$[1].name").value("100m Sprint"));
 
         verify(trialService, times(1)).getAllTrials();
@@ -123,8 +126,10 @@ class TrialControllerTest {
         assertNotNull(result);
         assertEquals(2, result.size());
         assertEquals(1, result.get(0).getId());
+        assertEquals(10, result.get(0).getIdEvent());
         assertEquals("Marathon de Paris", result.get(0).getName());
         assertEquals(2, result.get(1).getId());
+        assertEquals(20, result.get(1).getIdEvent());
         assertEquals("100m Sprint", result.get(1).getName());
         verify(trialService, times(1)).getAllTrials();
     }

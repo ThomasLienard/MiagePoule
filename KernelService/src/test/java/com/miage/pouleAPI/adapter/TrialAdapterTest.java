@@ -53,7 +53,7 @@ class TrialAdapterTest {
         place.setLongitude(2.3775);
 
         event = new Event();
-        event.setId(1);
+        event.setId(10);
         event.setName("Marathon de Paris");
         event.setDescription("42km course");
         event.setCompetition(competition);
@@ -66,7 +66,7 @@ class TrialAdapterTest {
     }
 
     @Test
-    @DisplayName("entityToSummaryDto() - Devrait convertir Trial en TrialSummaryDTO")
+    @DisplayName("entityToSummaryDto() - Devrait convertir Trial en TrialSummaryDTO avec idEvent")
     void testEntityToSummaryDto_Success() {
         // When
         TrialSummaryDTO dto = trialAdapter.entityToSummaryDto(trial);
@@ -74,6 +74,7 @@ class TrialAdapterTest {
         // Then
         assertNotNull(dto);
         assertEquals(1, dto.getId());
+        assertEquals(10, dto.getIdEvent());
         assertEquals("Marathon de Paris", dto.getName());
         assertEquals("42km course", dto.getDescription());
     }
@@ -102,11 +103,11 @@ class TrialAdapterTest {
     }
 
     @Test
-    @DisplayName("entityListToSummaryDtoList() - Devrait convertir liste de Trials")
+    @DisplayName("entityListToSummaryDtoList() - Devrait convertir liste de Trials avec idEvent")
     void testEntityListToSummaryDtoList_Success() {
         // Given
         Event event2 = new Event();
-        event2.setId(2);
+        event2.setId(20);
         event2.setName("100m Sprint");
         event2.setDescription("Sprint rapide");
         
@@ -122,7 +123,11 @@ class TrialAdapterTest {
         // Then
         assertNotNull(dtos);
         assertEquals(2, dtos.size());
+        assertEquals(1, dtos.get(0).getId());
+        assertEquals(10, dtos.get(0).getIdEvent());
         assertEquals("Marathon de Paris", dtos.get(0).getName());
+        assertEquals(2, dtos.get(1).getId());
+        assertEquals(20, dtos.get(1).getIdEvent());
         assertEquals("100m Sprint", dtos.get(1).getName());
     }
 
@@ -141,8 +146,9 @@ class TrialAdapterTest {
 
         // Then
         assertNotNull(dtos);
-        assertEquals(1, dtos.size()); // Seulement le trial avec event
+        assertEquals(1, dtos.size()); // Seulement le trial avec event grâce au filtre
         assertEquals("Marathon de Paris", dtos.get(0).getName());
+        assertEquals(10, dtos.get(0).getIdEvent());
     }
 
     @Test
@@ -258,7 +264,7 @@ class TrialAdapterTest {
     @DisplayName("summaryDtoToEntity() - Devrait convertir TrialSummaryDTO en Trial")
     void testSummaryDtoToEntity_Success() {
         // Given
-        TrialSummaryDTO dto = new TrialSummaryDTO(1, "Test Trial", "Test Description");
+        TrialSummaryDTO dto = new TrialSummaryDTO(1, 10, "Test Trial", "Test Description");
 
         // When
         Trial result = trialAdapter.summaryDtoToEntity(dto);
@@ -309,5 +315,21 @@ class TrialAdapterTest {
 
         // Then
         assertNull(result);
+    }
+
+    @Test
+    @DisplayName("entityToSummaryDto() - Devrait gérer Event avec ID null")
+    void testEntityToSummaryDto_EventIdNull() {
+        // Given
+        event.setId(null);
+
+        // When
+        TrialSummaryDTO dto = trialAdapter.entityToSummaryDto(trial);
+
+        // Then
+        assertNotNull(dto);
+        assertEquals(1, dto.getId());
+        assertNull(dto.getIdEvent());
+        assertEquals("Marathon de Paris", dto.getName());
     }
 }
