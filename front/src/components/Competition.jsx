@@ -27,14 +27,13 @@ const Competition = () => {
     if (loading) return <p>Chargement...</p>;
     if (error) return <p>{error}</p>;
     if (!competition) return <p>Aucune compétition disponible.</p>;
-    const { name, start, end, description, championnat } = competition;
+    const { name, start, end, description } = competition;
     return (
         <div className="competition">
             <h3>{name}</h3>
             <h4> {description}</h4>
             <p><strong>Date de début:</strong> {formatDate(start)}</p>
             <p><strong>Date de fin:</strong> {formatDate(end)}</p>
-            <p><strong>Championnat associé :</strong> {championnat}</p>
         </div>
     );
 };

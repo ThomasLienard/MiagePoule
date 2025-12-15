@@ -36,7 +36,7 @@ const ListeCompetitions = () => {
                 {competitions.map((c) => (
                     <div key={c.id}>
                         <h2>{c.name}</h2>
-                        <Link to={`/championship/${championshipId}/comp/${c.id}`}>
+                        <Link to={`/public/championship/${championshipId}/comp/${c.id}`}>
                             <button>Voir les détails</button>
                         </Link>
 
