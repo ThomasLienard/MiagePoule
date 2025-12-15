@@ -165,7 +165,7 @@ class TrialControllerTest {
         when(trialService.getTrialById(1)).thenReturn(Optional.of(trial1));
 
         // When
-        ResponseEntity<Trial> response = trialController.getTrialsByEventId(1);
+        ResponseEntity<Trial> response = trialController.getTrialsById(1);
 
         // Then
         assertEquals(HttpStatus.OK, response.getStatusCode());
@@ -182,7 +182,7 @@ class TrialControllerTest {
         when(trialService.getTrialById(999)).thenReturn(Optional.empty());
 
         // When
-        ResponseEntity<Trial> response = trialController.getTrialsByEventId(999);
+        ResponseEntity<Trial> response = trialController.getTrialsById(999);
 
         // Then
         assertEquals(HttpStatus.NOT_FOUND, response.getStatusCode());
@@ -227,8 +227,8 @@ class TrialControllerTest {
         when(trialService.getTrialById(2)).thenReturn(Optional.of(trial2));
 
         // When
-        ResponseEntity<Trial> response1 = trialController.getTrialsByEventId(1);
-        ResponseEntity<Trial> response2 = trialController.getTrialsByEventId(2);
+        ResponseEntity<Trial> response1 = trialController.getTrialsById(1);
+        ResponseEntity<Trial> response2 = trialController.getTrialsById(2);
 
         // Then
         assertEquals(HttpStatus.OK, response1.getStatusCode());
@@ -283,7 +283,7 @@ class TrialControllerTest {
         when(trialService.getTrialById(1)).thenThrow(new RuntimeException("Database error"));
 
         // When & Then
-        assertThrows(RuntimeException.class, () -> trialController.getTrialsByEventId(1));
+        assertThrows(RuntimeException.class, () -> trialController.getTrialsById(1));
         verify(trialService, times(1)).getTrialById(1);
     }
 

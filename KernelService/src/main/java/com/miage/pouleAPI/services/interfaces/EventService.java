@@ -1,10 +1,13 @@
 package com.miage.pouleAPI.services.interfaces;
 
-import com.miage.pouleAPI.entity.Event;
+
 import java.util.List;
 import java.util.Optional;
 
+import com.miage.pouleAPI.dto.event.EventDetailDTO;
+import com.miage.pouleAPI.dto.event.EventSummaryDTO;
+
 public interface EventService {
-    List<Event> getAllEvents();
-    Optional<Event> getEventById(Integer id);
+    List<EventSummaryDTO> getAllEvents();
+    Optional<EventDetailDTO> getEventById(Integer id);
 }

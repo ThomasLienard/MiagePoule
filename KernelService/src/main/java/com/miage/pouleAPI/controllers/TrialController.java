@@ -1,32 +1,32 @@
 package com.miage.pouleAPI.controllers;
 
-import com.miage.pouleAPI.entity.Trial;
+import com.miage.pouleAPI.dto.trial.TrialDetailDTO;
+import com.miage.pouleAPI.dto.trial.TrialSummaryDTO;
 import com.miage.pouleAPI.services.interfaces.TrialService;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+
 import java.util.List;
-import java.util.Optional;
 
 @RestController
-@RequestMapping("public/trials")
+@RequestMapping("/public")
 @CrossOrigin(origins = "http://localhost:5173")
 public class TrialController {
     
     @Autowired
     private TrialService trialService;
     
-    @GetMapping
-    public List<Trial> getAllTrials() {
+    @GetMapping("/trials")
+    public List<TrialSummaryDTO> getAllTrials() {
         return trialService.getAllTrials();
     }
-
-    @GetMapping("/{trialId}")
-    public ResponseEntity<Trial> getTrialsById(@PathVariable Integer trialId) {
-        return trialService.getTrialById(trialId)
+    
+    @GetMapping("/trials/{id}")
+    public ResponseEntity<TrialDetailDTO> getTrialById(@PathVariable Integer id) {
+        return trialService.getTrialById(id)
                 .map(ResponseEntity::ok)
                 .orElse(ResponseEntity.notFound().build());
     }
-    
 }
