@@ -1,9 +1,9 @@
 package com.miage.pouleAPI.controllers;
 
-import com.miage.pouleAPI.dto.place.PlaceDTO;
-import com.miage.pouleAPI.dto.timeslot.TimeSlotDTO;
-import com.miage.pouleAPI.dto.trial.TrialDetailDTO;
-import com.miage.pouleAPI.dto.trial.TrialSummaryDTO;
+import com.miage.pouleAPI.dtos.place.PlaceDTO;
+import com.miage.pouleAPI.dtos.timeslot.TimeSlotDTO;
+import com.miage.pouleAPI.dtos.trial.TrialDetailDTO;
+import com.miage.pouleAPI.dtos.trial.TrialSummaryDTO;
 import com.miage.pouleAPI.services.interfaces.TrialService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;

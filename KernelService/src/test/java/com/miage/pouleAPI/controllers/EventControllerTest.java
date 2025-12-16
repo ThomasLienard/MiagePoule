@@ -1,9 +1,9 @@
 package com.miage.pouleAPI.controllers;
 
-import com.miage.pouleAPI.dto.event.EventDetailDTO;
-import com.miage.pouleAPI.dto.event.EventSummaryDTO;
-import com.miage.pouleAPI.dto.place.PlaceDTO;
-import com.miage.pouleAPI.dto.timeslot.TimeSlotDTO;
+import com.miage.pouleAPI.dtos.event.EventDetailDTO;
+import com.miage.pouleAPI.dtos.event.EventSummaryDTO;
+import com.miage.pouleAPI.dtos.place.PlaceDTO;
+import com.miage.pouleAPI.dtos.timeslot.TimeSlotDTO;
 import com.miage.pouleAPI.services.interfaces.EventService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;

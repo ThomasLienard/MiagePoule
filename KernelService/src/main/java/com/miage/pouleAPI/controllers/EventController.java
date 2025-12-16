@@ -5,8 +5,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-import com.miage.pouleAPI.dto.event.EventDetailDTO;
-import com.miage.pouleAPI.dto.event.EventSummaryDTO;
+import com.miage.pouleAPI.dtos.event.EventDetailDTO;
+import com.miage.pouleAPI.dtos.event.EventSummaryDTO;
 import com.miage.pouleAPI.services.interfaces.EventService;
 
 import java.util.List;

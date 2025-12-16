@@ -1,7 +1,8 @@
 package com.miage.pouleAPI.adapter;
 
-import com.miage.pouleAPI.dto.event.EventDetailDTO;
-import com.miage.pouleAPI.dto.event.EventSummaryDTO;
+import com.miage.pouleAPI.adapters.EventAdapter;
+import com.miage.pouleAPI.dtos.event.EventDetailDTO;
+import com.miage.pouleAPI.dtos.event.EventSummaryDTO;
 import com.miage.pouleAPI.entity.Competition;
 import com.miage.pouleAPI.entity.Event;
 import com.miage.pouleAPI.entity.Place;

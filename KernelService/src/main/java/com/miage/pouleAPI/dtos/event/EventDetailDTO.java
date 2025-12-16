@@ -1,7 +1,7 @@
-package com.miage.pouleAPI.dto.event;
+package com.miage.pouleAPI.dtos.event;
 
-import com.miage.pouleAPI.dto.place.PlaceDTO;
-import com.miage.pouleAPI.dto.timeslot.TimeSlotDTO;
+import com.miage.pouleAPI.dtos.place.PlaceDTO;
+import com.miage.pouleAPI.dtos.timeslot.TimeSlotDTO;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;

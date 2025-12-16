@@ -1,4 +1,4 @@
-package com.miage.pouleAPI.dto.place;
+package com.miage.pouleAPI.dtos.place;
 
 
 import lombok.AllArgsConstructor;

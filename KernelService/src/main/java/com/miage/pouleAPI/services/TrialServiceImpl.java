@@ -1,8 +1,8 @@
 package com.miage.pouleAPI.services;
 
-import com.miage.pouleAPI.adapter.TrialAdapter;
-import com.miage.pouleAPI.dto.trial.TrialDetailDTO;
-import com.miage.pouleAPI.dto.trial.TrialSummaryDTO;
+import com.miage.pouleAPI.adapters.TrialAdapter;
+import com.miage.pouleAPI.dtos.trial.TrialDetailDTO;
+import com.miage.pouleAPI.dtos.trial.TrialSummaryDTO;
 import com.miage.pouleAPI.repositories.interfaces.TrialRepository;
 import com.miage.pouleAPI.services.interfaces.TrialService;
 

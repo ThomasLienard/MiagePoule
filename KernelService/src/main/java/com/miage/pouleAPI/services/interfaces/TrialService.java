@@ -1,10 +1,10 @@
 package com.miage.pouleAPI.services.interfaces;
 
-import com.miage.pouleAPI.dto.trial.TrialDetailDTO;
-import com.miage.pouleAPI.dto.trial.TrialSummaryDTO;
-
 import java.util.List;
 import java.util.Optional;
+
+import com.miage.pouleAPI.dtos.trial.TrialDetailDTO;
+import com.miage.pouleAPI.dtos.trial.TrialSummaryDTO;
 
 public interface TrialService {
     List<TrialSummaryDTO> getAllTrials();

@@ -1,4 +1,4 @@
-package com.miage.pouleAPI.dto.trial;
+package com.miage.pouleAPI.dtos.trial;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;

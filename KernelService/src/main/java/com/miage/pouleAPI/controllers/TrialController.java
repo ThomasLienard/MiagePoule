@@ -1,7 +1,7 @@
 package com.miage.pouleAPI.controllers;
 
-import com.miage.pouleAPI.dto.trial.TrialDetailDTO;
-import com.miage.pouleAPI.dto.trial.TrialSummaryDTO;
+import com.miage.pouleAPI.dtos.trial.TrialDetailDTO;
+import com.miage.pouleAPI.dtos.trial.TrialSummaryDTO;
 import com.miage.pouleAPI.services.interfaces.TrialService;
 
 import org.springframework.beans.factory.annotation.Autowired;

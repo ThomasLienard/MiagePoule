@@ -1,4 +1,4 @@
-package com.miage.pouleAPI.dto.event;
+package com.miage.pouleAPI.dtos.event;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;

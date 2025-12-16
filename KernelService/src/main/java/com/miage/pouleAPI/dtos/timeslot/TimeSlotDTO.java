@@ -1,4 +1,4 @@
-package com.miage.pouleAPI.dto.timeslot;
+package com.miage.pouleAPI.dtos.timeslot;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;

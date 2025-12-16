@@ -1,10 +1,10 @@
-package com.miage.pouleAPI.adapter;
+package com.miage.pouleAPI.adapters;
 
 
-import com.miage.pouleAPI.dto.place.PlaceDTO;
-import com.miage.pouleAPI.dto.timeslot.TimeSlotDTO;
-import com.miage.pouleAPI.dto.trial.TrialDetailDTO;
-import com.miage.pouleAPI.dto.trial.TrialSummaryDTO;
+import com.miage.pouleAPI.dtos.place.PlaceDTO;
+import com.miage.pouleAPI.dtos.timeslot.TimeSlotDTO;
+import com.miage.pouleAPI.dtos.trial.TrialDetailDTO;
+import com.miage.pouleAPI.dtos.trial.TrialSummaryDTO;
 import com.miage.pouleAPI.entity.Event;
 import com.miage.pouleAPI.entity.Place;
 import com.miage.pouleAPI.entity.TimeSlot;

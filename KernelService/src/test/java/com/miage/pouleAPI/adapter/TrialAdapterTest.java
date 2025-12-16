@@ -1,7 +1,8 @@
 package com.miage.pouleAPI.adapter;
 
-import com.miage.pouleAPI.dto.trial.TrialDetailDTO;
-import com.miage.pouleAPI.dto.trial.TrialSummaryDTO;
+import com.miage.pouleAPI.adapters.TrialAdapter;
+import com.miage.pouleAPI.dtos.trial.TrialDetailDTO;
+import com.miage.pouleAPI.dtos.trial.TrialSummaryDTO;
 import com.miage.pouleAPI.entity.Competition;
 import com.miage.pouleAPI.entity.Event;
 import com.miage.pouleAPI.entity.Place;
@@ -163,13 +164,14 @@ class TrialAdapterTest {
     }
 
     @Test
-    @DisplayName("entityListToSummaryDtoList() - Devrait retourner null pour liste null")
+    @DisplayName("entityListToSummaryDtoList() - Devrait retourner liste vide pour liste null")
     void testEntityListToSummaryDtoList_NullList() {
         // When
         List<TrialSummaryDTO> dtos = trialAdapter.entityListToSummaryDtoList(null);
 
         // Then
-        assertNull(dtos);
+        assertNotNull(dtos);
+        assertTrue(dtos.isEmpty());
     }
 
     @Test
