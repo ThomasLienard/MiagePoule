@@ -75,7 +75,7 @@ VALUES (1, '2025-01-01 09:00:00', '2025-01-01 10:00:00'),
 -- ======================
 INSERT INTO Event (id_event, name_event, description_event, type_event_name, id_place, id_time_slot, id_competition)
 VALUES (1, 'Morning Sprint Session', 'Speed training', 'TRAINING', 1, 1, 1),
-       (2, 'Final Sprint Race', 'Official competition', 'TRIAL', 1, 2, 2);
+       (2, 'Final Sprint Race', 'Official competition', 'COMPETITION', 1, 2, 2);
 
 -- ======================
 --  Trials
@@ -165,7 +165,7 @@ VALUES (1, 'Prepare track', 'Ensure the track surface is clean'),
 -- ======================
 --  Event-task association
 -- ======================
-INSERT INTO is_associated_to (id_event, id_task)
+INSERT INTO is_associated_to (id, id_task)
 VALUES (2, 1);
 
 -- ======================
