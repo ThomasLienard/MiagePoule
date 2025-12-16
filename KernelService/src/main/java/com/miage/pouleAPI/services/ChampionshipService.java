@@ -10,5 +10,5 @@ import java.util.Optional;
 public interface ChampionshipService {
     List<ChampionshipModel> findAll();
     Optional<ChampionshipModel> findById(Integer id);
-    ChampionshipModel save (ChampionshipModel competition);
+    ChampionshipModel save (ChampionshipModel championship);
 }
