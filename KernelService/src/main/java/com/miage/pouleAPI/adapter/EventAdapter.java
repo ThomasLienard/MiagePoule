@@ -9,8 +9,9 @@ import com.miage.pouleAPI.entity.Place;
 import com.miage.pouleAPI.entity.TimeSlot;
 import org.springframework.stereotype.Component;
 
+import java.util.ArrayList;
 import java.util.List;
-import java.util.stream.Collectors;
+
 
 @Component
 public class EventAdapter {
@@ -28,10 +29,10 @@ public class EventAdapter {
     }
     
     public List<EventSummaryDTO> entityListToSummaryDtoList(List<Event> events) {
-        if (events == null) return null;
+        if (events == null) return new ArrayList<>();
         return events.stream()
             .map(this::entityToSummaryDto)
-            .collect(Collectors.toList());
+            .toList();
     }
     
     public EventDetailDTO entityToDetailDto(Event event) {

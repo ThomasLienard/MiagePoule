@@ -115,13 +115,14 @@ class EventAdapterTest {
     }
 
     @Test
-    @DisplayName("entityListToSummaryDtoList() - Devrait retourner null pour liste null")
+    @DisplayName("entityListToSummaryDtoList() - Devrait retourner liste vide pour liste null")
     void testEntityListToSummaryDtoList_NullList() {
         // When
         List<EventSummaryDTO> dtos = eventAdapter.entityListToSummaryDtoList(null);
 
         // Then
-        assertNull(dtos);
+        assertNotNull(dtos);
+        assertTrue(dtos.isEmpty());
     }
 
     @Test

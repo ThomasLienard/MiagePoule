@@ -16,8 +16,13 @@ import java.util.List;
 @CrossOrigin(origins = "http://localhost:5173")
 public class EventController {
     
-    @Autowired
+   
     private EventService eventService;
+
+    @Autowired
+    public EventController(EventService eventService) {
+        this.eventService = eventService;
+    }
     
     @GetMapping("/events")
     public List<EventSummaryDTO> getAllEvents() {

@@ -11,8 +11,9 @@ import com.miage.pouleAPI.entity.TimeSlot;
 import com.miage.pouleAPI.entity.Trial;
 import org.springframework.stereotype.Component;
 
+import java.util.ArrayList;
 import java.util.List;
-import java.util.stream.Collectors;
+import java.util.Objects;
 
 @Component
 public class TrialAdapter {
@@ -33,11 +34,11 @@ public class TrialAdapter {
     }
     
     public List<TrialSummaryDTO> entityListToSummaryDtoList(List<Trial> trials) {
-    if (trials == null) return null;
+    if (trials == null) return new ArrayList<>();
     return trials.stream()
         .map(this::entityToSummaryDto)
-        .filter(dto -> dto != null)  // ← Ajouter ce filtre
-        .collect(Collectors.toList());
+        .filter(Objects::nonNull)  // ← Ajouter ce filtre
+        .toList();
 }
 
     

@@ -15,8 +15,13 @@ import java.util.List;
 @CrossOrigin(origins = "http://localhost:5173")
 public class TrialController {
     
-    @Autowired
+    
     private TrialService trialService;
+
+    @Autowired
+    public TrialController(TrialService trialService) {
+        this.trialService = trialService;
+    }
     
     @GetMapping("/trials")
     public List<TrialSummaryDTO> getAllTrials() {

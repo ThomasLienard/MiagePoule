@@ -15,11 +15,15 @@ import java.util.Optional;
 @Service
 public class TrialServiceImpl implements TrialService {
     
-    @Autowired
     private TrialRepository trialRepository;
-    
-    @Autowired
+   
     private TrialAdapter trialAdapter;
+
+    @Autowired
+    public TrialServiceImpl(TrialRepository trialRepository, TrialAdapter trialAdapter) {
+        this.trialRepository = trialRepository;
+        this.trialAdapter = trialAdapter;
+    }
     
     @Override
     public List<TrialSummaryDTO> getAllTrials() {

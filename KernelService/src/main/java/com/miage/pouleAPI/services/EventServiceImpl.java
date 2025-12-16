@@ -15,11 +15,15 @@ import java.util.Optional;
 @Service
 public class EventServiceImpl implements EventService {
     
-    @Autowired
     private EventRepository eventRepository;
-    
-    @Autowired
+     
     private EventAdapter eventAdapter;
+
+    @Autowired
+    public EventServiceImpl(EventRepository eventRepository, EventAdapter eventAdapter) {
+        this.eventRepository = eventRepository;
+        this.eventAdapter = eventAdapter;
+    }
     
     @Override
     public List<EventSummaryDTO> getAllEvents() {
