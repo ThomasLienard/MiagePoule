@@ -24,7 +24,7 @@ function PublicMapPage() {
 
     const { isLoaded } = useJsApiLoader({
         id: 'google-map-script',
-        googleMapsApiKey: process.env.REACT_APP_GOOGLE_MAPS_API_KEY,
+        googleMapsApiKey: 'AIzaSyA3efzW0xg7YQY9CbCSsJsFOp4On2daNPI',
     });
 
     if (!isLoaded) return <div>Chargement de la carte...</div>;

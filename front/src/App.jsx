@@ -1,6 +1,6 @@
 // App.jsx
 import { BrowserRouter, Routes, Route, Link } from 'react-router-dom';
-import PublicMapPage from './PublicMapPage';
+import PublicMapPage from './component/PublicMapPage';
 
 function App() {
     return (
