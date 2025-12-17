@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
-import axios from "axios";
 import { Link } from "react-router-dom";
+import {getChampionships} from "../services/championshipService.jsx";
 
 
 const ListChampionships = () => {
@@ -11,8 +11,8 @@ const ListChampionships = () => {
     useEffect(() => {
         const fetchListCompetitions = async () => {
             try {
-                const response = await axios.get(`http://localhost:8083/public/championship`);
-                setChampionships(response.data);
+                const data = await getChampionships();
+                setChampionships(data);
             } catch (err) {
                 setError("Erreur lors du chargement des compétitions" + err);
             } finally {

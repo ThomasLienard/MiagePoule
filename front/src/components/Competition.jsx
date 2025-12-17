@@ -1,7 +1,7 @@
 import React, {useEffect, useState} from "react";
 import "../styles/Competition.css";
 import {useParams} from "react-router-dom";
-import axios from "axios";
+import {getCompetitionById} from "../services/competitionService.jsx";
 
 const Competition = () => {
     const {id: championshipId, idComp} = useParams();
@@ -12,8 +12,8 @@ const Competition = () => {
     useEffect(() => {
         const fetchCompetitions = async () => {
             try {
-                const response = await axios.get(`http://localhost:8083/public/championship/${championshipId}/comp/${idComp}`);
-                setCompetition(response.data);
+                const data = await getCompetitionById(championshipId,idComp);
+                setCompetition(data);
             } catch (err) {
                 setError("Erreur lors du chargement des compétitions" + err);
             } finally {
