@@ -1,4 +1,4 @@
-FROM openjdk:21-slim
+FROM eclipse-temurin:21-jdk
 WORKDIR /app
 
 # Copier le pom.xml et télécharger les dépendances d'abord
@@ -10,5 +10,5 @@ RUN mvn dependency:go-offline -B
 COPY src ./src
 RUN mvn clean package -DskipTests
 
-EXPOSE 8082
-ENTRYPOINT ["java", "-jar", "target/pouleAPI-0.0.1-SNAPSHOT.jar"]
+EXPOSE 8081
+ENTRYPOINT ["java", "-jar", "target/KernelService-0.0.1-SNAPSHOT.jar"]
