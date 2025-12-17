@@ -3,13 +3,16 @@ package com.miage.pouleAPI.entity;
 import java.util.HashSet;
 import java.util.Set;
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
+import lombok.NoArgsConstructor;
 import lombok.Getter;
 import lombok.Setter;
 
 @Getter
 @Setter
+@NoArgsConstructor
 @AllArgsConstructor
 @Entity
 @Table(name = "Application_user")
@@ -21,6 +24,7 @@ public class ApplicationUser {
 
     @Column
     private String name;
+    
     @Column
     private String lastname;
 
@@ -32,10 +36,12 @@ public class ApplicationUser {
 
     @ManyToOne
     @JoinColumn(name = "Country_code")
+    @JsonIgnoreProperties({"hibernateLazyInitializer", "handler"})
     private Country country;
 
     @ManyToOne
     @JoinColumn(name = "role_name", nullable = false)
+    @JsonIgnoreProperties({"hibernateLazyInitializer", "handler"})
     private Role role;
 
     @ManyToMany
@@ -44,6 +50,7 @@ public class ApplicationUser {
         joinColumns = @JoinColumn(name = "id"),
         inverseJoinColumns = @JoinColumn(name = "id_geoloc")
     )
+    @JsonIgnoreProperties({"users", "hibernateLazyInitializer", "handler"})
     private Set<Geoloc> geolocs = new HashSet<>();
 
     @ManyToMany
@@ -52,6 +59,7 @@ public class ApplicationUser {
         joinColumns = @JoinColumn(name = "id"),
         inverseJoinColumns = @JoinColumn(name = "id_event")
     )
+    @JsonIgnoreProperties({"users", "tasks", "metrics", "hibernateLazyInitializer", "handler"})
     private Set<Event> events = new HashSet<>();
 
     @ManyToMany
@@ -60,6 +68,7 @@ public class ApplicationUser {
         joinColumns = @JoinColumn(name = "id"),
         inverseJoinColumns = @JoinColumn(name = "id_team")
     )
+    @JsonIgnoreProperties({"users", "hibernateLazyInitializer", "handler"})
     private Set<Team> teams = new HashSet<>();
 
     @ManyToMany
@@ -69,8 +78,8 @@ public class ApplicationUser {
         inverseJoinColumns = @JoinColumn(name = "id_task")
     )
     @Column(name = "daily_tasks")
+    @JsonIgnoreProperties({"events", "hibernateLazyInitializer", "handler"})
     private Set<Task> dailyTasks = new HashSet<>();
-
 
     @ManyToMany
     @JoinTable(
@@ -78,8 +87,10 @@ public class ApplicationUser {
         joinColumns = @JoinColumn(name = "id"),
         inverseJoinColumns = @JoinColumn(name = "id_notification")
     )
+    @JsonIgnoreProperties({"hibernateLazyInitializer", "handler"})
     private Set<Notification> notifications = new HashSet<>();
 
     @ManyToMany(mappedBy = "users")
+    @JsonIgnoreProperties({"users", "metricsEvents", "hibernateLazyInitializer", "handler"})
     private Set<Metrics> metrics = new HashSet<>();
 }

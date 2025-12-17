@@ -165,7 +165,7 @@ VALUES (1, 'Prepare track', 'Ensure the track surface is clean'),
 -- ======================
 --  Event-task association
 -- ======================
-INSERT INTO is_associated_to (id_event, id_task)
+INSERT INTO is_associated_to (id, id_task)
 VALUES (2, 1);
 
 -- ======================
