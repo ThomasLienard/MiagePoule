@@ -1,10 +1,8 @@
 package com.miage.pouleAPI.controllers;
 
-import com.miage.pouleAPI.domains.ChampionshipModel;
+import com.fasterxml.jackson.core.type.TypeReference;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.miage.pouleAPI.domains.CompetitionModel;
-import com.miage.pouleAPI.services.ChampionshipService;
-import com.miage.pouleAPI.services.CompetitionService;
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
@@ -13,55 +11,74 @@ import org.springframework.http.MediaType;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.web.servlet.MockMvc;
 
-import java.time.LocalDate;
+import java.util.List;
 
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 @SpringBootTest
 @AutoConfigureMockMvc
 @ActiveProfiles("test")
-public class CompetitionControllerIntegrationTest {
+class CompetitionControllerIntegrationTest {
 
     @Autowired
     private MockMvc mockMvc;
 
     @Autowired
-    private ChampionshipService championshipService;
+    private ObjectMapper objectMapper;
 
-    private Integer champId;
-    private Integer compId;
+    @Test
+    void getCompetitionsByChampionship_returnsTwoFromDataSql() throws Exception {
+        var mvcResult = mockMvc.perform(
+                        get("/public/championship/{id}/comp", 1)
+                                .accept(MediaType.APPLICATION_JSON)
+                )
+                .andExpect(status().isOk())
+                .andReturn();
 
-    @BeforeEach
-    void setUp() {
-        ChampionshipModel champ = new ChampionshipModel(
-                "Champ pour comp",
-                LocalDate.of(2026, 6, 30),
-                1,
-                "ChampComp",
-                LocalDate.of(2026, 6, 20)
-        );
-        ChampionshipModel savedChamp = championshipService.save(champ);
-        champId = savedChamp.getId();
+        String json = mvcResult.getResponse().getContentAsString();
+        List<CompetitionModel> competitions =
+                objectMapper.readValue(json, new TypeReference<>() {});
 
-        CompetitionModel comp = new CompetitionModel(
-                champId,
-                "Comp test",
-                LocalDate.of(2026, 6, 22),
-                1,
-                "CompTest",
-                LocalDate.of(2026, 6, 21)
-        );
-        compId = comp.getId();
+        assertThat(competitions)
+                .isNotEmpty()
+                .hasSize(2);
+
+        assertThat(competitions)
+                .extracting(CompetitionModel::getId)
+                .containsExactlyInAnyOrder(1, 2);
+
+        assertThat(competitions)
+                .extracting(CompetitionModel::getName)
+                .containsExactlyInAnyOrder("100m Sprint", "Marathon");
     }
 
     @Test
-    void shouldReturnCompetitionById() throws Exception {
-        mockMvc.perform(get("/public/championship/{id}/comp/{idComp}", champId, compId))
+    void getCompetitionById_existing() throws Exception {
+        var mvcResult = mockMvc.perform(
+                        get("/public/championship/{id}/comp/{idComp}", 1, 2)
+                                .accept(MediaType.APPLICATION_JSON)
+                )
                 .andExpect(status().isOk())
-                .andExpect(content().contentType(MediaType.APPLICATION_JSON))
-                .andExpect(jsonPath("$.id").value(champId))
-                .andExpect(jsonPath("$.idComp").value(compId))
-                .andExpect(jsonPath("$.name").value("CompTest"));
+                .andReturn();
+
+        String json = mvcResult.getResponse().getContentAsString();
+        CompetitionModel comp =
+                objectMapper.readValue(json, CompetitionModel.class);
+
+        assertThat(comp.getId()).isEqualTo(2);
+        assertThat(comp.getName()).isEqualTo("Marathon");
+        assertThat(comp.getDescription()).isEqualTo("Long distance run");
+        assertThat(comp.getChampionshipId()).isEqualTo(1);
+    }
+
+    @Test
+    void getCompetitionById_notFound() throws Exception {
+        mockMvc.perform(
+                        get("/public/championship/{id}/comp/{idComp}", 1, 999)
+                                .accept(MediaType.APPLICATION_JSON)
+                )
+                .andExpect(status().isNotFound());
     }
 }
