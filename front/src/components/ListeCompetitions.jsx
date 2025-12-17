@@ -34,7 +34,7 @@ const ListeCompetitions = () => {
             <h2 className="competition-title">Liste des compétitions</h2>
             <div className="competition-container">
                 {competitions.map((c) => (
-                    <div key={c.id}>
+                    <div key={c.id} className="competition-card">
                         <h2>{c.name}</h2>
                         <Link to={`/public/championship/${championshipId}/comp/${c.id}`}>
                             <button>Voir les détails</button>

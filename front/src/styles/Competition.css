@@ -1,49 +1,36 @@
 .competition {
-    background: #ffffff;
-    font-family: Comic Sans MS;
-    border: 0.1rem solid #d1d5db;   /* gris doux */
+    background: #020617;
     border-radius: 1rem;
-    padding: 1.6rem;
-    width: 18rem;
-    margin: 1rem;
-    box-shadow: 0 0.3rem 0.8rem rgba(0,0,0,0.08);
-    transition: transform 0.25s ease, box-shadow 0.25s ease, border-color 0.25s ease;
+    padding: 2rem 2.5rem;
+    margin: 0 auto;
+    width: 100%;
+    max-width: 760px;
+    box-shadow: 0 14px 30px rgba(0, 0, 0, 0.4);
+    border: 1px solid rgba(148, 163, 184, 0.2);
     display: flex;
     flex-direction: column;
-    gap: 0.8rem;
-}
-
-.competition:hover {
-    transform: translateY(-0.35rem);
-    border-color: #3b82f6;                  /* bleu moyen */
-    box-shadow: 0 0.6rem 1.2rem rgba(59,130,246,0.25);
 }
 
 .competition h3 {
     margin: 0;
-    font-size: 1.5rem;
-    font-weight: 600;
-    color: #1e3a8a;                          /* bleu profond */
+    font-size: 1.8rem;
+    color: #e5e7eb;
+    text-align: center;
+}
+
+.competition h4 {
+    margin: 0.5rem 0 1.5rem 0;
+    font-size: 1.05rem;
+    color: #9ca3af;
+    text-align: center;
 }
 
 .competition p {
-    margin: 0.3rem 0;
-    font-size: 1rem;
-    color: #374151;                           /* gris foncé */
+    margin: 0.5rem 0;
+    font-size: 0.98rem;
+    color: #e5e7eb;
 }
 
 .competition strong {
-    color: #1e3a8a;
+    color: #22c55e;
 }
-
-/* Tags visuels */
-.competition .tag {
-    display: inline-block;
-    background: #dbeafe;                      /* bleu très clair */
-    color: #1e3a8a;
-    padding: 0.3rem 0.6rem;
-    border-radius: 0.5rem;
-    font-size: 0.85rem;
-    font-weight: 500;
-}
-

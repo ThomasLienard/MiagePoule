@@ -8,14 +8,16 @@ function App() {
 
   return (
     <>
-        <Router>
-            <Routes>
-                <Route path="/public/championship" element={<ListChampionships />} />
-                <Route path="/public/championship/:id/comp" element={<ListeCompetitions />} />
-                <Route path="/public/championship/:id/comp/:idComp" element={<Competition />}
-                />
-            </Routes>
-        </Router>
+        <div className="app-root">
+            <Router>
+                <Routes>
+                    <Route path="/public/championship" element={<ListChampionships />} />
+                    <Route path="/public/championship/:id/comp" element={<ListeCompetitions />} />
+                    <Route path="/public/championship/:id/comp/:idComp" element={<Competition />}
+                    />
+                </Routes>
+            </Router>
+        </div>
     </>
   )
 }
