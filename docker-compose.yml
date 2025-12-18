@@ -41,7 +41,7 @@ services:
     build: ./front
     container_name: react_miagepoule
     ports:
-      - "3000:3000"  # Un seul port exposé
+      - "3000:3000"
     networks:
       - miage-network
     restart: unless-stopped
