@@ -1,6 +1,6 @@
 package com.miage.pouleAPI.repositories.adapters;
 
-import com.miage.pouleAPI.domains.ChampionshipModel;
+import com.miage.pouleAPI.dtos.championship.ChampionshipDTO;
 import com.miage.pouleAPI.entity.Championship;
 import com.miage.pouleAPI.repositories.ChampionshipRepository;
 import org.springframework.stereotype.Service;
@@ -18,25 +18,25 @@ public class ChampionshipJpaAdapter{
     }
 
 
-    public List<ChampionshipModel> findAll() {
+    public List<ChampionshipDTO> findAll() {
         return repository.findAll().stream().map(this::toDomain).toList();
     }
 
-    public Optional<ChampionshipModel> findById(Integer id) {
+    public Optional<ChampionshipDTO> findById(Integer id) {
         return repository.findById(id).map(this::toDomain);
     }
 
-    public ChampionshipModel save(ChampionshipModel championshipModel) {
-        Championship entity = toEntity(championshipModel);
+    public ChampionshipDTO save(ChampionshipDTO championshipDto) {
+        Championship entity = toEntity(championshipDto);
         Championship saved = repository.save(entity);
         return toDomain(saved);
     }
 
-    private ChampionshipModel toDomain(Championship championship){
+    private ChampionshipDTO toDomain(Championship championship){
         if (championship == null){
             return  null;
         }
-        return new ChampionshipModel(
+        return new ChampionshipDTO(
                 championship.getDescription(),
                 championship.getEnd(),
                 championship.getId(),
@@ -44,7 +44,7 @@ public class ChampionshipJpaAdapter{
                 championship.getStart());
     }
 
-    private Championship toEntity(ChampionshipModel championship){
+    private Championship toEntity(ChampionshipDTO championship){
         if (championship == null){
             return  null;
         }

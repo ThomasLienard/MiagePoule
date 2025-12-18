@@ -2,7 +2,7 @@ package com.miage.pouleAPI.controllers;
 
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.miage.pouleAPI.domains.ChampionshipModel;
+import com.miage.pouleAPI.dtos.championship.ChampionshipDTO;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
@@ -38,7 +38,7 @@ class ChampionshipControllerIntegrationTest {
                 .andReturn();
 
         String json = mvcResult.getResponse().getContentAsString();
-        List<ChampionshipModel> championships =
+        List<ChampionshipDTO> championships =
                 objectMapper.readValue(json, new TypeReference<>() {});
 
         assertThat(championships)
@@ -46,11 +46,11 @@ class ChampionshipControllerIntegrationTest {
                 .hasSize(2);
 
         assertThat(championships)
-                .extracting(ChampionshipModel::getId)
+                .extracting(ChampionshipDTO::getId)
                 .containsExactlyInAnyOrder(1, 2);
 
         assertThat(championships)
-                .extracting(ChampionshipModel::getName)
+                .extracting(ChampionshipDTO::getName)
                 .containsExactlyInAnyOrder("World Cup", "National League");
     }
 
@@ -64,8 +64,8 @@ class ChampionshipControllerIntegrationTest {
                 .andReturn();
 
         String json = mvcResult.getResponse().getContentAsString();
-        ChampionshipModel champ =
-                objectMapper.readValue(json, ChampionshipModel.class);
+        ChampionshipDTO champ =
+                objectMapper.readValue(json, ChampionshipDTO.class);
 
         assertThat(champ.getId()).isEqualTo(1);
         assertThat(champ.getName()).isEqualTo("World Cup");

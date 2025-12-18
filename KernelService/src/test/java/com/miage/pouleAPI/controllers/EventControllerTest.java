@@ -217,12 +217,12 @@ class EventControllerTest {
     }
 
     @Test
-    @DisplayName("Vérifier que le CORS est configuré pour localhost:5173")
+    @DisplayName("Vérifier que le CORS est configuré pour localhost:3000")
     void testCorsConfiguration() throws Exception {
         when(eventService.getAllEvents()).thenReturn(Collections.emptyList());
         
         mockMvc.perform(get("/public/events")
-                .header("Origin", "http://localhost:5173"))
+                .header("Origin", "http://localhost:3000"))
                 .andExpect(status().isOk());
     }
 

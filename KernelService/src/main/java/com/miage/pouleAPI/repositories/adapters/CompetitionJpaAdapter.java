@@ -1,6 +1,6 @@
 package com.miage.pouleAPI.repositories.adapters;
 
-import com.miage.pouleAPI.domains.CompetitionModel;
+import com.miage.pouleAPI.dtos.competition.CompetitionDTO;
 import com.miage.pouleAPI.entity.Championship;
 import com.miage.pouleAPI.entity.Competition;
 import com.miage.pouleAPI.repositories.ChampionshipRepository;
@@ -22,32 +22,32 @@ public class CompetitionJpaAdapter {
     }
 
 
-    public List<CompetitionModel> findAll() {
+    public List<CompetitionDTO> findAll() {
         return repository.findAll().stream().map(this::toDomain).toList();
     }
 
-    public Optional<CompetitionModel> findById(Integer id) {
+    public Optional<CompetitionDTO> findById(Integer id) {
         return repository.findById(id).map(this::toDomain);
     }
 
-    public CompetitionModel save(CompetitionModel model) {
+    public CompetitionDTO save(CompetitionDTO model) {
         Competition entity = toEntity(model);
         Competition saved = repository.save(entity);
         return toDomain(saved);
     }
 
-    public List<CompetitionModel> findByChampionshipId(Integer championshipId) {
+    public List<CompetitionDTO> findByChampionshipId(Integer championshipId) {
         return repository.findByChampionship_Id(championshipId)
                 .stream()
                 .map(this::toDomain)
                 .toList();
     }
 
-    private CompetitionModel toDomain(Competition competition){
+    private CompetitionDTO toDomain(Competition competition){
         if (competition == null){
             return  null;
         }
-        return new CompetitionModel(
+        return new CompetitionDTO(
                 competition.getChampionship().getId(),
                 competition.getDescription(),
                 competition.getEnd(),
@@ -56,7 +56,7 @@ public class CompetitionJpaAdapter {
                 competition.getStart());
     }
 
-    private Competition toEntity(CompetitionModel competition) {
+    private Competition toEntity(CompetitionDTO competition) {
         if (competition == null) {
             return null;
         }

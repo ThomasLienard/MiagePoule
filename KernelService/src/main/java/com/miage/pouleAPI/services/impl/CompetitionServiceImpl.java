@@ -1,6 +1,6 @@
 package com.miage.pouleAPI.services.impl;
 
-import com.miage.pouleAPI.domains.CompetitionModel;
+import com.miage.pouleAPI.dtos.competition.CompetitionDTO;
 import com.miage.pouleAPI.repositories.adapters.CompetitionJpaAdapter;
 import com.miage.pouleAPI.services.CompetitionService;
 import org.springframework.stereotype.Service;
@@ -19,22 +19,22 @@ public class CompetitionServiceImpl implements CompetitionService {
 
 
     @Override
-    public List<CompetitionModel> findAll() {
+    public List<CompetitionDTO> findAll() {
         return competitionJpaAdapter.findAll();
     }
 
     @Override
-    public Optional<CompetitionModel> findById(Integer id) {
+    public Optional<CompetitionDTO> findById(Integer id) {
         return competitionJpaAdapter.findById(id);
     }
 
     @Override
-    public CompetitionModel save(CompetitionModel competition) {
+    public CompetitionDTO save(CompetitionDTO competition) {
         return competitionJpaAdapter.save(competition);
     }
 
     @Override
-    public List<CompetitionModel> findByChampionship(Integer championshipId) {
+    public List<CompetitionDTO> findByChampionship(Integer championshipId) {
         return competitionJpaAdapter.findByChampionshipId(championshipId);
 
 

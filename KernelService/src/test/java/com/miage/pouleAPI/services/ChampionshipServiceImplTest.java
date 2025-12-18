@@ -1,6 +1,6 @@
 package com.miage.pouleAPI.services;
 
-import com.miage.pouleAPI.domains.ChampionshipModel;
+import com.miage.pouleAPI.dtos.championship.ChampionshipDTO;
 import com.miage.pouleAPI.repositories.adapters.ChampionshipJpaAdapter;
 import com.miage.pouleAPI.services.impl.ChampionshipServiceImpl;
 import org.junit.jupiter.api.BeforeEach;
@@ -28,12 +28,12 @@ class ChampionshipServiceImplTest {
     @InjectMocks
     private ChampionshipServiceImpl championshipService;
 
-    private ChampionshipModel championshipModel1;
-    private ChampionshipModel championshipModel2;
+    private ChampionshipDTO championshipDTO1;
+    private ChampionshipDTO championshipDTO2;
 
     @BeforeEach
     void setUp() {
-        championshipModel1 = new ChampionshipModel(
+        championshipDTO1 = new ChampionshipDTO(
                 "Description Championship 1",
                 LocalDate.of(2024, 12, 31),
                 1,
@@ -41,7 +41,7 @@ class ChampionshipServiceImplTest {
                 LocalDate.of(2024, 1, 1)
         );
 
-        championshipModel2 = new ChampionshipModel(
+        championshipDTO2 = new ChampionshipDTO(
                 "Description Championship 2",
                 LocalDate.of(2024, 6, 30),
                 2,
@@ -52,14 +52,14 @@ class ChampionshipServiceImplTest {
 
     @Test
     void findAll_ShouldReturnAllChampionships() {
-        List<ChampionshipModel> expectedChampionships = Arrays.asList(championshipModel1, championshipModel2);
+        List<ChampionshipDTO> expectedChampionships = Arrays.asList(championshipDTO1, championshipDTO2);
         when(championshipJpaAdapter.findAll()).thenReturn(expectedChampionships);
 
-        List<ChampionshipModel> actualChampionships = championshipService.findAll();
+        List<ChampionshipDTO> actualChampionships = championshipService.findAll();
 
         assertThat(actualChampionships).isNotNull();
         assertThat(actualChampionships).hasSize(2);
-        assertThat(actualChampionships).containsExactlyInAnyOrder(championshipModel1, championshipModel2);
+        assertThat(actualChampionships).containsExactlyInAnyOrder(championshipDTO1, championshipDTO2);
         verify(championshipJpaAdapter, times(1)).findAll();
     }
 
@@ -67,7 +67,7 @@ class ChampionshipServiceImplTest {
     void findAll_ShouldReturnEmptyList_WhenNoChampionships() {
         when(championshipJpaAdapter.findAll()).thenReturn(List.of());
 
-        List<ChampionshipModel> actualChampionships = championshipService.findAll();
+        List<ChampionshipDTO> actualChampionships = championshipService.findAll();
 
         assertThat(actualChampionships).isNotNull();
         assertThat(actualChampionships).isEmpty();
@@ -77,12 +77,12 @@ class ChampionshipServiceImplTest {
     @Test
     void findById_ShouldReturnChampionship_WhenExists() {
         Integer championshipId = 1;
-        when(championshipJpaAdapter.findById(championshipId)).thenReturn(Optional.of(championshipModel1));
+        when(championshipJpaAdapter.findById(championshipId)).thenReturn(Optional.of(championshipDTO1));
 
-        Optional<ChampionshipModel> actualChampionship = championshipService.findById(championshipId);
+        Optional<ChampionshipDTO> actualChampionship = championshipService.findById(championshipId);
 
         assertThat(actualChampionship).isPresent();
-        assertThat(actualChampionship.get()).isEqualTo(championshipModel1);
+        assertThat(actualChampionship.get()).isEqualTo(championshipDTO1);
         assertThat(actualChampionship.get().getId()).isEqualTo(championshipId);
         assertThat(actualChampionship.get().getName()).isEqualTo("Championship 1");
         verify(championshipJpaAdapter, times(1)).findById(championshipId);
@@ -93,7 +93,7 @@ class ChampionshipServiceImplTest {
         Integer championshipId = 999;
         when(championshipJpaAdapter.findById(championshipId)).thenReturn(Optional.empty());
 
-        Optional<ChampionshipModel> actualChampionship = championshipService.findById(championshipId);
+        Optional<ChampionshipDTO> actualChampionship = championshipService.findById(championshipId);
 
         assertThat(actualChampionship).isEmpty();
         verify(championshipJpaAdapter, times(1)).findById(championshipId);
@@ -101,7 +101,7 @@ class ChampionshipServiceImplTest {
 
     @Test
     void save_ShouldReturnSavedChampionship() {
-        ChampionshipModel newChampionship = new ChampionshipModel(
+        ChampionshipDTO newChampionship = new ChampionshipDTO(
                 "New Championship Description",
                 LocalDate.of(2025, 12, 31),
                 null,
@@ -109,7 +109,7 @@ class ChampionshipServiceImplTest {
                 LocalDate.of(2025, 1, 1)
         );
 
-        ChampionshipModel savedChampionship = new ChampionshipModel(
+        ChampionshipDTO savedChampionship = new ChampionshipDTO(
                 "New Championship Description",
                 LocalDate.of(2025, 12, 31),
                 3,
@@ -117,9 +117,9 @@ class ChampionshipServiceImplTest {
                 LocalDate.of(2025, 1, 1)
         );
 
-        when(championshipJpaAdapter.save(any(ChampionshipModel.class))).thenReturn(savedChampionship);
+        when(championshipJpaAdapter.save(any(ChampionshipDTO.class))).thenReturn(savedChampionship);
 
-        ChampionshipModel result = championshipService.save(newChampionship);
+        ChampionshipDTO result = championshipService.save(newChampionship);
 
         assertThat(result).isNotNull();
         assertThat(result.getId()).isEqualTo(3);
@@ -132,7 +132,7 @@ class ChampionshipServiceImplTest {
 
     @Test
     void save_ShouldUpdateExistingChampionship() {
-        ChampionshipModel updatedChampionship = new ChampionshipModel(
+        ChampionshipDTO updatedChampionship = new ChampionshipDTO(
                 "Updated Description",
                 LocalDate.of(2024, 12, 31),
                 1,
@@ -140,9 +140,9 @@ class ChampionshipServiceImplTest {
                 LocalDate.of(2024, 1, 1)
         );
 
-        when(championshipJpaAdapter.save(any(ChampionshipModel.class))).thenReturn(updatedChampionship);
+        when(championshipJpaAdapter.save(any(ChampionshipDTO.class))).thenReturn(updatedChampionship);
 
-        ChampionshipModel result = championshipService.save(updatedChampionship);
+        ChampionshipDTO result = championshipService.save(updatedChampionship);
 
         assertThat(result).isNotNull();
         assertThat(result.getId()).isEqualTo(1);

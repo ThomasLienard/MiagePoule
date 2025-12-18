@@ -2,7 +2,7 @@ package com.miage.pouleAPI.controllers;
 
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.miage.pouleAPI.domains.CompetitionModel;
+import com.miage.pouleAPI.dtos.competition.CompetitionDTO;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
@@ -38,7 +38,7 @@ class CompetitionControllerIntegrationTest {
                 .andReturn();
 
         String json = mvcResult.getResponse().getContentAsString();
-        List<CompetitionModel> competitions =
+        List<CompetitionDTO> competitions =
                 objectMapper.readValue(json, new TypeReference<>() {});
 
         assertThat(competitions)
@@ -46,11 +46,11 @@ class CompetitionControllerIntegrationTest {
                 .hasSize(2);
 
         assertThat(competitions)
-                .extracting(CompetitionModel::getId)
+                .extracting(CompetitionDTO::getId)
                 .containsExactlyInAnyOrder(1, 2);
 
         assertThat(competitions)
-                .extracting(CompetitionModel::getName)
+                .extracting(CompetitionDTO::getName)
                 .containsExactlyInAnyOrder("100m Sprint", "Marathon");
     }
 
@@ -64,8 +64,8 @@ class CompetitionControllerIntegrationTest {
                 .andReturn();
 
         String json = mvcResult.getResponse().getContentAsString();
-        CompetitionModel comp =
-                objectMapper.readValue(json, CompetitionModel.class);
+        CompetitionDTO comp =
+                objectMapper.readValue(json, CompetitionDTO.class);
 
         assertThat(comp.getId()).isEqualTo(2);
         assertThat(comp.getName()).isEqualTo("Marathon");

@@ -224,12 +224,12 @@ class TrialControllerTest {
     }
 
     @Test
-    @DisplayName("Vérifier que le CORS est configuré pour localhost:5173")
+    @DisplayName("Vérifier que le CORS est configuré pour localhost:3000")
     void testCorsConfiguration() throws Exception {
         when(trialService.getAllTrials()).thenReturn(Collections.emptyList());
         
         mockMvc.perform(get("/public/trials")
-                .header("Origin", "http://localhost:5173"))
+                .header("Origin", "http://localhost:3000"))
                 .andExpect(status().isOk());
     }
 

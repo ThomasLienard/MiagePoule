@@ -1,6 +1,6 @@
 package com.miage.pouleAPI.controllers;
 
-import com.miage.pouleAPI.domains.CompetitionModel;
+import com.miage.pouleAPI.dtos.competition.CompetitionDTO;
 import com.miage.pouleAPI.services.CompetitionService;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -19,7 +19,7 @@ public class CompetitionController {
 
 
     @GetMapping("/{id}/comp/{idComp}")
-    public ResponseEntity<CompetitionModel> getById(@PathVariable Integer id,@PathVariable Integer idComp) {
+    public ResponseEntity<CompetitionDTO> getById(@PathVariable Integer id, @PathVariable Integer idComp) {
         return competitionService.findById(idComp)
                 .map(ResponseEntity::ok)
                 .orElse(ResponseEntity.notFound().build());

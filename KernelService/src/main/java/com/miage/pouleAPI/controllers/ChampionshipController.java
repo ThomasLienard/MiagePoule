@@ -1,7 +1,7 @@
 package com.miage.pouleAPI.controllers;
 
-import com.miage.pouleAPI.domains.ChampionshipModel;
-import com.miage.pouleAPI.domains.CompetitionModel;
+import com.miage.pouleAPI.dtos.championship.ChampionshipDTO;
+import com.miage.pouleAPI.dtos.competition.CompetitionDTO;
 import com.miage.pouleAPI.services.ChampionshipService;
 import com.miage.pouleAPI.services.CompetitionService;
 import org.springframework.http.ResponseEntity;
@@ -23,19 +23,19 @@ public class ChampionshipController {
     }
 
     @GetMapping
-    public List<ChampionshipModel> getAll() {
+    public List<ChampionshipDTO> getAll() {
         return championshipService.findAll();
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<ChampionshipModel> getById(@PathVariable Integer id) {
+    public ResponseEntity<ChampionshipDTO> getById(@PathVariable Integer id) {
         return championshipService.findById(id)
                 .map(ResponseEntity::ok)
                 .orElse(ResponseEntity.notFound().build());
     }
 
     @GetMapping("/{id}/comp")
-    public List<CompetitionModel> getCompetitions(@PathVariable Integer id) {
+    public List<CompetitionDTO> getCompetitions(@PathVariable Integer id) {
         return competitionService.findByChampionship(id);
     }
 }

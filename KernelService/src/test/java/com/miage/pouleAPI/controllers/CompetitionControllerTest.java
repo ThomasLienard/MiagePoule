@@ -1,6 +1,6 @@
 package com.miage.pouleAPI.controllers;
 
-import com.miage.pouleAPI.domains.CompetitionModel;
+import com.miage.pouleAPI.dtos.competition.CompetitionDTO;
 import com.miage.pouleAPI.entity.Championship;
 import com.miage.pouleAPI.services.CompetitionService;
 import org.junit.jupiter.api.BeforeEach;
@@ -9,12 +9,8 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
-import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.test.web.servlet.MockMvc;
 
 import java.time.LocalDate;
 import java.util.Optional;
@@ -22,7 +18,6 @@ import java.util.Optional;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.*;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
 @ExtendWith(MockitoExtension.class)
 class CompetitionControllerTest {
@@ -34,7 +29,7 @@ class CompetitionControllerTest {
     private CompetitionController controller;
 
     private Championship championship;
-    private CompetitionModel competition1;
+    private CompetitionDTO competition1;
 
     @BeforeEach
     void setUp() {
@@ -43,7 +38,7 @@ class CompetitionControllerTest {
                 "Championship 1",
                 LocalDate.of(2024, 1, 1),
                 LocalDate.of(2024, 12, 31));
-        competition1 = new CompetitionModel(
+        competition1 = new CompetitionDTO(
                 championship.getId(),
                 "Competition 1 Description",
                 LocalDate.of(2024, 10, 20),
@@ -59,7 +54,7 @@ class CompetitionControllerTest {
         Integer championshipId = 1;
         when(competitionService.findById(id)).thenReturn(Optional.of(competition1));
 
-        ResponseEntity<CompetitionModel> response = controller.getById(championshipId,id);
+        ResponseEntity<CompetitionDTO> response = controller.getById(championshipId,id);
 
         assertThat(response.getStatusCode()).isEqualTo(HttpStatus.OK);
         assertThat(response.getBody()).isNotNull();
@@ -78,7 +73,7 @@ class CompetitionControllerTest {
         Integer championshipId = 1;
         when(competitionService.findById(id)).thenReturn(Optional.empty());
 
-        ResponseEntity<CompetitionModel> response = controller.getById(championshipId,id);
+        ResponseEntity<CompetitionDTO> response = controller.getById(championshipId,id);
 
         assertThat(response.getStatusCode()).isEqualTo(HttpStatus.NOT_FOUND);
         assertThat(response.getBody()).isNull();

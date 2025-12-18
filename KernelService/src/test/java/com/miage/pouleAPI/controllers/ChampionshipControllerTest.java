@@ -1,7 +1,7 @@
 package com.miage.pouleAPI.controllers;
 
-import com.miage.pouleAPI.domains.ChampionshipModel;
-import com.miage.pouleAPI.domains.CompetitionModel;
+import com.miage.pouleAPI.dtos.championship.ChampionshipDTO;
+import com.miage.pouleAPI.dtos.competition.CompetitionDTO;
 import com.miage.pouleAPI.entity.Championship;
 import com.miage.pouleAPI.services.ChampionshipService;
 import com.miage.pouleAPI.services.CompetitionService;
@@ -11,12 +11,8 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
-import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.test.web.servlet.MockMvc;
 
 import java.time.LocalDate;
 import java.util.Arrays;
@@ -26,7 +22,6 @@ import java.util.Optional;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.*;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
 
 @ExtendWith(MockitoExtension.class)
@@ -41,11 +36,11 @@ class ChampionshipControllerTest {
     @InjectMocks
     private ChampionshipController controller;
 
-    private ChampionshipModel championship1;
-    private ChampionshipModel championship2;
+    private ChampionshipDTO championship1;
+    private ChampionshipDTO championship2;
     private Championship championshipEntity;
-    private CompetitionModel competition1;
-    private CompetitionModel competition2;
+    private CompetitionDTO competition1;
+    private CompetitionDTO competition2;
 
     @BeforeEach
     void setUp() {
@@ -57,7 +52,7 @@ class ChampionshipControllerTest {
                 LocalDate.of(2024, 12, 31)
         );
 
-        championship1 = new ChampionshipModel(
+        championship1 = new ChampionshipDTO(
                 "Championship 1 Description",
                 LocalDate.of(2024, 12, 31),
                 1,
@@ -65,7 +60,7 @@ class ChampionshipControllerTest {
                 LocalDate.of(2024, 1, 1)
         );
 
-        championship2 = new ChampionshipModel(
+        championship2 = new ChampionshipDTO(
                 "Championship 2 Description",
                 LocalDate.of(2025, 12, 31),
                 2,
@@ -73,7 +68,7 @@ class ChampionshipControllerTest {
                 LocalDate.of(2025, 1, 1)
         );
 
-        competition1 = new CompetitionModel(
+        competition1 = new CompetitionDTO(
                 championshipEntity.getId(),
                 "Competition 1 Description",
                 LocalDate.of(2024, 6, 30),
@@ -82,7 +77,7 @@ class ChampionshipControllerTest {
                 LocalDate.of(2024, 1, 1)
         );
 
-        competition2 = new CompetitionModel(
+        competition2 = new CompetitionDTO(
                 championshipEntity.getId(),
                 "Competition 2 Description",
                 LocalDate.of(2024, 12, 31),
@@ -94,10 +89,10 @@ class ChampionshipControllerTest {
 
     @Test
     void getAll_ShouldReturnListOfChampionships() {
-        List<ChampionshipModel> championships = Arrays.asList(championship1, championship2);
+        List<ChampionshipDTO> championships = Arrays.asList(championship1, championship2);
         when(championshipService.findAll()).thenReturn(championships);
 
-        List<ChampionshipModel> result = controller.getAll();
+        List<ChampionshipDTO> result = controller.getAll();
 
         assertThat(result).isNotNull();
         assertThat(result).hasSize(2);
@@ -111,7 +106,7 @@ class ChampionshipControllerTest {
     void getAll_ShouldReturnEmptyList_WhenNoChampionships() {
         when(championshipService.findAll()).thenReturn(List.of());
 
-        List<ChampionshipModel> result = controller.getAll();
+        List<ChampionshipDTO> result = controller.getAll();
 
         assertThat(result).isNotNull();
         assertThat(result).isEmpty();
@@ -122,7 +117,7 @@ class ChampionshipControllerTest {
     void getAll_ShouldReturnChampionshipsWithCorrectDates() {
         when(championshipService.findAll()).thenReturn(Arrays.asList(championship1));
 
-        List<ChampionshipModel> result = controller.getAll();
+        List<ChampionshipDTO> result = controller.getAll();
 
         assertThat(result).isNotNull();
         assertThat(result.get(0).getStart()).isEqualTo(LocalDate.of(2024, 1, 1));
@@ -135,7 +130,7 @@ class ChampionshipControllerTest {
         Integer id = 1;
         when(championshipService.findById(id)).thenReturn(Optional.of(championship1));
 
-        ResponseEntity<ChampionshipModel> response = controller.getById(id);
+        ResponseEntity<ChampionshipDTO> response = controller.getById(id);
 
         assertThat(response.getStatusCode()).isEqualTo(HttpStatus.OK);
         assertThat(response.getBody()).isNotNull();
@@ -150,7 +145,7 @@ class ChampionshipControllerTest {
         Integer id = 999;
         when(championshipService.findById(id)).thenReturn(Optional.empty());
 
-        ResponseEntity<ChampionshipModel> response = controller.getById(id);
+        ResponseEntity<ChampionshipDTO> response = controller.getById(id);
 
         assertThat(response.getStatusCode()).isEqualTo(HttpStatus.NOT_FOUND);
         assertThat(response.getBody()).isNull();
@@ -162,7 +157,7 @@ class ChampionshipControllerTest {
         Integer id = 1;
         when(championshipService.findById(id)).thenReturn(Optional.of(championship1));
 
-        ResponseEntity<ChampionshipModel> response = controller.getById(id);
+        ResponseEntity<ChampionshipDTO> response = controller.getById(id);
 
         assertThat(response.getStatusCode()).isEqualTo(HttpStatus.OK);
         assertThat(response.getBody()).isNotNull();
@@ -177,10 +172,10 @@ class ChampionshipControllerTest {
     @Test
     void getCompetitions_ShouldReturnListOfCompetitions_WhenChampionshipHasCompetitions() {
         Integer championshipId = 1;
-        List<CompetitionModel> competitions = Arrays.asList(competition1, competition2);
+        List<CompetitionDTO> competitions = Arrays.asList(competition1, competition2);
         when(competitionService.findByChampionship(championshipId)).thenReturn(competitions);
 
-        List<CompetitionModel> result = controller.getCompetitions(championshipId);
+        List<CompetitionDTO> result = controller.getCompetitions(championshipId);
 
         assertThat(result).isNotNull();
         assertThat(result).hasSize(2);
@@ -195,7 +190,7 @@ class ChampionshipControllerTest {
         Integer championshipId = 999;
         when(competitionService.findByChampionship(championshipId)).thenReturn(List.of());
 
-        List<CompetitionModel> result = controller.getCompetitions(championshipId);
+        List<CompetitionDTO> result = controller.getCompetitions(championshipId);
 
         assertThat(result).isNotNull();
         assertThat(result).isEmpty();
@@ -205,10 +200,10 @@ class ChampionshipControllerTest {
     @Test
     void getCompetitions_ShouldReturnCompetitionsWithCorrectChampionship() {
         Integer championshipId = 1;
-        List<CompetitionModel> competitions = Arrays.asList(competition1, competition2);
+        List<CompetitionDTO> competitions = Arrays.asList(competition1, competition2);
         when(competitionService.findByChampionship(championshipId)).thenReturn(competitions);
 
-        List<CompetitionModel> result = controller.getCompetitions(championshipId);
+        List<CompetitionDTO> result = controller.getCompetitions(championshipId);
 
         assertThat(result).isNotNull();
         assertThat(result).allMatch(c -> c.getChampionshipId().equals(championshipId));
@@ -218,10 +213,10 @@ class ChampionshipControllerTest {
     @Test
     void getCompetitions_ShouldReturnCompetitionsWithCorrectDates() {
         Integer championshipId = 1;
-        List<CompetitionModel> competitions = Arrays.asList(competition1, competition2);
+        List<CompetitionDTO> competitions = Arrays.asList(competition1, competition2);
         when(competitionService.findByChampionship(championshipId)).thenReturn(competitions);
 
-        List<CompetitionModel> result = controller.getCompetitions(championshipId);
+        List<CompetitionDTO> result = controller.getCompetitions(championshipId);
 
         assertThat(result).isNotNull();
         assertThat(result.get(0).getStart()).isEqualTo(LocalDate.of(2024, 1, 1));
@@ -243,7 +238,7 @@ class ChampionshipControllerTest {
 
     @Test
     void getAll_ShouldHandleMultipleChampionships() {
-        ChampionshipModel championship3 = new ChampionshipModel(
+        ChampionshipDTO championship3 = new ChampionshipDTO(
                 "Championship 3 Description",
                 LocalDate.of(2026, 12, 31),
                 3,
@@ -251,10 +246,10 @@ class ChampionshipControllerTest {
                 LocalDate.of(2026, 1, 1)
         );
 
-        List<ChampionshipModel> championships = Arrays.asList(championship1, championship2, championship3);
+        List<ChampionshipDTO> championships = Arrays.asList(championship1, championship2, championship3);
         when(championshipService.findAll()).thenReturn(championships);
 
-        List<ChampionshipModel> result = controller.getAll();
+        List<ChampionshipDTO> result = controller.getAll();
 
         assertThat(result).hasSize(3);
         assertThat(result.get(0).getId()).isEqualTo(1);
@@ -266,7 +261,7 @@ class ChampionshipControllerTest {
     @Test
     void getCompetitions_ShouldHandleMultipleCompetitions() {
         Integer championshipId = 1;
-        CompetitionModel competition3 = new CompetitionModel(
+        CompetitionDTO competition3 = new CompetitionDTO(
                 championshipEntity.getId(),
                 "Competition 3 Description",
                 LocalDate.of(2024, 3, 31),
@@ -275,10 +270,10 @@ class ChampionshipControllerTest {
                 LocalDate.of(2024, 1, 1)
         );
 
-        List<CompetitionModel> competitions = Arrays.asList(competition1, competition2, competition3);
+        List<CompetitionDTO> competitions = Arrays.asList(competition1, competition2, competition3);
         when(competitionService.findByChampionship(championshipId)).thenReturn(competitions);
 
-        List<CompetitionModel> result = controller.getCompetitions(championshipId);
+        List<CompetitionDTO> result = controller.getCompetitions(championshipId);
 
         assertThat(result).hasSize(3);
         assertThat(result.get(0).getId()).isEqualTo(1);

@@ -1,6 +1,6 @@
 package com.miage.pouleAPI.services;
 
-import com.miage.pouleAPI.domains.CompetitionModel;
+import com.miage.pouleAPI.dtos.competition.CompetitionDTO;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -22,7 +22,7 @@ class CompetitionServiceIntegrationTest {
 
     @Test
     void shouldFindCompetitionsByChampionshipFromDataSql() {
-        List<CompetitionModel> comps = competitionService.findByChampionship(1);
+        List<CompetitionDTO> comps = competitionService.findByChampionship(1);
 
         assertNotNull(comps);
         assertEquals(2, comps.size());
@@ -44,10 +44,10 @@ class CompetitionServiceIntegrationTest {
 
     @Test
     void shouldFindCompetitionByIdFromDataSql() {
-        Optional<CompetitionModel> compOpt = competitionService.findById(2);
+        Optional<CompetitionDTO> compOpt = competitionService.findById(2);
 
         assertTrue(compOpt.isPresent());
-        CompetitionModel comp = compOpt.get();
+        CompetitionDTO comp = compOpt.get();
 
         assertEquals(2, comp.getId());
         assertEquals(1, comp.getChampionshipId());

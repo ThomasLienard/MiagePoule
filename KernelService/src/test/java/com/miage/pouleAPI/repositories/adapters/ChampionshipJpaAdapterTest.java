@@ -1,12 +1,11 @@
 package com.miage.pouleAPI.repositories.adapters;
 
-import com.miage.pouleAPI.domains.ChampionshipModel;
+import com.miage.pouleAPI.dtos.championship.ChampionshipDTO;
 import com.miage.pouleAPI.entity.Championship;
 import com.miage.pouleAPI.repositories.ChampionshipRepository;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
-import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
@@ -29,7 +28,7 @@ class ChampionshipJpaAdapterTest {
 
     private Championship championship1;
     private Championship championship2;
-    private ChampionshipModel championshipModel1;
+    private ChampionshipDTO championshipDTO1;
 
     @BeforeEach
     void setUp() {
@@ -51,7 +50,7 @@ class ChampionshipJpaAdapterTest {
                 LocalDate.of(2024, 6, 30)
         );
 
-        championshipModel1 = new ChampionshipModel(
+        championshipDTO1 = new ChampionshipDTO(
                 "Championship 1 Description",
                 LocalDate.of(2024, 12, 31),
                 1,
@@ -65,7 +64,7 @@ class ChampionshipJpaAdapterTest {
         List<Championship> entities = Arrays.asList(championship1, championship2);
         when(repository.findAll()).thenReturn(entities);
 
-        List<ChampionshipModel> result = adapter.findAll();
+        List<ChampionshipDTO> result = adapter.findAll();
 
         assertThat(result).isNotNull();
         assertThat(result).hasSize(2);
@@ -80,7 +79,7 @@ class ChampionshipJpaAdapterTest {
     void findAll_ShouldReturnEmptyList_WhenNoEntities() {
         when(repository.findAll()).thenReturn(List.of());
 
-        List<ChampionshipModel> result = adapter.findAll();
+        List<ChampionshipDTO> result = adapter.findAll();
 
         assertThat(result).isNotNull();
         assertThat(result).isEmpty();
@@ -92,7 +91,7 @@ class ChampionshipJpaAdapterTest {
         Integer id = 1;
         when(repository.findById(id)).thenReturn(Optional.of(championship1));
 
-        Optional<ChampionshipModel> result = adapter.findById(id);
+        Optional<ChampionshipDTO> result = adapter.findById(id);
 
         assertThat(result).isPresent();
         assertThat(result.get().getId()).isEqualTo(1);
@@ -108,7 +107,7 @@ class ChampionshipJpaAdapterTest {
         Integer id = 999;
         when(repository.findById(id)).thenReturn(Optional.empty());
 
-        Optional<ChampionshipModel> result = adapter.findById(id);
+        Optional<ChampionshipDTO> result = adapter.findById(id);
 
         assertThat(result).isEmpty();
         verify(repository, times(1)).findById(id);
@@ -116,7 +115,7 @@ class ChampionshipJpaAdapterTest {
 
     @Test
     void save_ShouldConvertAndSaveChampionshipModel() {
-        ChampionshipModel modelToSave = new ChampionshipModel(
+        ChampionshipDTO modelToSave = new ChampionshipDTO(
                 "New Championship Description",
                 LocalDate.of(2025, 12, 31),
                 null,
@@ -134,7 +133,7 @@ class ChampionshipJpaAdapterTest {
 
         when(repository.save(any(Championship.class))).thenReturn(savedEntity);
 
-        ChampionshipModel result = adapter.save(modelToSave);
+        ChampionshipDTO result = adapter.save(modelToSave);
 
         assertThat(result).isNotNull();
         assertThat(result.getId()).isEqualTo(3);
@@ -149,7 +148,7 @@ class ChampionshipJpaAdapterTest {
     void save_ShouldHandleNullModel() {
         when(repository.save(any())).thenReturn(null);
 
-        ChampionshipModel result = adapter.save(null);
+        ChampionshipDTO result = adapter.save(null);
 
         assertThat(result).isNull();
     }
@@ -158,10 +157,10 @@ class ChampionshipJpaAdapterTest {
     void toDomain_ShouldConvertEntityToModel() {
         when(repository.findById(1)).thenReturn(Optional.of(championship1));
 
-        Optional<ChampionshipModel> result = adapter.findById(1);
+        Optional<ChampionshipDTO> result = adapter.findById(1);
 
         assertThat(result).isPresent();
-        ChampionshipModel model = result.get();
+        ChampionshipDTO model = result.get();
         assertThat(model.getId()).isEqualTo(championship1.getId());
         assertThat(model.getName()).isEqualTo(championship1.getName());
         assertThat(model.getDescription()).isEqualTo(championship1.getDescription());
@@ -172,22 +171,22 @@ class ChampionshipJpaAdapterTest {
     @Test
     void toEntity_ShouldConvertModelToEntity() {
         Championship entityToSave = new Championship(
-                championshipModel1.getId(),
-                championshipModel1.getDescription(),
-                championshipModel1.getName(),
-                championshipModel1.getStart(),
-                championshipModel1.getEnd()
+                championshipDTO1.getId(),
+                championshipDTO1.getDescription(),
+                championshipDTO1.getName(),
+                championshipDTO1.getStart(),
+                championshipDTO1.getEnd()
         );
 
         when(repository.save(any(Championship.class))).thenReturn(entityToSave);
 
-        ChampionshipModel result = adapter.save(championshipModel1);
+        ChampionshipDTO result = adapter.save(championshipDTO1);
 
         assertThat(result).isNotNull();
         verify(repository).save(argThat(entity ->
-                entity.getId().equals(championshipModel1.getId()) &&
-                entity.getName().equals(championshipModel1.getName()) &&
-                entity.getDescription().equals(championshipModel1.getDescription())
+                entity.getId().equals(championshipDTO1.getId()) &&
+                entity.getName().equals(championshipDTO1.getName()) &&
+                entity.getDescription().equals(championshipDTO1.getDescription())
         ));
     }
 
@@ -195,7 +194,7 @@ class ChampionshipJpaAdapterTest {
     void findAll_ShouldHandleNullEntitiesInList() {
         when(repository.findAll()).thenReturn(Arrays.asList(championship1, null, championship2));
 
-        List<ChampionshipModel> result = adapter.findAll();
+        List<ChampionshipDTO> result = adapter.findAll();
 
         assertThat(result).hasSize(3);
         assertThat(result).containsNull();
@@ -211,7 +210,7 @@ class ChampionshipJpaAdapterTest {
 
     @Test
     void save_ShouldPreserveAllFields() {
-        ChampionshipModel completeModel = new ChampionshipModel(
+        ChampionshipDTO completeModel = new ChampionshipDTO(
                 "Complete Description",
                 LocalDate.of(2024, 12, 31),
                 5,
@@ -229,7 +228,7 @@ class ChampionshipJpaAdapterTest {
 
         when(repository.save(any(Championship.class))).thenReturn(savedEntity);
 
-        ChampionshipModel result = adapter.save(completeModel);
+        ChampionshipDTO result = adapter.save(completeModel);
 
         assertThat(result.getId()).isEqualTo(completeModel.getId());
         assertThat(result.getName()).isEqualTo(completeModel.getName());

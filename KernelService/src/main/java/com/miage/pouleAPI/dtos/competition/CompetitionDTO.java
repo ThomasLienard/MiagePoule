@@ -1,6 +1,5 @@
-package com.miage.pouleAPI.domains;
+package com.miage.pouleAPI.dtos.competition;
 
-import com.miage.pouleAPI.entity.Championship;
 import lombok.Getter;
 import lombok.Setter;
 
@@ -8,7 +7,7 @@ import java.time.LocalDate;
 
 @Getter
 @Setter
-public class CompetitionModel {
+public class CompetitionDTO {
     private Integer id;
 
     private String name;
@@ -21,7 +20,7 @@ public class CompetitionModel {
 
     private LocalDate end;
 
-    public CompetitionModel(Integer championshipId, String description, LocalDate end, Integer id, String name, LocalDate start) {
+    public CompetitionDTO(Integer championshipId, String description, LocalDate end, Integer id, String name, LocalDate start) {
         this.championshipId = championshipId;
         this.description = description;
         this.end = end;

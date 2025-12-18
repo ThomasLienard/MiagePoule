@@ -1,6 +1,6 @@
 package com.miage.pouleAPI.services;
 
-import com.miage.pouleAPI.domains.ChampionshipModel;
+import com.miage.pouleAPI.dtos.championship.ChampionshipDTO;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -22,7 +22,7 @@ class ChampionshipServiceIntegrationTest {
 
     @Test
     void shouldFindAllChampionshipsFromDataSql() {
-        List<ChampionshipModel> all = championshipService.findAll();
+        List<ChampionshipDTO> all = championshipService.findAll();
 
         assertNotNull(all);
         assertEquals(2, all.size());
@@ -42,10 +42,10 @@ class ChampionshipServiceIntegrationTest {
 
     @Test
     void shouldFindChampionshipByIdFromDataSql() {
-        Optional<ChampionshipModel> champOpt = championshipService.findById(1);
+        Optional<ChampionshipDTO> champOpt = championshipService.findById(1);
 
         assertTrue(champOpt.isPresent());
-        ChampionshipModel champ = champOpt.get();
+        ChampionshipDTO champ = champOpt.get();
 
         assertEquals(1, champ.getId());
         assertEquals("World Cup", champ.getName());
