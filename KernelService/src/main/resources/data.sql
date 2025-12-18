@@ -41,7 +41,6 @@ VALUES ('EMAIL'),
 -- ======================
 -- Type events
 -- ======================
-
 INSERT INTO type_event (type_event_name)
 VALUES ('MEETING'),
        ('TRAINING'),
@@ -129,7 +128,6 @@ VALUES (1, 'Team A', 'FR'),
 -- ======================
 -- Membership
 -- ======================
-
 INSERT INTO is_a_part_of (id, id_team)
 VALUES (1, 1),
        (2, 2);
@@ -145,7 +143,6 @@ VALUES (1, 1, '12.4s'),
 -- ======================
 -- Convened athletes
 -- ======================
-
 INSERT INTO is_convened_to (id, id_trial, trial_result_athlete)
 VALUES (1, 1, '12.4s');
 
@@ -167,21 +164,18 @@ VALUES (1, 1);
 -- ======================
 -- Geolocs
 -- ======================
-
 INSERT INTO geoloc (id_geoloc, latitude_geoloc, longitude_geoloc)
 VALUES (1, 48.8566, 2.3522);
 
 -- ======================
 -- User locations
 -- ======================
-
 INSERT INTO can_be_found_at (id, id_geoloc)
 VALUES (1, 1);
 
 -- ======================
 -- User event schedule
 -- ======================
-
 INSERT INTO have_a_time_schedule (id, id_event)
 VALUES (1, 1);
 
@@ -196,13 +190,11 @@ VALUES (1, 'Prepare track', 'Ensure the track surface is clean'),
 -- ======================
 -- Event-task association
 -- ======================
-
 INSERT INTO is_associated_to (id, id_task)
 VALUES (2, 1);
 
 -- ======================
 -- User tasks
 -- ======================
-
 INSERT INTO must_do (id, id_task)
 VALUES (2, 2);

@@ -46,7 +46,7 @@ class EventRepositoryIntegrationTest {
         assertThat(e.getDescription()).isEqualTo("Official competition");
 
         assertThat(e.getTypeEvent()).isNotNull();
-        assertThat(e.getTypeEvent().getName()).isEqualTo("TRIAL");
+        assertThat(e.getTypeEvent().getName()).isEqualTo("COMPETITION");
 
         assertThat(e.getPlace()).isNotNull();
         assertThat(e.getPlace().getName()).isEqualTo("Olympic Stadium");
