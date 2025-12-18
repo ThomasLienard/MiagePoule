@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
+import { fetchEventDetails, fetchTrialDetails } from '../services/eventService';
 import '../styles/EventDetails.css';
 
 const EventDetails = () => {
@@ -11,27 +12,22 @@ const EventDetails = () => {
     const [isTrial, setIsTrial] = useState(false);
 
     useEffect(() => {
-        fetchEventDetails();
+        loadEventData();
     }, [id]);
 
-    const fetchEventDetails = async () => {
+    const loadEventData = async () => {
         try {
             setLoading(true);
             
-            // Déterminer si c'est un trial ou un event
             const currentPath = window.location.pathname;
             const isTrialPath = currentPath.includes('/trials/');
             setIsTrial(isTrialPath);
             
-            const endpoint = isTrialPath 
-                ? `http://localhost:8080/public/trials/${id}`
-                : `http://localhost:8080/public/events/${id}`;
-                
-            const response = await fetch(endpoint);
-            if (!response.ok) throw new Error('Événement non trouvé');
-            const data = await response.json();
+            const data = isTrialPath 
+                ? await fetchTrialDetails(id)
+                : await fetchEventDetails(id);
             
-            console.log('Data received:', data); // Debug
+            console.log('Data received:', data); 
             setEventData(data);
         } catch (err) {
             setError(err.message);

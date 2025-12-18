@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { fetchEventAndTrialsData } from '../services/eventService';
 import '../styles/ListeEvenements.css';
 
 const ListeEvenements = () => {
@@ -16,32 +17,13 @@ const ListeEvenements = () => {
     const fetchAllData = async () => {
         try {
             setLoading(true);
+            const { events, trials } = await fetchEventAndTrialsData();
             
-            // Récupérer les événements
-            const eventsResponse = await fetch('http://localhost:8080/public/events');
-            if (!eventsResponse.ok) throw new Error('Erreur chargement événements');
-            const eventsData = await eventsResponse.json();
+            console.log('Events:', events); // Debug
+            console.log('Trials:', trials); // Debug
             
-            // Récupérer les trials
-            const trialsResponse = await fetch('http://localhost:8080/public/trials');
-            if (!trialsResponse.ok) throw new Error('Erreur chargement épreuves');
-            const trialsData = await trialsResponse.json();
-            
-            console.log('Events:', eventsData); // Debug
-            console.log('Trials:', trialsData); // Debug
-            
-            // Créer un Set des IDs d'événements qui sont des trials
-            const trialEventIds = new Set(trialsData.map(trial => trial.idEvent));
-            
-            console.log('Trial Event IDs:', Array.from(trialEventIds)); // Debug
-            
-            // Filtrer les événements pour exclure ceux qui sont des trials
-            const nonTrialEvents = eventsData.filter(event => !trialEventIds.has(event.id));
-            
-            console.log('Filtered events:', nonTrialEvents); // Debug
-            
-            setEvents(nonTrialEvents);
-            setTrials(trialsData);
+            setEvents(events);
+            setTrials(trials);
         } catch (err) {
             console.error('Fetch error:', err);
             setError(err.message);
