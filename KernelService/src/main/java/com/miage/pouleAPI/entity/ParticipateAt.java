@@ -11,7 +11,7 @@ import lombok.Setter;
 @AllArgsConstructor
 @NoArgsConstructor
 @Entity
-@Table(name = "patricipate_at")
+@Table(name = "participate_at")
 public class ParticipateAt {
 
     @EmbeddedId
