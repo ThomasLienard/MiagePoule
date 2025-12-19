@@ -46,7 +46,7 @@ const EventDetails = () => {
 
     return (
         <div className="event-details">
-            <button onClick={() => navigate('/public/events')} className="back-button">
+            <button onClick={() => navigate(-1)} className="back-button">
                 ← Retour à la liste
             </button>
             

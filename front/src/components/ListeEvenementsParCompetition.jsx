@@ -1,23 +1,24 @@
 import React, { useState, useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
-import { fetchEventAndTrialsData } from '../services/eventService';
+import { useNavigate, useParams } from 'react-router-dom';
+import { fetchEventAndTrialsByCompetition } from '../services/eventService';
 import '../styles/ListeEvenements.css';
 
-const ListeEvenements = () => {
+const ListeEvenementsParCompetition = () => {
     const [events, setEvents] = useState([]);
     const [trials, setTrials] = useState([]);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
     const navigate = useNavigate();
+    const { championshipId, competitionId } = useParams();
 
     useEffect(() => {
         fetchAllData();
-    }, []);
+    }, [championshipId, competitionId]);
 
     const fetchAllData = async () => {
         try {
             setLoading(true);
-            const { events, trials } = await fetchEventAndTrialsData();
+            const { events, trials } = await fetchEventAndTrialsByCompetition(championshipId, competitionId);
             
             // Créer un Set des IDs d'événements qui sont des trials
             const trialEventIds = new Set(trials.map(trial => trial.idEvent));
@@ -48,7 +49,7 @@ const ListeEvenements = () => {
 
     return (
         <div className="liste-evenements">
-            <h1>Liste des Événements</h1>
+            <h1>Événements de la Compétition</h1>
             
             {/* Section Épreuves Sportives */}
             <section className="events-section">
@@ -102,4 +103,4 @@ const ListeEvenements = () => {
     );
 };
 
-export default ListeEvenements;
+export default ListeEvenementsParCompetition;

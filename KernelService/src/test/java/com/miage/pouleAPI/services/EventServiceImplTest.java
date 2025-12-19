@@ -241,4 +241,62 @@ class EventServiceImplTest {
         // Then
         verify(eventAdapter, times(1)).entityToDetailDto(event1);
     }
+
+    @Test
+    @DisplayName("getEventsByChampionshipAndCompetition() - Devrait retourner les événements d'une compétition")
+    void testGetEventsByChampionshipAndCompetition_Success() {
+        // Given
+        Integer championshipId = 1;
+        Integer competitionId = 1;
+        List<Event> competitionEvents = Arrays.asList(event1);
+        List<EventSummaryDTO> summaries = Arrays.asList(summary1);
+        
+        when(eventRepository.findByCompetitionId(competitionId)).thenReturn(competitionEvents);
+        when(eventAdapter.entityListToSummaryDtoList(competitionEvents)).thenReturn(summaries);
+
+        // When
+        List<EventSummaryDTO> result = eventService.getEventsByChampionshipAndCompetition(championshipId, competitionId);
+
+        // Then
+        assertNotNull(result);
+        assertEquals(1, result.size());
+        assertEquals("Tech Conference 2025", result.get(0).getName());
+        verify(eventRepository, times(1)).findByCompetitionId(competitionId);
+        verify(eventAdapter, times(1)).entityListToSummaryDtoList(competitionEvents);
+    }
+
+    @Test
+    @DisplayName("getEventsByChampionshipAndCompetition() - Devrait retourner une liste vide si aucun événement")
+    void testGetEventsByChampionshipAndCompetition_EmptyList() {
+        // Given
+        Integer championshipId = 1;
+        Integer competitionId = 999;
+        
+        when(eventRepository.findByCompetitionId(competitionId)).thenReturn(Collections.emptyList());
+        when(eventAdapter.entityListToSummaryDtoList(Collections.emptyList())).thenReturn(Collections.emptyList());
+
+        // When
+        List<EventSummaryDTO> result = eventService.getEventsByChampionshipAndCompetition(championshipId, competitionId);
+
+        // Then
+        assertNotNull(result);
+        assertEquals(0, result.size());
+        verify(eventRepository, times(1)).findByCompetitionId(competitionId);
+    }
+
+    @Test
+    @DisplayName("getEventsByChampionshipAndCompetition() - Devrait propager les exceptions du repository")
+    void testGetEventsByChampionshipAndCompetition_ThrowsException() {
+        // Given
+        Integer championshipId = 1;
+        Integer competitionId = 1;
+        
+        when(eventRepository.findByCompetitionId(competitionId))
+                .thenThrow(new RuntimeException("Database error"));
+
+        // When & Then
+        assertThrows(RuntimeException.class, 
+            () -> eventService.getEventsByChampionshipAndCompetition(championshipId, competitionId));
+        verify(eventRepository, times(1)).findByCompetitionId(competitionId);
+    }
 }

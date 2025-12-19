@@ -37,4 +37,11 @@ public class TrialServiceImpl implements TrialService {
         return trialRepository.findById(id)
             .map(trialAdapter::entityToDetailDto);
     }
+    
+    @Override
+    public List<TrialSummaryDTO> getTrialsByChampionshipAndCompetition(Integer championshipId, Integer competitionId) {
+        return trialAdapter.entityListToSummaryDtoList(
+            trialRepository.findByCompetitionId(competitionId)
+        );
+    }
 }

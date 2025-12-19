@@ -37,4 +37,11 @@ public class EventServiceImpl implements EventService {
         return eventRepository.findById(id)
             .map(eventAdapter::entityToDetailDto);
     }
+    
+    @Override
+    public List<EventSummaryDTO> getEventsByChampionshipAndCompetition(Integer championshipId, Integer competitionId) {
+        return eventAdapter.entityListToSummaryDtoList(
+            eventRepository.findByCompetitionId(competitionId)
+        );
+    }
 }

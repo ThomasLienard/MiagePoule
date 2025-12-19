@@ -57,4 +57,33 @@ class EventRepositoryIntegrationTest {
         assertThat(e.getCompetition()).isNotNull();
         assertThat(e.getCompetition().getId()).isEqualTo(2);
     }
+
+    @Test
+    @DisplayName("findByCompetitionId(1) doit retourner les événements de la compétition 1")
+    void findByCompetitionId_returnsEventsByCompetitionId() {
+        List<Event> events = eventRepository.findByCompetitionId(1);
+
+        assertThat(events).isNotEmpty();
+        assertThat(events).allMatch(e -> e.getCompetition() != null && e.getCompetition().getId() == 1);
+    }
+
+    @Test
+    @DisplayName("findByCompetitionId(2) doit retourner les événements de la compétition 2")
+    void findByCompetitionId_returnsEventsForCompetition2() {
+        List<Event> events = eventRepository.findByCompetitionId(2);
+
+        assertThat(events)
+            .extracting(Event::getId)
+            .contains(2);
+        
+        assertThat(events).allMatch(e -> e.getCompetition().getId() == 2);
+    }
+
+    @Test
+    @DisplayName("findByCompetitionId(999) doit retourner une liste vide pour une compétition inexistante")
+    void findByCompetitionId_returnsEmptyListForNonExistentCompetition() {
+        List<Event> events = eventRepository.findByCompetitionId(999);
+
+        assertThat(events).isEmpty();
+    }
 }
