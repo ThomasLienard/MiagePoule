@@ -10,8 +10,8 @@ import java.time.LocalDate;
 
 @Getter
 @Setter
-@AllArgsConstructor
 @NoArgsConstructor
+@AllArgsConstructor
 @Entity
 @Table(name = "Competition")
 public class Competition {
@@ -35,5 +35,6 @@ public class Competition {
 
     @Column(name = "end_date_competition", nullable = false)
     private LocalDate end;
+
 
 }

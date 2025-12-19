@@ -136,7 +136,7 @@ VALUES (1, 1),
 -- Participation
 -- ======================
 
-INSERT INTO patricipate_at (id_team, id_trial, trial_result_team)
+INSERT INTO participate_at (id_team, id_trial, trial_result_team)
 VALUES (1, 1, '12.4s'),
        (2, 1, '11.9s');
 

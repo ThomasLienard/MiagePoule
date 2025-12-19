@@ -24,8 +24,8 @@ const EventDetails = () => {
             setIsTrial(isTrialPath);
             
             const endpoint = isTrialPath 
-                ? `http://localhost:8080/public/trials/${id}`
-                : `http://localhost:8080/public/events/${id}`;
+                ? `http://localhost:8083/public/trials/${id}`
+                : `http://localhost:8083/public/events/${id}`;
                 
             const response = await fetch(endpoint);
             if (!response.ok) throw new Error('Événement non trouvé');

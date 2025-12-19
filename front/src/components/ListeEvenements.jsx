@@ -18,12 +18,12 @@ const ListeEvenements = () => {
             setLoading(true);
             
             // Récupérer les événements
-            const eventsResponse = await fetch('http://localhost:8080/public/events');
+            const eventsResponse = await fetch('http://localhost:8083/public/events');
             if (!eventsResponse.ok) throw new Error('Erreur chargement événements');
             const eventsData = await eventsResponse.json();
             
             // Récupérer les trials
-            const trialsResponse = await fetch('http://localhost:8080/public/trials');
+            const trialsResponse = await fetch('http://localhost:8083/public/trials');
             if (!trialsResponse.ok) throw new Error('Erreur chargement épreuves');
             const trialsData = await trialsResponse.json();
             

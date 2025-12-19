@@ -1,6 +1,6 @@
 spring:
   datasource:
-    url: jdbc:postgresql://localhost:5433/miagepoule
+    url: jdbc:postgresql://postgres:5432/miagepoule
     username: miageuser
     password: miagepassword
     driver-class-name: org.postgresql.Driver
@@ -10,6 +10,7 @@ spring:
       ddl-auto: update
     properties:
       hibernate:
+        dialect: org.hibernate.dialect.PostgreSQLDialect
         format_sql: true
     defer-datasource-initialization: true
     show-sql: true
@@ -20,4 +21,4 @@ spring:
       continue-on-error: true
 
 server:
-  port: 8080
+  port: 8082

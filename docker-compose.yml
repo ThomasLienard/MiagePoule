@@ -10,13 +10,17 @@ services:
       POSTGRES_USER: miageuser
       POSTGRES_PASSWORD: miagepassword
     ports:
-      - "5433:5432"  # Changé de 5432 à 5433
-    volumes:
-      - postgres_data:/var/lib/postgresql/data
+      - "5433:5432"
     networks:
       - miage-network
     restart: unless-stopped
-
+  adminer:
+    image: adminer
+    restart: always
+    ports:
+      - 8080:8080
+    networks:
+      - miage-network
   # API Spring Boot
   poule-api:
     build:
@@ -29,7 +33,7 @@ services:
       SPRING_DATASOURCE_PASSWORD: miagepassword
       SPRING_JPA_HIBERNATE_DDL_AUTO: update
     ports:
-      - "8081:8081"
+      - "8083:8082"
     depends_on:
       - postgres
     networks:
@@ -41,13 +45,13 @@ services:
     build: ./front
     container_name: react_miagepoule
     ports:
-      - "3000:3000"
+      - "3000:3000"  # Un seul port exposé
     networks:
       - miage-network
     restart: unless-stopped
 
   cerberus-mysql:
-    image: mysql:8.0
+    image: cerberustesting/cerberus-db-mysql
     container_name: cerberus-mysql
     restart: always
     environment:
@@ -63,22 +67,31 @@ services:
       - miage-network
 
   cerberus:
-    build:
-      context: ./cerberus
-      dockerfile: Dockerfile
+    image: cerberustesting/cerberus-as-tomcat
     container_name: cerberus
     depends_on:
       - cerberus-mysql
+    environment:
+      DATABASE_HOST: cerberus-mysql
+      DATABASE_PORT: 3306
+      DATABASE_NAME: cerberus
+      DATABASE_USER: cerberus
+      DATABASE_PASSWORD: cerberus
+      org.cerberus.environment: prd
+      org.cerberus.authentification: none
     ports:
       - "8082:8080"
-    environment:
-      CERBERUS_DB_HOST: cerberus-mysql
-      CERBERUS_DB_PORT: 3306
-      CERBERUS_DB_NAME: cerberus
-      CERBERUS_DB_USER: cerberus
-      CERBERUS_DB_PASSWORD: cerberus
     networks:
       - miage-network
+
+  selenium:
+    image: selenium/standalone-firefox:4
+    container_name: selenium
+    ports:
+      - "4444:4444"
+    networks:
+      - miage-network
+
 
 volumes:
   postgres_data:
