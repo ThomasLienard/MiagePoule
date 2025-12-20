@@ -3,6 +3,8 @@ package com.miage.pouleAPI.adapter;
 import com.miage.pouleAPI.adapters.EventAdapter;
 import com.miage.pouleAPI.dtos.event.EventDetailDTO;
 import com.miage.pouleAPI.dtos.event.EventSummaryDTO;
+import com.miage.pouleAPI.dtos.place.PlaceDTO;
+import com.miage.pouleAPI.dtos.timeslot.TimeSlotDTO;
 import com.miage.pouleAPI.entity.Competition;
 import com.miage.pouleAPI.entity.Event;
 import com.miage.pouleAPI.entity.Place;
@@ -254,5 +256,59 @@ class EventAdapterTest {
 
         // Then
         assertNull(result);
+    }
+
+    @Test
+    @DisplayName("detailDtoToEntity() - Devrait convertir TimeSlotDTO et PlaceDTO en entités")
+    void testDetailDtoToEntity_WithNestedObjects() {
+        // Given
+        EventDetailDTO dto = new EventDetailDTO();
+        dto.setId(2);
+        dto.setName("Nested Event");
+        dto.setDescription("With nested objects");
+
+        TimeSlotDTO timeSlotDTO = new TimeSlotDTO(
+            LocalDateTime.of(2025, 7, 10, 9, 30),
+            LocalDateTime.of(2025, 7, 10, 11, 0)
+        );
+        dto.setTimeSlot(timeSlotDTO);
+
+        PlaceDTO placeDTO = new PlaceDTO();
+        placeDTO.setId(3);
+        placeDTO.setName("Arena");
+        placeDTO.setDescription("Indoor arena");
+        placeDTO.setStreet("Main St");
+        placeDTO.setNumber("99");
+        placeDTO.setCity("Lyon");
+        placeDTO.setZip("69000");
+        placeDTO.setParking(true);
+        placeDTO.setLatitude(45.7640);
+        placeDTO.setLongitude(4.8357);
+        dto.setPlace(placeDTO);
+
+        // When
+        Event result = eventAdapter.detailDtoToEntity(dto);
+
+        // Then
+        assertNotNull(result);
+        assertEquals(2, result.getId());
+        assertEquals("Nested Event", result.getName());
+        assertEquals("With nested objects", result.getDescription());
+
+        assertNotNull(result.getTimeSlot());
+        assertEquals(timeSlotDTO.getStart(), result.getTimeSlot().getStart());
+        assertEquals(timeSlotDTO.getEnd(), result.getTimeSlot().getEnd());
+
+        assertNotNull(result.getPlace());
+        assertEquals(placeDTO.getId(), result.getPlace().getId());
+        assertEquals(placeDTO.getName(), result.getPlace().getName());
+        assertEquals(placeDTO.getDescription(), result.getPlace().getDescription());
+        assertEquals(placeDTO.getStreet(), result.getPlace().getStreet());
+        assertEquals(placeDTO.getNumber(), result.getPlace().getNumber());
+        assertEquals(placeDTO.getCity(), result.getPlace().getCity());
+        assertEquals(placeDTO.getZip(), result.getPlace().getZip());
+        assertEquals(placeDTO.getParking(), result.getPlace().getParking());
+        assertEquals(placeDTO.getLatitude(), result.getPlace().getLatitude());
+        assertEquals(placeDTO.getLongitude(), result.getPlace().getLongitude());
     }
 }
