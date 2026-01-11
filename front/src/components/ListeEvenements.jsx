@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
+import {Badge, Button, Card, Col, Row} from "react-bootstrap";
 
 const ListeEvenements = () => {
     const [events, setEvents] = useState([]);
@@ -61,57 +62,69 @@ const ListeEvenements = () => {
     if (error) return <div className="error">Erreur: {error}</div>;
 
     return (
-        <div className="liste-evenements">
-            <h1>Liste des Événements</h1>
-            
-            {/* Section Épreuves Sportives */}
-            <section className="events-section">
+        <div className="pt-2">
+            <div>
                 <h2>🏆 Épreuves Sportives</h2>
-                <div className="events-grid">
-                    {trials.length === 0 ? (
-                        <p className="empty-message">Aucune épreuve disponible</p>
-                    ) : (
-                        trials.map(trial => (
-                            <div 
-                                key={`trial-${trial.id}`} 
-                                className="event-card trial-card"
-                                onClick={() => handleTrialClick(trial.id)}
-                            >
-                                <div className="card-badge">Épreuve</div>
-                                <h3>{trial.name}</h3>
-                                <p className="description">
-                                    {trial.description || 'Aucune description'}
-                                </p>
-                                <button className="view-details">Voir les détails →</button>
-                            </div>
-                        ))
-                    )}
-                </div>
-            </section>
+                    <div className="events-grid">
+                        <Row>
+                        {trials.length === 0 ? (
+                            <p className="empty-message">Aucune épreuve disponible</p>
+                        ) : (
+                            trials.map(trial => (
+                                <Col xs={12} md={4}
+                                    key={`trial-${trial.id}`}
+                                    onClick={() => handleTrialClick(trial.id)}
+                                >
+                                    <Card>
+                                        <Card.Body>
+                                            <Card.Title className="d-flex justify-content-center">
+                                                {trial.name}
+                                                <Badge bg="primary" className="ms-2">Épreuve</Badge>
+                                            </Card.Title>
+                                            <Card.Text className="d-flex justify-content-center">
+                                                {trial.description || 'Aucune description'}
+                                            </Card.Text>
+                                        </Card.Body>
+                                        <div className="d-flex justify-content-center mb-2">
+                                            <Button variant="secondary">Voir les détails</Button>
+                                        </div>
+                                    </Card>
+                                </Col>
+                            ))
+                        )}
+                        </Row>
+                    </div>
+            </div>
 
-            {/* Section Événements Non Sportifs */}
-            <section className="events-section">
+            <div>
                 <h2>📅 Événements</h2>
-                <div className="events-grid">
-                    {events.length === 0 ? (
-                        <p className="empty-message">Aucun événement disponible</p>
+                <Row>
+                    {trials.length === 0 ? (
+                        <p className="empty-message">Aucune événement disponible</p>
                     ) : (
                         events.map(event => (
-                            <div 
-                                key={`event-${event.id}`} 
-                                className="event-card"
-                                onClick={() => handleEventClick(event.id)}
+                            <Col xs={12} md={4}
+                                 key={`event-${event.id}`}
+                                 onClick={() => handleEventClick(event.id)}
                             >
-                                <h3>{event.name}</h3>
-                                <p className="description">
-                                    {event.description || 'Aucune description'}
-                                </p>
-                                <button className="view-details">Voir les détails →</button>
-                            </div>
+                                <Card>
+                                    <Card.Body>
+                                        <Card.Title className="d-flex justify-content-center">
+                                            {event.name}
+                                        </Card.Title>
+                                        <Card.Text className="d-flex justify-content-center">
+                                            {event.description || 'Aucune description'}
+                                        </Card.Text>
+                                    </Card.Body>
+                                    <div className="d-flex justify-content-center mb-2">
+                                        <Button variant="secondary">Voir les détails</Button>
+                                    </div>
+                                </Card>
+                            </Col>
                         ))
                     )}
-                </div>
-            </section>
+                </Row>
+            </div>
         </div>
     );
 };

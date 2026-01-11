@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import {getChampionships} from "../services/championshipService.jsx";
+import {Button, Card} from "react-bootstrap";
 
 
 const ListChampionships = () => {
@@ -28,19 +29,27 @@ const ListChampionships = () => {
     if (championships.length === 0) return <p>Aucun championnat disponible.</p>;
 
     return (
-        <div className="championship-page">
-            <h2 className="championship-title">Liste des championnats</h2>
-            <div className="championship-container">
-                {championships.map((c) => (
-                    <div key={c.id} className="championship-card">
-                        <h2>{c.name}</h2>
-                        <Link to={`/public/championship/${c.id}/comp`}>
-                            <button>Voir les détails</button>
-                        </Link>
-
+        <div className="d-flex justify-content-center pt-2">
+            <Card className="p-3">
+                <Card.Body>
+                    <Card.Title className="text-center" as="h3">Liste des championnats</Card.Title>
+                    <div className="d-flex justify-content-center">
+                        <hr style={{width:"3rem"}}/>
                     </div>
-                ))}
-            </div>
+                    <Card.Text>
+                        <div className="d-flex flex-column gap-3">
+                            {championships.map((c) => (
+                                <Card key={c.id} className="p-2">
+                                    <Card.Title className="text-center mt-2">{c.name}</Card.Title>
+                                    <Link to={`/public/championship/${c.id}/comp`} className="text-center mb-2">
+                                        <Button variant="secondary">Voir les détails</Button>
+                                    </Link>
+                                </Card>
+                            ))}
+                        </div>
+                    </Card.Text>
+                </Card.Body>
+            </Card>
         </div>
     );
 };
