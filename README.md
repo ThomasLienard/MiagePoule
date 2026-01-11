@@ -8,26 +8,40 @@ Projet MiagePoule - Application de gestion d'evenements sportifs.
 - Suivi des heures de chacun : https://docs.google.com/spreadsheets/d/12Pm5g05zaR8LFwijVBRfq72DI7AqkXp7ooYLMCOAcBw/edit?gid=0#gid=0
 
 ## Installation avec Docker
+
+### Prérequis
+
+#### Windows/MacOS
+- Posséder Docker Desktop
+- Lancer Docker Desktop
+
+#### Linux
+- Posséder Docker
+
 ### Lancer l'application
 
-Pour démarrer l'application tout les services (front,nack,BDD) avec Docker, exécutez la commande suivante :
+Pour démarrer l'application avec Docker, exécutez la commande suivante à la racine du projet :
 
 ```bash
-  docker-compose up
-  ou
   docker compose up
 ```
+ou
+```bash
+  docker-compose up
+```
+
 **Note** : Le téléchargement et le démarrage peuvent prendre un certain temps.
 
-Pour démarer uniquement le service postrgre (ça necessite de lancer les projets manuellement)  : 
+Pour démarrer uniquement le service postgres : 
 ```bash
   docker compose -f 'docker-compose.yml' up -d --build 'postgres'
 ```
+(Cela nécessite de lancer les autres services manuellement)
 
 ### Accès aux services
 
 - Frontend : http://localhost:3000/
-    - Pour l'instant, l'interface n'est pas encore fonctionnelle
+
 
 - Base de données PostgreSQL :
 ```bash
@@ -37,11 +51,11 @@ Mot de passe : miagepassword
 
 ### État actuel du projet
 
-- Frontend accessible (développement en cours)
-
-- Backend non fonctionnel pour le moment
-
-- Base de données PostgreSQL opérationnelle
+- Base de données PostgreSQL opérationnelle.
+- Carte accessible avec les points de rendez-vous.
+- Liste des compétitions visibles.
+- Liste des épreuves visibles.
+- Détails des épreuves visibles.
 
 ## Maintenance
 ### Nettoyage Docker
