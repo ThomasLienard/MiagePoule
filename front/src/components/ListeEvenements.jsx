@@ -1,6 +1,5 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import '../styles/ListeEvenements.css';
 
 const ListeEvenements = () => {
     const [events, setEvents] = useState([]);

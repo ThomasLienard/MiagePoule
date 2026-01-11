@@ -1,6 +1,7 @@
 import { useMemo, useState } from 'react';
 import PropTypes from 'prop-types';
 import EventMarker from './EventMarker';
+import {Button} from "react-bootstrap";
 
 const ManualMarkerCluster = ({ events, onMarkerClick }) => {
     const [selectedGroup, setSelectedGroup] = useState(null);
@@ -51,7 +52,8 @@ const ManualMarkerCluster = ({ events, onMarkerClick }) => {
             ))}
 
             {selectedGroup && (
-                <div style={{
+                <div
+                    style={{
                     position: 'absolute',
                     top: '50%',
                     left: '50%',
@@ -64,22 +66,18 @@ const ManualMarkerCluster = ({ events, onMarkerClick }) => {
                     minWidth: '300px',
                     maxHeight: '400px',
                     overflowY: 'auto'
-                }}>
-                    <h3 style={{ margin: '0 0 15px 0', color: '#333' }}>
-                        {selectedGroup.events.length} événements à cet endroit
+                }}
+                    className="d-flex flex-column gap-2"
+                >
+                    <h3 className="text-center">
+                        {selectedGroup.events.length} évènements à cet endroit
                     </h3>
-                    <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
+                    <div className="d-flex flex-column gap-2">
                         {selectedGroup.events.map(event => (
-                            <div
+                            <Button
                                 key={event.id}
-                                style={{
-                                    padding: '10px',
-                                    border: '1px solid #ddd',
-                                    borderRadius: '5px',
-                                    cursor: 'pointer',
-                                    transition: 'all 0.2s',
-                                    backgroundColor: '#f8f9fa'
-                                }}
+                                size="lg"
+                                variant="outline-secondary"
                                 onClick={() => {
                                     onMarkerClick(event.id);
                                     setSelectedGroup(null);
@@ -87,32 +85,24 @@ const ManualMarkerCluster = ({ events, onMarkerClick }) => {
                                 onMouseEnter={e => e.currentTarget.style.backgroundColor = '#e9ecef'}
                                 onMouseLeave={e => e.currentTarget.style.backgroundColor = '#f8f9fa'}
                             >
-                                <div style={{ fontWeight: 'bold', marginBottom: '5px', color:'black' }}>
+                                <div className="fw-semibold text-black">
                                     {event.name}
                                 </div>
                                 {event.description && (
-                                    <div style={{ fontSize: '0.9em', color: '#666' }}>
+                                    <div className="text-body-secondary">
                                         {event.description.substring(0, 50)}...
                                     </div>
                                 )}
-                            </div>
+                            </Button>
                         ))}
                     </div>
-                    <button
+                    <Button
                         onClick={() => setSelectedGroup(null)}
-                        style={{
-                            marginTop: '15px',
-                            padding: '8px 16px',
-                            backgroundColor: '#6c757d',
-                            color: 'white',
-                            border: 'none',
-                            borderRadius: '5px',
-                            cursor: 'pointer',
-                            width: '100%'
-                        }}
+                        variant="secondary"
+                        className="text-center"
                     >
                         Fermer
-                    </button>
+                    </Button>
                 </div>
             )}
         </>

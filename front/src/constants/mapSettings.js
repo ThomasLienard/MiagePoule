@@ -1,9 +1,6 @@
 // Tailles responsive pour la carte
 export const MAP_CONTAINER_STYLE = {
-    width: "100%",
-    height: "calc(100vh - 200px)",
-    minHeight: "500px",
-    maxHeight: "800px",
+    height: "70vh",
 };
 
 export const DEFAULT_CENTER = {

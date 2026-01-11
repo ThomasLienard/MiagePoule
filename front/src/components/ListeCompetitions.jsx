@@ -1,5 +1,4 @@
 import React, { useEffect, useState } from "react";
-import "../styles/ListeCompetition.css";
 import { useParams, Link } from "react-router-dom";
 import {getCompetitionsByChampionship} from "../services/competitionService.jsx";
 

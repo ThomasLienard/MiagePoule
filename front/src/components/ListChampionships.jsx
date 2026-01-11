@@ -1,7 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import {getChampionships} from "../services/championshipService.jsx";
-import "../styles/ListChampionship.css";
 
 
 const ListChampionships = () => {
