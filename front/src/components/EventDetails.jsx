@@ -131,6 +131,79 @@ const EventDetails = () => {
                         </div>
                     </div>
                 )}
+
+                {/* Section Classement / Résultats */}
+                {eventData.rankings && eventData.rankings.length > 0 && (
+                    <div className="info-section">
+                        <h2>🏆 Classement</h2>
+                        <div className="rankings-container">
+                            {/* Séparation des résultats par type */}
+                            {eventData.rankings.some(r => r.participantType === 'TEAM') && (
+                                <div className="rankings-group">
+                                    <h3>Équipes</h3>
+                                    <table className="rankings-table">
+                                        <thead>
+                                            <tr>
+                                                <th>Rang</th>
+                                                <th>Équipe</th>
+                                                <th>Résultat</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            {eventData.rankings
+                                                .filter(r => r.participantType === 'TEAM')
+                                                .map((ranking, index) => (
+                                                    <tr key={`team-${ranking.participantId}-${index}`} className={`rank-${ranking.rank}`}>
+                                                        <td className="rank-cell">
+                                                            {ranking.rank === 1 && '🥇'}
+                                                            {ranking.rank === 2 && '🥈'}
+                                                            {ranking.rank === 3 && '🥉'}
+                                                            {ranking.rank > 3 && ranking.rank}
+                                                        </td>
+                                                        <td className="participant-name">{ranking.participantName}</td>
+                                                        <td className="result-cell">{ranking.result}</td>
+                                                    </tr>
+                                                ))
+                                            }
+                                        </tbody>
+                                    </table>
+                                </div>
+                            )}
+                            
+                            {eventData.rankings.some(r => r.participantType === 'ATHLETE') && (
+                                <div className="rankings-group">
+                                    <h3>Athlètes</h3>
+                                    <table className="rankings-table">
+                                        <thead>
+                                            <tr>
+                                                <th>Rang</th>
+                                                <th>Athlète</th>
+                                                <th>Résultat</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            {eventData.rankings
+                                                .filter(r => r.participantType === 'ATHLETE')
+                                                .map((ranking, index) => (
+                                                    <tr key={`athlete-${ranking.participantId}-${index}`} className={`rank-${ranking.rank}`}>
+                                                        <td className="rank-cell">
+                                                            {ranking.rank === 1 && '🥇'}
+                                                            {ranking.rank === 2 && '🥈'}
+                                                            {ranking.rank === 3 && '🥉'}
+                                                            {ranking.rank > 3 && ranking.rank}
+                                                        </td>
+                                                        <td className="participant-name">{ranking.participantName}</td>
+                                                        <td className="result-cell">{ranking.result}</td>
+                                                    </tr>
+                                                ))
+                                            }
+                                        </tbody>
+                                    </table>
+                                </div>
+                            )}
+                        </div>
+                    </div>
+                )}
             </div>
         </div>
     );

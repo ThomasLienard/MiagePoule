@@ -10,9 +10,14 @@ import com.miage.pouleAPI.entity.Event;
 import com.miage.pouleAPI.entity.Place;
 import com.miage.pouleAPI.entity.TimeSlot;
 import com.miage.pouleAPI.entity.Trial;
+import com.miage.pouleAPI.repositories.IsConvenedToRepository;
+import com.miage.pouleAPI.repositories.ParticipateAtRepository;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.Mock;
+import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.time.LocalDateTime;
 import java.util.Arrays;
@@ -20,9 +25,19 @@ import java.util.Collections;
 import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.*;
+import static org.mockito.ArgumentMatchers.anyInt;
+import static org.mockito.Mockito.lenient;
+import static org.mockito.Mockito.when;
 
+@ExtendWith(MockitoExtension.class)
 @DisplayName("TrialAdapter Tests")
 class TrialAdapterTest {
+
+    @Mock
+    private ParticipateAtRepository participateAtRepository;
+    
+    @Mock
+    private IsConvenedToRepository isConvenedToRepository;
 
     private TrialAdapter trialAdapter;
     private Trial trial;
@@ -33,7 +48,11 @@ class TrialAdapterTest {
 
     @BeforeEach
     void setUp() {
-        trialAdapter = new TrialAdapter();
+        trialAdapter = new TrialAdapter(participateAtRepository, isConvenedToRepository);
+        
+        // Mock empty rankings for tests that don't specifically test rankings (lenient to avoid UnnecessaryStubbingException)
+        lenient().when(participateAtRepository.findByTrialIdOrderedByResult(anyInt())).thenReturn(Collections.emptyList());
+        lenient().when(isConvenedToRepository.findByTrialIdOrderedByResult(anyInt())).thenReturn(Collections.emptyList());
 
         competition = new Competition();
         competition.setId(1);
