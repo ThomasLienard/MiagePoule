@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
 import "../styles/ListeCompetition.css";
-import { useParams, Link } from "react-router-dom";
+import {useParams, Link, useNavigate} from "react-router-dom";
 import {getCompetitionsByChampionship} from "../services/competitionService.jsx";
 
 
@@ -9,6 +9,7 @@ const ListeCompetitions = () => {
     const [competitions, setCompetitions] = useState([]);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
+    const navigate = useNavigate();
 
     useEffect(() => {
         const fetchCompetitions = async () => {
@@ -31,6 +32,9 @@ const ListeCompetitions = () => {
 
     return (
         <div className="competition-page">
+            <button onClick={() => navigate(-1)} className="back-button">
+                ← Retour au championnat
+            </button>
             <h2 className="competition-title">Liste des compétitions</h2>
             <div className="competition-container">
                 {competitions.map((c) => (

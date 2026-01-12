@@ -49,8 +49,11 @@ const ListeEvenementsParCompetition = () => {
 
     return (
         <div className="liste-evenements">
+            <button onClick={() => navigate(-1)} className="back-button">
+                ← Retour
+            </button>
             <h1>Événements de la Compétition</h1>
-            
+
             {/* Section Épreuves Sportives */}
             <section className="events-section">
                 <h2>🏆 Épreuves Sportives</h2>
@@ -59,8 +62,8 @@ const ListeEvenementsParCompetition = () => {
                         <p className="empty-message">Aucune épreuve disponible</p>
                     ) : (
                         trials.map(trial => (
-                            <div 
-                                key={`trial-${trial.id}`} 
+                            <div
+                                key={`trial-${trial.id}`}
                                 className="event-card trial-card"
                                 onClick={() => handleTrialClick(trial.id)}
                             >
@@ -84,8 +87,8 @@ const ListeEvenementsParCompetition = () => {
                         <p className="empty-message">Aucun événement disponible</p>
                     ) : (
                         events.map(event => (
-                            <div 
-                                key={`event-${event.id}`} 
+                            <div
+                                key={`event-${event.id}`}
                                 className="event-card"
                                 onClick={() => handleEventClick(event.id)}
                             >
