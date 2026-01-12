@@ -37,9 +37,8 @@ const ListeCompetitions = () => {
                     <div key={c.id} className="competition-card">
                         <h2>{c.name}</h2>
                         <Link to={`/public/championship/${championshipId}/comp/${c.id}`}>
-                            <button>Voir les détails</button>
+                            <button>Voir les événements</button>
                         </Link>
-
                     </div>
                 ))}
             </div>

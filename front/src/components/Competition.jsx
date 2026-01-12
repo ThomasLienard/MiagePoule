@@ -1,6 +1,6 @@
 import React, {useEffect, useState} from "react";
 import "../styles/Competition.css";
-import {useParams} from "react-router-dom";
+import {Link, useParams} from "react-router-dom";
 import {getCompetitionById} from "../services/competitionService.jsx";
 
 const Competition = () => {
@@ -34,6 +34,9 @@ const Competition = () => {
             <h4> {description}</h4>
             <p><strong>Date de début:</strong> {formatDate(start)}</p>
             <p><strong>Date de fin:</strong> {formatDate(end)}</p>
+            <Link to={`/public/championship/${championshipId}/comp/${idComp}/events`}>
+                <button>Voir les détails</button>
+            </Link>
         </div>
     );
 };
