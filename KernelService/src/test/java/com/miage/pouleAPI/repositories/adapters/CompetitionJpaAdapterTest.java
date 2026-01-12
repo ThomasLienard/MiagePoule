@@ -1,10 +1,12 @@
 package com.miage.pouleAPI.repositories.adapters;
 
+import com.miage.pouleAPI.adapters.CompetitionJpaAdapter;
 import com.miage.pouleAPI.dtos.competition.CompetitionDTO;
 import com.miage.pouleAPI.entity.Championship;
 import com.miage.pouleAPI.entity.Competition;
 import com.miage.pouleAPI.repositories.ChampionshipRepository;
 import com.miage.pouleAPI.repositories.CompetitionRepository;
+
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;

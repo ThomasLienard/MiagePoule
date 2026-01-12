@@ -1,7 +1,7 @@
 package com.miage.pouleAPI.repositories;
 
 import com.miage.pouleAPI.entity.Event;
-import com.miage.pouleAPI.repositories.interfaces.EventRepository;
+
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
