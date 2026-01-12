@@ -35,4 +35,11 @@ public class EventController {
                 .map(ResponseEntity::ok)
                 .orElse(ResponseEntity.notFound().build());
     }
+    
+    @GetMapping("/championships/{championshipId}/comp/{competitionId}/events")
+    public List<EventSummaryDTO> getEventsByChampionshipAndCompetition(
+            @PathVariable Integer championshipId,
+            @PathVariable Integer competitionId) {
+        return eventService.getEventsByChampionshipAndCompetition(championshipId, competitionId);
+    }
 }

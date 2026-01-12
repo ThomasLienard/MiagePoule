@@ -88,4 +88,33 @@ class TrialRepositoryIT {
         assertThat(event.getCompetition()).isNotNull();
         assertThat(event.getCompetition().getId()).isEqualTo(2);
     }
+
+    @Test
+    @DisplayName("findByCompetitionId(1) doit retourner les épreuves de la compétition 1")
+    void findByCompetitionId_returnsTrialsByCompetitionId() {
+        List<Trial> trials = trialRepository.findByCompetitionId(1);
+
+        assertThat(trials).isNotEmpty();
+        assertThat(trials).allMatch(t -> t.getEvent() != null && t.getEvent().getCompetition().getId() == 1);
+    }
+
+    @Test
+    @DisplayName("findByCompetitionId(2) doit retourner les épreuves de la compétition 2")
+    void findByCompetitionId_returnsTrialsForCompetition2() {
+        List<Trial> trials = trialRepository.findByCompetitionId(2);
+
+        assertThat(trials)
+            .extracting(t -> t.getEvent().getId())
+            .contains(2);
+        
+        assertThat(trials).allMatch(t -> t.getEvent().getCompetition().getId() == 2);
+    }
+
+    @Test
+    @DisplayName("findByCompetitionId(999) doit retourner une liste vide pour une compétition inexistante")
+    void findByCompetitionId_returnsEmptyListForNonExistentCompetition() {
+        List<Trial> trials = trialRepository.findByCompetitionId(999);
+
+        assertThat(trials).isEmpty();
+    }
 }

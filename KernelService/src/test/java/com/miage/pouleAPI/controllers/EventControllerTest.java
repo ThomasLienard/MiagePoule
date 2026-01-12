@@ -245,4 +245,50 @@ class EventControllerTest {
         assertNull(response.getBody().getTimeSlot());
         assertNull(response.getBody().getPlace());
     }
+
+    @Test
+    @DisplayName("GET /public/championships/{championshipId}/comp/{competitionId}/events - Devrait retourner les événements d'une compétition")
+    void testGetEventsByChampionshipAndCompetition_Success() throws Exception {
+        // Given
+        List<EventSummaryDTO> competitionEvents = Arrays.asList(eventSummary1);
+        when(eventService.getEventsByChampionshipAndCompetition(1, 1)).thenReturn(competitionEvents);
+
+        // When & Then
+        mockMvc.perform(get("/public/championships/1/comp/1/events"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$").isArray())
+                .andExpect(jsonPath("$.length()").value(1))
+                .andExpect(jsonPath("$[0].id").value(1))
+                .andExpect(jsonPath("$[0].name").value("Tech Conference 2025"));
+
+        verify(eventService, times(1)).getEventsByChampionshipAndCompetition(1, 1);
+    }
+
+    @Test
+    @DisplayName("GET /public/championships/{championshipId}/comp/{competitionId}/events - Devrait retourner une liste vide")
+    void testGetEventsByChampionshipAndCompetition_EmptyList() throws Exception {
+        // Given
+        when(eventService.getEventsByChampionshipAndCompetition(1, 999)).thenReturn(Collections.emptyList());
+
+        // When & Then
+        mockMvc.perform(get("/public/championships/1/comp/999/events"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$").isArray())
+                .andExpect(jsonPath("$.length()").value(0));
+
+        verify(eventService, times(1)).getEventsByChampionshipAndCompetition(1, 999);
+    }
+
+    @Test
+    @DisplayName("GET /public/championships/{championshipId}/comp/{competitionId}/events - Devrait propager les exceptions")
+    void testGetEventsByChampionshipAndCompetition_ServiceException() throws Exception {
+        // Given
+        when(eventService.getEventsByChampionshipAndCompetition(1, 1))
+                .thenThrow(new RuntimeException("Database error"));
+
+        // When & Then
+        assertThrows(RuntimeException.class, 
+            () -> eventController.getEventsByChampionshipAndCompetition(1, 1));
+        verify(eventService, times(1)).getEventsByChampionshipAndCompetition(1, 1);
+    }
 }
