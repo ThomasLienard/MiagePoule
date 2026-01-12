@@ -3,7 +3,7 @@ package com.miage.pouleAPI.services;
 import com.miage.pouleAPI.adapters.EventAdapter;
 import com.miage.pouleAPI.dtos.event.EventDetailDTO;
 import com.miage.pouleAPI.dtos.event.EventSummaryDTO;
-import com.miage.pouleAPI.repositories.interfaces.EventRepository;
+import com.miage.pouleAPI.repositories.EventRepository;
 import com.miage.pouleAPI.services.interfaces.EventService;
 
 import org.springframework.beans.factory.annotation.Autowired;

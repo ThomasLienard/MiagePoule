@@ -1,8 +1,9 @@
-package com.miage.pouleAPI.repositories.adapters;
+package com.miage.pouleAPI.adapters;
 
 import com.miage.pouleAPI.dtos.championship.ChampionshipDTO;
 import com.miage.pouleAPI.entity.Championship;
 import com.miage.pouleAPI.repositories.ChampionshipRepository;
+
 import org.springframework.stereotype.Service;
 
 import java.util.List;

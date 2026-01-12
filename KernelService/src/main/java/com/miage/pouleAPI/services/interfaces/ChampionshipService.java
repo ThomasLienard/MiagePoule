@@ -1,4 +1,4 @@
-package com.miage.pouleAPI.services;
+package com.miage.pouleAPI.services.interfaces;
 
 import com.miage.pouleAPI.dtos.championship.ChampionshipDTO;
 import org.springframework.stereotype.Service;

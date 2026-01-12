@@ -8,7 +8,8 @@ import com.miage.pouleAPI.entity.Event;
 import com.miage.pouleAPI.entity.Place;
 import com.miage.pouleAPI.entity.TimeSlot;
 import com.miage.pouleAPI.entity.Trial;
-import com.miage.pouleAPI.repositories.interfaces.TrialRepository;
+import com.miage.pouleAPI.repositories.TrialRepository;
+
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;

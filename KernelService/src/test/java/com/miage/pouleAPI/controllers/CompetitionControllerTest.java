@@ -2,7 +2,8 @@ package com.miage.pouleAPI.controllers;
 
 import com.miage.pouleAPI.dtos.competition.CompetitionDTO;
 import com.miage.pouleAPI.entity.Championship;
-import com.miage.pouleAPI.services.CompetitionService;
+import com.miage.pouleAPI.services.interfaces.CompetitionService;
+
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;

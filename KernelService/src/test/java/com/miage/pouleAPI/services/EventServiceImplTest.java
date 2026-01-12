@@ -7,7 +7,8 @@ import com.miage.pouleAPI.entity.Competition;
 import com.miage.pouleAPI.entity.Event;
 import com.miage.pouleAPI.entity.Place;
 import com.miage.pouleAPI.entity.TimeSlot;
-import com.miage.pouleAPI.repositories.interfaces.EventRepository;
+import com.miage.pouleAPI.repositories.EventRepository;
+
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
