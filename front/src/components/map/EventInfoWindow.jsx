@@ -16,6 +16,14 @@ const EventInfoWindow = ({ event, loading, onClose, onViewDetails }) => {
         lng: place.longitude,
     };
 
+    const handleOpenDirections = () => {
+        const destination = `${place.latitude}, ${place.longitude}`;
+        const url = `https://www.google.com/maps/dir/?api=1&destination=${encodeURIComponent(
+            destination
+        )}`;
+        window.open(url, '_blank');
+    };
+
     return (
         <InfoWindow
             position={position}
@@ -65,6 +73,14 @@ const EventInfoWindow = ({ event, loading, onClose, onViewDetails }) => {
                                     aria-label={`Détails pour ${name}`}
                                 >
                                     Détails
+                                </Button>
+
+                                <Button
+                                    onClick={handleOpenDirections}
+                                    variant="secondary"
+                                    aria-label={`Itinéraire vers ${name}`}
+                                >
+                                    Itinéraire
                                 </Button>
                             </div>
                         </Card.Body>
