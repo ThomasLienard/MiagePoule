@@ -1,8 +1,8 @@
 package com.miage.pouleAPI.services;
 
+import com.miage.pouleAPI.adapters.ChampionshipJpaAdapter;
 import com.miage.pouleAPI.dtos.championship.ChampionshipDTO;
-import com.miage.pouleAPI.repositories.adapters.ChampionshipJpaAdapter;
-import com.miage.pouleAPI.services.impl.ChampionshipServiceImpl;
+
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;

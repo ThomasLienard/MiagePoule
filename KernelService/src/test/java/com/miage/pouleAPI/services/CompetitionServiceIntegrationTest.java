@@ -1,6 +1,8 @@
 package com.miage.pouleAPI.services;
 
 import com.miage.pouleAPI.dtos.competition.CompetitionDTO;
+import com.miage.pouleAPI.services.interfaces.CompetitionService;
+
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
