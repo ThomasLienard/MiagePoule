@@ -1,6 +1,6 @@
 spring:
   datasource:
-    url: jdbc:postgresql://postgres:5432/miagepoule
+    url: jdbc:postgresql://localhost:5433/miagepoule
     username: miageuser
     password: miagepassword
     driver-class-name: org.postgresql.Driver
@@ -22,3 +22,8 @@ spring:
 
 server:
   port: 8082
+
+security:
+  jwt:
+    secret: votreTresLongSecretQuiFaitPlusDe32CaracteresPourJWT256bits12345
+    expiration-ms : 3600000
