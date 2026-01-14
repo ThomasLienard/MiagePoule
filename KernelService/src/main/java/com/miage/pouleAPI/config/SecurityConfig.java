@@ -38,8 +38,12 @@ public class SecurityConfig {
                 .csrf(AbstractHttpConfigurer::disable)
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers("/auth/**").permitAll()
-                        .requestMatchers("/error").permitAll() // Important pour voir les erreurs
-                        .requestMatchers("/h2-console/**").permitAll()
+                        .requestMatchers("/public/**").permitAll()
+                        .requestMatchers("/error").permitAll()
+
+                        .requestMatchers("/admin/**").hasRole("ADMIN")
+
+
                         .anyRequest().authenticated()
                 )
                 .sessionManagement(sess -> sess.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
@@ -52,7 +56,11 @@ public class SecurityConfig {
     @Bean
     public CorsConfigurationSource corsConfigurationSource() {
         CorsConfiguration configuration = new CorsConfiguration();
-        configuration.setAllowedOrigins(List.of("http://localhost:3000", "http://localhost:8082"));
+        configuration.setAllowedOrigins(List.of(
+                "http://localhost:3000",  // Frontend
+                "http://localhost:8080",   // API Gateway
+                "http://localhost:8082"    // Backend lui-même
+        ));
         configuration.setAllowedMethods(List.of("GET", "POST", "PUT", "DELETE", "OPTIONS"));
         configuration.setAllowedHeaders(List.of("*"));
         configuration.setAllowCredentials(true);

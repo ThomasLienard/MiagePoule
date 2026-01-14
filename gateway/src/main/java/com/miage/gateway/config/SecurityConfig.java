@@ -6,6 +6,7 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
+import org.springframework.security.oauth2.jose.jws.MacAlgorithm;
 import org.springframework.security.oauth2.jwt.JwtDecoder;
 import org.springframework.security.oauth2.jwt.NimbusJwtDecoder;
 import org.springframework.security.oauth2.server.resource.authentication.JwtAuthenticationConverter;
@@ -32,6 +33,7 @@ public class SecurityConfig {
         config.setAllowedOrigins(List.of("http://localhost:3000"));
         config.setAllowedHeaders(List.of("*"));
         config.setAllowedMethods(List.of("GET", "POST", "PUT", "DELETE", "PATCH", "OPTIONS"));
+        config.setExposedHeaders(List.of("Authorization"));
 
         UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
         source.registerCorsConfiguration("/**", config);
@@ -44,8 +46,15 @@ public class SecurityConfig {
                 .cors(cors -> cors.configurationSource(corsConfigurationSource()))
                 .csrf(AbstractHttpConfigurer::disable)
                 .authorizeHttpRequests(auth -> auth
-                        .requestMatchers("/auth/**", "/public/**").permitAll()
+                        // Routes publiques (sans authentification)
+                        .requestMatchers("/auth/**").permitAll()
+                        .requestMatchers("/public/**").permitAll()
+                        .requestMatchers("/error").permitAll()
+
+                        // Routes protégées avec rôles spécifiques
                         .requestMatchers("/admin/**").hasRole("ADMIN")
+
+                        // Toutes les autres routes nécessitent une authentification
                         .anyRequest().authenticated()
                 )
                 .oauth2ResourceServer(oauth2 -> oauth2
@@ -60,9 +69,21 @@ public class SecurityConfig {
 
     @Bean
     public JwtDecoder jwtDecoder() {
-        // Crée le decoder avec le secret HMAC
-        SecretKeySpec secretKey = new SecretKeySpec(jwtSecret.getBytes(), "HmacSHA256");
-        return NimbusJwtDecoder.withSecretKey(secretKey).build();
+        // Pour HS384, le secret doit être long (au moins 48 caractères)
+        String actualSecret = jwtSecret;
+
+        try {
+            // Créer la clé pour HS384
+            byte[] keyBytes = actualSecret.getBytes();
+            SecretKeySpec secretKey = new SecretKeySpec(keyBytes, "HmacSHA384");
+
+            // Créer le decoder avec l'algorithme explicite
+            return NimbusJwtDecoder.withSecretKey(secretKey)
+                    .macAlgorithm(MacAlgorithm.HS384)
+                    .build();
+        } catch (Exception e) {
+            throw new RuntimeException("Failed to create JWT decoder", e);
+        }
     }
 
     @Bean
@@ -73,6 +94,7 @@ public class SecurityConfig {
 
         JwtAuthenticationConverter converter = new JwtAuthenticationConverter();
         converter.setJwtGrantedAuthoritiesConverter(gac);
+        converter.setPrincipalClaimName("email");
         return converter;
     }
 }
