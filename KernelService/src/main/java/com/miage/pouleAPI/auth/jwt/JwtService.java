@@ -21,7 +21,7 @@ public class JwtService {
     @Value("${security.jwt.expiration-ms:3600000}") // 1h
     private long expirationMs;
 
-    private SecretKey getSigningKey() {
+    SecretKey getSigningKey() {
         return Keys.hmacShaKeyFor(secret.getBytes(StandardCharsets.UTF_8));
     }
 

@@ -3,12 +3,17 @@
 -- ======================
 INSERT INTO country (country_code) VALUES ('FR');
 INSERT INTO country (country_code) VALUES ('US');
+INSERT INTO country (country_code) VALUES ('DE');
+INSERT INTO country (country_code) VALUES ('ES');
+INSERT INTO country (country_code) VALUES ('IT');
 
 -- ======================
 -- Roles
 -- ======================
 INSERT INTO role (role_name) VALUES ('ADMIN');
-INSERT INTO role (role_name) VALUES ('USER');
+INSERT INTO role (role_name) VALUES ('COMMISSAIRE');
+INSERT INTO role (role_name) VALUES ('ATHLETE');
+INSERT INTO role (role_name) VALUES ('VOLONTAIRE');
 
 -- ======================
 -- Severities
@@ -90,18 +95,19 @@ VALUES (1, 2);
 -- ======================
 -- Users (MODIFIÉ avec BCrypt)
 -- ======================
--- john@doe.com : "password123"
--- anna@smith.com : "admin123"
--- test@example.com : "test123"
--- john@test.com : "test123" (NOUVEAU)
+-- mdp : "test123"
+
 
 INSERT INTO application_user (id, name, lastname, password, email, country_code, role_name)
 VALUES
-    (1, 'John', 'Doe', '$2a$10$8vZ.WxHgLq3nIj5QN.4OZO3hF5nF4nN5rZg5F5F5F5F5F5F5F5F5F5F5F5F5F5F5F5F5F5F', 'john@doe.com', 'FR', 'USER'),
-    (2, 'Anna', 'Smith', '$2a$10$kPcY8wqI5bQ3Z5Z5Z5Z5Ze5Z5Z5Z5Z5Z5Z5Z5Z5Z5Z5Z5Z5Z5Z5Z5Z5Z5Z5Z5Z5Z5Z', 'anna@smith.com', 'US', 'ADMIN'),
-    (3, 'Test', 'User', '$2a$10$N9qo8uLOickgx2ZMRZoMyeIjZAgcfl7p92ldGxad68LJZdL17lhWy', 'test@example.com', 'FR', 'USER'),
-    (4, 'John', 'Test', '$2a$10$vycWMvbko2wycSl3u6bIL.vCeHgNBQfNq7jpVc7pCEnfER6A2vTLi', 'john@test.com', 'FR', 'USER');
-
+    -- Admin existant - email: anna@smith.com
+    (1, 'Anna', 'Smith', '$2a$10$vycWMvbko2wycSl3u6bIL.vCeHgNBQfNq7jpVc7pCEnfER6A2vTLi', 'anna@smith.com', 'US', 'ADMIN'),
+    -- Nouveaux utilisateurs pour chaque rôle
+    (2, 'Pierre', 'Commissaire', '$2a$10$vycWMvbko2wycSl3u6bIL.vCeHgNBQfNq7jpVc7pCEnfER6A2vTLi', 'commissaire@test.com', 'FR', 'COMMISSAIRE'),
+    (3, 'Marie', 'Athlete', '$2a$10$vycWMvbko2wycSl3u6bIL.vCeHgNBQfNq7jpVc7pCEnfER6A2vTLi', 'athlete@test.com', 'FR', 'ATHLETE'),
+    (4, 'Jean', 'Volontaire', '$2a$10$vycWMvbko2wycSl3u6bIL.vCeHgNBQfNq7jpVc7pCEnfER6A2vTLi', 'volontaire@test.com', 'FR', 'VOLONTAIRE'),
+    (5, 'John', 'Doe', '$2a$10$vycWMvbko2wycSl3u6bIL.vCeHgNBQfNq7jpVc7pCEnfER6A2vTLi', 'john@doe.com', 'US', 'ATHLETE'),
+    (6, 'Jane', 'Smith', '$2a$10$vycWMvbko2wycSl3u6bIL.vCeHgNBQfNq7jpVc7pCEnfER6A2vTLi', 'jane@smith.com', 'US', 'COMMISSAIRE');
 -- ======================
 -- Documents
 -- ======================
