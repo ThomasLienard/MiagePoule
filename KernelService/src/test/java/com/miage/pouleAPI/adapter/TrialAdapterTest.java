@@ -3,14 +3,21 @@ package com.miage.pouleAPI.adapter;
 import com.miage.pouleAPI.adapters.TrialAdapter;
 import com.miage.pouleAPI.dtos.trial.TrialDetailDTO;
 import com.miage.pouleAPI.dtos.trial.TrialSummaryDTO;
+import com.miage.pouleAPI.dtos.place.PlaceDTO;
+import com.miage.pouleAPI.dtos.timeslot.TimeSlotDTO;
 import com.miage.pouleAPI.entity.Competition;
 import com.miage.pouleAPI.entity.Event;
 import com.miage.pouleAPI.entity.Place;
 import com.miage.pouleAPI.entity.TimeSlot;
 import com.miage.pouleAPI.entity.Trial;
+import com.miage.pouleAPI.repositories.IsConvenedToRepository;
+import com.miage.pouleAPI.repositories.ParticipateAtRepository;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.Mock;
+import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.time.LocalDateTime;
 import java.util.Arrays;
@@ -18,9 +25,19 @@ import java.util.Collections;
 import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.*;
+import static org.mockito.ArgumentMatchers.anyInt;
+import static org.mockito.Mockito.lenient;
+import static org.mockito.Mockito.when;
 
+@ExtendWith(MockitoExtension.class)
 @DisplayName("TrialAdapter Tests")
 class TrialAdapterTest {
+
+    @Mock
+    private ParticipateAtRepository participateAtRepository;
+    
+    @Mock
+    private IsConvenedToRepository isConvenedToRepository;
 
     private TrialAdapter trialAdapter;
     private Trial trial;
@@ -31,7 +48,11 @@ class TrialAdapterTest {
 
     @BeforeEach
     void setUp() {
-        trialAdapter = new TrialAdapter();
+        trialAdapter = new TrialAdapter(participateAtRepository, isConvenedToRepository);
+        
+        // Mock empty rankings for tests that don't specifically test rankings (lenient to avoid UnnecessaryStubbingException)
+        lenient().when(participateAtRepository.findByTrialIdOrderedByResult(anyInt())).thenReturn(Collections.emptyList());
+        lenient().when(isConvenedToRepository.findByTrialIdOrderedByResult(anyInt())).thenReturn(Collections.emptyList());
 
         competition = new Competition();
         competition.setId(1);
@@ -333,5 +354,60 @@ class TrialAdapterTest {
         assertEquals(1, dto.getId());
         assertNull(dto.getIdEvent());
         assertEquals("Marathon de Paris", dto.getName());
+    }
+
+    @Test
+    @DisplayName("detailDtoToEntity() - Devrait convertir TimeSlotDTO et PlaceDTO en entités dans Event")
+    void testDetailDtoToEntity_WithNestedObjects() {
+        // Given
+        TrialDetailDTO dto = new TrialDetailDTO();
+        dto.setId(5);
+        dto.setName("Nested Trial");
+        dto.setDescription("With nested objects");
+
+        TimeSlotDTO timeSlotDTO = new TimeSlotDTO(
+            LocalDateTime.of(2025, 8, 1, 10, 0),
+            LocalDateTime.of(2025, 8, 1, 12, 30)
+        );
+        dto.setTimeSlot(timeSlotDTO);
+
+        PlaceDTO placeDTO = new PlaceDTO();
+        placeDTO.setId(7);
+        placeDTO.setName("Complexe Sportif");
+        placeDTO.setDescription("Gymnase couvert");
+        placeDTO.setStreet("Rue des Sports");
+        placeDTO.setNumber("15");
+        placeDTO.setCity("Marseille");
+        placeDTO.setZip("13000");
+        placeDTO.setParking(false);
+        placeDTO.setLatitude(43.2965);
+        placeDTO.setLongitude(5.3698);
+        dto.setPlace(placeDTO);
+
+        // When
+        Trial result = trialAdapter.detailDtoToEntity(dto);
+
+        // Then
+        assertNotNull(result);
+        assertEquals(5, result.getId());
+        assertNotNull(result.getEvent());
+        assertEquals("Nested Trial", result.getEvent().getName());
+        assertEquals("With nested objects", result.getEvent().getDescription());
+
+        assertNotNull(result.getEvent().getTimeSlot());
+        assertEquals(timeSlotDTO.getStart(), result.getEvent().getTimeSlot().getStart());
+        assertEquals(timeSlotDTO.getEnd(), result.getEvent().getTimeSlot().getEnd());
+
+        assertNotNull(result.getEvent().getPlace());
+        assertEquals(placeDTO.getId(), result.getEvent().getPlace().getId());
+        assertEquals(placeDTO.getName(), result.getEvent().getPlace().getName());
+        assertEquals(placeDTO.getDescription(), result.getEvent().getPlace().getDescription());
+        assertEquals(placeDTO.getStreet(), result.getEvent().getPlace().getStreet());
+        assertEquals(placeDTO.getNumber(), result.getEvent().getPlace().getNumber());
+        assertEquals(placeDTO.getCity(), result.getEvent().getPlace().getCity());
+        assertEquals(placeDTO.getZip(), result.getEvent().getPlace().getZip());
+        assertEquals(placeDTO.getParking(), result.getEvent().getPlace().getParking());
+        assertEquals(placeDTO.getLatitude(), result.getEvent().getPlace().getLatitude());
+        assertEquals(placeDTO.getLongitude(), result.getEvent().getPlace().getLongitude());
     }
 }

@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { useParams, Link } from "react-router-dom";
+import { useParams, Link, useNavigate } from "react-router-dom";
 import {getCompetitionsByChampionship} from "../services/competitionService.jsx";
 import {Button, Card} from "react-bootstrap";
 
@@ -9,6 +9,7 @@ const ListeCompetitions = () => {
     const [competitions, setCompetitions] = useState([]);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
+    const navigate = useNavigate();
 
     useEffect(() => {
         const fetchCompetitions = async () => {
@@ -33,6 +34,9 @@ const ListeCompetitions = () => {
         <div className="d-flex justify-content-center pt-2">
             <Card className="p-3">
                 <Card.Body>
+                    <Button onClick={() => navigate(-1)} className="back-button">
+                        ← Retour au championnat
+                    </Button>
                     <Card.Title className="text-center" as="h3">Liste des compétitions</Card.Title>
                     <div className="d-flex justify-content-center">
                         <hr style={{width:"3rem"}}/>
@@ -43,7 +47,7 @@ const ListeCompetitions = () => {
                                 <Card key={c.id} className="p-2">
                                     <Card.Title className="text-center mt-2">{c.name}</Card.Title>
                                     <Link to={`/public/championship/${championshipId}/comp/${c.id}`} className="text-center mb-2">
-                                        <Button variant="secondary">Voir les détails</Button>
+                                        <Button variant="secondary">Voir les événements</Button>
                                     </Link>
                                 </Card>
                             ))}

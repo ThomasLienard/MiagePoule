@@ -2,13 +2,14 @@ package com.miage.pouleAPI.adapters;
 
 
 import com.miage.pouleAPI.dtos.place.PlaceDTO;
+import com.miage.pouleAPI.dtos.ranking.RankingDTO;
 import com.miage.pouleAPI.dtos.timeslot.TimeSlotDTO;
 import com.miage.pouleAPI.dtos.trial.TrialDetailDTO;
 import com.miage.pouleAPI.dtos.trial.TrialSummaryDTO;
-import com.miage.pouleAPI.entity.Event;
-import com.miage.pouleAPI.entity.Place;
-import com.miage.pouleAPI.entity.TimeSlot;
-import com.miage.pouleAPI.entity.Trial;
+import com.miage.pouleAPI.entity.*;
+import com.miage.pouleAPI.repositories.IsConvenedToRepository;
+import com.miage.pouleAPI.repositories.ParticipateAtRepository;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import java.util.ArrayList;
@@ -17,6 +18,15 @@ import java.util.Objects;
 
 @Component
 public class TrialAdapter {
+    
+    private ParticipateAtRepository participateAtRepository;
+    private IsConvenedToRepository isConvenedToRepository;
+    
+    @Autowired
+    public TrialAdapter(ParticipateAtRepository participateAtRepository, IsConvenedToRepository isConvenedToRepository) {
+        this.participateAtRepository = participateAtRepository;
+        this.isConvenedToRepository = isConvenedToRepository;
+    }
 
     // ===== Conversions Entity -> DTO =====
     
@@ -66,6 +76,9 @@ public class TrialAdapter {
         if (event.getPlace() != null) {
             dto.setPlace(placeToDto(event.getPlace()));
         }
+        
+        // Rankings from ParticipateAt and IsConvenedTo
+        dto.setRankings(buildRankings(trial.getId()));
         
         return dto;
     }
@@ -164,5 +177,45 @@ public class TrialAdapter {
         place.setLongitude(dto.getLongitude());
         
         return place;
+    }
+    
+    // ===== Method to build rankings from ParticipateAt and IsConvenedTo =====
+    
+    private List<RankingDTO> buildRankings(Integer trialId) {
+        List<RankingDTO> rankings = new ArrayList<>();
+        
+        // Get team results (ParticipateAt)
+        List<ParticipateAt> teamResults = participateAtRepository.findByTrialIdOrderedByResult(trialId);
+        int teamRank = 1;
+        for (ParticipateAt participation : teamResults) {
+            if (participation.getTeam() != null && participation.getResult() != null) {
+                RankingDTO ranking = new RankingDTO();
+                ranking.setRank(teamRank);
+                ranking.setResult(participation.getResult());
+                ranking.setParticipantName(participation.getTeam().getName());
+                ranking.setParticipantType("TEAM");
+                ranking.setParticipantId(participation.getTeam().getId());
+                rankings.add(ranking);
+                teamRank++;
+            }
+        }
+        
+        // Get athlete results (IsConvenedTo)
+        List<IsConvenedTo> athleteResults = isConvenedToRepository.findByTrialIdOrderedByResult(trialId);
+        int athleteRank = 1;
+        for (IsConvenedTo convening : athleteResults) {
+            if (convening.getUser() != null && convening.getResult() != null) {
+                RankingDTO ranking = new RankingDTO();
+                ranking.setRank(athleteRank);
+                ranking.setResult(convening.getResult());
+                ranking.setParticipantName(convening.getUser().getName() + " " + convening.getUser().getLastname());
+                ranking.setParticipantType("ATHLETE");
+                ranking.setParticipantId(convening.getUser().getId());
+                rankings.add(ranking);
+                athleteRank++;
+            }
+        }
+        
+        return rankings;
     }
 }

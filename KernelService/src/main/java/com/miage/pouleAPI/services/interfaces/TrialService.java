@@ -9,4 +9,5 @@ import com.miage.pouleAPI.dtos.trial.TrialSummaryDTO;
 public interface TrialService {
     List<TrialSummaryDTO> getAllTrials();
     Optional<TrialDetailDTO> getTrialById(Integer id);
+    List<TrialSummaryDTO> getTrialsByChampionshipAndCompetition(Integer championshipId, Integer competitionId);
 }

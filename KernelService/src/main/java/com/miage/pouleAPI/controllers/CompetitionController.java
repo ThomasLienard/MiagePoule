@@ -1,7 +1,8 @@
 package com.miage.pouleAPI.controllers;
 
 import com.miage.pouleAPI.dtos.competition.CompetitionDTO;
-import com.miage.pouleAPI.services.CompetitionService;
+import com.miage.pouleAPI.services.interfaces.CompetitionService;
+
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 

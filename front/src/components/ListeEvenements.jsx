@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { fetchEventAndTrialsData } from '../services/eventService';
 import {Badge, Button, Card, Col, Row} from "react-bootstrap";
 
 const ListeEvenements = () => {
@@ -16,32 +17,16 @@ const ListeEvenements = () => {
     const fetchAllData = async () => {
         try {
             setLoading(true);
-            
-            // Récupérer les événements
-            const eventsResponse = await fetch('http://localhost:8083/public/events');
-            if (!eventsResponse.ok) throw new Error('Erreur chargement événements');
-            const eventsData = await eventsResponse.json();
-            
-            // Récupérer les trials
-            const trialsResponse = await fetch('http://localhost:8083/public/trials');
-            if (!trialsResponse.ok) throw new Error('Erreur chargement épreuves');
-            const trialsData = await trialsResponse.json();
-            
-            console.log('Events:', eventsData); // Debug
-            console.log('Trials:', trialsData); // Debug
+            const { events, trials } = await fetchEventAndTrialsData();
             
             // Créer un Set des IDs d'événements qui sont des trials
-            const trialEventIds = new Set(trialsData.map(trial => trial.idEvent));
-            
-            console.log('Trial Event IDs:', Array.from(trialEventIds)); // Debug
+            const trialEventIds = new Set(trials.map(trial => trial.idEvent));
             
             // Filtrer les événements pour exclure ceux qui sont des trials
-            const nonTrialEvents = eventsData.filter(event => !trialEventIds.has(event.id));
-            
-            console.log('Filtered events:', nonTrialEvents); // Debug
+            const nonTrialEvents = events.filter(event => !trialEventIds.has(event.id));
             
             setEvents(nonTrialEvents);
-            setTrials(trialsData);
+            setTrials(trials);
         } catch (err) {
             console.error('Fetch error:', err);
             setError(err.message);
@@ -130,5 +115,3 @@ const ListeEvenements = () => {
 };
 
 export default ListeEvenements;
-
-

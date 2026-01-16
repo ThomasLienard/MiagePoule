@@ -8,7 +8,8 @@ import com.miage.pouleAPI.entity.Event;
 import com.miage.pouleAPI.entity.Place;
 import com.miage.pouleAPI.entity.TimeSlot;
 import com.miage.pouleAPI.entity.Trial;
-import com.miage.pouleAPI.repositories.interfaces.TrialRepository;
+import com.miage.pouleAPI.repositories.TrialRepository;
+
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -279,5 +280,63 @@ class TrialServiceImplTest {
 
         // Then
         verify(trialAdapter, times(1)).entityToDetailDto(trial1);
+    }
+
+    @Test
+    @DisplayName("getTrialsByChampionshipAndCompetition() - Devrait retourner les épreuves d'une compétition")
+    void testGetTrialsByChampionshipAndCompetition_Success() {
+        // Given
+        Integer championshipId = 1;
+        Integer competitionId = 1;
+        List<Trial> competitionTrials = Arrays.asList(trial1);
+        List<TrialSummaryDTO> summaries = Arrays.asList(summary1);
+        
+        when(trialRepository.findByCompetitionId(competitionId)).thenReturn(competitionTrials);
+        when(trialAdapter.entityListToSummaryDtoList(competitionTrials)).thenReturn(summaries);
+
+        // When
+        List<TrialSummaryDTO> result = trialService.getTrialsByChampionshipAndCompetition(championshipId, competitionId);
+
+        // Then
+        assertNotNull(result);
+        assertEquals(1, result.size());
+        assertEquals("Marathon de Paris", result.get(0).getName());
+        verify(trialRepository, times(1)).findByCompetitionId(competitionId);
+        verify(trialAdapter, times(1)).entityListToSummaryDtoList(competitionTrials);
+    }
+
+    @Test
+    @DisplayName("getTrialsByChampionshipAndCompetition() - Devrait retourner une liste vide si aucune épreuve")
+    void testGetTrialsByChampionshipAndCompetition_EmptyList() {
+        // Given
+        Integer championshipId = 1;
+        Integer competitionId = 999;
+        
+        when(trialRepository.findByCompetitionId(competitionId)).thenReturn(Collections.emptyList());
+        when(trialAdapter.entityListToSummaryDtoList(Collections.emptyList())).thenReturn(Collections.emptyList());
+
+        // When
+        List<TrialSummaryDTO> result = trialService.getTrialsByChampionshipAndCompetition(championshipId, competitionId);
+
+        // Then
+        assertNotNull(result);
+        assertEquals(0, result.size());
+        verify(trialRepository, times(1)).findByCompetitionId(competitionId);
+    }
+
+    @Test
+    @DisplayName("getTrialsByChampionshipAndCompetition() - Devrait propager les exceptions du repository")
+    void testGetTrialsByChampionshipAndCompetition_ThrowsException() {
+        // Given
+        Integer championshipId = 1;
+        Integer competitionId = 1;
+        
+        when(trialRepository.findByCompetitionId(competitionId))
+                .thenThrow(new RuntimeException("Database error"));
+
+        // When & Then
+        assertThrows(RuntimeException.class, 
+            () -> trialService.getTrialsByChampionshipAndCompetition(championshipId, competitionId));
+        verify(trialRepository, times(1)).findByCompetitionId(competitionId);
     }
 }

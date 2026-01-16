@@ -10,4 +10,5 @@ import com.miage.pouleAPI.dtos.event.EventSummaryDTO;
 public interface EventService {
     List<EventSummaryDTO> getAllEvents();
     Optional<EventDetailDTO> getEventById(Integer id);
+    List<EventSummaryDTO> getEventsByChampionshipAndCompetition(Integer championshipId, Integer competitionId);
 }

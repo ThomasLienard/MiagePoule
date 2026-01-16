@@ -1,5 +1,5 @@
 import React, {useEffect, useState} from "react";
-import {Link, useParams} from "react-router-dom";
+import {Link, useNavigate, useParams} from "react-router-dom";
 import {getCompetitionById} from "../services/competitionService.jsx";
 import {Button, Card} from "react-bootstrap";
 
@@ -8,6 +8,7 @@ const Competition = () => {
     const [competition, setCompetition] = useState([]);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
+    const navigate = useNavigate();
 
     useEffect(() => {
         const fetchCompetitions = async () => {
@@ -32,6 +33,9 @@ const Competition = () => {
         <div className="d-flex justify-content-center pt-2">
             <Card className="p-3">
                 <Card.Body>
+                    <Button onClick={() => navigate(-1)}>
+                        ← Retour à la liste
+                    </Button>
                     <Card.Title className="text-center" as="h3">{name}</Card.Title>
                     <Card.Subtitle className="text-center text-body-tertiary">{description}</Card.Subtitle>
                     <div className="d-flex justify-content-center">
@@ -40,6 +44,9 @@ const Competition = () => {
                     <Card.Text className="mt-2">
                         <p><strong>Date de début:</strong> {formatDate(start)}</p>
                         <p><strong>Date de fin:</strong> {formatDate(end)}</p>
+                        <Link to={`/public/championship/${championshipId}/comp/${idComp}/events`}>
+                            <Button>Voir les détails</Button>
+                        </Link>
                     </Card.Text>
                 </Card.Body>
             </Card>
