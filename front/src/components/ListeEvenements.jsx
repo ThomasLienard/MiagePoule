@@ -1,7 +1,7 @@
-import React, { useState, useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
-import { fetchEventAndTrialsData } from '../services/eventService';
-import {Badge, Button, Card, Col, Row} from "react-bootstrap";
+import React, {useState, useEffect} from 'react';
+import {useNavigate} from 'react-router-dom';
+import {fetchEventAndTrialsData} from '../services/eventService';
+import {Button, Card, Col, Row} from "react-bootstrap";
 
 const ListeEvenements = () => {
     const [events, setEvents] = useState([]);
@@ -17,14 +17,14 @@ const ListeEvenements = () => {
     const fetchAllData = async () => {
         try {
             setLoading(true);
-            const { events, trials } = await fetchEventAndTrialsData();
-            
+            const {events, trials} = await fetchEventAndTrialsData();
+
             // Créer un Set des IDs d'événements qui sont des trials
             const trialEventIds = new Set(trials.map(trial => trial.idEvent));
-            
+
             // Filtrer les événements pour exclure ceux qui sont des trials
             const nonTrialEvents = events.filter(event => !trialEventIds.has(event.id));
-            
+
             setEvents(nonTrialEvents);
             setTrials(trials);
         } catch (err) {
@@ -48,68 +48,64 @@ const ListeEvenements = () => {
 
     return (
         <div className="pt-2">
-            <div>
-                <h2>🏆 Épreuves Sportives</h2>
-                    <div className="events-grid">
-                        <Row>
-                        {trials.length === 0 ? (
-                            <p className="empty-message">Aucune épreuve disponible</p>
-                        ) : (
-                            trials.map(trial => (
-                                <Col xs={12} md={4}
-                                    key={`trial-${trial.id}`}
-                                    onClick={() => handleTrialClick(trial.id)}
-                                >
-                                    <Card>
-                                        <Card.Body>
-                                            <Card.Title className="d-flex justify-content-center">
-                                                {trial.name}
-                                                <Badge bg="primary" className="ms-2">Épreuve</Badge>
-                                            </Card.Title>
-                                            <Card.Text className="d-flex justify-content-center">
-                                                {trial.description || 'Aucune description'}
-                                            </Card.Text>
-                                        </Card.Body>
-                                        <div className="d-flex justify-content-center mb-2">
-                                            <Button variant="secondary">Voir les détails</Button>
-                                        </div>
-                                    </Card>
-                                </Col>
-                            ))
-                        )}
-                        </Row>
-                    </div>
+            <h2 className="text-center">🏆 Épreuves Sportives</h2>
+            <Row className="row-gap-3 p-2">
+                {trials.length === 0 ? (
+                    <p>Aucune épreuve disponible</p>
+                ) : (
+                    trials.map(trial => (
+                        <Col xs={12} md={4}
+                             key={`trial-${trial.id}`}
+                             className="d-flex justify-content-center"
+                        >
+                            <Card style={{width: "24rem"}}>
+                                <Card.Body>
+                                    <Card.Title className="d-flex justify-content-center">
+                                        {trial.name}
+                                    </Card.Title>
+                                    <Card.Text className="d-flex justify-content-center">
+                                        {trial.description || 'Aucune description'}
+                                    </Card.Text>
+                                </Card.Body>
+                                <div className="d-flex justify-content-center mb-2">
+                                    <Button variant="secondary" onClick={() => handleTrialClick(trial.id)}>Voir les
+                                        détails</Button>
+                                </div>
+                            </Card>
+                        </Col>
+                    ))
+                )}
+            </Row>
+            <div className="d-flex justify-content-center">
+                <hr style={{width: "32rem"}}/>
             </div>
-
-            <div>
-                <h2>📅 Événements</h2>
-                <Row>
-                    {trials.length === 0 ? (
-                        <p className="empty-message">Aucune événement disponible</p>
-                    ) : (
-                        events.map(event => (
-                            <Col xs={12} md={4}
-                                 key={`event-${event.id}`}
-                                 onClick={() => handleEventClick(event.id)}
-                            >
-                                <Card>
-                                    <Card.Body>
-                                        <Card.Title className="d-flex justify-content-center">
-                                            {event.name}
-                                        </Card.Title>
-                                        <Card.Text className="d-flex justify-content-center">
-                                            {event.description || 'Aucune description'}
-                                        </Card.Text>
-                                    </Card.Body>
-                                    <div className="d-flex justify-content-center mb-2">
-                                        <Button variant="secondary">Voir les détails</Button>
-                                    </div>
-                                </Card>
-                            </Col>
-                        ))
-                    )}
-                </Row>
-            </div>
+            <h2 className="text-center">📅 Événements</h2>
+            <Row className="row-gap-3 p-2">
+                {events.length === 0 ? (
+                    <p>Aucune événement disponible</p>
+                ) : (
+                    events.map(event => (
+                        <Col xs={12} md={4}
+                             key={`event-${event.id}`}
+                             className="d-flex justify-content-center"
+                        >
+                            <Card style={{width: "24rem"}}>
+                                <Card.Body>
+                                    <Card.Title className="d-flex justify-content-center">
+                                        {event.name}
+                                    </Card.Title>
+                                    <Card.Text className="d-flex justify-content-center">
+                                        {event.description || 'Aucune description'}
+                                    </Card.Text>
+                                </Card.Body>
+                                <div className="d-flex justify-content-center mb-2">
+                                    <Button variant="secondary" onClick={() => handleEventClick(event.id)}>Voir les détails</Button>
+                                </div>
+                            </Card>
+                        </Col>
+                    ))
+                )}
+            </Row>
         </div>
     );
 };

@@ -1,9 +1,9 @@
-import React, { useState, useEffect } from 'react';
-import { useParams, useNavigate } from 'react-router-dom';
+import React, {useState, useEffect} from 'react';
+import {useParams} from 'react-router-dom';
+import {Badge, ListGroup} from "react-bootstrap";
 
 const EventDetails = () => {
-    const { id } = useParams();
-    const navigate = useNavigate();
+    const {id} = useParams();
     const [eventData, setEventData] = useState(null);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
@@ -16,20 +16,20 @@ const EventDetails = () => {
     const fetchEventDetails = async () => {
         try {
             setLoading(true);
-            
+
             // Déterminer si c'est un trial ou un event
             const currentPath = window.location.pathname;
             const isTrialPath = currentPath.includes('/trials/');
             setIsTrial(isTrialPath);
-            
-            const endpoint = isTrialPath 
+
+            const endpoint = isTrialPath
                 ? `http://localhost:8083/public/trials/${id}`
                 : `http://localhost:8083/public/events/${id}`;
-                
+
             const response = await fetch(endpoint);
             if (!response.ok) throw new Error('Événement non trouvé');
             const data = await response.json();
-            
+
             console.log('Data received:', data); // Debug
             setEventData(data);
         } catch (err) {
@@ -44,167 +44,129 @@ const EventDetails = () => {
     if (!eventData) return <div className="error">Aucune donnée disponible</div>;
 
     return (
-        <div className="event-details">
-            <button onClick={() => navigate(-1)} className="back-button">
-                ← Retour à la liste
-            </button>
-            
-            <div className="details-container">
-                <div className="header">
-                    <h1>{eventData.name}</h1>
-                    {isTrial && <span className="badge trial-badge">🏆 Épreuve Sportive</span>}
+        <>
+            <h2 className="text-center">{eventData.name}</h2>
+            <div className="d-flex justify-content-center pt-1 pb-3">
+                {
+                    isTrial
+                        ? <Badge bg="warning" className="text-center">🏆 Épreuve</Badge>
+                        : <Badge bg="info" className="text-center">📅 Événements</Badge>
+                }
+            </div>
+            <div className="d-flex justify-content-center flex-md-row flex-column">
+                <div className="d-flex flex-column w-100 border rounded mx-md-3 p-3">
+                    <h5 className="text-center">⏰ Horaires</h5>
+                    <span>
+                        <span className="fw-semibold">Début : </span>
+                        {new Date(eventData.timeSlot.start).toLocaleString('fr-FR', {
+                            dateStyle: 'full',
+                            timeStyle: 'short'
+                        })}
+                    </span>
+                    <span>
+                        <span className="fw-semibold">Fin : </span>
+                        {new Date(eventData.timeSlot.end).toLocaleString('fr-FR', {
+                            dateStyle: 'full',
+                            timeStyle: 'short'
+                        })}
+                    </span>
+                    <span>
+                        <span className="fw-semibold">Durée : </span>
+                        {Math.round(
+                            (new Date(eventData.timeSlot.end) - new Date(eventData.timeSlot.start))
+                            / (1000 * 60)
+                        )} minutes
+                    </span>
+                    <div className="d-flex justify-content-center">
+                        <hr style={{width: "12rem"}}/>
+                    </div>
+                    <h5 className="text-center">📍 Lieu : {eventData.place.name} </h5>
+                    {eventData.place.description && (
+                        <span className="fst-italic">{eventData.place.description}</span>
+                    )}
+
+                    <span className="fw-semibold pt-2">Adresse : </span>
+                    <span>{eventData.place.number} {eventData.place.street}</span>
+                    <span className="pb-3">{eventData.place.zip} {eventData.place.city}</span>
+                    {
+                        eventData.place.parking
+                            ? <span>🅿️ Parking disponible</span>
+                            : <span>❌ Parking indisponible</span>
+
+                    }
+
                 </div>
-                
-                <div className="info-section">
-                    <h2>📋 Description</h2>
-                    <p>{eventData.description || 'Aucune description disponible'}</p>
-                </div>
-
-                {eventData.competitionName && (
-                    <div className="info-section">
-                        <h2>🏅 Compétition</h2>
-                        <div className="info-item">
-                            <span className="info-value">{eventData.competitionName}</span>
-                        </div>
-                    </div>
-                )}
-
-                {eventData.timeSlot && (
-                    <div className="info-section">
-                        <h2>⏰ Horaires</h2>
-                        <div className="info-grid">
-                            <div className="info-item">
-                                <strong>Début:</strong>
-                                <span>{new Date(eventData.timeSlot.start).toLocaleString('fr-FR', {
-                                    dateStyle: 'full',
-                                    timeStyle: 'short'
-                                })}</span>
-                            </div>
-                            <div className="info-item">
-                                <strong>Fin:</strong>
-                                <span>{new Date(eventData.timeSlot.end).toLocaleString('fr-FR', {
-                                    dateStyle: 'full',
-                                    timeStyle: 'short'
-                                })}</span>
-                            </div>
-                            <div className="info-item">
-                                <strong>Durée:</strong>
-                                <span>
-                                    {Math.round(
-                                        (new Date(eventData.timeSlot.end) - new Date(eventData.timeSlot.start)) 
-                                        / (1000 * 60)
-                                    )} minutes
-                                </span>
-                            </div>
-                        </div>
-                    </div>
-                )}
-
-                {eventData.place && (
-                    <div className="info-section">
-                        <h2>📍 Lieu</h2>
-                        <div className="place-card">
-                            <h3>{eventData.place.name}</h3>
-                            {eventData.place.description && (
-                                <p className="place-description">{eventData.place.description}</p>
-                            )}
-                            <div className="place-details">
-                                <div className="place-address">
-                                    <strong>Adresse:</strong>
-                                    <p>
-                                        {eventData.place.number} {eventData.place.street}<br/>
-                                        {eventData.place.zip} {eventData.place.city}
-                                    </p>
-                                </div>
-                                <div className="place-features">
-                                    {eventData.place.parking && (
-                                        <span className="feature-badge">🅿️ Parking disponible</span>
-                                    )}
-                                    {eventData.place.latitude && eventData.place.longitude && (
-                                        <span className="feature-badge">
-                                            🗺️ Coordonnées: {eventData.place.latitude.toFixed(2)}, {eventData.place.longitude.toFixed(2)}
-                                        </span>
-                                    )}
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                )}
-
-                {/* Section Classement / Résultats */}
-                {eventData.rankings && eventData.rankings.length > 0 && (
-                    <div className="info-section">
-                        <h2>🏆 Classement</h2>
-                        <div className="rankings-container">
-                            {/* Séparation des résultats par type */}
-                            {eventData.rankings.some(r => r.participantType === 'TEAM') && (
-                                <div className="rankings-group">
-                                    <h3>Équipes</h3>
-                                    <table className="rankings-table">
-                                        <thead>
-                                            <tr>
-                                                <th>Rang</th>
-                                                <th>Équipe</th>
-                                                <th>Résultat</th>
-                                            </tr>
-                                        </thead>
-                                        <tbody>
+                <div className="vr d-none d-md-inline"></div>
+                <div className="d-flex flex-column w-100 mx-md-3 pt-4 ps-3">
+                    {eventData.competitionName && (
+                        <span className="pb-2">
+                            <span className="fw-semibold">🏅 Compétition : </span>
+                            {eventData.competitionName}
+                        </span>
+                    )}
+                    <span>
+                        <span className="fw-semibold">📋 Description : </span>
+                        {eventData.description || 'Aucune description disponible'}
+                    </span>
+                    {eventData.rankings && eventData.rankings.length > 0 && (
+                        <div className="border rounded p-3 m-3">
+                            <h5 className="text-center">🏆 Résultats</h5>
+                            <div className="d-flex flex-row gap-2">
+                                {eventData.rankings.some(r => r.participantType === 'TEAM') && (
+                                    <div className="w-100">
+                                        <div className="text-center fw-semibold">Équipes</div>
+                                        <ListGroup as="ol">
                                             {eventData.rankings
                                                 .filter(r => r.participantType === 'TEAM')
                                                 .map((ranking, index) => (
-                                                    <tr key={`team-${ranking.participantId}-${index}`} className={`rank-${ranking.rank}`}>
-                                                        <td className="rank-cell">
+                                                    <ListGroup.Item as="li"
+                                                                    key={`team-${ranking.participantId}-${index}`}>
+                                                        <div className="d-flex justify-content-between">
+                                                        <span>
                                                             {ranking.rank === 1 && '🥇'}
                                                             {ranking.rank === 2 && '🥈'}
                                                             {ranking.rank === 3 && '🥉'}
                                                             {ranking.rank > 3 && ranking.rank}
-                                                        </td>
-                                                        <td className="participant-name">{ranking.participantName}</td>
-                                                        <td className="result-cell">{ranking.result}</td>
-                                                    </tr>
-                                                ))
-                                            }
-                                        </tbody>
-                                    </table>
-                                </div>
-                            )}
-                            
-                            {eventData.rankings.some(r => r.participantType === 'ATHLETE') && (
-                                <div className="rankings-group">
-                                    <h3>Athlètes</h3>
-                                    <table className="rankings-table">
-                                        <thead>
-                                            <tr>
-                                                <th>Rang</th>
-                                                <th>Athlète</th>
-                                                <th>Résultat</th>
-                                            </tr>
-                                        </thead>
-                                        <tbody>
+                                                        </span>
+                                                            <span>{ranking.participantName}</span>
+                                                            <span>{ranking.result}</span>
+                                                        </div>
+                                                    </ListGroup.Item>
+                                                ))}
+                                        </ListGroup>
+                                    </div>
+                                )}
+                                {eventData.rankings.some(r => r.participantType === 'ATHLETE') && (
+                                    <div className="w-100">
+                                        <div className="text-center fw-semibold">Athlètes</div>
+                                        <ListGroup as="ol">
                                             {eventData.rankings
                                                 .filter(r => r.participantType === 'ATHLETE')
                                                 .map((ranking, index) => (
-                                                    <tr key={`athlete-${ranking.participantId}-${index}`} className={`rank-${ranking.rank}`}>
-                                                        <td className="rank-cell">
+                                                    <ListGroup.Item as="li"
+                                                                    key={`athlete-${ranking.participantId}-${index}`}>
+                                                        <div className="d-flex justify-content-between">
+                                                        <span>
                                                             {ranking.rank === 1 && '🥇'}
                                                             {ranking.rank === 2 && '🥈'}
                                                             {ranking.rank === 3 && '🥉'}
                                                             {ranking.rank > 3 && ranking.rank}
-                                                        </td>
-                                                        <td className="participant-name">{ranking.participantName}</td>
-                                                        <td className="result-cell">{ranking.result}</td>
-                                                    </tr>
-                                                ))
-                                            }
-                                        </tbody>
-                                    </table>
-                                </div>
-                            )}
+                                                        </span>
+                                                            <span>{ranking.participantName}</span>
+                                                            <span>{ranking.result}</span>
+                                                        </div>
+                                                    </ListGroup.Item>
+                                                ))}
+                                        </ListGroup>
+                                    </div>
+                                )}
+                            </div>
                         </div>
-                    </div>
-                )}
+                    )}
+                </div>
             </div>
-        </div>
+
+        </>
     );
 };
 
