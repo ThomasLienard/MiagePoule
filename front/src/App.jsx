@@ -4,11 +4,10 @@ import ListeCompetitions from "./components/ListeCompetitions.jsx";
 import Competition from "./components/Competition.jsx";
 import ListChampionships from "./components/ListChampionships.jsx";
 import PublicMapPage from './components/map/PublicMapPage';
-import ListeEvenements from './components/ListeEvenements';
 import ListeEvenementsParCompetition from './components/ListeEvenementsParCompetition';
 import EventDetails from './components/EventDetails';
 import EventsMapView from './components/EventsMapView';
-import './App.css';
+
 
 function App() {
 
