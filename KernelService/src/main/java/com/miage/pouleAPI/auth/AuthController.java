@@ -30,10 +30,12 @@ public class AuthController {
     public ResponseEntity<SignUpResponse> signUp(@Valid @RequestBody SignUpRequest request) {
         SignUpResponse response = authService.signUp(request);
 
-        if (response.message() != null && !response.message().isEmpty()) {
+        if (response.message().equals("User registered successfully")) {
             return ResponseEntity.status(HttpStatus.CREATED).body(response);
+        } else if (response.message().equals("Email already exists")) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(response);
         }
 
-        return ResponseEntity.status(HttpStatus.CONFLICT).body(response);
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(response);
     }
 }

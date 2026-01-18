@@ -1,0 +1,106 @@
+import React, { createContext, useState, useContext, useEffect } from 'react';
+import authService from '../services/authService';
+
+const AuthContext = createContext(null);
+
+export const useAuth = () => {
+    const context = useContext(AuthContext);
+    if (!context) {
+        throw new Error('useAuth doit être utilisé dans un AuthProvider');
+    }
+    return context;
+};
+
+export const AuthProvider = ({ children }) => {
+    const [user, setUser] = useState(null);
+    const [loading, setLoading] = useState(true);
+
+    useEffect(() => {
+        // Vérifier l'authentification au chargement
+        const initAuth = () => {
+            if (authService.isAuthenticated()) {
+                const userData = authService.getUser();
+                setUser(userData);
+            }
+            setLoading(false);
+        };
+
+        initAuth();
+    }, []);
+
+    const login = async (email, password) => {
+        try {
+            const response = await authService.login(email, password);
+
+            // Stocker le token
+            localStorage.setItem('token', response.token);
+
+            // Décoder et stocker les informations utilisateur
+            const decoded = authService.decodeToken(response.token);
+            const userData = {
+                id: decoded.sub,
+                email: decoded.email,
+                roles: decoded.roles
+            };
+            localStorage.setItem('user', JSON.stringify(userData));
+
+            setUser(userData);
+            return { success: true };
+        } catch (error) {
+            return { success: false, message: error.message };
+        }
+    };
+
+    const register = async (userData) => {
+        try {
+            const response = await authService.register(userData);
+
+            if (response.message === 'Email already exists') {
+                return { success: false, message: 'Email déjà utilisé' };
+            }
+
+            // Connecter automatiquement après l'inscription
+            if (response.token) {
+                localStorage.setItem('token', response.token);
+
+                const userInfo = {
+                    id: response.email, // Utiliser l'email comme ID temporaire
+                    email: response.email,
+                    firstName: response.firstName,
+                    lastName: response.lastName,
+                    role: response.role,
+                    roles: ['SPECTATOR'] // Tous les nouveaux utilisateurs sont spectateurs
+                };
+                localStorage.setItem('user', JSON.stringify(userInfo));
+                setUser(userInfo);
+            }
+
+            return { success: true, message: 'Inscription réussie' };
+        } catch (error) {
+            return { success: false, message: error.message };
+        }
+    };
+
+    const logout = () => {
+        authService.logout();
+        setUser(null);
+        window.location.href = '/login';
+    };
+
+    const value = {
+        user,
+        loading,
+        login,
+        register,
+        logout,
+        isAuthenticated: authService.isAuthenticated,
+        hasRole: authService.hasRole,
+        hasAnyRole: authService.hasAnyRole
+    };
+
+    return (
+        <AuthContext.Provider value={value}>
+            {children}
+        </AuthContext.Provider>
+    );
+};
