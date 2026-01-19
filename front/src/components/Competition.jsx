@@ -1,5 +1,5 @@
 import React, {useEffect, useState} from "react";
-import {Link, useParams} from "react-router-dom";
+import {Link, useNavigate, useParams} from "react-router-dom";
 import {getCompetitionById} from "../services/competitionService.jsx";
 import {Button, Card} from "react-bootstrap";
 
@@ -8,11 +8,12 @@ const Competition = () => {
     const [competition, setCompetition] = useState([]);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
+    const navigate = useNavigate();
 
     useEffect(() => {
         const fetchCompetitions = async () => {
             try {
-                const data = await getCompetitionById(championshipId,idComp);
+                const data = await getCompetitionById(championshipId, idComp);
                 setCompetition(data);
             } catch (err) {
                 setError("Erreur lors du chargement des compétitions" + err);
@@ -27,23 +28,34 @@ const Competition = () => {
     if (loading) return <p>Chargement...</p>;
     if (error) return <p>{error}</p>;
     if (!competition) return <p>Aucune compétition disponible.</p>;
-    const { name, start, end, description } = competition;
+    const {name, start, end, description} = competition;
     return (
-        <div className="d-flex justify-content-center pt-2">
-            <Card className="p-3">
-                <Card.Body>
-                    <Card.Title className="text-center" as="h3">{name}</Card.Title>
-                    <Card.Subtitle className="text-center text-body-tertiary">{description}</Card.Subtitle>
-                    <div className="d-flex justify-content-center">
-                        <hr style={{width:"3rem"}}/>
-                    </div>
-                    <Card.Text className="mt-2">
-                        <p><strong>Date de début:</strong> {formatDate(start)}</p>
-                        <p><strong>Date de fin:</strong> {formatDate(end)}</p>
-                    </Card.Text>
-                </Card.Body>
-            </Card>
-        </div>
+        <>
+            <div className="d-flex justify-content-center pt-2">
+                <Card className="p-3">
+                    <Card.Body>
+                        <Card.Title className="text-center" as="h3">{name}</Card.Title>
+                        <Card.Subtitle className="text-center text-body-tertiary">{description}</Card.Subtitle>
+                        <div className="d-flex justify-content-center">
+                            <hr style={{width: "3rem"}}/>
+                        </div>
+                        <Card.Text className="mt-2">
+                            <p><strong>Date de début:</strong> {formatDate(start)}</p>
+                            <p><strong>Date de fin:</strong> {formatDate(end)}</p>
+                            <Link to={`/public/championship/${championshipId}/comp/${idComp}/events`}>
+                                <Button variant="secondary">Voir les détails</Button>
+                            </Link>
+                        </Card.Text>
+                    </Card.Body>
+                </Card>
+            </div>
+            <div className="d-flex justify-content-center pt-2">
+                <Button variant="outline-secondary" onClick={() => navigate(-1)}>
+                    ← Retour à la liste
+                </Button>
+            </div>
+        </>
+
     );
 };
 

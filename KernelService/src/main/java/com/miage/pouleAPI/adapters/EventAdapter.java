@@ -58,6 +58,9 @@ public class EventAdapter {
             dto.setPlace(placeToDto(event.getPlace()));
         }
         
+        // Rankings will be empty for regular events (only trials have rankings)
+        dto.setRankings(new ArrayList<>());
+        
         return dto;
     }
     

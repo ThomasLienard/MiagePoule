@@ -1,7 +1,7 @@
 import PropTypes from 'prop-types';
 import { InfoWindow } from '@react-google-maps/api';
 import { formatDate } from '../../utils/dateFormatter';
-import {Button, Card, Spinner} from "react-bootstrap";
+import './EventInfoWindow.css';
 
 const EventInfoWindow = ({ event, loading, onClose, onViewDetails }) => {
     const { id, name, description, place, timeSlot } = event;
@@ -31,33 +31,30 @@ const EventInfoWindow = ({ event, loading, onClose, onViewDetails }) => {
         >
             <div className="event-info-window">
                 {loading ? (
-                    <Spinner animation="border" role="status">
-                        <span className="visually-hidden">Loading details...</span>
-                    </Spinner>
+                    <div className="loading-indicator">
+                        <div className="spinner"></div>
+                        <p>Loading details...</p>
+                    </div>
                 ) : (
-                    <Card>
-                        <Card.Body>
-                            <Card.Title>{name}</Card.Title>
-                            <Card.Text>
-                                <hr/>
+                    <>
+                        <h3 className="event-title">{name}</h3>
 
-                                {description && (
-                                    <p className="fst-italic fw-bolder">{description}</p>
-                                )}
+                        {description && (
+                            <p className="event-description">{description}</p>
+                        )}
 
-                                <h6 className="text-center">Localisation</h6>
-                                <p className="fw-bolder">{place.name}</p>
-                                <p>
-                                    {place.street} {place.number}
-                                    <br />
-                                    {place.zip} {place.city}
-                                </p>
-                                {place.parking && (
-                                    <p className="fw-bolder">🚗 Parking disponible</p>
-                                )}
-                                {!place.parking && (
-                                    <p className="fw-bolder">❌ Parking indisponible</p>
-                                )}
+                        <div className="event-location">
+                            <h4 className="section-title">Location</h4>
+                            <p className="location-name">{place.name}</p>
+                            <p className="location-address">
+                                {place.street} {place.number}
+                                <br />
+                                {place.zip} {place.city}
+                            </p>
+                            {place.parking && (
+                                <p className="parking-available">🚗 Parking available</p>
+                            )}
+                        </div>
 
                                 {timeSlot?.start && (
                                     <div>

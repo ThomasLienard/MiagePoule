@@ -54,4 +54,4 @@ replay_pid*
 .idea/**/build/
 
 # Ignore custom settings for run/debug configurations
-.idea/runConfigurations/
+.idea/runConfigurations/.metals/

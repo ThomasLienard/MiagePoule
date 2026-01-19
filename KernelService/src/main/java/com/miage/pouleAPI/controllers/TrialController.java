@@ -34,4 +34,11 @@ public class TrialController {
                 .map(ResponseEntity::ok)
                 .orElse(ResponseEntity.notFound().build());
     }
+    
+    @GetMapping("/championships/{championshipId}/comp/{competitionId}/trials")
+    public List<TrialSummaryDTO> getTrialsByChampionshipAndCompetition(
+            @PathVariable Integer championshipId,
+            @PathVariable Integer competitionId) {
+        return trialService.getTrialsByChampionshipAndCompetition(championshipId, competitionId);
+    }
 }

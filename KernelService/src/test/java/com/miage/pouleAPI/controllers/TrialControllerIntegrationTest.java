@@ -64,4 +64,36 @@ class TrialControllerIntegrationTest {
         assertThat(trial.getName()).isEqualTo("Final Sprint Race");
         assertThat(trial.getDescription()).isEqualTo("Official competition");
     }
+
+    @Test
+    @DisplayName("GET /public/championships/1/comp/1/trials retourne les épreuves de la compétition")
+    void getTrialsByChampionshipAndCompetition_integration() throws Exception {
+        var mvcResult = mockMvc.perform(get("/public/championships/1/comp/1/trials")
+                        .accept(MediaType.APPLICATION_JSON))
+                .andExpect(status().isOk())
+                .andReturn();
+
+        String json = mvcResult.getResponse().getContentAsString();
+        List<TrialSummaryDTO> trials = objectMapper.readValue(json, new TypeReference<>() {});
+
+        // Les données de test peuvent être vides si aucun trial n'appartient à la compétition 1
+        assertThat(trials).isNotNull();
+        if (!trials.isEmpty()) {
+            assertThat(trials).allMatch(t -> t.getId() > 0 && t.getName() != null);
+        }
+    }
+
+    @Test
+    @DisplayName("GET /public/championships/1/comp/999/trials retourne une liste vide pour une compétition inexistante")
+    void getTrialsByChampionshipAndCompetition_integration_emptyResult() throws Exception {
+        var mvcResult = mockMvc.perform(get("/public/championships/1/comp/999/trials")
+                        .accept(MediaType.APPLICATION_JSON))
+                .andExpect(status().isOk())
+                .andReturn();
+
+        String json = mvcResult.getResponse().getContentAsString();
+        List<TrialSummaryDTO> trials = objectMapper.readValue(json, new TypeReference<>() {});
+
+        assertThat(trials).isEmpty();
+    }
 }

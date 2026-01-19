@@ -63,4 +63,33 @@ class EventControllerIntegrationTest {
         assertThat(event.getName()).isEqualTo("Final Sprint Race");
         assertThat(event.getDescription()).isEqualTo("Official competition");
     }
+
+    @Test
+    @DisplayName("GET /public/championships/1/comp/1/events retourne les événements de la compétition")
+    void getEventsByChampionshipAndCompetition_integration() throws Exception {
+        var mvcResult = mockMvc.perform(get("/public/championships/1/comp/1/events")
+                        .accept(MediaType.APPLICATION_JSON))
+                .andExpect(status().isOk())
+                .andReturn();
+
+        String json = mvcResult.getResponse().getContentAsString();
+        List<EventSummaryDTO> events = objectMapper.readValue(json, new TypeReference<>() {});
+
+        assertThat(events).isNotEmpty();
+        assertThat(events).allMatch(e -> e.getId() > 0 && e.getName() != null);
+    }
+
+    @Test
+    @DisplayName("GET /public/championships/1/comp/999/events retourne une liste vide pour une compétition inexistante")
+    void getEventsByChampionshipAndCompetition_integration_emptyResult() throws Exception {
+        var mvcResult = mockMvc.perform(get("/public/championships/1/comp/999/events")
+                        .accept(MediaType.APPLICATION_JSON))
+                .andExpect(status().isOk())
+                .andReturn();
+
+        String json = mvcResult.getResponse().getContentAsString();
+        List<EventSummaryDTO> events = objectMapper.readValue(json, new TypeReference<>() {});
+
+        assertThat(events).isEmpty();
+    }
 }

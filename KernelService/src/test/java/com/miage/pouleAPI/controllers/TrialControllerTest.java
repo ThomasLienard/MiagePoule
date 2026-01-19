@@ -18,6 +18,7 @@ import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
@@ -70,7 +71,8 @@ class TrialControllerTest {
             "42km course",
             "Championnats de France",
             timeSlot,
-            place
+            place,
+            new ArrayList<>()
         );
     }
 
@@ -238,7 +240,7 @@ class TrialControllerTest {
     void testGetTrialById_WithoutOptionalFields() {
         // Given
         TrialDetailDTO minimalTrial = new TrialDetailDTO(
-            1, "Minimal Trial", "Description", null, null, null
+            1, "Minimal Trial", "Description", null, null, null, new ArrayList<>()
         );
         when(trialService.getTrialById(1)).thenReturn(Optional.of(minimalTrial));
 
@@ -264,5 +266,52 @@ class TrialControllerTest {
                 .andExpect(status().isNotFound());
 
         verify(trialService, times(1)).getTrialById(-1);
+    }
+
+    @Test
+    @DisplayName("GET /public/championships/{championshipId}/comp/{competitionId}/trials - Devrait retourner les épreuves d'une compétition")
+    void testGetTrialsByChampionshipAndCompetition_Success() throws Exception {
+        // Given
+        List<TrialSummaryDTO> competitionTrials = Arrays.asList(trialSummary1);
+        when(trialService.getTrialsByChampionshipAndCompetition(1, 1)).thenReturn(competitionTrials);
+
+        // When & Then
+        mockMvc.perform(get("/public/championships/1/comp/1/trials"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$").isArray())
+                .andExpect(jsonPath("$.length()").value(1))
+                .andExpect(jsonPath("$[0].id").value(1))
+                .andExpect(jsonPath("$[0].idEvent").value(10))
+                .andExpect(jsonPath("$[0].name").value("Marathon de Paris"));
+
+        verify(trialService, times(1)).getTrialsByChampionshipAndCompetition(1, 1);
+    }
+
+    @Test
+    @DisplayName("GET /public/championships/{championshipId}/comp/{competitionId}/trials - Devrait retourner une liste vide")
+    void testGetTrialsByChampionshipAndCompetition_EmptyList() throws Exception {
+        // Given
+        when(trialService.getTrialsByChampionshipAndCompetition(1, 999)).thenReturn(Collections.emptyList());
+
+        // When & Then
+        mockMvc.perform(get("/public/championships/1/comp/999/trials"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$").isArray())
+                .andExpect(jsonPath("$.length()").value(0));
+
+        verify(trialService, times(1)).getTrialsByChampionshipAndCompetition(1, 999);
+    }
+
+    @Test
+    @DisplayName("GET /public/championships/{championshipId}/comp/{competitionId}/trials - Devrait propager les exceptions")
+    void testGetTrialsByChampionshipAndCompetition_ServiceException() throws Exception {
+        // Given
+        when(trialService.getTrialsByChampionshipAndCompetition(1, 1))
+                .thenThrow(new RuntimeException("Database error"));
+
+        // When & Then
+        assertThrows(RuntimeException.class, 
+            () -> trialController.getTrialsByChampionshipAndCompetition(1, 1));
+        verify(trialService, times(1)).getTrialsByChampionshipAndCompetition(1, 1);
     }
 }

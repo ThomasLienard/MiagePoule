@@ -14,3 +14,8 @@ spring:
     init:
       mode: always                          # <- IMPORTANT
       data-locations: classpath:data.sql    # <- IMPORTANT
+
+security:
+  jwt:
+    secret: test-secret-key-1234567890-abcdefghijklmnopqrstuvwxyz
+    expiration: 86400000
