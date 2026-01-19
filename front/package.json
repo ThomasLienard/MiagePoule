@@ -4,7 +4,7 @@
   "version": "0.0.0",
   "type": "module",
   "scripts": {
-    "dev": "vite",
+    "dev": "vite --port 3000",
     "build": "vite build",
     "preview": "vite preview --host 0.0.0.0 --port 3000",
     "start": "vite preview --host 0.0.0.0 --port 3000"
@@ -13,8 +13,10 @@
     "@googlemaps/markerclusterer": "^2.6.2",
     "@react-google-maps/api": "^2.20.7",
     "axios": "^1.13.2",
+    "bootstrap": "^5.3.8",
     "prop-types": "^15.8.1",
     "react": "^19.1.1",
+    "react-bootstrap": "^2.10.10",
     "react-dom": "^19.1.1",
     "react-router-dom": "^7.10.1"
   },
