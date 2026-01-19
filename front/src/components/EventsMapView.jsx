@@ -57,7 +57,7 @@ const EventsMapView = () => {
             const detailedEvents = await Promise.all(
                 basicEvents.map(async (event) => {
                     try {
-                        const response = await fetch(`http://localhost:8083/public/events/${event.id}`);
+                        const response = await fetch(`http://localhost:8082/public/events/${event.id}`);
                         if (response.ok) {
                             const detailed = await response.json();
                             return { ...detailed, _isTrial: false };

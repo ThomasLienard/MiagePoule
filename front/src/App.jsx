@@ -16,6 +16,7 @@ import ListeEvenements from './components/ListeEvenements';
 import ListeEvenementsParCompetition from './components/ListeEvenementsParCompetition';
 import EventDetails from './components/EventDetails';
 import Layout from "./components/Layout.jsx";
+import EventsMapView from "./components/EventsMapView.jsx";
 
 function App() {
 
