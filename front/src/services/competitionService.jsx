@@ -1,6 +1,6 @@
 import axios from "axios";
 
-const API_BASE = "http://localhost:8080/public";
+const API_BASE = "http://localhost:8081/public";
 
 export const getCompetitionsByChampionship = (championshipId) => {
     return axios
