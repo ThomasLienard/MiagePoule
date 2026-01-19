@@ -9,7 +9,8 @@ import {
     DEFAULT_ZOOM,
     GOOGLE_MAPS_OPTIONS,
 } from '../../constants/mapSettings';
-import './PublicMapPage.css';
+import {Card, Container, Nav, Navbar, NavDropdown} from "react-bootstrap";
+import {Link} from "react-router-dom";
 
 const PublicMapPage = () => {
     const { isLoaded, loadError } = useJsApiLoader({
@@ -71,46 +72,45 @@ const PublicMapPage = () => {
     }
 
     return (
-        <div className="public-map-page">
-            <header className="page-header">
-                <h1 className="page-title">Carte des Événements</h1>
-                <p className="page-subtitle">
-                    Découvrez les événements autour de vous
-                </p>
-            </header>
+        <>
+            <div className="d-flex justify-content-center">
+                <Card className="mt-3" style={{ width: '38rem'}}>
+                    <Card.Body>
+                        <Card.Title as="h1" className="text-center">Carte des Évènements</Card.Title>
+                        <Card.Subtitle as="h4" className="mb-2 text-body-secondary text-center">
+                            Découvrez les évènements autour de vous
+                        </Card.Subtitle>
 
-            <div className="map-container">
-                <div className="map-wrapper">
-                    <div className="map-controls-overlay">
-                    </div>
+                        <Card.Text>
+                            <GoogleMap
+                                mapContainerStyle={MAP_CONTAINER_STYLE}
+                                center={DEFAULT_CENTER}
+                                zoom={DEFAULT_ZOOM}
+                                options={{
+                                    ...GOOGLE_MAPS_OPTIONS,
+                                    mapTypeId: mapType,
+                                }}
+                                onLoad={onMapLoad}
+                            >
+                                <ManualMarkerCluster
+                                    events={eventsWithLocation}
+                                    onMarkerClick={handleMarkerClick}
+                                />
 
-                    <GoogleMap
-                        mapContainerStyle={MAP_CONTAINER_STYLE}
-                        center={DEFAULT_CENTER}
-                        zoom={DEFAULT_ZOOM}
-                        options={{
-                            ...GOOGLE_MAPS_OPTIONS,
-                            mapTypeId: mapType,
-                        }}
-                        onLoad={onMapLoad}
-                    >
-                        <ManualMarkerCluster
-                            events={eventsWithLocation}
-                            onMarkerClick={handleMarkerClick}
-                        />
-
-                        {selectedEvent && selectedEvent.place && (
-                            <EventInfoWindow
-                                event={selectedEvent}
-                                loading={loadingDetails}
-                                onClose={clearSelection}
-                                onViewDetails={handleViewDetails}
-                            />
-                        )}
-                    </GoogleMap>
-                </div>
+                                {selectedEvent && selectedEvent.place && (
+                                    <EventInfoWindow
+                                        event={selectedEvent}
+                                        loading={loadingDetails}
+                                        onClose={clearSelection}
+                                        onViewDetails={handleViewDetails}
+                                    />
+                                )}
+                            </GoogleMap>
+                        </Card.Text>
+                    </Card.Body>
+                </Card>
             </div>
-        </div>
+        </>
     );
 };
 
