@@ -14,7 +14,7 @@ INSERT INTO role (role_name) VALUES ('ADMIN');
 INSERT INTO role (role_name) VALUES ('COMMISSAIRE');
 INSERT INTO role (role_name) VALUES ('ATHLETE');
 INSERT INTO role (role_name) VALUES ('VOLONTAIRE');
-
+INSERT INTO role (role_name) VALUES ('SPECTATEUR');
 -- ======================
 -- Severities
 -- ======================
