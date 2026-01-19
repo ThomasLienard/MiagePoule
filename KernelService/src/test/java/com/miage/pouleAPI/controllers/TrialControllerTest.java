@@ -18,6 +18,7 @@ import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
@@ -70,7 +71,8 @@ class TrialControllerTest {
             "42km course",
             "Championnats de France",
             timeSlot,
-            place
+            place,
+            new ArrayList<>()
         );
     }
 
@@ -238,7 +240,7 @@ class TrialControllerTest {
     void testGetTrialById_WithoutOptionalFields() {
         // Given
         TrialDetailDTO minimalTrial = new TrialDetailDTO(
-            1, "Minimal Trial", "Description", null, null, null
+            1, "Minimal Trial", "Description", null, null, null, new ArrayList<>()
         );
         when(trialService.getTrialById(1)).thenReturn(Optional.of(minimalTrial));
 

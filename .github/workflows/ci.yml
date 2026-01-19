@@ -1,0 +1,45 @@
+name: CI - KernelService
+
+on:
+  push: {}
+
+jobs:
+  build:
+    name: Build and test KernelService
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up JDK 21 and cache Maven
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '21'
+          cache: maven
+
+      - name: Build, run tests and generate JaCoCo reports
+        run: mvn -f KernelService/pom.xml -B clean verify
+
+      - name: Upload JaCoCo exec
+        uses: actions/upload-artifact@v4
+        with:
+          name: jacoco-exec
+          path: KernelService/target/jacoco.exec
+          if-no-files-found: warn
+
+      - name: Upload JaCoCo site (XML + HTML)
+        uses: actions/upload-artifact@v4
+        with:
+          name: jacoco-site
+          path: KernelService/target/site/jacoco/**
+          if-no-files-found: warn
+
+      - name: Upload Surefire reports
+        uses: actions/upload-artifact@v4
+        with:
+          name: surefire-reports
+          path: KernelService/target/surefire-reports/**
+          if-no-files-found: warn
+
