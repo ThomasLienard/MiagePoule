@@ -50,7 +50,7 @@ const RegisterPage = () => {
             password: formData.password,
             firstName: formData.firstName,
             lastName: formData.lastName,
-            role: 'SPECTATOR' // Tous les nouveaux utilisateurs sont spectateurs
+            role: 'SPECTATEUR'
         };
 
         const result = await register(userData);
