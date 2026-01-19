@@ -4,10 +4,10 @@ import ListeCompetitions from "./components/ListeCompetitions.jsx";
 import Competition from "./components/Competition.jsx";
 import ListChampionships from "./components/ListChampionships.jsx";
 import PublicMapPage from './components/map/PublicMapPage';
-import ListeEvenements from './components/ListeEvenements';
 import ListeEvenementsParCompetition from './components/ListeEvenementsParCompetition';
 import EventDetails from './components/EventDetails';
-import './App.css';
+import EventsMapView from './components/EventsMapView';
+
 
 function App() {
 
@@ -21,10 +21,10 @@ function App() {
                     <Route path="/public/championship/:id/comp/:idComp" element={<Competition />}/>
                     <Route path="/public/championship/:championshipId/comp/:competitionId/events" element={<ListeEvenementsParCompetition />} />
                     <Route path="/public/map" element={<PublicMapPage />} />
-                    <Route path="/public/events" element={<ListeEvenements />} />
+                    <Route path="/public/events" element={<EventsMapView />} />
                     <Route path="/public/events/:id" element={<EventDetails />} />
                     <Route path="/public/trials/:id" element={<EventDetails />} />
-                    <Route path="/" element={<PublicMapPage />} />
+                    <Route path="/" element={<EventsMapView />} />
 
                 </Routes>
             </Router>

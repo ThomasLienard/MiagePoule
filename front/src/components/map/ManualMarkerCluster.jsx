@@ -31,7 +31,7 @@ const ManualMarkerCluster = ({ events, onMarkerClick }) => {
 
     const handleGroupClick = (group) => {
         if (group.events.length === 1) {
-            onMarkerClick(group.events[0].id);
+            onMarkerClick(group.events[0]);
         } else {
             setSelectedGroup(group);
         }
@@ -69,9 +69,9 @@ const ManualMarkerCluster = ({ events, onMarkerClick }) => {
                         {selectedGroup.events.length} événements à cet endroit
                     </h3>
                     <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
-                        {selectedGroup.events.map(event => (
+                        {selectedGroup.events.map((event, idx) => (
                             <div
-                                key={event.id}
+                                key={`${event.id}-${event._isTrial ? 'trial' : 'event'}-${idx}`}
                                 style={{
                                     padding: '10px',
                                     border: '1px solid #ddd',
@@ -81,7 +81,7 @@ const ManualMarkerCluster = ({ events, onMarkerClick }) => {
                                     backgroundColor: '#f8f9fa'
                                 }}
                                 onClick={() => {
-                                    onMarkerClick(event.id);
+                                    onMarkerClick(event);
                                     setSelectedGroup(null);
                                 }}
                                 onMouseEnter={e => e.currentTarget.style.backgroundColor = '#e9ecef'}
