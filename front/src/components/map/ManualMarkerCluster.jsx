@@ -75,11 +75,11 @@ const ManualMarkerCluster = ({ events, onMarkerClick }) => {
                     <div className="d-flex flex-column gap-2">
                         {selectedGroup.events.map(event => (
                             <Button
-                                key={event.id}
+                                key={`${event.id}-${event._isTrial ? 'trial' : 'event'}-${idx}`}
                                 size="lg"
                                 variant="outline-secondary"
                                 onClick={() => {
-                                    onMarkerClick(event.id);
+                                    onMarkerClick(event);
                                     setSelectedGroup(null);
                                 }}
                                 onMouseEnter={e => e.currentTarget.style.backgroundColor = '#e9ecef'}

@@ -1,4 +1,4 @@
-const API_BASE_URL = "http://localhost:8083/public";
+const API_BASE_URL = "http://localhost:8080/public";
 
 class EventService {
     async getAll() {
