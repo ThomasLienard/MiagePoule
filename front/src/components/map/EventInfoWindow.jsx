@@ -1,6 +1,7 @@
 import PropTypes from 'prop-types';
 import { InfoWindow } from '@react-google-maps/api';
 import { formatDate } from '../../utils/dateFormatter';
+import './EventInfoWindow.css';
 import {Button, Card, Spinner} from "react-bootstrap";
 
 const EventInfoWindow = ({ event, loading, onClose, onViewDetails }) => {
@@ -14,6 +15,14 @@ const EventInfoWindow = ({ event, loading, onClose, onViewDetails }) => {
     const position = {
         lat: place.latitude,
         lng: place.longitude,
+    };
+
+    const handleOpenDirections = () => {
+        const destination = `${place.latitude}, ${place.longitude}`;
+        const url = `https://www.google.com/maps/dir/?api=1&destination=${encodeURIComponent(
+            destination
+        )}`;
+        window.open(url, '_blank');
     };
 
     return (
@@ -66,6 +75,14 @@ const EventInfoWindow = ({ event, loading, onClose, onViewDetails }) => {
                                 >
                                     Détails
                                 </Button>
+
+                                <Button
+                                    onClick={handleOpenDirections}
+                                    variant="outline-secondary"
+                                    aria-label={`Itinéraire vers ${name}`}
+                                >
+                                    Itinéraire
+                                </Button>
                             </div>
                         </Card.Body>
                     </Card>
@@ -74,6 +91,7 @@ const EventInfoWindow = ({ event, loading, onClose, onViewDetails }) => {
         </InfoWindow>
     );
 };
+
 
 EventInfoWindow.propTypes = {
     event: PropTypes.shape({
