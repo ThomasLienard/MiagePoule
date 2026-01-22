@@ -293,4 +293,69 @@ class EventControllerTest {
             () -> eventController.getEventsByChampionshipAndCompetition(1, 1));
         verify(eventService, times(1)).getEventsByChampionshipAndCompetition(1, 1);
     }
+
+    @Test
+    @DisplayName("GET /public/otherEvent - Devrait retourner les événements non-Trial")
+    void testGetOtherEvents_Success() throws Exception {
+        // Given
+        List<EventSummaryDTO> otherEvents = Arrays.asList(eventSummary1, eventSummary2);
+        when(eventService.getOtherEvents()).thenReturn(otherEvents);
+
+        // When & Then
+        mockMvc.perform(get("/public/otherEvent"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$").isArray())
+                .andExpect(jsonPath("$.length()").value(2))
+                .andExpect(jsonPath("$[0].id").value(1))
+                .andExpect(jsonPath("$[0].name").value("Tech Conference 2025"))
+                .andExpect(jsonPath("$[1].id").value(2))
+                .andExpect(jsonPath("$[1].name").value("Music Festival"));
+
+        verify(eventService, times(1)).getOtherEvents();
+    }
+
+    @Test
+    @DisplayName("GET /public/otherEvent - Devrait retourner une liste vide s'il n'y a pas d'autres événements")
+    void testGetOtherEvents_EmptyList() throws Exception {
+        // Given
+        when(eventService.getOtherEvents()).thenReturn(Collections.emptyList());
+
+        // When & Then
+        mockMvc.perform(get("/public/otherEvent"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$").isArray())
+                .andExpect(jsonPath("$.length()").value(0));
+
+        verify(eventService, times(1)).getOtherEvents();
+    }
+
+    @Test
+    @DisplayName("GET /public/otherEvent - Test avec appel direct du controller")
+    void testGetOtherEvents_DirectCall() {
+        // Given
+        List<EventSummaryDTO> otherEvents = Arrays.asList(eventSummary1, eventSummary2);
+        when(eventService.getOtherEvents()).thenReturn(otherEvents);
+
+        // When
+        List<EventSummaryDTO> result = eventController.getOtherEvents();
+
+        // Then
+        assertNotNull(result);
+        assertEquals(2, result.size());
+        assertEquals("Tech Conference 2025", result.get(0).getName());
+        assertEquals("Music Festival", result.get(1).getName());
+        verify(eventService, times(1)).getOtherEvents();
+    }
+
+    @Test
+    @DisplayName("GET /public/otherEvent - Devrait propager les exceptions du service")
+    void testGetOtherEvents_ServiceException() {
+        // Given
+        when(eventService.getOtherEvents())
+                .thenThrow(new RuntimeException("Database error"));
+
+        // When & Then
+        assertThrows(RuntimeException.class, () -> eventController.getOtherEvents());
+        verify(eventService, times(1)).getOtherEvents();
+    }
 }

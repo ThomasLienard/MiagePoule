@@ -42,4 +42,9 @@ public class EventController {
             @PathVariable Integer competitionId) {
         return eventService.getEventsByChampionshipAndCompetition(championshipId, competitionId);
     }
+    
+    @GetMapping("/otherEvent")
+    public List<EventSummaryDTO> getOtherEvents() {
+        return eventService.getOtherEvents();
+    }
 }
