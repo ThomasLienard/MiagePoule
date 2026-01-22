@@ -47,7 +47,7 @@ class TrialRepositoryIT {
         assertThat(trial.getId()).isEqualTo(1);
 
         // Vérifie la relation avec Event (id_event=2 dans data.sql)
-        Event event = trial.getEvent();
+        Event event = trial;
         assertThat(event).isNotNull();
         assertThat(event.getId()).isEqualTo(2);
 
@@ -72,7 +72,7 @@ class TrialRepositoryIT {
         assertThat(optTrial).isPresent();
         Trial trial = optTrial.get();
 
-        Event event = trial.getEvent();
+        Event event = trial;
         assertThat(event).isNotNull();
 
         // Depuis data.sql : id_event=2, type_event_name='TRIAL', id_place=1, id_time_slot=2, id_competition=2
@@ -95,7 +95,7 @@ class TrialRepositoryIT {
         List<Trial> trials = trialRepository.findByCompetitionId(1);
 
         assertThat(trials).isNotEmpty();
-        assertThat(trials).allMatch(t -> t.getEvent() != null && t.getEvent().getCompetition().getId() == 1);
+        assertThat(trials).allMatch(t -> t != null && t.getCompetition().getId() == 1);
     }
 
     @Test
@@ -104,10 +104,10 @@ class TrialRepositoryIT {
         List<Trial> trials = trialRepository.findByCompetitionId(2);
 
         assertThat(trials)
-            .extracting(t -> t.getEvent().getId())
+            .extracting(t -> t.getId())
             .contains(2);
         
-        assertThat(trials).allMatch(t -> t.getEvent().getCompetition().getId() == 2);
+        assertThat(trials).allMatch(t -> t.getCompetition().getId() == 2);
     }
 
     @Test
