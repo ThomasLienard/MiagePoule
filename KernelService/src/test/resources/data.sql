@@ -44,7 +44,7 @@ VALUES ('EMAIL'),
 INSERT INTO type_event (type_event_name)
 VALUES ('MEETING'),
        ('TRAINING'),
-       ('COMPETITION');
+       ('TRIAL');
 
 -- ======================
 -- Championships
@@ -84,7 +84,7 @@ VALUES (1, '2025-01-01 09:00:00', '2025-01-01 10:00:00'),
 INSERT INTO event (id_event, name_event, description_event, type_event_name,
                    id_place, id_time_slot, id_competition)
 VALUES (1, 'Morning Sprint Session', 'Speed training', 'TRAINING', 1, 1, 1),
-       (2, 'Final Sprint Race', 'Official competition', 'TRAINING', 1, 2, 2);
+       (2, 'Final Sprint Race', 'Official competition', 'TRIAL', 1, 2, 2);
 
 -- ======================
 -- Trials
