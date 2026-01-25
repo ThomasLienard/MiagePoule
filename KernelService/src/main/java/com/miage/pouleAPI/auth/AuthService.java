@@ -119,4 +119,21 @@ public class AuthService {
                 "User registered successfully"
         );
     }
+
+    public void updateProfile(Integer userId, String email, String name, String lastname, Country country) {
+        ApplicationUser user = userRepo.findById(userId).orElseThrow();
+        if (!user.getEmail().equals(email) && userRepo.existsByEmail(email)) throw new IllegalArgumentException("Email invalid");
+        user.setEmail(email);
+        user.setName(name);
+        user.setLastname(lastname);
+        user.setCountry(country);
+        userRepo.save(user);
+    }
+
+    public void changePassword(Integer userId, String currentPassword, String newPassword) {
+        ApplicationUser user = userRepo.findById(userId).orElseThrow();
+        if (!passwordEncoder.matches(currentPassword, user.getPassword())) throw new BadCredentialsException("Invalid current");
+        user.setPassword(passwordEncoder.encode(newPassword));
+        userRepo.save(user);
+    }
 }

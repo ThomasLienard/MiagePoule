@@ -260,4 +260,85 @@ class AuthServiceTest {
         verify(userRepo, times(1)).save(any(ApplicationUser.class));
         verify(jwtService, times(1)).generateToken(1, "firstuser@example.com", "ATHLETE");
     }
+
+    @Test
+    void testUpdateProfile_Success_ProfileChangedAndAvailable() {
+        Integer userId = 1;
+        String newEmail = "new@mail.com";
+
+        when(userRepo.findById(userId)).thenReturn(Optional.of(testUser));
+        when(userRepo.existsByEmail(newEmail)).thenReturn(false);
+
+        Country newCountry = new Country();
+        newCountry.setCode("BE");
+
+        authService.updateProfile(userId, newEmail, "NewName", "NewLast", newCountry);
+
+        assertEquals(newEmail, testUser.getEmail());
+        assertEquals("NewName", testUser.getName());
+        assertEquals("NewLast", testUser.getLastname());
+        assertEquals(newCountry, testUser.getCountry());
+        verify(userRepo, times(1)).save(testUser);
+    }
+
+    @Test
+    void testUpdateProfile_Success_EmailUnchanged() {
+        Integer userId = 1;
+        String sameEmail = testUser.getEmail();
+
+        when(userRepo.findById(userId)).thenReturn(Optional.of(testUser));
+
+        authService.updateProfile(userId, sameEmail, "NewName", "NewLast", testCountry);
+
+        verify(userRepo, never()).existsByEmail(anyString());
+        assertEquals("NewName", testUser.getName());
+        assertEquals("NewLast", testUser.getLastname());
+        verify(userRepo, times(1)).save(testUser);
+    }
+
+    @Test
+    void testUpdateProfile_EmailAlreadyExists_ThrowsException() {
+        Integer userId = 1;
+        String takenEmail = "taken@mail.com";
+
+        when(userRepo.findById(userId)).thenReturn(Optional.of(testUser));
+        when(userRepo.existsByEmail(takenEmail)).thenReturn(true);
+        //si l'utilisateur veut changer son email par un email existant
+        assertThrows(IllegalArgumentException.class,
+                () -> authService.updateProfile(userId, takenEmail, "NewName", "NewLast", testCountry));
+
+        verify(userRepo, never()).save(any(ApplicationUser.class));
+    }
+
+    @Test
+    void testChangePassword_Success() {
+        Integer userId = 1;
+        String currentPassword = "current";
+        String newPassword = "newPass";
+
+        when(userRepo.findById(userId)).thenReturn(Optional.of(testUser));
+        when(passwordEncoder.matches(currentPassword, testUser.getPassword())).thenReturn(true);
+        when(passwordEncoder.encode(newPassword)).thenReturn("encodedNew");
+
+        authService.changePassword(userId, currentPassword, newPassword);
+
+        assertEquals("encodedNew", testUser.getPassword());
+        verify(userRepo, times(1)).save(testUser);
+    }
+
+    @Test
+    void testChangePassword_InvalidCurrent_ThrowsException() {
+        Integer userId = 1;
+        String currentPassword = "wrong";
+        String newPassword = "newPass";
+
+        when(userRepo.findById(userId)).thenReturn(Optional.of(testUser));
+        when(passwordEncoder.matches(currentPassword, testUser.getPassword())).thenReturn(false);
+
+        assertThrows(BadCredentialsException.class,
+                () -> authService.changePassword(userId, currentPassword, newPassword));
+
+        verify(passwordEncoder, never()).encode(anyString());
+        verify(userRepo, never()).save(any(ApplicationUser.class));
+    }
 }
