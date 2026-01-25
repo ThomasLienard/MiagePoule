@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useCallback, useRef, useMemo } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { GoogleMap, useJsApiLoader } from '@react-google-maps/api';
+import { GoogleMap, LoadScript } from '@react-google-maps/api';
 import { fetchEventAndTrialsData } from '../services/eventService';
 import ManualMarkerCluster from './map/ManualMarkerCluster';
 import EventInfoWindow from './map/EventInfoWindow';
@@ -23,18 +23,16 @@ const EventsMapView = () => {
     const navigate = useNavigate();
     const mapRef = useRef(null);
 
-    const { isLoaded, loadError } = useJsApiLoader({
-        id: "google-map-script",
-        googleMapsApiKey: import.meta.env.VITE_GOOGLE_MAPS_API_KEY || "AIzaSyA3efzW0xg7YQY9CbCSsJsFOp4On2daNPI",
-        libraries: ["places"],
-    });
+    // Configuration Google Maps
+    const GOOGLE_MAPS_API_KEY = "AIzaSyA3efzW0xg7YQY9CbCSsJsFOp4On2daNPI";
+    const API_BASE_URL = 'http://localhost:8081';
 
     const allItems = useMemo(() => {
         return [...trials, ...events];
     }, [trials, events]);
 
     const itemsWithLocation = useMemo(() => {
-        return allItems.filter(item => 
+        return allItems.filter(item =>
             item?.place?.latitude != null && item?.place?.longitude != null
         );
     }, [allItems]);
@@ -47,17 +45,23 @@ const EventsMapView = () => {
         try {
             setLoading(true);
             const { events: basicEvents, trials: basicTrials } = await fetchEventAndTrialsData();
-            
+
             const trialEventIds = new Set(
                 basicTrials
                     .map(trial => trial.idEvent)
                     .filter(id => id != null)
             );
-            
+
+            // Utilisez toujours le gateway (8081)
             const detailedEvents = await Promise.all(
                 basicEvents.map(async (event) => {
                     try {
-                        const response = await fetch(`http://localhost:8081/public/events/${event.id}`);
+                        const response = await fetch(`${API_BASE_URL}/public/events/${event.id}`, {
+                            headers: {
+                                'Accept': 'application/json',
+                                'Content-Type': 'application/json'
+                            }
+                        });
                         if (response.ok) {
                             const detailed = await response.json();
                             return { ...detailed, _isTrial: false };
@@ -69,11 +73,16 @@ const EventsMapView = () => {
                 })
             );
 
-
+            // Utilisez toujours le gateway (8081)
             const detailedTrials = await Promise.all(
                 basicTrials.map(async (basicTrial) => {
                     try {
-                        const response = await fetch(`http://localhost:8083/public/trials/${basicTrial.id}`);
+                        const response = await fetch(`${API_BASE_URL}/public/trials/${basicTrial.id}`, {
+                            headers: {
+                                'Accept': 'application/json',
+                                'Content-Type': 'application/json'
+                            }
+                        });
                         if (response.ok) {
                             const detailed = await response.json();
                             return { ...detailed, idEvent: basicTrial.idEvent, _isTrial: true };
@@ -84,10 +93,9 @@ const EventsMapView = () => {
                     }
                 })
             );
-            
 
             const nonTrialEvents = detailedEvents.filter(event => !trialEventIds.has(event.id));
-            
+
             setEvents(nonTrialEvents);
             setTrials(detailedTrials);
         } catch (err) {
@@ -103,7 +111,7 @@ const EventsMapView = () => {
 
     const handleEventClick = (eventOrTrial) => {
         setSelectedEvent(eventOrTrial);
-        
+
         if (eventOrTrial?.place?.latitude && eventOrTrial?.place?.longitude && mapRef.current) {
             mapRef.current.panTo({
                 lat: eventOrTrial.place.latitude,
@@ -130,13 +138,13 @@ const EventsMapView = () => {
 
     const handleViewDetails = useCallback((eventId) => {
         const isTrial = selectedEvent?._isTrial === true;
-        
+
         if (isTrial) {
-            navigate(`/public/trials/${eventId}`);
+            navigate(`${API_BASE_URL}/public/trials/${eventId}`);
         } else {
-            navigate(`/public/events/${eventId}`);
+            navigate(`${API_BASE_URL}/public/events/${eventId}`);
         }
-    }, [navigate, selectedEvent]);
+    }, [navigate, selectedEvent, API_BASE_URL]);
 
     const onMapLoad = useCallback((map) => {
         mapRef.current = map;
@@ -161,10 +169,10 @@ const EventsMapView = () => {
 
     const matchesDateFilter = (item) => {
         if (!selectedDate) return true;
-        
+
         const itemDate = item.timeSlot?.start || item.date || item.startDate;
         if (!itemDate) return true;
-        
+
         const itemDateStr = new Date(itemDate).toISOString().split('T')[0];
         return itemDateStr === selectedDate;
     };
@@ -197,8 +205,8 @@ const EventsMapView = () => {
     const getFilteredEventsForMap = () => {
         const { trials: displayedTrials, events: displayedEvents } = getDisplayedItems();
         const allDisplayed = [...displayedTrials, ...displayedEvents];
-        
-        return allDisplayed.filter(item => 
+
+        return allDisplayed.filter(item =>
             item?.place?.latitude != null && item?.place?.longitude != null
         );
     };
@@ -243,7 +251,7 @@ const EventsMapView = () => {
                             className="search-input"
                         />
                         {searchTerm && (
-                            <button 
+                            <button
                                 className="clear-search"
                                 onClick={() => setSearchTerm('')}
                             >
@@ -254,19 +262,19 @@ const EventsMapView = () => {
                 </div>
 
                 <div className="filter-section">
-                    <button 
+                    <button
                         className={`filter-btn ${activeFilter === 'all' ? 'active' : ''}`}
                         onClick={() => setActiveFilter('all')}
                     >
                         Tous
                     </button>
-                    <button 
+                    <button
                         className={`filter-btn ${activeFilter === 'competition' ? 'active' : ''}`}
                         onClick={() => setActiveFilter('competition')}
                     >
                         🏆 Compétition
                     </button>
-                    <button 
+                    <button
                         className={`filter-btn ${activeFilter === 'extra-competition' ? 'active' : ''}`}
                         onClick={() => setActiveFilter('extra-competition')}
                     >
@@ -287,7 +295,7 @@ const EventsMapView = () => {
                             onChange={(e) => setSelectedDate(e.target.value)}
                         />
                         {selectedDate && (
-                            <button 
+                            <button
                                 className="clear-date-btn"
                                 onClick={() => setSelectedDate('')}
                                 title="Effacer le filtre date"
@@ -311,8 +319,8 @@ const EventsMapView = () => {
                                 </div>
                             )}
                             {displayedTrials.map(trial => (
-                                <div 
-                                    key={`trial-${trial.id}`} 
+                                <div
+                                    key={`trial-${trial.id}`}
                                     className="event-item trial-item"
                                     onClick={() => handleEventClick(trial)}
                                     onMouseEnter={() => handleEventHover(trial)}
@@ -342,8 +350,8 @@ const EventsMapView = () => {
                                 </div>
                             )}
                             {displayedEvents.map(event => (
-                                <div 
-                                    key={`event-${event.id}`} 
+                                <div
+                                    key={`event-${event.id}`}
                                     className="event-item"
                                     onClick={() => handleEventClick(event)}
                                     onMouseEnter={() => handleEventHover(event)}
@@ -368,7 +376,7 @@ const EventsMapView = () => {
                         <div className="no-results">
                             <p>Aucun événement trouvé</p>
                             {(searchTerm || selectedDate || activeFilter !== 'all') && (
-                                <button 
+                                <button
                                     className="clear-filters-btn"
                                     onClick={() => {
                                         setSearchTerm('');
@@ -385,39 +393,42 @@ const EventsMapView = () => {
             </aside>
 
             <main className="map-section">
-                {isLoaded && !loadError ? (
-                    <GoogleMap
-                        mapContainerClassName="google-map-container"
-                        center={DEFAULT_CENTER}
-                        zoom={DEFAULT_ZOOM}
-                        options={{
-                            ...GOOGLE_MAPS_OPTIONS,
-                            mapTypeId: 'roadmap',
-                        }}
-                        onLoad={onMapLoad}
+                {GOOGLE_MAPS_API_KEY ? (
+                    <LoadScript
+                        googleMapsApiKey={GOOGLE_MAPS_API_KEY}
+                        libraries={["places"]}
+                        onError={(error) => console.error("Google Maps error:", error)}
+                        onLoad={() => console.log("Google Maps loaded")}
                     >
-                        <ManualMarkerCluster
-                            events={filteredEventsForMap}
-                            onMarkerClick={handleMarkerClick}
-                        />
-
-                        {selectedEvent?.place && (
-                            <EventInfoWindow
-                                event={selectedEvent}
-                                loading={false}
-                                onClose={clearSelection}
-                                onViewDetails={handleViewDetails}
+                        <GoogleMap
+                            mapContainerClassName="google-map-container"
+                            center={DEFAULT_CENTER}
+                            zoom={DEFAULT_ZOOM}
+                            options={{
+                                ...GOOGLE_MAPS_OPTIONS,
+                                mapTypeId: 'roadmap',
+                            }}
+                            onLoad={onMapLoad}
+                        >
+                            <ManualMarkerCluster
+                                events={filteredEventsForMap}
+                                onMarkerClick={handleMarkerClick}
                             />
-                        )}
-                    </GoogleMap>
-                ) : loadError ? (
-                    <div className="map-error">
-                        <p>Erreur de chargement de la carte</p>
-                    </div>
+
+                            {selectedEvent?.place && (
+                                <EventInfoWindow
+                                    event={selectedEvent}
+                                    loading={false}
+                                    onClose={clearSelection}
+                                    onViewDetails={handleViewDetails}
+                                />
+                            )}
+                        </GoogleMap>
+                    </LoadScript>
                 ) : (
-                    <div className="map-loading">
-                        <div className="loading-spinner"></div>
-                        <p>Chargement de la carte...</p>
+                    <div className="map-error">
+                        <p>Clé API Google Maps manquante</p>
+                        <p>Veuillez définir VITE_GOOGLE_MAPS_API_KEY dans votre fichier .env</p>
                     </div>
                 )}
             </main>

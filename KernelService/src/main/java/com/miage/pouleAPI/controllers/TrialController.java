@@ -12,7 +12,6 @@ import java.util.List;
 
 @RestController
 @RequestMapping("/public")
-@CrossOrigin(origins = "http://localhost:3000")
 public class TrialController {
     
     
