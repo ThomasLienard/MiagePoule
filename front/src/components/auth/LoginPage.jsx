@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useAuth } from '../../contexts/AuthContext';
-import './Auth.css';
+import {Button, Card} from "react-bootstrap";
 
 const LoginPage = () => {
     const [email, setEmail] = useState('');
@@ -29,12 +29,15 @@ const LoginPage = () => {
     };
 
     return (
-        <div className="auth-container">
-            <div className="auth-card">
-                <div className="auth-header">
-                    <h2 className="auth-title">Connexion</h2>
-                    <p className="auth-subtitle">Connectez-vous à votre compte</p>
-                </div>
+        <div className="d-flex justify-content-center pt-4">
+            <Card>
+                <Card.Body>
+                    <Card.Title className="text-center mb-2" as="h3">Connexion</Card.Title>
+                    <Card.Subtitle className="text-center" as="h6">Connectez-vous à votre compte</Card.Subtitle>
+                    <div className="d-flex justify-content-center">
+                        <hr style={{width: "16rem"}}/>
+                    </div>
+                    <Card.Text>
 
                 {error && (
                     <div className="auth-error">
@@ -73,13 +76,13 @@ const LoginPage = () => {
                         />
                     </div>
 
-                    <button
+                    <Button
                         type="submit"
-                        className="auth-button"
+                        variant = "primary"
                         disabled={loading}
                     >
                         {loading ? 'Connexion en cours...' : 'Se connecter'}
-                    </button>
+                    </Button>
                 </form>
 
                 <div className="auth-footer">
@@ -93,7 +96,9 @@ const LoginPage = () => {
                         Retour à l'accueil
                     </Link>
                 </div>
-            </div>
+                    </Card.Text>
+                </Card.Body>
+            </Card>
         </div>
     );
 };
