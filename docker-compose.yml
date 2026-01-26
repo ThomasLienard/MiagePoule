@@ -33,19 +33,35 @@ services:
       SPRING_DATASOURCE_PASSWORD: miagepassword
       SPRING_JPA_HIBERNATE_DDL_AUTO: update
     ports:
-      - "8083:8082"
+      - "8085:8082"
     depends_on:
       - postgres
     networks:
       - miage-network
     restart: unless-stopped
 
-  # Frontend React Native (Node.js 22)
+  # API Spring Boot
+  gateway-api:
+    build:
+      context: ./gateway
+      dockerfile: Dockerfile
+    container_name: spring_miagepoule_gateway
+    environment:
+      SERVICE_BACKEND_URL: http://poule-api:8082
+    ports:
+      - "8084:8081"
+    depends_on:
+      - poule-api
+    networks:
+      - miage-network
+    restart: unless-stopped
+
+  # Frontend
   frontend:
     build: ./front
     container_name: react_miagepoule
     ports:
-      - "3000:3000"  # Un seul port exposé
+      - "3001:3000"
     networks:
       - miage-network
     restart: unless-stopped
@@ -61,8 +77,6 @@ services:
     networks:
       - miage-network
     command:  cypress open --project /e2e
-
-
 
 volumes:
   postgres_data:
