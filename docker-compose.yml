@@ -50,47 +50,18 @@ services:
       - miage-network
     restart: unless-stopped
 
-  cerberus-mysql:
-    image: cerberustesting/cerberus-db-mysql
-    container_name: cerberus-mysql
-    restart: always
-    environment:
-      MYSQL_ROOT_PASSWORD: root
-      MYSQL_DATABASE: cerberus
-      MYSQL_USER: cerberus
-      MYSQL_PASSWORD: cerberus
-    ports:
-      - "3307:3306"
+  cypress:
+    image: cypress/included:13.6.0
+    container_name: cypress_miagepoule
+    working_dir: /e2e
     volumes:
-      - cerberus_mysql_data:/var/lib/mysql
-    networks:
-      - miage-network
-
-  cerberus:
-    image: cerberustesting/cerberus-as-tomcat
-    container_name: cerberus
+      - ./:/e2e
     depends_on:
-      - cerberus-mysql
-    environment:
-      DATABASE_HOST: cerberus-mysql
-      DATABASE_PORT: 3306
-      DATABASE_NAME: cerberus
-      DATABASE_USER: cerberus
-      DATABASE_PASSWORD: cerberus
-      org.cerberus.environment: prd
-      org.cerberus.authentification: none
-    ports:
-      - "8082:8080"
+      - frontend
     networks:
       - miage-network
+    command:  cypress open --project /e2e
 
-  selenium:
-    image: selenium/standalone-firefox:4
-    container_name: selenium
-    ports:
-      - "4444:4444"
-    networks:
-      - miage-network
 
 
 volumes:
