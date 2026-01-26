@@ -12,7 +12,6 @@ import java.util.List;
 
 @RestController
 @RequestMapping("/public/championship")
-@CrossOrigin(origins = "http://localhost:3000")
 public class ChampionshipController {
 
     private final ChampionshipService championshipService;
