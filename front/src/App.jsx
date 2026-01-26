@@ -2,7 +2,6 @@ import { BrowserRouter as Router, Route, Routes } from "react-router-dom";
 
 import { AuthProvider } from './contexts/AuthContext';
 import ProtectedRoute from './components/ProtectedRoute';
-import Header from './components/layout/Header';
 import LoginPage from './components/auth/LoginPage';
 import RegisterPage from './components/auth/RegisterPage';
 import AdminPage from './components/admin/AdminPage';
@@ -11,11 +10,9 @@ import ListeCompetitions from "./components/ListeCompetitions.jsx";
 import Competition from "./components/Competition.jsx";
 import ListChampionships from "./components/ListChampionships.jsx";
 import PublicMapPage from './components/map/PublicMapPage';
-import ListeEvenements from './components/ListeEvenements';
 import ListeEvenementsParCompetition from './components/ListeEvenementsParCompetition';
 import EventDetails from './components/EventDetails';
 import Layout from "./components/layout/Layout.jsx";
-import EventsMapView from "./components/EventsMapView.jsx";
 
 function App() {
 

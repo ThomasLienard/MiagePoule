@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useAuth } from '../../contexts/AuthContext';
-import {Button, Card, Form} from "react-bootstrap";
+import {Button, Card, FloatingLabel, Form} from "react-bootstrap";
 
 const RegisterPage = () => {
     const [formData, setFormData] = useState({
@@ -30,6 +30,7 @@ const RegisterPage = () => {
         e.preventDefault();
         setError('');
         setSuccess('');
+        console.log(formData);
 
         // Validation
         if (formData.password !== formData.confirmPassword) {
@@ -68,7 +69,7 @@ const RegisterPage = () => {
     return (
         <div className="d-flex justify-content-center pt-4">
             <Card>
-                <Card.Body >
+                <Card.Body className="m-3">
                     <Card.Title className="text-center mb-2" as="h3">Inscription</Card.Title>
                     <Card.Subtitle className="text-center" as="h6" >Créez votre compte spectateur</Card.Subtitle>
                     <div className="d-flex justify-content-center">
@@ -76,99 +77,75 @@ const RegisterPage = () => {
                     </div>
                     <Card.Text>
                     {error && (
-                        <div className="auth-error">
+                        <div>
                             {error}
                         </div>
                     )}
 
                     {success && (
-                        <div className="auth-success">
+                        <div >
                             {success}
                         </div>
                     )}
 
-                    <Form onSubmit={handleSubmit} className="auth-form">
-                        <Form.Group controlId="firstName">
-                            <Form.Label>
-                                Prénom
-                            </Form.Label>
-                            <Form.Control
-                                type="text"
-                                value={formData.firstName}
-                                onChange={handleChange}
-                                placeholder="John"
-                                required
-                            />
-                        </Form.Group>
-
-                        <div className="form-group">
-                            <label htmlFor="lastName" className="form-label">
-                                Nom
-                            </label>
-                            <input
-                                id="lastName"
-                                type="text"
-                                value={formData.lastName}
-                                onChange={handleChange}
-                                className="form-input"
-                                placeholder="Doe"
-                                required
-                            />
+                    <Form onSubmit={handleSubmit} className="mt-2">
+                            <FloatingLabel label="Prénom" controlId="firstName">
+                                <Form.Control
+                                    type="text"
+                                    placeholder="Prénom"
+                                    onChange={handleChange}
+                                    required
+                                    value={formData.firstName}
+                                />
+                        </FloatingLabel>
+                            <FloatingLabel label="Nom" controlId="lastName" className="mt-1">
+                                <Form.Control
+                                    type="text"
+                                    placeholder="Nom"
+                                    onChange={handleChange}
+                                    required
+                                    value={formData.lastName}
+                                />
+                            </FloatingLabel>
+                            <FloatingLabel label="Email" controlId="email"  className="mt-1">
+                                <Form.Control
+                                    type="email"
+                                    placeholder="Eail"
+                                    onChange={handleChange}
+                                    required
+                                    value={formData.email}
+                                />
+                            </FloatingLabel>
+                        <div>
+                                <FloatingLabel label="Mot de passe" controlId="password"  className="mt-1">
+                                    <Form.Control
+                                        type="password"
+                                        placeholder="Mot de passe"
+                                        onChange={handleChange}
+                                        value={formData.password}
+                                        required
+                                    />
+                                </FloatingLabel>
+                            <span className="text-body-tertiary">Minimum 6 caractères</span>
                         </div>
-
-                        <div className="form-group">
-                            <label htmlFor="email" className="form-label">
-                                Email
-                            </label>
-                            <input
-                                id="email"
-                                type="email"
-                                value={formData.email}
-                                onChange={handleChange}
-                                className="form-input"
-                                placeholder="votre@email.com"
-                                required
-                            />
+                            <FloatingLabel label="Confirmez le mot de passe" controlId="confirmPassword"  className="mt-2">
+                                <Form.Control
+                                    type="password"
+                                    placeholder="Confirmez le mot de passe"
+                                    onChange={handleChange}
+                                    required
+                                    value={formData.confirmPassword}
+                                />
+                            </FloatingLabel>
+                        <div className="d-flex justify-content-center mt-2 mb-3">
+                            <Button
+                                type="submit"
+                                variant="secondary"
+                                disabled={loading}
+                            >
+                                {loading ? 'Inscription en cours...' : "S'inscrire"}
+                            </Button>
                         </div>
-
-                        <div className="form-group">
-                            <label htmlFor="password" className="form-label">
-                                Mot de passe
-                            </label>
-                            <input
-                                id="password"
-                                type="password"
-                                value={formData.password}
-                                onChange={handleChange}
-                                className="form-input"
-                                placeholder="••••••••"
-                                required
-                            />
-                            <p className="form-hint">Minimum 6 caractères</p>
-                        </div>
-
-                        <div className="form-group">
-                            <label htmlFor="confirmPassword" className="form-label">
-                                Confirmer le mot de passe
-                            </label>
-                            <input
-                                id="confirmPassword"
-                                type="password"
-                                value={formData.confirmPassword}
-                                onChange={handleChange}
-                                className="form-input"
-                                placeholder="••••••••"
-                                required
-                            />
-                        </div>
-
-                        <Button
-                            type="submit"
-                            variant="primary"
-                            disabled={loading}
-                        >
-                            {loading ? 'Inscription en cours...' : "S'inscrire"}
-                        </Button>
                     </Form>
 
                     <div className="auth-footer">
@@ -178,9 +155,6 @@ const RegisterPage = () => {
                                 Se connecter
                             </Link>
                         </p>
-                        <Link to="/" className="auth-link">
-                            Retour à l'accueil
-                        </Link>
                     </div>
                     </Card.Text>
                 </Card.Body>

@@ -297,7 +297,19 @@ const PublicMapPage = () => {
                                         <span>🏆 Compétition</span>
                                         <hr style={{width: "21rem"}}/>
                                     </div>
-                                    {displayedTrials.map(trial => (
+                                    {displayedTrials
+                                        .toSorted((a, b) => {
+                                            let aDate = new Date(a.timeSlot.start)
+                                            let bDate = new Date(b.timeSlot.start)
+
+                                            if (aDate > bDate) {
+                                                return 1;
+                                            } else if (aDate < bDate) {
+                                                return -1;
+                                            }
+                                            return 0;
+                                        })
+                                        .map(trial => (
                                         <Card
                                             key={`trial-${trial.id}`}
                                             onClick={() => handleEventClick(trial)}
