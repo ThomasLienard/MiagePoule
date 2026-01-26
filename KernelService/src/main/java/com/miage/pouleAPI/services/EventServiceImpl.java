@@ -51,4 +51,10 @@ public class EventServiceImpl implements EventService {
             eventRepository.findByTypeEventNameNotEqual()
         );
     }
-}
+    
+    @Override
+    public List<EventSummaryDTO> getOtherEventsByCompetition(Integer competitionId) {
+        return eventAdapter.entityListToSummaryDtoList(
+            eventRepository.findByCompetitionIdAndTypeEventNameNotEqual(competitionId)
+        );
+    }}

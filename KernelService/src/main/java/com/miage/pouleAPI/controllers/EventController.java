@@ -47,4 +47,10 @@ public class EventController {
     public List<EventSummaryDTO> getOtherEvents() {
         return eventService.getOtherEvents();
     }
-}
+    
+    @GetMapping("/championships/{championshipId}/comp/{competitionId}/otherEvent")
+    public List<EventSummaryDTO> getOtherEventsByCompetition(
+            @PathVariable Integer championshipId,
+            @PathVariable Integer competitionId) {
+        return eventService.getOtherEventsByCompetition(competitionId);
+    }}
