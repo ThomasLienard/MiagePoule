@@ -78,11 +78,19 @@ class TrialServiceImplTest {
 
         trial1 = new Trial();
         trial1.setId(1);
-        trial1.setEvent(event1);
+        trial1.setName(event1.getName());
+        trial1.setDescription(event1.getDescription());
+        trial1.setCompetition(event1.getCompetition());
+        trial1.setTimeSlot(event1.getTimeSlot());
+        trial1.setPlace(event1.getPlace());
 
         trial2 = new Trial();
         trial2.setId(2);
-        trial2.setEvent(event2);
+        trial2.setName(event2.getName());
+        trial2.setDescription(event2.getDescription());
+        trial2.setCompetition(event2.getCompetition());
+        trial2.setTimeSlot(event2.getTimeSlot());
+        trial2.setPlace(event2.getPlace());
 
         summary1 = new TrialSummaryDTO(1, 10, "Marathon de Paris", "42km course");
         summary2 = new TrialSummaryDTO(2, 20, "100m Sprint", "Sprint rapide");
@@ -232,7 +240,6 @@ class TrialServiceImplTest {
         // Given
         Trial trialWithoutEvent = new Trial();
         trialWithoutEvent.setId(3);
-        trialWithoutEvent.setEvent(null);
         
         List<Trial> trials = Arrays.asList(trial1, trialWithoutEvent);
         List<TrialSummaryDTO> summaries = Arrays.asList(summary1); // L'adapter filtre le null
