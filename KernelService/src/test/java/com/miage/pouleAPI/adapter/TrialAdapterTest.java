@@ -84,7 +84,11 @@ class TrialAdapterTest {
 
         trial = new Trial();
         trial.setId(1);
-        trial.setEvent(event);
+        trial.setName(event.getName());
+        trial.setDescription(event.getDescription());
+        trial.setCompetition(event.getCompetition());
+        trial.setTimeSlot(event.getTimeSlot());
+        trial.setPlace(event.getPlace());
     }
 
     @Test
@@ -96,7 +100,7 @@ class TrialAdapterTest {
         // Then
         assertNotNull(dto);
         assertEquals(1, dto.getId());
-        assertEquals(10, dto.getIdEvent());
+        assertEquals(1, dto.getIdEvent());  // Trial's id IS the Event's id (JOINED inheritance)
         assertEquals("Marathon de Paris", dto.getName());
         assertEquals("42km course", dto.getDescription());
     }
@@ -112,30 +116,32 @@ class TrialAdapterTest {
     }
 
     @Test
-    @DisplayName("entityToSummaryDto() - Devrait retourner null si Event est null")
+    @DisplayName("entityToSummaryDto() - Devrait retourner DTO pour Trial même sans Event séparé")
     void testEntityToSummaryDto_NullEvent() {
-        // Given
-        trial.setEvent(null);
+        // Given - Trial IS-A Event now, no separate Event
+        Trial emptyTrial = new Trial();
+        emptyTrial.setId(1);
+        emptyTrial.setName(null);
+        emptyTrial.setDescription(null);
 
         // When
-        TrialSummaryDTO dto = trialAdapter.entityToSummaryDto(trial);
+        TrialSummaryDTO dto = trialAdapter.entityToSummaryDto(emptyTrial);
 
         // Then
-        assertNull(dto);
+        assertNotNull(dto);  // Returns DTO even with null fields (Trial IS Event)
+        assertEquals(1, dto.getId());
+        assertNull(dto.getName());
+        assertNull(dto.getDescription());
     }
 
     @Test
     @DisplayName("entityListToSummaryDtoList() - Devrait convertir liste de Trials avec idEvent")
     void testEntityListToSummaryDtoList_Success() {
         // Given
-        Event event2 = new Event();
-        event2.setId(20);
-        event2.setName("100m Sprint");
-        event2.setDescription("Sprint rapide");
-        
         Trial trial2 = new Trial();
         trial2.setId(2);
-        trial2.setEvent(event2);
+        trial2.setName("100m Sprint");
+        trial2.setDescription("Sprint rapide");
         
         List<Trial> trials = Arrays.asList(trial, trial2);
 
@@ -146,31 +152,33 @@ class TrialAdapterTest {
         assertNotNull(dtos);
         assertEquals(2, dtos.size());
         assertEquals(1, dtos.get(0).getId());
-        assertEquals(10, dtos.get(0).getIdEvent());
+        assertEquals(1, dtos.get(0).getIdEvent());  // Trial's id IS Event's id
         assertEquals("Marathon de Paris", dtos.get(0).getName());
         assertEquals(2, dtos.get(1).getId());
-        assertEquals(20, dtos.get(1).getIdEvent());
+        assertEquals(2, dtos.get(1).getIdEvent());  // Trial's id IS Event's id
         assertEquals("100m Sprint", dtos.get(1).getName());
     }
 
     @Test
-    @DisplayName("entityListToSummaryDtoList() - Devrait filtrer les Trials avec Event null")
+    @DisplayName("entityListToSummaryDtoList() - Devrait inclure tous les Trials")
     void testEntityListToSummaryDtoList_FilterNullEvents() {
-        // Given
-        Trial trialWithoutEvent = new Trial();
-        trialWithoutEvent.setId(2);
-        trialWithoutEvent.setEvent(null);
+        // Given - Trial IS-A Event, no separate filtering needed
+        Trial trialWithoutName = new Trial();
+        trialWithoutName.setId(2);
+        trialWithoutName.setName(null);
         
-        List<Trial> trials = Arrays.asList(trial, trialWithoutEvent);
+        List<Trial> trials = Arrays.asList(trial, trialWithoutName);
 
         // When
         List<TrialSummaryDTO> dtos = trialAdapter.entityListToSummaryDtoList(trials);
 
         // Then
         assertNotNull(dtos);
-        assertEquals(1, dtos.size()); // Seulement le trial avec event grâce au filtre
+        assertEquals(2, dtos.size());  // Both trials included (no Event null check)
         assertEquals("Marathon de Paris", dtos.get(0).getName());
-        assertEquals(10, dtos.get(0).getIdEvent());
+        assertEquals(1, dtos.get(0).getIdEvent());
+        assertNull(dtos.get(1).getName());  // Second trial has null name
+        assertEquals(2, dtos.get(1).getIdEvent());
     }
 
     @Test
@@ -221,8 +229,8 @@ class TrialAdapterTest {
     @Test
     @DisplayName("entityToDetailDto() - Devrait gérer Trial sans Competition")
     void testEntityToDetailDto_WithoutCompetition() {
-        // Given
-        event.setCompetition(null);
+        // Given - Trial IS Event, set competition on trial
+        trial.setCompetition(null);
 
         // When
         TrialDetailDTO dto = trialAdapter.entityToDetailDto(trial);
@@ -235,8 +243,8 @@ class TrialAdapterTest {
     @Test
     @DisplayName("entityToDetailDto() - Devrait gérer Trial sans TimeSlot")
     void testEntityToDetailDto_WithoutTimeSlot() {
-        // Given
-        event.setTimeSlot(null);
+        // Given - Trial IS Event, set timeSlot on trial
+        trial.setTimeSlot(null);
 
         // When
         TrialDetailDTO dto = trialAdapter.entityToDetailDto(trial);
@@ -249,8 +257,8 @@ class TrialAdapterTest {
     @Test
     @DisplayName("entityToDetailDto() - Devrait gérer Trial sans Place")
     void testEntityToDetailDto_WithoutPlace() {
-        // Given
-        event.setPlace(null);
+        // Given - Trial IS Event, set place on trial
+        trial.setPlace(null);
 
         // When
         TrialDetailDTO dto = trialAdapter.entityToDetailDto(trial);
@@ -271,16 +279,22 @@ class TrialAdapterTest {
     }
 
     @Test
-    @DisplayName("entityToDetailDto() - Devrait retourner null si Event est null")
+    @DisplayName("entityToDetailDto() - Devrait retourner DTO pour Trial m\u00eame avec attributs null")
     void testEntityToDetailDto_NullEvent() {
-        // Given
-        trial.setEvent(null);
+        // Given - Trial IS-A Event now, no separate Event check needed
+        Trial emptyTrial = new Trial();
+        emptyTrial.setId(1);
+        emptyTrial.setName(null);
+        emptyTrial.setDescription(null);
 
         // When
-        TrialDetailDTO dto = trialAdapter.entityToDetailDto(trial);
+        TrialDetailDTO dto = trialAdapter.entityToDetailDto(emptyTrial);
 
         // Then
-        assertNull(dto);
+        assertNotNull(dto);  // Returns DTO even with null fields
+        assertEquals(1, dto.getId());
+        assertNull(dto.getName());
+        assertNull(dto.getDescription());
     }
 
     @Test
@@ -295,9 +309,9 @@ class TrialAdapterTest {
         // Then
         assertNotNull(result);
         assertEquals(1, result.getId());
-        assertNotNull(result.getEvent());
-        assertEquals("Test Trial", result.getEvent().getName());
-        assertEquals("Test Description", result.getEvent().getDescription());
+        assertNotNull(result);
+        assertEquals("Test Trial", result.getName());
+        assertEquals("Test Description", result.getDescription());
     }
 
     @Test
@@ -325,9 +339,9 @@ class TrialAdapterTest {
         // Then
         assertNotNull(result);
         assertEquals(1, result.getId());
-        assertNotNull(result.getEvent());
-        assertEquals("Test Trial", result.getEvent().getName());
-        assertEquals("Test Description", result.getEvent().getDescription());
+        assertNotNull(result);
+        assertEquals("Test Trial", result.getName());
+        assertEquals("Test Description", result.getDescription());
     }
 
     @Test
@@ -343,16 +357,16 @@ class TrialAdapterTest {
     @Test
     @DisplayName("entityToSummaryDto() - Devrait gérer Event avec ID null")
     void testEntityToSummaryDto_EventIdNull() {
-        // Given
-        event.setId(null);
+        // Given - Trial IS Event, Trial.id cannot be null in DTO
+        trial.setId(null);
 
         // When
         TrialSummaryDTO dto = trialAdapter.entityToSummaryDto(trial);
 
         // Then
         assertNotNull(dto);
-        assertEquals(1, dto.getId());
-        assertNull(dto.getIdEvent());
+        assertNull(dto.getId());  // Trial id is null
+        assertNull(dto.getIdEvent());  // Trial's id IS Event's id
         assertEquals("Marathon de Paris", dto.getName());
     }
 
@@ -390,24 +404,24 @@ class TrialAdapterTest {
         // Then
         assertNotNull(result);
         assertEquals(5, result.getId());
-        assertNotNull(result.getEvent());
-        assertEquals("Nested Trial", result.getEvent().getName());
-        assertEquals("With nested objects", result.getEvent().getDescription());
+        assertNotNull(result);
+        assertEquals("Nested Trial", result.getName());
+        assertEquals("With nested objects", result.getDescription());
 
-        assertNotNull(result.getEvent().getTimeSlot());
-        assertEquals(timeSlotDTO.getStart(), result.getEvent().getTimeSlot().getStart());
-        assertEquals(timeSlotDTO.getEnd(), result.getEvent().getTimeSlot().getEnd());
+        assertNotNull(result.getTimeSlot());
+        assertEquals(timeSlotDTO.getStart(), result.getTimeSlot().getStart());
+        assertEquals(timeSlotDTO.getEnd(), result.getTimeSlot().getEnd());
 
-        assertNotNull(result.getEvent().getPlace());
-        assertEquals(placeDTO.getId(), result.getEvent().getPlace().getId());
-        assertEquals(placeDTO.getName(), result.getEvent().getPlace().getName());
-        assertEquals(placeDTO.getDescription(), result.getEvent().getPlace().getDescription());
-        assertEquals(placeDTO.getStreet(), result.getEvent().getPlace().getStreet());
-        assertEquals(placeDTO.getNumber(), result.getEvent().getPlace().getNumber());
-        assertEquals(placeDTO.getCity(), result.getEvent().getPlace().getCity());
-        assertEquals(placeDTO.getZip(), result.getEvent().getPlace().getZip());
-        assertEquals(placeDTO.getParking(), result.getEvent().getPlace().getParking());
-        assertEquals(placeDTO.getLatitude(), result.getEvent().getPlace().getLatitude());
-        assertEquals(placeDTO.getLongitude(), result.getEvent().getPlace().getLongitude());
+        assertNotNull(result.getPlace());
+        assertEquals(placeDTO.getId(), result.getPlace().getId());
+        assertEquals(placeDTO.getName(), result.getPlace().getName());
+        assertEquals(placeDTO.getDescription(), result.getPlace().getDescription());
+        assertEquals(placeDTO.getStreet(), result.getPlace().getStreet());
+        assertEquals(placeDTO.getNumber(), result.getPlace().getNumber());
+        assertEquals(placeDTO.getCity(), result.getPlace().getCity());
+        assertEquals(placeDTO.getZip(), result.getPlace().getZip());
+        assertEquals(placeDTO.getParking(), result.getPlace().getParking());
+        assertEquals(placeDTO.getLatitude(), result.getPlace().getLatitude());
+        assertEquals(placeDTO.getLongitude(), result.getPlace().getLongitude());
     }
 }

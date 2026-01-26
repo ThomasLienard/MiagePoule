@@ -1,57 +1,155 @@
-import { useCallback, useState, useRef } from 'react';
-import { GoogleMap, useJsApiLoader } from '@react-google-maps/api';
-import { useEvents, useEventDetails } from '../../hooks/useEvents';
-import ManualMarkerCluster from './ManualMarkerCluster';
-import EventInfoWindow from './EventInfoWindow';
+import React, {useState, useEffect, useCallback, useRef, useMemo} from 'react';
+import {useNavigate} from 'react-router-dom';
+import {GoogleMap, useJsApiLoader} from '@react-google-maps/api';
+import {fetchEventAndTrialsData} from '../../services/eventService';
+import EventInfoWindow from './EventInfoWindow.jsx';
+import ManualMarkerCluster from "./ManualMarkerCluster.jsx";
 import {
-    MAP_CONTAINER_STYLE,
     DEFAULT_CENTER,
     DEFAULT_ZOOM,
     GOOGLE_MAPS_OPTIONS,
+    MAP_CONTAINER_STYLE
 } from '../../constants/mapSettings';
-import {Card, Container, Nav, Navbar, NavDropdown} from "react-bootstrap";
-import {Link} from "react-router-dom";
+import {Card, Col, Row, Spinner, Form, FloatingLabel} from "react-bootstrap";
+import {formatDate} from "../../utils/dateFormatter.js";
 
 const PublicMapPage = () => {
-    const { isLoaded, loadError } = useJsApiLoader({
+    const [events, setEvents] = useState([]);
+    const [trials, setTrials] = useState([]);
+    const [loading, setLoading] = useState(true);
+    const [error, setError] = useState(null);
+    const [searchTerm, setSearchTerm] = useState('');
+    const [activeFilter, setActiveFilter] = useState('all');
+    const [selectedDate, setSelectedDate] = useState('');
+    const [selectedEvent, setSelectedEvent] = useState(null);
+    const navigate = useNavigate();
+    const mapRef = useRef(null);
+
+    const {isLoaded, loadError} = useJsApiLoader({
         id: "google-map-script",
         googleMapsApiKey: import.meta.env.VITE_GOOGLE_MAPS_API_KEY || "AIzaSyA3efzW0xg7YQY9CbCSsJsFOp4On2daNPI",
         libraries: ["places"],
     });
 
-    const {
-        events,
-        eventsWithLocation,
-    } = useEvents();
+    const allItems = useMemo(() => {
+        return [...trials, ...events];
+    }, [trials, events]);
 
-    const {
-        selectedEvent,
-        loadingDetails,
-        handleSelectEvent,
-        clearSelection,
-    } = useEventDetails();
+    const itemsWithLocation = useMemo(() => {
+        return allItems.filter(item =>
+            item?.place?.latitude != null && item?.place?.longitude != null
+        );
+    }, [allItems]);
 
-    const [mapType] = useState('roadmap');
-    const mapRef = useRef(null);
-
-    const handleViewDetails = useCallback((eventId) => {
-        window.location.href = `/public/events/${eventId}`;
+    useEffect(() => {
+        fetchAllData();
     }, []);
 
-    const handleMarkerClick = useCallback((eventId) => {
-        handleSelectEvent(eventId, events);
-    }, [handleSelectEvent, events]);
+    const fetchAllData = async () => {
+        try {
+            setLoading(true);
+            const {events: basicEvents, trials: basicTrials} = await fetchEventAndTrialsData();
+
+            const trialEventIds = new Set(
+                basicTrials
+                    .map(trial => trial.idEvent)
+                    .filter(id => id != null)
+            );
+
+            const detailedEvents = await Promise.all(
+                basicEvents.map(async (event) => {
+                    try {
+                        const response = await fetch(`http://localhost:8084/public/events/${event.id}`);
+                        if (response.ok) {
+                            const detailed = await response.json();
+                            return {...detailed, _isTrial: false};
+                        }
+                        return {...event, _isTrial: false};
+                    } catch {
+                        return {...event, _isTrial: false};
+                    }
+                })
+            );
+
+
+            const detailedTrials = await Promise.all(
+                basicTrials.map(async (basicTrial) => {
+                    try {
+                        const response = await fetch(`http://localhost:8084/public/trials/${basicTrial.id}`);
+                        if (response.ok) {
+                            const detailed = await response.json();
+                            return {...detailed, idEvent: basicTrial.idEvent, _isTrial: true};
+                        }
+                        return {...basicTrial, _isTrial: true};
+                    } catch {
+                        return {...basicTrial, _isTrial: true};
+                    }
+                })
+            );
+
+
+            const nonTrialEvents = detailedEvents.filter(event => !trialEventIds.has(event.id));
+
+            setEvents(nonTrialEvents);
+            setTrials(detailedTrials);
+        } catch (err) {
+            setError(err.message);
+        } finally {
+            setLoading(false);
+        }
+    };
+
+    const clearSelection = useCallback(() => {
+        setSelectedEvent(null);
+    }, []);
+
+    const handleEventClick = (eventOrTrial) => {
+        setSelectedEvent(eventOrTrial);
+
+        if (eventOrTrial?.place?.latitude && eventOrTrial?.place?.longitude && mapRef.current) {
+            mapRef.current.panTo({
+                lat: eventOrTrial.place.latitude,
+                lng: eventOrTrial.place.longitude
+            });
+            mapRef.current.setZoom(14);
+        }
+    };
+
+    const handleEventHover = (event) => {
+        if (event?.place?.latitude && event?.place?.longitude && mapRef.current) {
+            mapRef.current.panTo({
+                lat: event.place.latitude,
+                lng: event.place.longitude
+            });
+        }
+    };
+
+    const handleMarkerClick = useCallback((eventOrTrial) => {
+        if (eventOrTrial) {
+            setSelectedEvent(eventOrTrial);
+        }
+    }, []);
+
+    const handleViewDetails = useCallback((eventId) => {
+        const isTrial = selectedEvent?._isTrial === true;
+
+        if (isTrial) {
+            navigate(`/public/trials/${eventId}`);
+        } else {
+            navigate(`/public/events/${eventId}`);
+        }
+    }, [navigate, selectedEvent]);
 
     const onMapLoad = useCallback((map) => {
         mapRef.current = map;
 
-        if (eventsWithLocation.length > 0) {
+        if (itemsWithLocation.length > 0) {
             const bounds = new window.google.maps.LatLngBounds();
-            eventsWithLocation.forEach(event => {
-                if (event.place?.latitude && event.place?.longitude) {
+            itemsWithLocation.forEach(item => {
+                if (item.place?.latitude && item.place?.longitude) {
                     bounds.extend({
-                        lat: event.place.latitude,
-                        lng: event.place.longitude
+                        lat: item.place.latitude,
+                        lng: item.place.longitude
                     });
                 }
             });
@@ -61,55 +159,252 @@ const PublicMapPage = () => {
                 map.panToBounds(bounds);
             }, 1000);
         }
-    }, [eventsWithLocation]);
+    }, [itemsWithLocation]);
 
-    if (!isLoaded) {
-        return "";
+    const matchesDateFilter = (item) => {
+        if (!selectedDate) return true;
+
+        const itemDate = item.timeSlot?.start || item.date || item.startDate;
+        if (!itemDate) return true;
+
+        const itemDateStr = new Date(itemDate).toISOString().split('T')[0];
+        return itemDateStr === selectedDate;
+    };
+
+    const filteredTrials = trials.filter(trial => {
+        const matchesSearch = trial.name?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+            trial.description?.toLowerCase().includes(searchTerm.toLowerCase());
+        const matchesDate = matchesDateFilter(trial);
+        return matchesSearch && matchesDate;
+    });
+
+    const filteredEvents = events.filter(event => {
+        const matchesSearch = event.name?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+            event.description?.toLowerCase().includes(searchTerm.toLowerCase());
+        const matchesDate = matchesDateFilter(event);
+        return matchesSearch && matchesDate;
+    });
+
+    const getDisplayedItems = () => {
+        switch (activeFilter) {
+            case 'competition':
+                return {trials: filteredTrials, events: []};
+            case 'extra-competition':
+                return {trials: [], events: filteredEvents};
+            default:
+                return {trials: filteredTrials, events: filteredEvents};
+        }
+    };
+
+    const getFilteredEventsForMap = () => {
+        const {trials: displayedTrials, events: displayedEvents} = getDisplayedItems();
+        const allDisplayed = [...displayedTrials, ...displayedEvents];
+
+        return allDisplayed.filter(item =>
+            item?.place?.latitude != null && item?.place?.longitude != null
+        );
+    };
+
+    const filteredEventsForMap = getFilteredEventsForMap();
+
+    const {trials: displayedTrials, events: displayedEvents} = getDisplayedItems();
+
+    if (loading) {
+        return (
+            <>
+                <Spinner animation="border" role="status">
+                    <span className="visually-hidden">Chargement des événements...</span>
+                </Spinner>
+                <p>Chargement des événements...</p>
+            </>
+
+        );
     }
 
-    if (loadError) {
-        return "";
+    if (error) {
+        return (
+            <p>Erreur: {error}</p>
+        );
     }
-
     return (
         <>
-            <div className="d-flex justify-content-center">
-                <Card className="mt-3" style={{ width: '38rem'}}>
-                    <Card.Body>
-                        <Card.Title as="h1" className="text-center">Carte des Évènements</Card.Title>
-                        <Card.Subtitle as="h4" className="mb-2 text-body-secondary text-center">
-                            Découvrez les évènements autour de vous
-                        </Card.Subtitle>
-
-                        <Card.Text>
-                            <GoogleMap
-                                mapContainerStyle={MAP_CONTAINER_STYLE}
-                                center={DEFAULT_CENTER}
-                                zoom={DEFAULT_ZOOM}
-                                options={{
-                                    ...GOOGLE_MAPS_OPTIONS,
-                                    mapTypeId: mapType,
-                                }}
-                                onLoad={onMapLoad}
-                            >
-                                <ManualMarkerCluster
-                                    events={eventsWithLocation}
-                                    onMarkerClick={handleMarkerClick}
+            <Card className="m-3">
+                <Card.Body>
+                    <div className="d-flex gap-3 flex-column flex-md-row">
+                        <FloatingLabel
+                            label="📆 Filtrer par date">
+                            <Form.Control
+                                type="date"
+                                value={selectedDate}
+                                onChange={(e) => setSelectedDate(e.target.value)}
+                            />
+                        </FloatingLabel>
+                        <FloatingLabel
+                            label="🔍 Rechercher..."
+                        >
+                            <Form.Control
+                                type="text"
+                                placeholder="🔍 Rechercher..."
+                                onChange={(e) => setSearchTerm(e.target.value)}
+                            />
+                        </FloatingLabel>
+                        <Card className="f-flex align-content-center">
+                            <Card.Body>
+                                <Form.Check
+                                    inline
+                                    label="Tous"
+                                    type="radio"
+                                    name="typeFilter"
+                                    onClick={() => setActiveFilter('all')}
+                                    defaultChecked
                                 />
+                                <Form.Check
+                                    inline
+                                    label="🏆 Compétition"
+                                    type="radio"
+                                    name="typeFilter"
+                                    onClick={() => setActiveFilter('competition')}
+                                />
+                                <Form.Check
+                                    inline
+                                    label="📅 Extra-compétition"
+                                    type="radio"
+                                    name="typeFilter"
+                                    onClick={() => setActiveFilter('extra-competition')}
+                                />
+                            </Card.Body>
+                        </Card>
+                        <Card>
+                            <Card.Body>
+                                <Form.Check
+                                    inline
+                                    label="🏅 Évènements passés"
+                                    type="switch"
+                                    name="typeFilter"
+                                />
+                            </Card.Body>
+                        </Card>
+                    </div>
+                </Card.Body>
+            </Card>
+            <Row className="m-1">
+                <Col sm="12" md="6">
+                    <Card style={MAP_CONTAINER_STYLE} className="overflow-y-auto">
+                        <Card.Body>
+                            {displayedTrials.length > 0 && (
+                                <>
+                                    <div className="d-flex align-items-center flex-column">
+                                        <span>🏆 Compétition</span>
+                                        <hr style={{width: "21rem"}}/>
+                                    </div>
+                                    {displayedTrials
+                                        .toSorted((a, b) => {
+                                            let aDate = new Date(a.timeSlot.start)
+                                            let bDate = new Date(b.timeSlot.start)
 
-                                {selectedEvent && selectedEvent.place && (
-                                    <EventInfoWindow
-                                        event={selectedEvent}
-                                        loading={loadingDetails}
-                                        onClose={clearSelection}
-                                        onViewDetails={handleViewDetails}
-                                    />
-                                )}
-                            </GoogleMap>
-                        </Card.Text>
-                    </Card.Body>
-                </Card>
-            </div>
+                                            if (aDate > bDate) {
+                                                return 1;
+                                            } else if (aDate < bDate) {
+                                                return -1;
+                                            }
+                                            return 0;
+                                        })
+                                        .map(trial => (
+                                        <Card
+                                            key={`trial-${trial.id}`}
+                                            onClick={() => handleEventClick(trial)}
+                                            onMouseEnter={() => handleEventHover(trial)}
+                                            style={{cursor: "pointer"}}
+                                            className="mb-1"
+                                        >
+                                            <Card.Body className="text-center">
+                                                <Card.Title>{trial.name}</Card.Title>
+                                                <Card.Subtitle></Card.Subtitle>
+                                                <Card.Text>
+                                                    {trial.timeSlot?.start && (
+                                                        <span
+                                                            className="text-body-tertiary">{formatDate(trial.timeSlot.start, trial.timeSlot.end)}</span>
+                                                    )}
+                                                </Card.Text>
+                                            </Card.Body>
+                                        </Card>
+                                    ))}
+                                </>
+                            )}
+                            {displayedTrials.length > 0 && displayedEvents.length > 0 && (
+                                <div className="pt-3">
+                                    <hr/>
+                                </div>
+                            )}
+                            {displayedEvents.length > 0 && (
+                                <>
+                                    <div className="d-flex align-items-center flex-column">
+                                        <span>📅 Extra-compétition</span>
+                                        <hr style={{width: "21rem"}}/>
+                                    </div>
+                                    {displayedEvents.map(event => (
+                                        <Card
+                                            key={`event-${event.id}`}
+                                            onClick={() => handleEventClick(event)}
+                                            onMouseEnter={() => handleEventHover(event)}
+                                            style={{cursor: "pointer"}}
+                                            className="mb-1"
+                                        >
+                                            <Card.Body className="text-center">
+                                                <Card.Title>{event.name}</Card.Title>
+                                                <Card.Subtitle></Card.Subtitle>
+                                                <Card.Text>
+                                                    {event.timeSlot?.start && (
+                                                        <span
+                                                            className="text-body-tertiary">{formatDate(event.timeSlot.start, event.timeSlot.end)}</span>
+                                                    )}
+                                                </Card.Text>
+                                            </Card.Body>
+                                        </Card>
+                                    ))}
+                                </>
+                            )}
+                        </Card.Body>
+                    </Card>
+                </Col>
+                <Col sm="12" md="6">
+                    {isLoaded && !loadError ? (
+                        <GoogleMap
+                            mapContainerStyle={MAP_CONTAINER_STYLE}
+                            center={DEFAULT_CENTER}
+                            zoom={DEFAULT_ZOOM}
+                            options={{
+                                ...GOOGLE_MAPS_OPTIONS,
+                                mapTypeId: 'roadmap',
+                            }}
+                            onLoad={onMapLoad}
+                        >
+                            <ManualMarkerCluster
+                                events={filteredEventsForMap}
+                                onMarkerClick={handleMarkerClick}
+                            />
+
+                            {selectedEvent?.place && (
+                                <EventInfoWindow
+                                    event={selectedEvent}
+                                    loading={false}
+                                    onClose={clearSelection}
+                                    onViewDetails={handleViewDetails}
+                                />
+                            )}
+                        </GoogleMap>
+                    ) : loadError ? (
+                        <p>Erreur de chargement de la carte</p>
+                    ) : (
+                        <>
+                            <Spinner animation="border" role="status">
+                                <span className="visually-hidden">Chargement de la carte...</span>
+                            </Spinner>
+                            <p>Chargement de la carte...</p
+                            ></>
+                    )}
+                </Col>
+            </Row>
         </>
     );
 };

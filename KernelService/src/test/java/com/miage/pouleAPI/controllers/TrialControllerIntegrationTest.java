@@ -49,7 +49,7 @@ class TrialControllerIntegrationTest {
     }
 
     @Test
-    @DisplayName("GET /public/trials/1 retourne le Trial lié à l'event 2")
+    @DisplayName("GET /public/trials/1 retourne le Trial correspondant à l'event 1")
     void getTrialById_integration_existing() throws Exception {
         var mvcResult = mockMvc.perform(get("/public/trials/{id}", 1)
                         .accept(MediaType.APPLICATION_JSON))
@@ -60,9 +60,9 @@ class TrialControllerIntegrationTest {
         TrialDetailDTO trial = objectMapper.readValue(json, TrialDetailDTO.class);
 
         assertThat(trial.getId()).isEqualTo(1);
-        // Le nom et la description viennent de l'event id=2
-        assertThat(trial.getName()).isEqualTo("Final Sprint Race");
-        assertThat(trial.getDescription()).isEqualTo("Official competition");
+        // Le nom et la description viennent de l'event id=1 (avec JOINED inheritance, trial id=1 IS event id=1)
+        assertThat(trial.getName()).isEqualTo("Morning Sprint Session");
+        assertThat(trial.getDescription()).isEqualTo("Speed training");
     }
 
     @Test
