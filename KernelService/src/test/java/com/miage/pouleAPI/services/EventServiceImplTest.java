@@ -24,6 +24,7 @@ import java.util.List;
 import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.*;
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
@@ -72,8 +73,8 @@ class EventServiceImplTest {
         event2.setName("Music Festival");
         event2.setDescription("Summer music festival");
 
-        summary1 = new EventSummaryDTO(1, "Tech Conference 2025", "Annual technology conference");
-        summary2 = new EventSummaryDTO(2, "Music Festival", "Summer music festival");
+        summary1 = new EventSummaryDTO(1, "Tech Conference 2025", "Annual technology conference", "TechWorld 2025");
+        summary2 = new EventSummaryDTO(2, "Music Festival", "Summer music festival", "TechWorld 2025");
 
         detailDTO = new EventDetailDTO();
         detailDTO.setId(1);
@@ -299,5 +300,147 @@ class EventServiceImplTest {
         assertThrows(RuntimeException.class, 
             () -> eventService.getEventsByChampionshipAndCompetition(championshipId, competitionId));
         verify(eventRepository, times(1)).findByCompetitionId(competitionId);
+    }
+
+    @Test
+    @DisplayName("getOtherEvents() - Devrait retourner les événements qui ne sont pas de type Trial")
+    void testGetOtherEvents_Success() {
+        // Given
+        List<Event> otherEvents = Arrays.asList(event1, event2);
+        List<EventSummaryDTO> summaries = Arrays.asList(summary1, summary2);
+        
+        when(eventRepository.findByTypeEventNameNotEqual()).thenReturn(otherEvents);
+        when(eventAdapter.entityListToSummaryDtoList(otherEvents)).thenReturn(summaries);
+
+        // When
+        List<EventSummaryDTO> result = eventService.getOtherEvents();
+
+        // Then
+        assertNotNull(result);
+        assertEquals(2, result.size());
+        assertEquals("Tech Conference 2025", result.get(0).getName());
+        assertEquals("Music Festival", result.get(1).getName());
+        verify(eventRepository, times(1)).findByTypeEventNameNotEqual();
+        verify(eventAdapter, times(1)).entityListToSummaryDtoList(otherEvents);
+    }
+
+    @Test
+    @DisplayName("getOtherEvents() - Devrait retourner une liste vide s'il n'y a pas d'autres événements")
+    void testGetOtherEvents_EmptyList() {
+        // Given
+        when(eventRepository.findByTypeEventNameNotEqual()).thenReturn(Collections.emptyList());
+        when(eventAdapter.entityListToSummaryDtoList(Collections.emptyList())).thenReturn(Collections.emptyList());
+
+        // When
+        List<EventSummaryDTO> result = eventService.getOtherEvents();
+
+        // Then
+        assertNotNull(result);
+        assertEquals(0, result.size());
+        verify(eventRepository, times(1)).findByTypeEventNameNotEqual();
+        verify(eventAdapter, times(1)).entityListToSummaryDtoList(Collections.emptyList());
+    }
+
+    @Test
+    @DisplayName("getOtherEvents() - Devrait propager les exceptions du repository")
+    void testGetOtherEvents_ThrowsException() {
+        // Given
+        when(eventRepository.findByTypeEventNameNotEqual())
+                .thenThrow(new RuntimeException("Database error"));
+
+        // When & Then
+        assertThrows(RuntimeException.class, () -> eventService.getOtherEvents());
+        verify(eventRepository, times(1)).findByTypeEventNameNotEqual();
+        verify(eventAdapter, never()).entityListToSummaryDtoList(any());
+    }
+
+    @Test
+    @DisplayName("getOtherEvents() - Devrait utiliser l'adapter pour la conversion")
+    void testGetOtherEvents_UsesAdapter() {
+        // Given
+        List<Event> otherEvents = Arrays.asList(event1);
+        List<EventSummaryDTO> summaries = Arrays.asList(summary1);
+        
+        when(eventRepository.findByTypeEventNameNotEqual()).thenReturn(otherEvents);
+        when(eventAdapter.entityListToSummaryDtoList(otherEvents)).thenReturn(summaries);
+
+        // When
+        eventService.getOtherEvents();
+
+        // Then
+        verify(eventAdapter, times(1)).entityListToSummaryDtoList(otherEvents);
+    }
+
+    @Test
+    @DisplayName("getOtherEventsByCompetition() - Devrait retourner les autres événements d'une compétition spécifique")
+    void testGetOtherEventsByCompetition_Success() {
+        // Given
+        Integer competitionId = 5;
+        List<Event> otherEvents = Arrays.asList(event1, event2);
+        List<EventSummaryDTO> summaries = Arrays.asList(summary1, summary2);
+        
+        when(eventRepository.findByCompetitionIdAndTypeEventNameNotEqual(competitionId)).thenReturn(otherEvents);
+        when(eventAdapter.entityListToSummaryDtoList(otherEvents)).thenReturn(summaries);
+
+        // When
+        List<EventSummaryDTO> result = eventService.getOtherEventsByCompetition(competitionId);
+
+        // Then
+        assertNotNull(result);
+        assertEquals(2, result.size());
+        assertEquals("Tech Conference 2025", result.get(0).getName());
+        assertEquals("Music Festival", result.get(1).getName());
+        verify(eventRepository, times(1)).findByCompetitionIdAndTypeEventNameNotEqual(competitionId);
+        verify(eventAdapter, times(1)).entityListToSummaryDtoList(otherEvents);
+    }
+
+    @Test
+    @DisplayName("getOtherEventsByCompetition() - Devrait retourner une liste vide s'il n'y a pas d'autres événements pour cette compétition")
+    void testGetOtherEventsByCompetition_EmptyList() {
+        // Given
+        Integer competitionId = 5;
+        when(eventRepository.findByCompetitionIdAndTypeEventNameNotEqual(competitionId)).thenReturn(Collections.emptyList());
+        when(eventAdapter.entityListToSummaryDtoList(Collections.emptyList())).thenReturn(Collections.emptyList());
+
+        // When
+        List<EventSummaryDTO> result = eventService.getOtherEventsByCompetition(competitionId);
+
+        // Then
+        assertNotNull(result);
+        assertEquals(0, result.size());
+        verify(eventRepository, times(1)).findByCompetitionIdAndTypeEventNameNotEqual(competitionId);
+        verify(eventAdapter, times(1)).entityListToSummaryDtoList(Collections.emptyList());
+    }
+
+    @Test
+    @DisplayName("getOtherEventsByCompetition() - Devrait propager les exceptions du repository")
+    void testGetOtherEventsByCompetition_ThrowsException() {
+        // Given
+        Integer competitionId = 5;
+        when(eventRepository.findByCompetitionIdAndTypeEventNameNotEqual(competitionId))
+                .thenThrow(new RuntimeException("Database error"));
+
+        // When & Then
+        assertThrows(RuntimeException.class, () -> eventService.getOtherEventsByCompetition(competitionId));
+        verify(eventRepository, times(1)).findByCompetitionIdAndTypeEventNameNotEqual(competitionId);
+        verify(eventAdapter, never()).entityListToSummaryDtoList(any());
+    }
+
+    @Test
+    @DisplayName("getOtherEventsByCompetition() - Devrait utiliser l'adapter pour la conversion")
+    void testGetOtherEventsByCompetition_UsesAdapter() {
+        // Given
+        Integer competitionId = 5;
+        List<Event> otherEvents = Arrays.asList(event1);
+        List<EventSummaryDTO> summaries = Arrays.asList(summary1);
+        
+        when(eventRepository.findByCompetitionIdAndTypeEventNameNotEqual(competitionId)).thenReturn(otherEvents);
+        when(eventAdapter.entityListToSummaryDtoList(otherEvents)).thenReturn(summaries);
+
+        // When
+        eventService.getOtherEventsByCompetition(competitionId);
+
+        // Then
+        verify(eventAdapter, times(1)).entityListToSummaryDtoList(otherEvents);
     }
 }

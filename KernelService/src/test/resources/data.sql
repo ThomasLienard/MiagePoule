@@ -68,46 +68,33 @@ VALUES (1, '100m Sprint', 'Short distance run', 1, '2025-01-01', '2025-01-02'),
 INSERT INTO place (id_place, name_place, city_place, zip_code_place, street_place,
                    parking_place, number_place, description_place,
                    latitude_place, longitude_place)
-VALUES (1, 'France Stadium', 'Saint-Denis', '93200', 'Main Street', TRUE, '1',
-        'Central stadium', 48.924459, 2.360164),
-       (2, 'Bercy Sports Palace', 'Paris', '75012', 'Boulevard de Bercy', FALSE, '8',
-        'Indoor sports complex', 48.8365, 2.3738),
-       (3, 'Champ de Mars', 'Paris', '75007', 'Avenue de la Bourdonnais', TRUE, '2',
-        'Large public greenspace', 48.8550, 2.2980);
+VALUES (1, 'Olympic Stadium', 'Paris', '75000', 'Main Street', TRUE, '10',
+        'Central stadium', 48.85, 2.35);
 
 -- ======================
 -- Time slots
 -- ======================
 INSERT INTO time_slot (id_time_slot, start_time, end_time)
 VALUES (1, '2025-01-01 09:00:00', '2025-01-01 10:00:00'),
-       (2, '2026-01-01 10:00:00', '2026-01-01 11:00:00'),
-       (3, '2026-10-09 09:00:00', '2026-10-09 10:00:00');
+       (2, '2025-01-01 10:00:00', '2025-01-01 11:00:00');
 
 -- ======================
 -- Events
 -- ======================
 INSERT INTO event (id_event, name_event, description_event, type_event_name,
                    id_place, id_time_slot, id_competition)
-VALUES (1, '100m Trial Heat 1', 'First qualification heat', 'TRIAL', 1, 1, 1),
-       (2, '100m Trial Heat 2', 'Second qualification heat', 'TRIAL', 1, 2, 1),
-       (3, '100m Trial Final', 'Final race', 'TRIAL', 1, 3, 1),
-       (4, 'Marathon Trial Warm-up', 'Warm-up session', 'TRIAL', 2, 2, 2),
-       (5, 'Marathon Qualification', 'Main qualification heat', 'TRIAL', 2, 1, 2),
-       (6, 'Training Session A', 'Regular training', 'TRAINING', 3, 1, 1),
-       (7, 'Training Session B', 'Regular training', 'TRAINING', 3, 2, 1),
-       (8, 'Championship Meeting', 'Official gathering', 'MEETING', 3, 3, 2);
+VALUES (1, 'Morning Sprint Session', 'Speed training', 'TRAINING', 1, 1, 1),
+       (2, 'Final Sprint Race', 'Official competition', 'TRIAL', 1, 2, 2);
 
 -- ======================
 -- Trials
 -- ======================
 -- With JOINED inheritance, Trial shares the same primary key with Event
--- Only events with type 'TRIAL' become trials (id 1-5)
+-- Event 1 becomes a Trial
+-- Event 2 becomes a Trial  
 INSERT INTO trial (id_event)
 VALUES (1),
-       (2),
-       (3),
-       (4),
-       (5);
+       (2);
 
 -- ======================
 -- Users (MODIFIÉ avec BCrypt)
@@ -125,7 +112,6 @@ VALUES
     (4, 'Jean', 'Volontaire', '$2a$10$vycWMvbko2wycSl3u6bIL.vCeHgNBQfNq7jpVc7pCEnfER6A2vTLi', 'volontaire@test.com', 'FR', 'VOLONTAIRE'),
     (5, 'John', 'Doe', '$2a$10$vycWMvbko2wycSl3u6bIL.vCeHgNBQfNq7jpVc7pCEnfER6A2vTLi', 'john@doe.com', 'US', 'ATHLETE'),
     (6, 'Jane', 'Smith', '$2a$10$vycWMvbko2wycSl3u6bIL.vCeHgNBQfNq7jpVc7pCEnfER6A2vTLi', 'jane@smith.com', 'US', 'COMMISSAIRE');
-    
 -- ======================
 -- Documents
 -- ======================
@@ -150,32 +136,24 @@ VALUES (1, 1),
 -- ======================
 -- Participation
 -- ======================
--- Team participation: Trial 1 and Trial 2 have team participation
+-- Team participation in trial 2
 INSERT INTO participate_at (id_team, id_trial, trial_result_team)
-VALUES (1, 1, '11.2s'),
-       (2, 1, '11.5s'),
-       (1, 2, '11.8s'),
-       (2, 3, '10.9s');
+VALUES (1, 2, '12.4s'),
+       (2, 2, '11.9s');
 
 -- ======================
 -- Convened athletes
 -- ======================
--- Athletes participation: Trial 4 and Trial 5 have athlete convocation (no participate_at)
+-- Athletes participating in trial 2
 INSERT INTO is_convened_to (id, id_trial, trial_result_athlete)
-VALUES (1, 4, '2h15m'),
-       (2, 4, '2h05m'),
-       (3, 5, '11.6s'),
-       (4, 5, '11.1s');
+VALUES (1, 2, '12.4s');
 
 -- ======================
 -- Notifications
 -- ======================
 INSERT INTO notification (id_notification, description_notification, emission_date,
                           id_place, id_event, name_severity, name_type_of_notification)
-VALUES (1, 'Trial 1 starting soon', '2025-01-01 08:30:00', 1, 1, 'WARNING', 'EMAIL'),
-       (2, 'Trial 2 delayed', '2025-01-01 09:45:00', 1, 2, 'WARNING', 'SMS'),
-       (3, 'Trial 3 finals announcement', '2025-01-01 10:00:00', 1, 3, 'INFO', 'SYSTEM'),
-       (4, 'Marathon Trial info', '2025-01-01 08:00:00', 1, 4, 'INFO', 'EMAIL');
+VALUES (1, 'Event delayed', '2025-01-01 08:00:00', 1, 2, 'WARNING', 'EMAIL');
 
 -- ======================
 -- User subscriptions
@@ -199,12 +177,7 @@ VALUES (1, 1);
 -- User event schedule
 -- ======================
 INSERT INTO have_a_time_schedule (id, id_event)
-VALUES (1, 1),
-       (2, 2),
-       (3, 3),
-       (4, 4),
-       (5, 5),
-       (6, 6);
+VALUES (1, 1);
 
 -- ======================
 -- Tasks
@@ -216,20 +189,12 @@ VALUES (1, 'Prepare track', 'Ensure the track surface is clean'),
 -- ======================
 -- Event-task association
 -- ======================
--- Associate tasks to trials and other events
+-- Associate task to the trial (which is also an event with id=2)
 INSERT INTO is_associated_to (id, id_task)
-VALUES (1, 1),
-       (2, 1),
-       (3, 1),
-       (4, 2),
-       (5, 2),
-       (6, 1),
-       (7, 2);
+VALUES (2, 1);
 
 -- ======================
 -- User tasks
 -- ======================
 INSERT INTO must_do (id, id_task)
-VALUES (2, 2),
-       (3, 1),
-       (4, 2);
+VALUES (2, 2);

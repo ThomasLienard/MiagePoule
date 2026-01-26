@@ -73,6 +73,7 @@ class EventAdapterTest {
         assertEquals(1, dto.getId());
         assertEquals("Tech Conference 2025", dto.getName());
         assertEquals("Annual technology conference", dto.getDescription());
+        assertEquals("TechWorld 2025", dto.getCompetitionName());
     }
 
     @Test
@@ -83,6 +84,23 @@ class EventAdapterTest {
 
         // Then
         assertNull(dto);
+    }
+
+    @Test
+    @DisplayName("entityToSummaryDto() - Devrait gérer Event sans Competition")
+    void testEntityToSummaryDto_WithoutCompetition() {
+        // Given
+        event.setCompetition(null);
+
+        // When
+        EventSummaryDTO dto = eventAdapter.entityToSummaryDto(event);
+
+        // Then
+        assertNotNull(dto);
+        assertEquals(1, dto.getId());
+        assertEquals("Tech Conference 2025", dto.getName());
+        assertEquals("Annual technology conference", dto.getDescription());
+        assertNull(dto.getCompetitionName());
     }
 
     @Test
@@ -207,7 +225,7 @@ class EventAdapterTest {
     @DisplayName("summaryDtoToEntity() - Devrait convertir EventSummaryDTO en Event")
     void testSummaryDtoToEntity_Success() {
         // Given
-        EventSummaryDTO dto = new EventSummaryDTO(1, "Test Event", "Test Description");
+        EventSummaryDTO dto = new EventSummaryDTO(1, "Test Event", "Test Description", "Test Competition");
 
         // When
         Event result = eventAdapter.summaryDtoToEntity(dto);
