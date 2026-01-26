@@ -21,6 +21,7 @@ const PublicMapPage = () => {
     const [searchTerm, setSearchTerm] = useState('');
     const [activeFilter, setActiveFilter] = useState('all');
     const [selectedDate, setSelectedDate] = useState('');
+    const [selectedCompetition, setSelectedCompetition] = useState('');
     const [selectedEvent, setSelectedEvent] = useState(null);
     const navigate = useNavigate();
     const mapRef = useRef(null);
@@ -34,6 +35,16 @@ const PublicMapPage = () => {
     const allItems = useMemo(() => {
         return [...trials, ...events];
     }, [trials, events]);
+
+    const competitionNames = useMemo(() => {
+        const names = new Set();
+        allItems.forEach(item => {
+            if (item?.competitionName) {
+                names.add(item.competitionName);
+            }
+        });
+        return Array.from(names).sort();
+    }, [allItems]);
 
     const itemsWithLocation = useMemo(() => {
         return allItems.filter(item =>
@@ -160,18 +171,25 @@ const PublicMapPage = () => {
         return itemDateStr === selectedDate;
     };
 
+    const matchesCompetitionFilter = (item) => {
+        if (!selectedCompetition) return true;
+        return item.competitionName === selectedCompetition;
+    };
+
     const filteredTrials = trials.filter(trial => {
         const matchesSearch = trial.name?.toLowerCase().includes(searchTerm.toLowerCase()) ||
             trial.description?.toLowerCase().includes(searchTerm.toLowerCase());
         const matchesDate = matchesDateFilter(trial);
-        return matchesSearch && matchesDate;
+        const matchesCompetition = matchesCompetitionFilter(trial);
+        return matchesSearch && matchesDate && matchesCompetition;
     });
 
     const filteredEvents = events.filter(event => {
         const matchesSearch = event.name?.toLowerCase().includes(searchTerm.toLowerCase()) ||
             event.description?.toLowerCase().includes(searchTerm.toLowerCase());
         const matchesDate = matchesDateFilter(event);
-        return matchesSearch && matchesDate;
+        const matchesCompetition = matchesCompetitionFilter(event);
+        return matchesSearch && matchesDate && matchesCompetition;
     });
 
     const getDisplayedItems = () => {
@@ -271,6 +289,25 @@ const PublicMapPage = () => {
                                     type="switch"
                                     name="typeFilter"
                                 />
+                            </Card.Body>
+                        </Card>
+                        <Card>
+                            <Card.Body>
+                                <Form.Group>
+                                    <Form.Label>🏆 Compétition</Form.Label>
+                                    <Form.Select
+                                        value={selectedCompetition}
+                                        onChange={(e) => setSelectedCompetition(e.target.value)}
+                                        size="sm"
+                                    >
+                                        <option value="">Toutes</option>
+                                        {competitionNames.map((name) => (
+                                            <option key={name} value={name}>
+                                                {name}
+                                            </option>
+                                        ))}
+                                    </Form.Select>
+                                </Form.Group>
                             </Card.Body>
                         </Card>
                     </div>
