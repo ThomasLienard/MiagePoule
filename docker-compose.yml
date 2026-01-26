@@ -40,7 +40,21 @@ services:
       - miage-network
     restart: unless-stopped
 
-  # Frontend React Native (Node.js 22)
+  # API Spring Boot
+  gateway-api:
+    build:
+      context: ./gateway
+      dockerfile: Dockerfile
+    container_name: spring_miagepoule_gateway
+    ports:
+      - "8081:8081"
+    depends_on:
+      - poule-api
+    networks:
+      - miage-network
+    restart: unless-stopped
+
+  # Frontend
   frontend:
     build: ./front
     container_name: react_miagepoule
@@ -61,8 +75,6 @@ services:
     networks:
       - miage-network
     command:  cypress open --project /e2e
-
-
 
 volumes:
   postgres_data:
