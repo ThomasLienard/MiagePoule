@@ -122,11 +122,17 @@ public class AuthService {
 
     public void updateProfile(Integer userId, String email, String name, String lastname, Country country) {
         ApplicationUser user = userRepo.findById(userId).orElseThrow();
-        if (!user.getEmail().equals(email) && userRepo.existsByEmail(email)) throw new IllegalArgumentException("Email invalid");
-        user.setEmail(email);
-        user.setName(name);
-        user.setLastname(lastname);
-        user.setCountry(country);
+
+        // On ne change l'email que s'il est fourni ET différent
+        if (email != null && !email.isBlank() && !user.getEmail().equals(email)) {
+            if (userRepo.existsByEmail(email)) throw new IllegalArgumentException("Email already taken");
+            user.setEmail(email);
+        }
+
+        if (name != null && !name.isBlank()) user.setName(name);
+        if (lastname != null && !lastname.isBlank()) user.setLastname(lastname);
+        if (country != null) user.setCountry(country);
+
         userRepo.save(user);
     }
 

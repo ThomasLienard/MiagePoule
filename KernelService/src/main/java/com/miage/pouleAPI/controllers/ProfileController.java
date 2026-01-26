@@ -3,8 +3,7 @@ package com.miage.pouleAPI.controllers;
 import com.miage.pouleAPI.auth.AuthService;
 import com.miage.pouleAPI.auth.jwt.JwtService;
 import com.miage.pouleAPI.auth.repository.ApplicationUserRepository;
-import com.miage.pouleAPI.dtos.profile.ChangePasswordRequest;
-import com.miage.pouleAPI.dtos.profile.UpdateProfileRequest;
+import com.miage.pouleAPI.dtos.profile.ApplicationUserProfileDTO;
 import com.miage.pouleAPI.entity.ApplicationUser;
 import com.miage.pouleAPI.repositories.CountryRepository;
 import lombok.RequiredArgsConstructor;
@@ -29,16 +28,22 @@ public class ProfileController {
         return ResponseEntity.ok(user);
     }
 
-    @PutMapping("/profile")
-    public ResponseEntity<String> updateProfile(@RequestBody UpdateProfileRequest req, Authentication auth) {
-        String email = auth.getName();
-        ApplicationUser user = userRepo.findByEmail(email).orElseThrow();
-        authService.updateProfile(user.getId(), req.getEmail(), req.getName(), req.getLastname(), countryRepo.getReferenceById(req.getCountryCode()) );
+    @PutMapping("/settings")
+    public ResponseEntity<String> updateProfile(@RequestBody ApplicationUserProfileDTO dto, Authentication authentication) {
+        ApplicationUser user = userRepo.findByEmail(authentication.getName()).orElseThrow();
+        authService.updateProfile(
+                user.getId(),
+                dto.getEmail(),
+                dto.getName(),
+                dto.getLastname(),
+                dto.getCountry()
+        );
+
         return ResponseEntity.ok("Updated");
     }
 
     @PutMapping("/password")
-    public ResponseEntity<String> changePassword(@RequestBody ChangePasswordRequest req, Authentication auth) {
+    public ResponseEntity<String> changePassword(@RequestBody ApplicationUserProfileDTO req, Authentication auth) {
         String email = auth.getName();
         ApplicationUser user = userRepo.findByEmail(email).orElseThrow();
         authService.changePassword(user.getId(), req.getCurrentPassword(), req.getNewPassword());
