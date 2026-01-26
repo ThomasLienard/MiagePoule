@@ -59,7 +59,7 @@ const PublicMapPage = () => {
             const detailedEvents = await Promise.all(
                 basicEvents.map(async (event) => {
                     try {
-                        const response = await fetch(`http://localhost:8081/public/events/${event.id}`);
+                        const response = await fetch(`http://localhost:8084/public/events/${event.id}`);
                         if (response.ok) {
                             const detailed = await response.json();
                             return {...detailed, _isTrial: false};
@@ -75,7 +75,7 @@ const PublicMapPage = () => {
             const detailedTrials = await Promise.all(
                 basicTrials.map(async (basicTrial) => {
                     try {
-                        const response = await fetch(`http://localhost:8081/public/trials/${basicTrial.id}`);
+                        const response = await fetch(`http://localhost:8084/public/trials/${basicTrial.id}`);
                         if (response.ok) {
                             const detailed = await response.json();
                             return {...detailed, idEvent: basicTrial.idEvent, _isTrial: true};
