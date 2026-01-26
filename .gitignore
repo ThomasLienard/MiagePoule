@@ -55,3 +55,5 @@ replay_pid*
 
 # Ignore custom settings for run/debug configurations
 .idea/runConfigurations/.metals/
+
+node_modules

@@ -16,64 +16,79 @@ const EventInfoWindow = ({ event, loading, onClose, onViewDetails }) => {
         lng: place.longitude,
     };
 
+    const handleOpenDirections = () => {
+        const destination = `${place.latitude}, ${place.longitude}`;
+        const url = `https://www.google.com/maps/dir/?api=1&destination=${encodeURIComponent(
+            destination
+        )}`;
+        window.open(url, '_blank');
+    };
+
     return (
         <InfoWindow
             position={position}
             onCloseClick={onClose}
         >
-            <div className="event-info-window">
-                {loading ? (
-                    <Spinner animation="border" role="status">
-                        <span className="visually-hidden">Loading details...</span>
-                    </Spinner>
-                ) : (
-                    <Card>
-                        <Card.Body>
-                            <Card.Title>{name}</Card.Title>
-                            <Card.Text>
-                                <hr/>
+            {loading ? (
+                <Spinner animation="border" role="status">
+                    <span className="visually-hidden">Loading details...</span>
+                </Spinner>
+            ) : (
+                <Card>
+                    <Card.Body>
+                        <Card.Title>{name}</Card.Title>
+                        <Card.Text>
+                            <hr/>
 
-                                {description && (
-                                    <p className="fst-italic fw-bolder">{description}</p>
-                                )}
+                            {description && (
+                                <p className="fst-italic fw-bolder">{description}</p>
+                            )}
 
-                                <h6 className="text-center">Localisation</h6>
-                                <p className="fw-bolder">{place.name}</p>
-                                <p>
-                                    {place.street} {place.number}
-                                    <br />
-                                    {place.zip} {place.city}
-                                </p>
-                                {place.parking && (
-                                    <p className="fw-bolder">🚗 Parking disponible</p>
-                                )}
-                                {!place.parking && (
-                                    <p className="fw-bolder">❌ Parking indisponible</p>
-                                )}
+                            <h6 className="text-center">Localisation</h6>
+                            <p className="fw-bolder">{place.name}</p>
+                            <p>
+                                {place.street} {place.number}
+                                <br />
+                                {place.zip} {place.city}
+                            </p>
+                            {place.parking && (
+                                <p className="fw-bolder">🚗 Parking disponible</p>
+                            )}
+                            {!place.parking && (
+                                <p className="fw-bolder">❌ Parking indisponible</p>
+                            )}
 
-                                {timeSlot?.start && (
-                                    <div>
-                                        <h6 className="text-center">Date & Heure</h6>
-                                        <p>{formatDate(timeSlot.start, timeSlot.end)}</p>
-                                    </div>
-                                )}
-                            </Card.Text>
-                            <div className="d-flex justify-content-center">
-                                <Button
-                                    onClick={() => onViewDetails(id)}
-                                    variant="secondary"
-                                    aria-label={`Détails pour ${name}`}
-                                >
-                                    Détails
-                                </Button>
-                            </div>
-                        </Card.Body>
-                    </Card>
-                )}
-            </div>
+                            {timeSlot?.start && (
+                                <div>
+                                    <h6 className="text-center">Date & Heure</h6>
+                                    <p>{formatDate(timeSlot.start, timeSlot.end)}</p>
+                                </div>
+                            )}
+                        </Card.Text>
+                        <div className="d-flex justify-content-center">
+                            <Button
+                                onClick={() => onViewDetails(id)}
+                                variant="secondary"
+                                aria-label={`Détails pour ${name}`}
+                            >
+                                Détails
+                            </Button>
+
+                            <Button
+                                onClick={handleOpenDirections}
+                                variant="outline-secondary"
+                                aria-label={`Itinéraire vers ${name}`}
+                            >
+                                Itinéraire
+                            </Button>
+                        </div>
+                    </Card.Body>
+                </Card>
+            )}
         </InfoWindow>
     );
 };
+
 
 EventInfoWindow.propTypes = {
     event: PropTypes.shape({
