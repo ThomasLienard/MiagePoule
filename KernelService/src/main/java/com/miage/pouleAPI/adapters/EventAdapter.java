@@ -21,10 +21,16 @@ public class EventAdapter {
     public EventSummaryDTO entityToSummaryDto(Event event) {
         if (event == null) return null;
         
+        String competitionName = null;
+        if (event.getCompetition() != null) {
+            competitionName = event.getCompetition().getName();
+        }
+        
         return new EventSummaryDTO(
             event.getId(),
             event.getName(),
-            event.getDescription()
+            event.getDescription(),
+            competitionName
         );
     }
     

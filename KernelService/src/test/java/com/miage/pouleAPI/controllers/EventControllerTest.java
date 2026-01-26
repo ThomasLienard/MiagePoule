@@ -48,8 +48,8 @@ class EventControllerTest {
     void setUp() {
         mockMvc = MockMvcBuilders.standaloneSetup(eventController).build();
         
-        eventSummary1 = new EventSummaryDTO(1, "Tech Conference 2025", "Annual technology conference");
-        eventSummary2 = new EventSummaryDTO(2, "Music Festival", "Summer music festival");
+        eventSummary1 = new EventSummaryDTO(1, "Tech Conference 2025", "Annual technology conference", "TechWorld 2025");
+        eventSummary2 = new EventSummaryDTO(2, "Music Festival", "Summer music festival", "Music Events");
         
         TimeSlotDTO timeSlot = new TimeSlotDTO(
             LocalDateTime.of(2025, 6, 15, 9, 0),

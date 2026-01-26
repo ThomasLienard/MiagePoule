@@ -24,6 +24,7 @@ import java.util.List;
 import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.*;
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
@@ -72,8 +73,8 @@ class EventServiceImplTest {
         event2.setName("Music Festival");
         event2.setDescription("Summer music festival");
 
-        summary1 = new EventSummaryDTO(1, "Tech Conference 2025", "Annual technology conference");
-        summary2 = new EventSummaryDTO(2, "Music Festival", "Summer music festival");
+        summary1 = new EventSummaryDTO(1, "Tech Conference 2025", "Annual technology conference", "TechWorld 2025");
+        summary2 = new EventSummaryDTO(2, "Music Festival", "Summer music festival", "TechWorld 2025");
 
         detailDTO = new EventDetailDTO();
         detailDTO.setId(1);
