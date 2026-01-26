@@ -1,5 +1,7 @@
 package com.miage.pouleAPI.entity;
 
+import com.miage.pouleAPI.users.Observer;
+import com.miage.pouleAPI.users.Subject;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -7,6 +9,8 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 import java.time.LocalDate;
+import java.util.ArrayList;
+import java.util.List;
 
 @Getter
 @Setter
@@ -14,7 +18,7 @@ import java.time.LocalDate;
 @AllArgsConstructor
 @Entity
 @Table(name = "Competition")
-public class Competition {
+public class Competition implements Subject {
 
     @Id
     @Column(name = "id_competition")
@@ -36,5 +40,21 @@ public class Competition {
     @Column(name = "end_date_competition", nullable = false)
     private LocalDate end;
 
+    @Transient
+    private List<Observer> observers = new ArrayList<>();
 
+    @Override
+    public void attach(Observer o) {
+        this.observers.add(o);
+    }
+
+    @Override
+    public void detach(Observer o) {
+        this.observers.remove(o);
+    }
+
+    @Override
+    public void notifyObservers(Notification notif) {
+        this.observers.forEach(observer -> observer.update(notif));
+    }
 }
