@@ -80,7 +80,8 @@ VALUES (1, 'France Stadium', 'Saint-Denis', '93200', 'Main Street', TRUE, '1',
 -- ======================
 INSERT INTO time_slot (id_time_slot, start_time, end_time)
 VALUES (1, '2025-01-01 09:00:00', '2025-01-01 10:00:00'),
-       (2, '2026-01-01 10:00:00', '2026-01-01 11:00:00');
+       (2, '2026-01-01 10:00:00', '2026-01-01 11:00:00'),
+       (3, '2026-10-09 09:00:00', '2026-10-09 10:00:00');
 
 -- ======================
 -- Events
@@ -89,12 +90,12 @@ INSERT INTO event (id_event, name_event, description_event, type_event_name,
                    id_place, id_time_slot, id_competition)
 VALUES (1, '100m Trial Heat 1', 'First qualification heat', 'TRIAL', 1, 1, 1),
        (2, '100m Trial Heat 2', 'Second qualification heat', 'TRIAL', 1, 2, 1),
-       (3, '100m Trial Final', 'Final race', 'TRIAL', 1, 1, 1),
+       (3, '100m Trial Final', 'Final race', 'TRIAL', 1, 3, 1),
        (4, 'Marathon Trial Warm-up', 'Warm-up session', 'TRIAL', 2, 2, 2),
        (5, 'Marathon Qualification', 'Main qualification heat', 'TRIAL', 2, 1, 2),
        (6, 'Training Session A', 'Regular training', 'TRAINING', 3, 1, 1),
        (7, 'Training Session B', 'Regular training', 'TRAINING', 3, 2, 1),
-       (8, 'Championship Meeting', 'Official gathering', 'MEETING', 3, 1, 2);
+       (8, 'Championship Meeting', 'Official gathering', 'MEETING', 3, 3, 2);
 
 -- ======================
 -- Trials
