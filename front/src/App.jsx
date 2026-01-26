@@ -1,9 +1,7 @@
-import './App.css'
 import { BrowserRouter as Router, Route, Routes } from "react-router-dom";
 
 import { AuthProvider } from './contexts/AuthContext';
 import ProtectedRoute from './components/ProtectedRoute';
-import Header from './components/layout/Header';
 import LoginPage from './components/auth/LoginPage';
 import RegisterPage from './components/auth/RegisterPage';
 import AdminPage from './components/admin/AdminPage';
@@ -12,18 +10,15 @@ import ListeCompetitions from "./components/ListeCompetitions.jsx";
 import Competition from "./components/Competition.jsx";
 import ListChampionships from "./components/ListChampionships.jsx";
 import PublicMapPage from './components/map/PublicMapPage';
-import ListeEvenements from './components/ListeEvenements';
 import ListeEvenementsParCompetition from './components/ListeEvenementsParCompetition';
 import EventDetails from './components/EventDetails';
-import Layout from "./components/Layout.jsx";
-import EventsMapView from "./components/EventsMapView.jsx";
+import Layout from "./components/layout/Layout.jsx";
 
 function App() {
 
   return (
         <AuthProvider>
             <Router>
-                <Header />
                 <div className="app-container">
                     <Routes>
                         <Route path="/" element={<Layout />}>
@@ -56,7 +51,7 @@ function App() {
                                    element={<ListeEvenementsParCompetition />} />
 
                             {/* Route par défaut */}
-                            <Route path="/" element={<EventsMapView />} />
+                            <Route path="/" element={<PublicMapPage />} />
                         </Route>
                     </Routes>
                 </div>
