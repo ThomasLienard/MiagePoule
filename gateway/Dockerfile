@@ -11,4 +11,4 @@ COPY src ./src
 RUN mvn clean package -DskipTests
 
 EXPOSE 8081
-ENTRYPOINT ["java", "-jar", "target/KernelService-0.0.1-SNAPSHOT.jar"]
+ENTRYPOINT ["java", "-jar", "target/gateway-0.0.1-SNAPSHOT.jar"]
