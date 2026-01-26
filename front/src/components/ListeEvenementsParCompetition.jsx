@@ -1,6 +1,6 @@
 import React, {useState, useEffect} from 'react';
 import {useNavigate, useParams} from 'react-router-dom';
-import {fetchEventAndTrialsByCompetition} from '../services/eventService';
+import {eventService} from '../services/eventService';
 import {Button, Card, Col, Row} from "react-bootstrap";
 
 const ListeEvenementsParCompetition = () => {
@@ -18,16 +18,13 @@ const ListeEvenementsParCompetition = () => {
     const fetchAllData = async () => {
         try {
             setLoading(true);
-            const {events, trials} = await fetchEventAndTrialsByCompetition(championshipId, competitionId);
+            const [justEvents, trialsData] = await Promise.all([
+                eventService.getJustEventsByCompetition(championshipId, competitionId),
+                eventService.getTrialsByCompetition(championshipId, competitionId)
+            ]);
 
-            // Créer un Set des IDs d'événements qui sont des trials
-            const trialEventIds = new Set(trials.map(trial => trial.idEvent));
-
-            // Filtrer les événements pour exclure ceux qui sont des trials
-            const nonTrialEvents = events.filter(event => !trialEventIds.has(event.id));
-
-            setEvents(nonTrialEvents);
-            setTrials(trials);
+            setEvents(justEvents);
+            setTrials(trialsData);
         } catch (err) {
             console.error('Fetch error:', err);
             setError(err.message);
