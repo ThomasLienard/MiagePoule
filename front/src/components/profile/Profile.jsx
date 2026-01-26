@@ -1,56 +1,74 @@
-import React, { useState, useEffect } from 'react';
-import { Container, Row, Col, Button, Card } from 'react-bootstrap';
-import { useNavigate } from 'react-router-dom';
-import axios from 'axios';
-import './Profile.css';
+import React, { useEffect, useState } from "react";
+import { Container, Card, Badge, Spinner } from "react-bootstrap";
+import axios from "axios";
 
 const Profile = () => {
     const [user, setUser] = useState(null);
-    const navigate = useNavigate();
+    const [loading, setLoading] = useState(true);
 
     useEffect(() => {
-        axios.get('/account')
-            .then(res => setUser(res.data))
-            .catch(err => console.error("Erreur profil", err));
+        const fetchProfile = async () => {
+            try {
+                const token = localStorage.getItem("token");
+                const response = await axios.get("http://localhost:8084/account", {
+                    headers: { Authorization: `Bearer ${token}` },
+                });
+
+                let data = response.data;
+
+                while (typeof data === "string") {
+                    console.log("Parsing d'une string détectée...");
+                    data = JSON.parse(data);
+                }
+
+                console.log("NOM APRÈS NETTOYAGE :", data.name);
+                setUser(data);
+
+                console.log("OBJET ENFIN PARSÉ :", data);
+                console.log("NOM DÉTECTÉ :", data.name);
+                console.log("TYPE DE DATA :", typeof data);
+                console.log("EST-CE UN TABLEAU ? :", Array.isArray(data));
+                setUser(data);
+            } catch (error) {
+                console.error("Erreur API :", error);
+            } finally {
+                setLoading(false);
+            }
+        };
+        fetchProfile();
     }, []);
 
-    if (!user) return <div className="text-center mt-5">Chargement...</div>;
+    if (loading) return <Container className="text-center pt-5"><Spinner animation="border" /></Container>;
+
+    if (!user) return <div className="text-center pt-5">Impossible de charger les données.</div>;
+    if (user) console.log(user.name);
 
     return (
-        <Container className="mt-5" style={{ maxWidth: '850px' }}>
-            <h2 className="text-center fw-light mb-4">Profil</h2>
+        <Container className="pt-4">
+            <h2 className="text-center mb-4">
+                👤 Profil de {user?.name || "Inconnu"}
+            </h2>
 
-            <Card className="p-4 shadow-sm border-dark" style={{ borderRadius: '15px' }}>
-                <div className="border border-dark rounded-3 p-2 mb-4 d-flex align-items-center" style={{ height: '60px' }}>
-                    <div className="border border-dark rounded-2" style={{ width: '40px', height: '40px' }}></div>
-                </div>
+            <div className="d-flex justify-content-center">
+                <Card className="p-4 shadow-sm" style={{ maxWidth: "500px", width: "100%" }}>
+                    <Card.Body>
+                        {/* On force l'affichage en vérifiant la présence de l'objet */}
+                        {user && (
+                            <>
+                                <p><strong>Prénom :</strong> {user.name}</p>
+                                <p><strong>Nom :</strong> {user.lastname}</p>
+                                <p><strong>Email :</strong> {user.email}</p>
+                                <p>
+                                    <strong>Rôle :</strong>{" "}
+                                    <Badge bg="danger">{user.role?.roleName || "Aucun"}</Badge>
+                                </p>
+                            </>
+                        )}
 
-                <div className="ms-md-5 mb-4">
-                    <Row className="mb-2">
-                        <Col xs={3} md={2}>nom</Col>
-                        <Col>: {user.lastname}</Col>
-                    </Row>
-                    <Row className="mb-2">
-                        <Col xs={3} md={2}>prénom</Col>
-                        <Col>: {user.name}</Col>
-                    </Row>
-                    <Row className="mb-2">
-                        <Col xs={3} md={2}>mail</Col>
-                        <Col>: {user.email}</Col>
-                    </Row>
-                </div>
-
-                <div className="mt-4 ms-md-4">
-                    <Button
-                        variant="outline-dark"
-                        className="px-4 py-2"
-                        style={{ borderRadius: '12px' }}
-                        onClick={() => navigate('/settings')}
-                    >
-                        Params
-                    </Button>
-                </div>
-            </Card>
+                        {!user && <p className="text-muted">Données en cours de synchronisation...</p>}
+                    </Card.Body>
+                </Card>
+            </div>
         </Container>
     );
 };

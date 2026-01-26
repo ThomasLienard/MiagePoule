@@ -13,6 +13,7 @@ import PublicMapPage from './components/map/PublicMapPage';
 import ListeEvenementsParCompetition from './components/ListeEvenementsParCompetition';
 import EventDetails from './components/EventDetails';
 import Layout from "./components/layout/Layout.jsx";
+import Profile from "./components/profile/Profile.jsx";
 
 function App() {
 
@@ -36,10 +37,9 @@ function App() {
                             } />
 
                             {/* Routes qui nécessitent une connexion */}
-                            <Route path="/profile" element={
+                            <Route path="/account" element={
                                 <ProtectedRoute>
-                                    {/* Composant Profile à créer */}
-                                    <div>Profil utilisateur</div>
+                                    <Profile />
                                 </ProtectedRoute>
                             } />
 

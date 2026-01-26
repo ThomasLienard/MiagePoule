@@ -49,16 +49,17 @@ const RegisterPage = () => {
         const userData = {
             email: formData.email,
             password: formData.password,
-            firstName: formData.firstName,
-            lastName: formData.lastName,
-            role: 'SPECTATEUR'
+            name: formData.firstName,
+            lastname: formData.lastName,
+            countryCode: "FR",
+            roleName: "SPECTATEUR"
         };
 
         const result = await register(userData);
 
         if (result.success) {
             setSuccess(result.message);
-            setTimeout(() => navigate('/'), 2000);
+            setTimeout(() => navigate('/account'), 2000);
         } else {
             setError(result.message);
         }

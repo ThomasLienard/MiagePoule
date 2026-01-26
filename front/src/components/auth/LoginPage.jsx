@@ -20,7 +20,7 @@ const LoginPage = () => {
         const result = await login(email, password);
 
         if (result.success) {
-            navigate('/');
+            navigate('/account');
         } else {
             setError(result.message);
         }
