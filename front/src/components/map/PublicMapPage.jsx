@@ -1,7 +1,7 @@
 import React, {useState, useEffect, useCallback, useRef, useMemo} from 'react';
 import {useNavigate} from 'react-router-dom';
 import {GoogleMap, useJsApiLoader} from '@react-google-maps/api';
-import {fetchEventAndTrialsData} from '../../services/eventService';
+import {eventService} from '../../services/eventService';
 import EventInfoWindow from './EventInfoWindow.jsx';
 import ManualMarkerCluster from "./ManualMarkerCluster.jsx";
 import {
@@ -48,29 +48,21 @@ const PublicMapPage = () => {
     const fetchAllData = async () => {
         try {
             setLoading(true);
-            const {events: basicEvents, trials: basicTrials} = await fetchEventAndTrialsData();
-
-            const trialEventIds = new Set(
-                basicTrials
-                    .map(trial => trial.idEvent)
-                    .filter(id => id != null)
-            );
+            const [basicEvents, basicTrials] = await Promise.all([
+                eventService.getJustEvent(),
+                eventService.getTrials()
+            ]);
 
             const detailedEvents = await Promise.all(
                 basicEvents.map(async (event) => {
                     try {
-                        const response = await fetch(`http://localhost:8081/public/events/${event.id}`);
-                        if (response.ok) {
-                            const detailed = await response.json();
-                            return {...detailed, _isTrial: false};
-                        }
-                        return {...event, _isTrial: false};
-                    } catch {
+                        return await eventService.getById(event.id);
+                    } catch (error) {
+                        console.warn(`Failed to load details for event ${event.id}:`, error);
                         return {...event, _isTrial: false};
                     }
                 })
-            );
-
+            ).then(events => events.map(e => ({...e, _isTrial: false})));
 
             const detailedTrials = await Promise.all(
                 basicTrials.map(async (basicTrial) => {
@@ -87,10 +79,7 @@ const PublicMapPage = () => {
                 })
             );
 
-
-            const nonTrialEvents = detailedEvents.filter(event => !trialEventIds.has(event.id));
-
-            setEvents(nonTrialEvents);
+            setEvents(detailedEvents);
             setTrials(detailedTrials);
         } catch (err) {
             setError(err.message);
