@@ -147,7 +147,6 @@ const RegisterPage = () => {
                             </Button>
                         </div>
                     </Form>
-
                     <div className="auth-footer">
                         <p className="auth-link-text">
                             Déjà un compte ?{' '}

@@ -11,6 +11,9 @@ export default function Layout() {
         logout();
         navigate('/');
     };
+    const handleProfile = () => {
+        navigate('/profile');
+    };
     return (
         <>
             <Navbar expand="sm" className="bg-body-tertiary">
@@ -27,6 +30,11 @@ export default function Layout() {
                             <Nav.Link className="auth-button secondary me-2">
                                 <Link to="/public/events" className="text-decoration-none text-body-secondary">Évènements</Link>
                             </Nav.Link>
+                            {user?.roles?.includes('ADMIN') && (
+                                <Nav.Link className="auth-button secondary me-2">
+                                <Link to="/admin" className="text-decoration-none text-body-secondary">Administration</Link>
+                                </Nav.Link>
+                            )}
                         </Nav>
                         {isAuthenticated() ? (
                             <Nav>
@@ -34,7 +42,13 @@ export default function Layout() {
                                     <Link to="/logout"
                                           className="text-decoration-none text-body-secondary"
                                           onClick={handleLogout}
-                                    >Connexion</Link>
+                                    >Déconnexion</Link>
+                                </Nav.Link>
+                                <Nav.Link className="auth-button secondary me-2">
+                                    <Link to="/profile"
+                                          className="text-decoration-none text-body-secondary"
+                                          onClick={handleProfile}
+                                    >Profile</Link>
                                 </Nav.Link>
                             </Nav>
                         ) : (
