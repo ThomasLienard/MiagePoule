@@ -22,6 +22,7 @@ const PublicMapPage = () => {
     const [activeFilter, setActiveFilter] = useState('all');
     const [selectedDate, setSelectedDate] = useState('');
     const [selectedCompetition, setSelectedCompetition] = useState('');
+    const [showPastEvents, setShowPastEvents] = useState(false);
     const [selectedEvent, setSelectedEvent] = useState(null);
     const navigate = useNavigate();
     const mapRef = useRef(null);
@@ -176,12 +177,31 @@ const PublicMapPage = () => {
         return item.competitionName === selectedCompetition;
     };
 
+    const isPastEvent = (item) => {
+        const eventDate = item.timeSlot?.start || item.date || item.startDate;
+        if (!eventDate) return false;
+
+        const today = new Date();
+        today.setHours(0, 0, 0, 0);
+        
+        const itemDate = new Date(eventDate);
+        itemDate.setHours(0, 0, 0, 0);
+
+        return itemDate < today;
+    };
+
+    const matchesPastEventFilter = (item) => {
+        if (showPastEvents) return true; // Si ON, afficher tous les événements
+        return !isPastEvent(item); // Si OFF, cacher les événements passés
+    };
+
     const filteredTrials = trials.filter(trial => {
         const matchesSearch = trial.name?.toLowerCase().includes(searchTerm.toLowerCase()) ||
             trial.description?.toLowerCase().includes(searchTerm.toLowerCase());
         const matchesDate = matchesDateFilter(trial);
         const matchesCompetition = matchesCompetitionFilter(trial);
-        return matchesSearch && matchesDate && matchesCompetition;
+        const matchesPastFilter = matchesPastEventFilter(trial);
+        return matchesSearch && matchesDate && matchesCompetition && matchesPastFilter;
     });
 
     const filteredEvents = events.filter(event => {
@@ -189,7 +209,8 @@ const PublicMapPage = () => {
             event.description?.toLowerCase().includes(searchTerm.toLowerCase());
         const matchesDate = matchesDateFilter(event);
         const matchesCompetition = matchesCompetitionFilter(event);
-        return matchesSearch && matchesDate && matchesCompetition;
+        const matchesPastFilter = matchesPastEventFilter(event);
+        return matchesSearch && matchesDate && matchesCompetition && matchesPastFilter;
     });
 
     const getDisplayedItems = () => {
@@ -288,6 +309,8 @@ const PublicMapPage = () => {
                                     label="🏅 Évènements passés"
                                     type="switch"
                                     name="typeFilter"
+                                    checked={showPastEvents}
+                                    onChange={(e) => setShowPastEvents(e.target.checked)}
                                 />
                             </Card.Body>
                         </Card>
@@ -341,7 +364,7 @@ const PublicMapPage = () => {
                                             onClick={() => handleEventClick(trial)}
                                             onMouseEnter={() => handleEventHover(trial)}
                                             style={{cursor: "pointer"}}
-                                            className="mb-1"
+                                            className={`mb-1 ${isPastEvent(trial) ? 'bg-light text-muted' : ''}`}
                                         >
                                             <Card.Body className="text-center">
                                                 <Card.Title>{trial.name}</Card.Title>
@@ -374,7 +397,7 @@ const PublicMapPage = () => {
                                             onClick={() => handleEventClick(event)}
                                             onMouseEnter={() => handleEventHover(event)}
                                             style={{cursor: "pointer"}}
-                                            className="mb-1"
+                                            className={`mb-1 ${isPastEvent(event) ? 'bg-light text-muted' : ''}`}
                                         >
                                             <Card.Body className="text-center">
                                                 <Card.Title>{event.name}</Card.Title>
