@@ -79,7 +79,7 @@ const PublicMapPage = () => {
             const detailedTrials = await Promise.all(
                 basicTrials.map(async (basicTrial) => {
                     try {
-                        const response = await fetch(`http://localhost:8081/public/trials/${basicTrial.id}`);
+                        const response = await fetch(`http://localhost:8084/public/trials/${basicTrial.id}`);
                         if (response.ok) {
                             const detailed = await response.json();
                             return {...detailed, idEvent: basicTrial.idEvent, _isTrial: true};
@@ -316,21 +316,18 @@ const PublicMapPage = () => {
                         </Card>
                         <Card>
                             <Card.Body>
-                                <Form.Group>
-                                    <Form.Label>🏆 Compétition</Form.Label>
-                                    <Form.Select
-                                        value={selectedCompetition}
-                                        onChange={(e) => setSelectedCompetition(e.target.value)}
-                                        size="sm"
-                                    >
-                                        <option value="">Toutes</option>
-                                        {competitionNames.map((name) => (
-                                            <option key={name} value={name}>
-                                                {name}
-                                            </option>
-                                        ))}
-                                    </Form.Select>
-                                </Form.Group>
+                                <Form.Select
+                                    value={selectedCompetition}
+                                    onChange={(e) => setSelectedCompetition(e.target.value)}
+                                    size="sm"
+                                >
+                                    <option value="">🏆 Toutes les compétitions</option>
+                                    {competitionNames.map((name) => (
+                                        <option key={name} value={name}>
+                                            {name}
+                                        </option>
+                                    ))}
+                                </Form.Select>
                             </Card.Body>
                         </Card>
                     </div>
