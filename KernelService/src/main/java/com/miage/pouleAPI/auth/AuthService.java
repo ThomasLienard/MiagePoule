@@ -48,14 +48,57 @@ public class AuthService {
             throw new BadCredentialsException("Bad credentials");
         }
 
+        // Vérifier si le compte est actif
+        if (user.getIsActive() != null && !user.getIsActive()) {
+            log.error("Compte désactivé: {}", request.email());
+            throw new BadCredentialsException("Account is deactivated");
+        }
+
         String role = user.getRole().getRoleName();
         log.info("Rôle de l'utilisateur: {}", role);
 
+        // Inclure l'info mustChangePassword dans le token ou la réponse
+        Boolean mustChangePassword = user.getMustChangePassword() != null && user.getMustChangePassword();
+        Boolean isAccountActivated = user.getIsAccountActivated() != null && user.getIsAccountActivated();
+        
         String token = jwtService.generateToken(user.getId(), user.getEmail(), role);
-        log.info("Token généré pour: {}", request.email());
+        log.info("Token généré pour: {} (mustChangePassword: {}, isAccountActivated: {})", 
+            request.email(), mustChangePassword, isAccountActivated);
 
         return token;
     }
+
+    public LoginResponseWithStatus loginWithStatus(LoginRequest request) {
+        log.info("Tentative de login pour: {}", request.email());
+
+        var user = userRepo.findByEmail(request.email())
+                .orElseThrow(() -> {
+                    log.error("Utilisateur non trouvé: {}", request.email());
+                    return new BadCredentialsException("User not found");
+                });
+
+        boolean passwordMatches = passwordEncoder.matches(request.password(), user.getPassword());
+        if (!passwordMatches) {
+            log.error("Mot de passe incorrect pour: {}", request.email());
+            throw new BadCredentialsException("Bad credentials");
+        }
+
+        // Vérifier si le compte est actif
+        if (user.getIsActive() != null && !user.getIsActive()) {
+            log.error("Compte désactivé: {}", request.email());
+            throw new BadCredentialsException("Account is deactivated");
+        }
+
+        String role = user.getRole().getRoleName();
+        Boolean mustChangePassword = user.getMustChangePassword() != null && user.getMustChangePassword();
+        Boolean isAccountActivated = user.getIsAccountActivated() != null && user.getIsAccountActivated();
+        
+        String token = jwtService.generateToken(user.getId(), user.getEmail(), role);
+
+        return new LoginResponseWithStatus(token, mustChangePassword, isAccountActivated);
+    }
+
+    public record LoginResponseWithStatus(String token, Boolean mustChangePassword, Boolean isAccountActivated) {}
 
     public SignUpResponse signUp(SignUpRequest request) {
         log.info("Tentative d'inscription pour: {}", request.email());
