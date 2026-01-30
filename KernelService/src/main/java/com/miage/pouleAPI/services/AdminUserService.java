@@ -71,8 +71,12 @@ public class AdminUserService {
         user.setRole(role);
         user.setCountry(country);
         user.setIsActive(true);
-        user.setIsAccountActivated(false);
-        user.setMustChangePassword(true);
+        
+        // Les spectateurs sont automatiquement validés
+        boolean isSpectateur = "SPECTATEUR".equals(request.roleName());
+        user.setIsAccountActivated(isSpectateur);
+        user.setMustChangePassword(!isSpectateur);
+        
         user.setCreatedAt(LocalDateTime.now());
         user.setCreatedBy(createdBy);
 

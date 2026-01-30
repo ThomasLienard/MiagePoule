@@ -145,6 +145,12 @@ public class AuthService {
         user.setLastname(request.lastname());
         user.setRole(role);
         user.setCountry(country);
+        user.setIsActive(true);
+        
+        // Les spectateurs sont automatiquement validés
+        boolean isSpectateur = "SPECTATEUR".equals(request.roleName());
+        user.setIsAccountActivated(isSpectateur);
+        user.setMustChangePassword(false);
 
         // Sauvegarder l'utilisateur
         userRepo.save(user);

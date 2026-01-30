@@ -62,8 +62,8 @@ class AdminUserServiceMustChangePasswordTest {
     class CreateUserTests {
 
         @Test
-        @DisplayName("Devrait créer un utilisateur avec mustChangePassword=true")
-        void createUser_shouldSetMustChangePasswordTrue() {
+        @DisplayName("Devrait créer un utilisateur non-spectateur avec mustChangePassword=true")
+        void createUser_shouldSetMustChangePasswordTrue_forNonSpectateur() {
             // Arrange
             CreateUserRequest request = new CreateUserRequest(
                 "John", "Doe", "john.doe@example.com", "ATHLETE", "FR"
@@ -90,8 +90,39 @@ class AdminUserServiceMustChangePasswordTest {
         }
 
         @Test
-        @DisplayName("Devrait créer un utilisateur avec isAccountActivated=false")
-        void createUser_shouldSetIsAccountActivatedFalse() {
+        @DisplayName("Devrait créer un spectateur automatiquement validé")
+        void createUser_shouldAutoValidateSpectateur() {
+            // Arrange
+            Role spectateurRole = new Role();
+            spectateurRole.setRoleName("SPECTATEUR");
+            
+            CreateUserRequest request = new CreateUserRequest(
+                "Thomas", "Lienard", "thomas@gmail.com", "SPECTATEUR", "FR"
+            );
+
+            when(userRepository.existsByEmail("thomas@gmail.com")).thenReturn(false);
+            when(roleRepository.findById("SPECTATEUR")).thenReturn(Optional.of(spectateurRole));
+            when(countryRepository.findById("FR")).thenReturn(Optional.of(france));
+            when(passwordEncoder.encode(anyString())).thenReturn("encodedPassword");
+            when(userRepository.findMaxId()).thenReturn(10);
+            when(userRepository.save(any(ApplicationUser.class))).thenAnswer(i -> i.getArguments()[0]);
+
+            // Act
+            adminUserService.createUser(request, "admin@example.com");
+
+            // Assert
+            ArgumentCaptor<ApplicationUser> userCaptor = ArgumentCaptor.forClass(ApplicationUser.class);
+            verify(userRepository).save(userCaptor.capture());
+            
+            ApplicationUser savedUser = userCaptor.getValue();
+            assertThat(savedUser.getMustChangePassword()).isFalse();
+            assertThat(savedUser.getIsAccountActivated()).isTrue();
+            assertThat(savedUser.getIsActive()).isTrue();
+        }
+
+        @Test
+        @DisplayName("Devrait créer un utilisateur non-spectateur avec isAccountActivated=false")
+        void createUser_shouldSetIsAccountActivatedFalse_forNonSpectateur() {
             // Arrange
             CreateUserRequest request = new CreateUserRequest(
                 "Jane", "Smith", "jane.smith@example.com", "VOLONTAIRE", "FR"
