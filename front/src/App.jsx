@@ -4,7 +4,10 @@ import { AuthProvider } from './contexts/AuthContext';
 import ProtectedRoute from './components/ProtectedRoute';
 import LoginPage from './components/auth/LoginPage';
 import RegisterPage from './components/auth/RegisterPage';
+import ActivateAccountPage from './components/auth/ActivateAccountPage';
+import ChangePasswordPage from './components/auth/ChangePasswordPage';
 import AdminPage from './components/admin/AdminPage';
+import UserManagement from './components/admin/UserManagement';
 
 import Competition from "./components/Competition.jsx";
 import ListChampionships from "./components/ListChampionships.jsx";
@@ -23,13 +26,20 @@ function App() {
                             {/* Routes publiques */}
                             <Route path="/login" element={<LoginPage />} />
                             <Route path="/register" element={<RegisterPage />} />
+                            <Route path="/activate" element={<ActivateAccountPage />} />
+                            <Route path="/change-password" element={<ChangePasswordPage />} />
                             <Route path="/public/events/:id" element={<TrialsAndEventsDetails />} />
                             <Route path="/public/trials/:id" element={<TrialsAndEventsDetails />} />
 
-                            {/* Routes protégées */}
+                            {/* Routes protégées Admin */}
                             <Route path="/admin" element={
                                 <ProtectedRoute allowedRoles={['ADMIN']}>
                                     <AdminPage />
+                                </ProtectedRoute>
+                            } />
+                            <Route path="/admin/users" element={
+                                <ProtectedRoute allowedRoles={['ADMIN']}>
+                                    <UserManagement />
                                 </ProtectedRoute>
                             } />
 

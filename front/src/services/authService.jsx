@@ -32,7 +32,14 @@ const authService = {
     // Inscription
     register: async (userData) => {
         try {
-            const response = await axios.post(`${API_BASE_URL}/auth/register`, userData, {
+            const response = await axios.post(`${API_BASE_URL}/auth/signup`, {
+                name: userData.firstName,
+                lastname: userData.lastName,
+                email: userData.email,
+                password: userData.password,
+                countryCode: userData.countryCode || 'FR',
+                roleName: 'SPECTATEUR'
+            }, {
                 headers: {
                     'Content-Type': 'application/json',
                     'Accept': 'application/json'
@@ -41,7 +48,7 @@ const authService = {
             return response.data;
         } catch (error) {
             if (error.response?.status === 400) {
-                throw new Error('Email déjà utilisé');
+                throw new Error(error.response?.data?.message || 'Email déjà utilisé');
             } else {
                 throw new Error("Erreur lors de l'inscription");
             }
@@ -64,6 +71,7 @@ const authService = {
             const isExpired = payload.exp * 1000 < Date.now();
             return !isExpired;
         } catch (error) {
+            console.error('Error decoding token:', error);
             return false;
         }
     },
@@ -81,6 +89,7 @@ const authService = {
         try {
             return JSON.parse(userStr);
         } catch (error) {
+            console.error('Error parsing user data:', error);
             return null;
         }
     },
@@ -105,6 +114,7 @@ const authService = {
             const payload = JSON.parse(atob(token.split('.')[1]));
             return payload;
         } catch (error) {
+            console.error('Error decoding token:', error);
             return null;
         }
     }
@@ -130,7 +140,7 @@ axios.interceptors.response.use(
     (error) => {
         if (error.response?.status === 401 || error.response?.status === 403) {
             authService.logout();
-            window.location.href = '/login';
+            globalThis.location.href = '/login';
         }
         return Promise.reject(error);
     }
