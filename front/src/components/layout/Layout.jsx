@@ -1,11 +1,18 @@
 import {Container, Nav, Navbar} from "react-bootstrap";
-import {Link, Outlet, useNavigate} from "react-router-dom";
+import {Link, Outlet, useNavigate, useLocation, Navigate} from "react-router-dom";
 import React from "react";
 import {useAuth} from "../../contexts/AuthContext.jsx";
 
 export default function Layout() {
-    const { user, logout, isAuthenticated } = useAuth();
+    const { user, logout, isAuthenticated, mustChangePassword } = useAuth();
     const navigate = useNavigate();
+    const location = useLocation();
+
+    // Rediriger vers la page de changement de mot de passe si nécessaire
+    const allowedPaths = ['/change-password', '/login', '/logout'];
+    if (isAuthenticated() && mustChangePassword && !allowedPaths.includes(location.pathname)) {
+        return <Navigate to="/change-password" replace />;
+    }
 
     const handleLogout = () => {
         logout();
