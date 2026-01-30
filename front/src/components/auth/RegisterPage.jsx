@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useAuth } from '../../contexts/AuthContext';
-import './Auth.css';
+import {Button, Card, FloatingLabel, Form} from "react-bootstrap";
 
 const RegisterPage = () => {
     const [formData, setFormData] = useState({
@@ -30,6 +30,7 @@ const RegisterPage = () => {
         e.preventDefault();
         setError('');
         setSuccess('');
+        console.log(formData);
 
         // Validation
         if (formData.password !== formData.confirmPassword) {
@@ -66,123 +67,97 @@ const RegisterPage = () => {
     };
 
     return (
-        <div className="auth-container">
-            <div className="auth-card">
-                <div className="auth-header">
-                    <h2 className="auth-title">Inscription</h2>
-                    <p className="auth-subtitle">Créez votre compte spectateur</p>
-                </div>
-
-                {error && (
-                    <div className="auth-error">
-                        {error}
+        <div className="d-flex justify-content-center pt-4">
+            <Card>
+                <Card.Body className="m-3">
+                    <Card.Title className="text-center mb-2" as="h3">Inscription</Card.Title>
+                    <Card.Subtitle className="text-center" as="h6" >Créez votre compte spectateur</Card.Subtitle>
+                    <div className="d-flex justify-content-center">
+                        <hr style={{width: "16rem"}}/>
                     </div>
-                )}
+                    <Card.Text>
+                    {error && (
+                        <div>
+                            {error}
+                        </div>
+                    )}
 
-                {success && (
-                    <div className="auth-success">
-                        {success}
+                    {success && (
+                        <div >
+                            {success}
+                        </div>
+                    )}
+
+                    <Form onSubmit={handleSubmit} className="mt-2">
+                            <FloatingLabel label="Prénom" controlId="firstName">
+                                <Form.Control
+                                    type="text"
+                                    placeholder="Prénom"
+                                    onChange={handleChange}
+                                    required
+                                    value={formData.firstName}
+                                />
+                        </FloatingLabel>
+                            <FloatingLabel label="Nom" controlId="lastName" className="mt-1">
+                                <Form.Control
+                                    type="text"
+                                    placeholder="Nom"
+                                    onChange={handleChange}
+                                    required
+                                    value={formData.lastName}
+                                />
+                            </FloatingLabel>
+                            <FloatingLabel label="Email" controlId="email"  className="mt-1">
+                                <Form.Control
+                                    type="email"
+                                    placeholder="Eail"
+                                    onChange={handleChange}
+                                    required
+                                    value={formData.email}
+                                />
+                            </FloatingLabel>
+                        <div>
+                                <FloatingLabel label="Mot de passe" controlId="password"  className="mt-1">
+                                    <Form.Control
+                                        type="password"
+                                        placeholder="Mot de passe"
+                                        onChange={handleChange}
+                                        value={formData.password}
+                                        required
+                                    />
+                                </FloatingLabel>
+                            <span className="text-body-tertiary">Minimum 6 caractères</span>
+                        </div>
+                            <FloatingLabel label="Confirmez le mot de passe" controlId="confirmPassword"  className="mt-2">
+                                <Form.Control
+                                    type="password"
+                                    placeholder="Confirmez le mot de passe"
+                                    onChange={handleChange}
+                                    required
+                                    value={formData.confirmPassword}
+                                />
+                            </FloatingLabel>
+                        <div className="d-flex justify-content-center mt-2 mb-3">
+                            <Button
+                                type="submit"
+                                variant="secondary"
+                                disabled={loading}
+                            >
+                                {loading ? 'Inscription en cours...' : "S'inscrire"}
+                            </Button>
+                        </div>
+                    </Form>
+                    <div className="auth-footer">
+                        <p className="auth-link-text">
+                            Déjà un compte ?{' '}
+                            <Link to="/login" className="auth-link">
+                                Se connecter
+                            </Link>
+                        </p>
                     </div>
-                )}
-
-                <form onSubmit={handleSubmit} className="auth-form">
-                    <div className="form-group">
-                        <label htmlFor="firstName" className="form-label">
-                            Prénom
-                        </label>
-                        <input
-                            id="firstName"
-                            type="text"
-                            value={formData.firstName}
-                            onChange={handleChange}
-                            className="form-input"
-                            placeholder="John"
-                            required
-                        />
-                    </div>
-
-                    <div className="form-group">
-                        <label htmlFor="lastName" className="form-label">
-                            Nom
-                        </label>
-                        <input
-                            id="lastName"
-                            type="text"
-                            value={formData.lastName}
-                            onChange={handleChange}
-                            className="form-input"
-                            placeholder="Doe"
-                            required
-                        />
-                    </div>
-
-                    <div className="form-group">
-                        <label htmlFor="email" className="form-label">
-                            Email
-                        </label>
-                        <input
-                            id="email"
-                            type="email"
-                            value={formData.email}
-                            onChange={handleChange}
-                            className="form-input"
-                            placeholder="votre@email.com"
-                            required
-                        />
-                    </div>
-
-                    <div className="form-group">
-                        <label htmlFor="password" className="form-label">
-                            Mot de passe
-                        </label>
-                        <input
-                            id="password"
-                            type="password"
-                            value={formData.password}
-                            onChange={handleChange}
-                            className="form-input"
-                            placeholder="••••••••"
-                            required
-                        />
-                        <p className="form-hint">Minimum 6 caractères</p>
-                    </div>
-
-                    <div className="form-group">
-                        <label htmlFor="confirmPassword" className="form-label">
-                            Confirmer le mot de passe
-                        </label>
-                        <input
-                            id="confirmPassword"
-                            type="password"
-                            value={formData.confirmPassword}
-                            onChange={handleChange}
-                            className="form-input"
-                            placeholder="••••••••"
-                            required
-                        />
-                    </div>
-
-                    <button
-                        type="submit"
-                        className="auth-button"
-                        disabled={loading}
-                    >
-                        {loading ? 'Inscription en cours...' : "S'inscrire"}
-                    </button>
-                </form>
-
-                <div className="auth-footer">
-                    <p className="auth-link-text">
-                        Déjà un compte ?{' '}
-                        <Link to="/login" className="auth-link">
-                            Se connecter
-                        </Link>
-                    </p>
-                    <Link to="/" className="auth-link">
-                        Retour à l'accueil
-                    </Link>
-                </div>
-            </div>
+                    </Card.Text>
+                </Card.Body>
+            </Card>
         </div>
     );
 };

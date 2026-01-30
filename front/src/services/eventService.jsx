@@ -1,4 +1,4 @@
-const API_BASE_URL = "http://localhost:8080/public";
+const API_BASE_URL = "http://localhost:8084/public";
 
 class EventService {
     async getAll() {
@@ -8,6 +8,23 @@ class EventService {
         }
         return response.json();
     }
+
+    async getJustEvent() {
+        const response = await fetch(`${API_BASE_URL}/otherEvent`);
+        if (!response.ok) {
+            throw new Error(`HTTP ${response.status}: Failed to fetch events`);
+        }
+        return response.json();
+    }
+
+    async getTrials() {
+        const response = await fetch(`${API_BASE_URL}/trials`);
+        if (!response.ok) {
+            throw new Error(`HTTP ${response.status}: Failed to fetch events`);
+        }
+        return response.json();
+    }
+    
 
     async getById(id) {
         if (!id) throw new Error('Event ID is required');
@@ -61,6 +78,14 @@ class EventService {
         return response.json();
     }
 
+    async getJustEventsByCompetition(championshipId, competitionId) {
+        const response = await fetch(`${API_BASE_URL}/championships/${championshipId}/comp/${competitionId}/otherEvent`);
+        if (!response.ok) {
+            throw new Error(`HTTP ${response.status}: Failed to fetch events for competition`);
+        }
+        return response.json();
+    }
+
     async getTrialsByCompetition(championshipId, competitionId) {
         const response = await fetch(`${API_BASE_URL}/championships/${championshipId}/comp/${competitionId}/trials`);
         if (!response.ok) {
@@ -71,31 +96,3 @@ class EventService {
 }
 
 export const eventService = new EventService();
-
-export async function fetchEventAndTrialsData() {
-    const [events, trials] = await Promise.all([
-        fetch(`${API_BASE_URL}/events`).then(r => {
-            if (!r.ok) throw new Error('Failed to fetch events');
-            return r.json();
-        }),
-        fetch(`${API_BASE_URL}/trials`).then(r => {
-            if (!r.ok) throw new Error('Failed to fetch trials');
-            return r.json();
-        })
-    ]);
-    return { events, trials };
-}
-
-export async function fetchEventAndTrialsByCompetition(championshipId, competitionId) {
-    const [events, trials] = await Promise.all([
-        fetch(`${API_BASE_URL}/championships/${championshipId}/comp/${competitionId}/events`).then(r => {
-            if (!r.ok) throw new Error('Failed to fetch events');
-            return r.json();
-        }),
-        fetch(`${API_BASE_URL}/championships/${championshipId}/comp/${competitionId}/trials`).then(r => {
-            if (!r.ok) throw new Error('Failed to fetch trials');
-            return r.json();
-        })
-    ]);
-    return { events, trials };
-}

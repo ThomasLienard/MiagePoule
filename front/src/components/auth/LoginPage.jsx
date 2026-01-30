@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useAuth } from '../../contexts/AuthContext';
-import './Auth.css';
+import {Button, Card, FloatingLabel, Form} from "react-bootstrap";
 
 const LoginPage = () => {
     const [email, setEmail] = useState('');
@@ -29,58 +29,50 @@ const LoginPage = () => {
     };
 
     return (
-        <div className="auth-container">
-            <div className="auth-card">
-                <div className="auth-header">
-                    <h2 className="auth-title">Connexion</h2>
-                    <p className="auth-subtitle">Connectez-vous à votre compte</p>
-                </div>
+        <div className="d-flex justify-content-center pt-4">
+            <Card>
+                <Card.Body>
+                    <Card.Title className="text-center mb-2" as="h3">Connexion</Card.Title>
+                    <Card.Subtitle className="text-center" as="h6">Connectez-vous à votre compte</Card.Subtitle>
+                    <div className="d-flex justify-content-center">
+                        <hr style={{width: "16rem"}}/>
+                    </div>
+                    <Card.Text>
 
                 {error && (
                     <div className="auth-error">
                         {error}
                     </div>
                 )}
-
-                <form onSubmit={handleSubmit} className="auth-form">
-                    <div className="form-group">
-                        <label htmlFor="email" className="form-label">
-                            Email
-                        </label>
-                        <input
-                            id="email"
-                            type="email"
-                            value={email}
-                            onChange={(e) => setEmail(e.target.value)}
-                            className="form-input"
-                            placeholder="votre@email.com"
-                            required
-                        />
-                    </div>
-
-                    <div className="form-group">
-                        <label htmlFor="password" className="form-label">
-                            Mot de passe
-                        </label>
-                        <input
-                            id="password"
-                            type="password"
-                            value={password}
-                            onChange={(e) => setPassword(e.target.value)}
-                            className="form-input"
-                            placeholder="••••••••"
-                            required
-                        />
-                    </div>
-
-                    <button
-                        type="submit"
-                        className="auth-button"
-                        disabled={loading}
-                    >
-                        {loading ? 'Connexion en cours...' : 'Se connecter'}
-                    </button>
-                </form>
+                        <Form onSubmit={handleSubmit} className="mt-2">
+                            <FloatingLabel label="Email" controlId="email"  className="mt-1">
+                                <Form.Control
+                                    type="email"
+                                    placeholder="Email"
+                                    onChange={(e) => setEmail(e.target.value)}
+                                    required
+                                    value={email}
+                                />
+                            </FloatingLabel>
+                                <FloatingLabel label="Mot de passe" controlId="password"  className="mt-1">
+                                    <Form.Control
+                                        type="password"
+                                        placeholder="Mot de passe"
+                                        onChange={(e) => setPassword(e.target.value)}
+                                        value={password}
+                                        required
+                                    />
+                                </FloatingLabel>
+                            <div className="d-flex justify-content-center mt-2 mb-3">
+                                <Button
+                                    type="submit"
+                                    variant="secondary"
+                                    disabled={loading}
+                                >
+                                    {loading ? 'Connexion en cours...' : "Se connecter"}
+                                </Button>
+                            </div>
+                        </Form>
 
                 <div className="auth-footer">
                     <p className="auth-link-text">
@@ -89,11 +81,10 @@ const LoginPage = () => {
                             S'inscrire
                         </Link>
                     </p>
-                    <Link to="/" className="auth-link">
-                        Retour à l'accueil
-                    </Link>
                 </div>
-            </div>
+                    </Card.Text>
+                </Card.Body>
+            </Card>
         </div>
     );
 };

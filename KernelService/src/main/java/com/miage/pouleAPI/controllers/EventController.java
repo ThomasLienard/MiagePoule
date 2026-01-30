@@ -13,7 +13,6 @@ import java.util.List;
 
 @RestController
 @RequestMapping("/public")
-@CrossOrigin(origins = "http://localhost:3000")
 public class EventController {
     
    
@@ -42,4 +41,15 @@ public class EventController {
             @PathVariable Integer competitionId) {
         return eventService.getEventsByChampionshipAndCompetition(championshipId, competitionId);
     }
-}
+    
+    @GetMapping("/otherEvent")
+    public List<EventSummaryDTO> getOtherEvents() {
+        return eventService.getOtherEvents();
+    }
+    
+    @GetMapping("/championships/{championshipId}/comp/{competitionId}/otherEvent")
+    public List<EventSummaryDTO> getOtherEventsByCompetition(
+            @PathVariable Integer championshipId,
+            @PathVariable Integer competitionId) {
+        return eventService.getOtherEventsByCompetition(competitionId);
+    }}

@@ -11,7 +11,7 @@ import java.util.List;
 
 @Repository
 public interface TrialRepository extends JpaRepository<Trial, Integer> {
-    @Query("SELECT t FROM Trial t WHERE t.event.competition.id = :competitionId")
+    @Query("SELECT t FROM Trial t WHERE t.competition.id = :competitionId")
     List<Trial> findByCompetitionId(@Param("competitionId") Integer competitionId);
 }
 

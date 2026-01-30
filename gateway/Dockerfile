@@ -10,5 +10,5 @@ RUN mvn dependency:go-offline -B
 COPY src ./src
 RUN mvn clean package -DskipTests
 
-EXPOSE 8085
-ENTRYPOINT ["java", "-jar", "target/KernelService-0.0.1-SNAPSHOT.jar"]
+EXPOSE 8084
+ENTRYPOINT ["java", "-jar", "target/gateway-0.0.1-SNAPSHOT.jar"]

@@ -75,7 +75,7 @@ const ManualMarkerCluster = ({ events, onMarkerClick }) => {
                     <div className="d-flex flex-column gap-2">
                         {selectedGroup.events.map(event => (
                             <Button
-                                key={`${event.id}-${event._isTrial ? 'trial' : 'event'}-${idx}`}
+                                key={`${event.id}-${event._isTrial ? 'trial' : 'event'}`}
                                 size="lg"
                                 variant="outline-secondary"
                                 onClick={() => {

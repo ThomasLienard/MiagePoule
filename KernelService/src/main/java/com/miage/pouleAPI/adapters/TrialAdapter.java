@@ -31,15 +31,13 @@ public class TrialAdapter {
     // ===== Conversions Entity -> DTO =====
     
     public TrialSummaryDTO entityToSummaryDto(Trial trial) {
-        if (trial == null || trial.getEvent() == null) return null;
-        
-        Event event = trial.getEvent();
+        if (trial == null) return null;
         
         return new TrialSummaryDTO(
             trial.getId(),
-            trial.getEvent().getId(),
-            event.getName(),
-            event.getDescription()
+            trial.getId(),  // Trial's ID is also the Event's ID (JOINED inheritance)
+            trial.getName(),
+            trial.getDescription()
         );
     }
     
@@ -53,28 +51,26 @@ public class TrialAdapter {
 
     
     public TrialDetailDTO entityToDetailDto(Trial trial) {
-        if (trial == null || trial.getEvent() == null) return null;
-        
-        Event event = trial.getEvent();
+        if (trial == null) return null;
         
         TrialDetailDTO dto = new TrialDetailDTO();
         dto.setId(trial.getId());
-        dto.setName(event.getName());
-        dto.setDescription(event.getDescription());
+        dto.setName(trial.getName());
+        dto.setDescription(trial.getDescription());
         
         // Competition name
-        if (event.getCompetition() != null) {
-            dto.setCompetitionName(event.getCompetition().getName());
+        if (trial.getCompetition() != null) {
+            dto.setCompetitionName(trial.getCompetition().getName());
         }
         
         // TimeSlot
-        if (event.getTimeSlot() != null) {
-            dto.setTimeSlot(timeSlotToDto(event.getTimeSlot()));
+        if (trial.getTimeSlot() != null) {
+            dto.setTimeSlot(timeSlotToDto(trial.getTimeSlot()));
         }
         
         // Place
-        if (event.getPlace() != null) {
-            dto.setPlace(placeToDto(event.getPlace()));
+        if (trial.getPlace() != null) {
+            dto.setPlace(placeToDto(trial.getPlace()));
         }
         
         // Rankings from ParticipateAt and IsConvenedTo
@@ -90,11 +86,8 @@ public class TrialAdapter {
         
         Trial trial = new Trial();
         trial.setId(dto.getId());
-        
-        Event event = new Event();
-        event.setName(dto.getName());
-        event.setDescription(dto.getDescription());
-        trial.setEvent(event);
+        trial.setName(dto.getName());
+        trial.setDescription(dto.getDescription());
         
         return trial;
     }
@@ -104,20 +97,16 @@ public class TrialAdapter {
         
         Trial trial = new Trial();
         trial.setId(dto.getId());
-        
-        Event event = new Event();
-        event.setName(dto.getName());
-        event.setDescription(dto.getDescription());
+        trial.setName(dto.getName());
+        trial.setDescription(dto.getDescription());
         
         if (dto.getTimeSlot() != null) {
-            event.setTimeSlot(dtoToTimeSlot(dto.getTimeSlot()));
+            trial.setTimeSlot(dtoToTimeSlot(dto.getTimeSlot()));
         }
         
         if (dto.getPlace() != null) {
-            event.setPlace(dtoToPlace(dto.getPlace()));
+            trial.setPlace(dtoToPlace(dto.getPlace()));
         }
-        
-        trial.setEvent(event);
         
         return trial;
     }
