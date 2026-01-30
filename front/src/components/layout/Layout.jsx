@@ -28,30 +28,29 @@ export default function Layout() {
                     <Navbar.Brand>
                         <Link to="/" className="text-decoration-none text-black">CiblOrgaSport</Link>
                     </Navbar.Brand>
-                    <Navbar.Toggle aria-controls="basic-navbar-nav" />
+                    <Navbar.Toggle aria-controls="basic-navbar-nav"/>
                     <Navbar.Collapse id="basic-navbar-nav">
                         <Nav className="me-auto">
-                            <Nav.Link className="auth-button secondary me-2">
-                                <Link to="/public/championship" className="text-decoration-none text-body-secondary">Championnats</Link>
-                            </Nav.Link>
-                            <Nav.Link className="auth-button secondary me-2">
-                                <Link to="/public/events" className="text-decoration-none text-body-secondary">Évènements</Link>
+                            <Nav.Link className="auth-button secondary me-2" as="span">
+                                <Link to="/public/championship"
+                                      className="text-decoration-none text-body-secondary">Championnats</Link>
                             </Nav.Link>
                             {user?.roles?.includes('ADMIN') && (
-                                <Nav.Link className="auth-button secondary me-2">
-                                <Link to="/admin" className="text-decoration-none text-body-secondary">Administration</Link>
+                                <Nav.Link className="auth-button secondary me-2" as="span">
+                                    <Link to="/admin"
+                                          className="text-decoration-none text-body-secondary">Administration</Link>
                                 </Nav.Link>
                             )}
                         </Nav>
                         {isAuthenticated() ? (
                             <Nav>
-                                <Nav.Link className="auth-button secondary me-2">
+                                <Nav.Link className="auth-button secondary me-2" as="span">
                                     <Link to="/logout"
                                           className="text-decoration-none text-body-secondary"
                                           onClick={handleLogout}
                                     >Déconnexion</Link>
                                 </Nav.Link>
-                                <Nav.Link className="auth-button secondary me-2">
+                                <Nav.Link className="auth-button secondary me-2" as="span">
                                     <Link to="/profile"
                                           className="text-decoration-none text-body-secondary"
                                           onClick={handleProfile}
@@ -60,18 +59,20 @@ export default function Layout() {
                             </Nav>
                         ) : (
                             <Nav>
-                                <Nav.Link className="auth-button secondary me-2">
-                                    <Link to="/login" className="text-decoration-none text-body-secondary">Connexion</Link>
+                                <Nav.Link className="auth-button secondary me-2" as="span">
+                                    <Link to="/login"
+                                          className="text-decoration-none text-body-secondary">Connexion</Link>
                                 </Nav.Link>
-                                <Nav.Link className="auth-button secondary">
-                                    <Link to="/register" className="text-decoration-none text-body-secondary">Inscription</Link>
+                                <Nav.Link className="auth-button secondary" as="span">
+                                    <Link to="/register"
+                                          className="text-decoration-none text-body-secondary">Inscription</Link>
                                 </Nav.Link>
                             </Nav>
-                            )}
+                        )}
                     </Navbar.Collapse>
                 </Container>
             </Navbar>
-            <Outlet />
+            <Outlet/>
         </>
     );
 }

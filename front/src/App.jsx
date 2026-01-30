@@ -9,12 +9,10 @@ import ChangePasswordPage from './components/auth/ChangePasswordPage';
 import AdminPage from './components/admin/AdminPage';
 import UserManagement from './components/admin/UserManagement';
 
-import ListeCompetitions from "./components/ListeCompetitions.jsx";
 import Competition from "./components/Competition.jsx";
 import ListChampionships from "./components/ListChampionships.jsx";
 import PublicMapPage from './components/map/PublicMapPage';
-import ListeEvenementsParCompetition from './components/ListeEvenementsParCompetition';
-import EventDetails from './components/EventDetails';
+import TrialsAndEventsDetails from './components/TrialsAndEventsDetails.jsx';
 import Layout from "./components/layout/Layout.jsx";
 
 function App() {
@@ -30,8 +28,8 @@ function App() {
                             <Route path="/register" element={<RegisterPage />} />
                             <Route path="/activate" element={<ActivateAccountPage />} />
                             <Route path="/change-password" element={<ChangePasswordPage />} />
-                            <Route path="/public/events/:id" element={<EventDetails />} />
-                            <Route path="/public/trials/:id" element={<EventDetails />} />
+                            <Route path="/public/events/:id" element={<TrialsAndEventsDetails />} />
+                            <Route path="/public/trials/:id" element={<TrialsAndEventsDetails />} />
 
                             {/* Routes protégées Admin */}
                             <Route path="/admin" element={
@@ -55,10 +53,7 @@ function App() {
 
                             {/* Routes publiques existantes */}
                             <Route path="/public/championship" element={<ListChampionships />} />
-                            <Route path="/public/championship/:id/comp" element={<ListeCompetitions />} />
                             <Route path="/public/championship/:id/comp/:idComp" element={<Competition />}/>
-                            <Route path="/public/championship/:championshipId/comp/:competitionId/events"
-                                   element={<ListeEvenementsParCompetition />} />
 
                             {/* Route par défaut */}
                             <Route path="/" element={<PublicMapPage />} />

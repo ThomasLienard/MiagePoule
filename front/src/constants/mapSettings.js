@@ -27,17 +27,3 @@ export const GOOGLE_MAPS_OPTIONS = {
         }
     ]
 };
-
-export const LOADING_STATES = {
-    IDLE: 'idle',
-    LOADING: 'loading',
-    SUCCESS: 'success',
-    ERROR: 'error',
-};
-
-export const BREAKPOINTS = {
-    MOBILE: 576,
-    TABLET: 768,
-    DESKTOP: 992,
-    LARGE_DESKTOP: 1200,
-};

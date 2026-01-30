@@ -1,19 +1,20 @@
 import React, {useState, useEffect} from 'react';
-import {useParams} from 'react-router-dom';
-import {Badge, ListGroup} from "react-bootstrap";
+import {useNavigate, useParams} from 'react-router-dom';
+import {Badge, Button, ListGroup} from "react-bootstrap";
 
-const EventDetails = () => {
+const TrialsAndEventsDetails = () => {
     const {id} = useParams();
     const [eventData, setEventData] = useState(null);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
     const [isTrial, setIsTrial] = useState(false);
+    const navigate = useNavigate();
 
     useEffect(() => {
-        fetchEventDetails();
+        fetchDetails();
     }, [id]);
 
-    const fetchEventDetails = async () => {
+    const fetchDetails = async () => {
         try {
             setLoading(true);
 
@@ -23,14 +24,13 @@ const EventDetails = () => {
             setIsTrial(isTrialPath);
 
             const endpoint = isTrialPath
-                ? `http://localhost:8083/public/trials/${id}`
-                : `http://localhost:8083/public/events/${id}`;
+                ? `http://localhost:8084/public/trials/${id}`
+                : `http://localhost:8084/public/events/${id}`;
 
             const response = await fetch(endpoint);
             if (!response.ok) throw new Error('Événement non trouvé');
             const data = await response.json();
 
-            console.log('Data received:', data); // Debug
             setEventData(data);
         } catch (err) {
             setError(err.message);
@@ -165,9 +165,12 @@ const EventDetails = () => {
                     )}
                 </div>
             </div>
-
+            <Button onClick={() => navigate(-1)}
+                    variant="outline-secondary" className="m-3">
+                ← Retour
+            </Button>
         </>
     );
 };
 
-export default EventDetails;
+export default TrialsAndEventsDetails;
