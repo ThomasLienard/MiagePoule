@@ -11,7 +11,6 @@ import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
-import java.util.Map;
 
 @RestController
 @RequestMapping("/admin/users")
@@ -21,11 +20,14 @@ public class AdminUserController {
 
     private final AdminUserService adminUserService;
 
+    public record ApiResponse(String message) {}
+    public record ResetPasswordResponse(String message, String temporaryPassword) {}
+
     /**
      * Crée un nouveau compte utilisateur
      */
     @PostMapping
-    public ResponseEntity<?> createUser(
+    public ResponseEntity<Object> createUser(
             @Valid @RequestBody CreateUserRequest request,
             Authentication authentication) {
         try {
@@ -39,7 +41,7 @@ public class AdminUserController {
             return ResponseEntity.status(HttpStatus.CREATED).body(response);
         } catch (IllegalArgumentException e) {
             return ResponseEntity.badRequest()
-                .body(Map.of("message", e.getMessage()));
+                .body(new ApiResponse(e.getMessage()));
         }
     }
 
@@ -62,7 +64,7 @@ public class AdminUserController {
      * Récupère un utilisateur par ID
      */
     @GetMapping("/{id}")
-    public ResponseEntity<?> getUserById(@PathVariable Integer id) {
+    public ResponseEntity<Object> getUserById(@PathVariable Integer id) {
         try {
             UserDto user = adminUserService.getUserById(id);
             return ResponseEntity.ok(user);
@@ -75,7 +77,7 @@ public class AdminUserController {
      * Met à jour un utilisateur
      */
     @PutMapping("/{id}")
-    public ResponseEntity<?> updateUser(
+    public ResponseEntity<Object> updateUser(
             @PathVariable Integer id,
             @RequestBody UpdateUserRequest request) {
         try {
@@ -83,7 +85,7 @@ public class AdminUserController {
             return ResponseEntity.ok(user);
         } catch (IllegalArgumentException e) {
             return ResponseEntity.badRequest()
-                .body(Map.of("message", e.getMessage()));
+                .body(new ApiResponse(e.getMessage()));
         }
     }
 
@@ -91,7 +93,7 @@ public class AdminUserController {
      * Désactive un compte utilisateur
      */
     @PostMapping("/{id}/deactivate")
-    public ResponseEntity<?> deactivateUser(
+    public ResponseEntity<Object> deactivateUser(
             @PathVariable Integer id,
             @Valid @RequestBody DeactivateUserRequest request) {
         try {
@@ -99,7 +101,7 @@ public class AdminUserController {
             return ResponseEntity.ok(user);
         } catch (IllegalArgumentException e) {
             return ResponseEntity.badRequest()
-                .body(Map.of("message", e.getMessage()));
+                .body(new ApiResponse(e.getMessage()));
         }
     }
 
@@ -107,13 +109,13 @@ public class AdminUserController {
      * Réactive un compte utilisateur
      */
     @PostMapping("/{id}/reactivate")
-    public ResponseEntity<?> reactivateUser(@PathVariable Integer id) {
+    public ResponseEntity<Object> reactivateUser(@PathVariable Integer id) {
         try {
             UserDto user = adminUserService.reactivateUser(id);
             return ResponseEntity.ok(user);
         } catch (IllegalArgumentException e) {
             return ResponseEntity.badRequest()
-                .body(Map.of("message", e.getMessage()));
+                .body(new ApiResponse(e.getMessage()));
         }
     }
 
@@ -121,16 +123,16 @@ public class AdminUserController {
      * Réinitialise le mot de passe d'un utilisateur
      */
     @PostMapping("/{id}/reset-password")
-    public ResponseEntity<?> resetPassword(@PathVariable Integer id) {
+    public ResponseEntity<Object> resetPassword(@PathVariable Integer id) {
         try {
             String tempPassword = adminUserService.resetPassword(id);
-            return ResponseEntity.ok(Map.of(
-                "message", "Mot de passe réinitialisé",
-                "temporaryPassword", tempPassword
+            return ResponseEntity.ok(new ResetPasswordResponse(
+                "Mot de passe réinitialisé",
+                tempPassword
             ));
         } catch (IllegalArgumentException e) {
             return ResponseEntity.badRequest()
-                .body(Map.of("message", e.getMessage()));
+                .body(new ApiResponse(e.getMessage()));
         }
     }
 }

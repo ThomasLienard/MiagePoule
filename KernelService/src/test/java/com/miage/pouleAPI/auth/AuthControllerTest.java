@@ -2,7 +2,6 @@ package com.miage.pouleAPI.auth;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.miage.pouleAPI.auth.dto.LoginRequest;
-import com.miage.pouleAPI.auth.dto.LoginResponse;
 import com.miage.pouleAPI.auth.dto.SignUpRequest;
 import com.miage.pouleAPI.auth.dto.SignUpResponse;
 import com.miage.pouleAPI.services.AdminUserService;

@@ -32,7 +32,14 @@ const authService = {
     // Inscription
     register: async (userData) => {
         try {
-            const response = await axios.post(`${API_BASE_URL}/auth/register`, userData, {
+            const response = await axios.post(`${API_BASE_URL}/auth/signup`, {
+                name: userData.firstName,
+                lastname: userData.lastName,
+                email: userData.email,
+                password: userData.password,
+                countryCode: userData.countryCode || 'FR',
+                roleName: 'SPECTATEUR'
+            }, {
                 headers: {
                     'Content-Type': 'application/json',
                     'Accept': 'application/json'
@@ -41,7 +48,7 @@ const authService = {
             return response.data;
         } catch (error) {
             if (error.response?.status === 400) {
-                throw new Error('Email déjà utilisé');
+                throw new Error(error.response?.data?.message || 'Email déjà utilisé');
             } else {
                 throw new Error("Erreur lors de l'inscription");
             }

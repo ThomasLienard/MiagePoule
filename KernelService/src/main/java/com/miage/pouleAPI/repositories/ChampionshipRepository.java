@@ -1,7 +1,6 @@
 package com.miage.pouleAPI.repositories;
 
 import com.miage.pouleAPI.entity.Championship;
-import com.miage.pouleAPI.entity.Competition;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
@@ -13,5 +12,5 @@ public interface ChampionshipRepository extends JpaRepository<Championship, Inte
 
     List<Championship> findAll();
     Optional<Championship> findById(Integer id);
-    Championship save (Championship competitionEntity);
+    Championship save (Championship championship);
 }

@@ -77,7 +77,7 @@ class AdminUserServiceMustChangePasswordTest {
             when(userRepository.save(any(ApplicationUser.class))).thenAnswer(i -> i.getArguments()[0]);
 
             // Act
-            CreateUserResponse response = adminUserService.createUser(request, "admin@example.com");
+            adminUserService.createUser(request, "admin@example.com");
 
             // Assert
             ArgumentCaptor<ApplicationUser> userCaptor = ArgumentCaptor.forClass(ApplicationUser.class);

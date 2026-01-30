@@ -15,12 +15,13 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
 import java.util.List;
-import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
 @Slf4j
 public class AdminUserService {
+
+    private static final String USER_NOT_FOUND = "Utilisateur non trouvé: ";
 
     private final ApplicationUserRepository userRepository;
     private final RoleRepository roleRepository;
@@ -95,7 +96,7 @@ public class AdminUserService {
     public List<UserDto> getAllUsers() {
         return userRepository.findAll().stream()
             .map(this::toUserDto)
-            .collect(Collectors.toList());
+            .toList();
     }
 
     /**
@@ -105,7 +106,7 @@ public class AdminUserService {
         return userRepository.findAll().stream()
             .filter(u -> u.getRole() != null && u.getRole().getRoleName().equals(roleName))
             .map(this::toUserDto)
-            .collect(Collectors.toList());
+            .toList();
     }
 
     /**
@@ -114,7 +115,7 @@ public class AdminUserService {
     public UserDto getUserById(Integer id) {
         return userRepository.findById(id)
             .map(this::toUserDto)
-            .orElseThrow(() -> new IllegalArgumentException("Utilisateur non trouvé: " + id));
+            .orElseThrow(() -> new IllegalArgumentException(USER_NOT_FOUND + id));
     }
 
     /**
@@ -123,7 +124,7 @@ public class AdminUserService {
     @Transactional
     public UserDto updateUser(Integer id, UpdateUserRequest request) {
         ApplicationUser user = userRepository.findById(id)
-            .orElseThrow(() -> new IllegalArgumentException("Utilisateur non trouvé: " + id));
+            .orElseThrow(() -> new IllegalArgumentException(USER_NOT_FOUND + id));
 
         if (request.name() != null && !request.name().isBlank()) {
             user.setName(request.name());
@@ -159,7 +160,7 @@ public class AdminUserService {
     @Transactional
     public UserDto deactivateUser(Integer id, String reason) {
         ApplicationUser user = userRepository.findById(id)
-            .orElseThrow(() -> new IllegalArgumentException("Utilisateur non trouvé: " + id));
+            .orElseThrow(() -> new IllegalArgumentException(USER_NOT_FOUND + id));
 
         // Empêcher la désactivation des comptes ADMIN
         if (user.getRole() != null && "ADMIN".equals(user.getRole().getRoleName())) {
@@ -181,7 +182,7 @@ public class AdminUserService {
     @Transactional
     public UserDto reactivateUser(Integer id) {
         ApplicationUser user = userRepository.findById(id)
-            .orElseThrow(() -> new IllegalArgumentException("Utilisateur non trouvé: " + id));
+            .orElseThrow(() -> new IllegalArgumentException(USER_NOT_FOUND + id));
 
         user.setIsActive(true);
         user.setDeactivatedAt(null);
@@ -200,7 +201,7 @@ public class AdminUserService {
         ApplicationUser user = userRepository.findByEmail(email)
             .orElseThrow(() -> new IllegalArgumentException("Utilisateur non trouvé"));
 
-        if (user.getIsAccountActivated()) {
+        if (Boolean.TRUE.equals(user.getIsAccountActivated())) {
             throw new IllegalStateException("Ce compte est déjà activé");
         }
 
@@ -218,7 +219,7 @@ public class AdminUserService {
     @Transactional
     public String resetPassword(Integer id) {
         ApplicationUser user = userRepository.findById(id)
-            .orElseThrow(() -> new IllegalArgumentException("Utilisateur non trouvé: " + id));
+            .orElseThrow(() -> new IllegalArgumentException(USER_NOT_FOUND + id));
 
         // Générer un nouveau mot de passe temporaire
         String tempPassword = (user.getLastname() + "." + user.getName()).toLowerCase()
@@ -241,9 +242,9 @@ public class AdminUserService {
             user.getEmail(),
             user.getRole() != null ? user.getRole().getRoleName() : null,
             user.getCountry() != null ? user.getCountry().getCode() : null,
-            user.getIsActive(),
-            user.getIsAccountActivated(),
-            user.getMustChangePassword(),
+            Boolean.TRUE.equals(user.getIsActive()),
+            Boolean.TRUE.equals(user.getIsAccountActivated()),
+            Boolean.TRUE.equals(user.getMustChangePassword()),
             user.getCreatedAt(),
             user.getCreatedBy(),
             user.getDeactivatedAt(),
