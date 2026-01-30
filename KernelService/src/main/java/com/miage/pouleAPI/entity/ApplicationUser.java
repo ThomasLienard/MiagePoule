@@ -1,5 +1,6 @@
 package com.miage.pouleAPI.entity;
 
+import java.time.LocalDateTime;
 import java.util.HashSet;
 import java.util.Set;
 
@@ -33,6 +34,28 @@ public class ApplicationUser {
 
     @Column(unique = true)
     private String email;
+
+    // Champs pour la gestion des comptes par l'admin
+    @Column(name = "is_active")
+    private Boolean isActive = true;
+
+    @Column(name = "is_account_activated")
+    private Boolean isAccountActivated = false;
+
+    @Column(name = "must_change_password")
+    private Boolean mustChangePassword = false;
+
+    @Column(name = "created_at")
+    private LocalDateTime createdAt;
+
+    @Column(name = "created_by")
+    private String createdBy;
+
+    @Column(name = "deactivated_at")
+    private LocalDateTime deactivatedAt;
+
+    @Column(name = "deactivation_reason")
+    private String deactivationReason;
 
     @ManyToOne
     @JoinColumn(name = "Country_code")
