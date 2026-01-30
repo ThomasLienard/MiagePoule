@@ -1,66 +1,37 @@
-import React, { useState } from 'react';
+import React from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Container, Card, Form, Button, Alert, Spinner } from 'react-bootstrap';
+import { Container, Card, Button, Alert } from 'react-bootstrap';
 import { useAuth } from '../../contexts/AuthContext';
 import adminUserService from '../../services/adminUserService';
+import usePasswordForm from '../../hooks/usePasswordForm';
+import PasswordForm from './PasswordForm';
+import SuccessCard from '../common/SuccessCard';
 
 const ChangePasswordPage = () => {
     const navigate = useNavigate();
     const { user, logout, clearMustChangePassword } = useAuth();
 
-    const [formData, setFormData] = useState({
-        newPassword: '',
-        confirmPassword: ''
-    });
-    const [error, setError] = useState(null);
-    const [success, setSuccess] = useState(false);
-    const [loading, setLoading] = useState(false);
-
-    const handleChange = (e) => {
-        const { name, value } = e.target;
-        setFormData(prev => ({
-            ...prev,
-            [name]: value
-        }));
+    const handlePasswordChange = async (newPassword) => {
+        await adminUserService.activateAccount(user.email, newPassword);
+        
+        // Mettre à jour le flag dans le contexte
+        if (clearMustChangePassword) {
+            clearMustChangePassword();
+        }
+        
+        setTimeout(() => {
+            navigate('/');
+        }, 2000);
     };
 
-    const handleSubmit = async (e) => {
-        e.preventDefault();
-        setError(null);
-
-        // Validation
-        if (!formData.newPassword) {
-            setError('Le mot de passe est requis');
-            return;
-        }
-        if (formData.newPassword.length < 6) {
-            setError('Le mot de passe doit contenir au moins 6 caractères');
-            return;
-        }
-        if (formData.newPassword !== formData.confirmPassword) {
-            setError('Les mots de passe ne correspondent pas');
-            return;
-        }
-
-        setLoading(true);
-        try {
-            await adminUserService.activateAccount(user.email, formData.newPassword);
-            setSuccess(true);
-            
-            // Mettre à jour le flag dans le contexte
-            if (clearMustChangePassword) {
-                clearMustChangePassword();
-            }
-            
-            setTimeout(() => {
-                navigate('/');
-            }, 2000);
-        } catch (err) {
-            setError(err.message);
-        } finally {
-            setLoading(false);
-        }
-    };
+    const {
+        formData,
+        error,
+        success,
+        loading,
+        handleChange,
+        handleSubmit
+    } = usePasswordForm(handlePasswordChange);
 
     const handleLogout = () => {
         logout();
@@ -88,21 +59,13 @@ const ChangePasswordPage = () => {
 
     if (success) {
         return (
-            <Container className="d-flex justify-content-center align-items-center" style={{ minHeight: '80vh' }}>
-                <Card className="text-center p-4" style={{ maxWidth: '500px' }}>
-                    <Card.Body>
-                        <h1 className="text-success">✅ Mot de passe modifié !</h1>
-                        <p>Votre mot de passe a été mis à jour avec succès.</p>
-                        <p className="text-muted">Vous allez être redirigé vers l'accueil...</p>
-                        <Button 
-                            variant="primary"
-                            onClick={() => navigate('/')}
-                        >
-                            Aller à l'accueil
-                        </Button>
-                    </Card.Body>
-                </Card>
-            </Container>
+            <SuccessCard
+                title="✅ Mot de passe modifié !"
+                message="Votre mot de passe a été mis à jour avec succès."
+                redirectMessage="Vous allez être redirigé vers l'accueil..."
+                buttonLabel="Aller à l'accueil"
+                onButtonClick={() => navigate('/')}
+            />
         );
     }
 
@@ -124,53 +87,23 @@ const ChangePasswordPage = () => {
                         <Alert variant="danger">{error}</Alert>
                     )}
 
-                    <Form onSubmit={handleSubmit}>
-                        <Form.Group className="mb-3">
-                            <Form.Label>Nouveau mot de passe</Form.Label>
-                            <Form.Control
-                                type="password"
-                                name="newPassword"
-                                value={formData.newPassword}
-                                onChange={handleChange}
-                                placeholder="Minimum 6 caractères"
-                                autoComplete="new-password"
-                            />
-                        </Form.Group>
+                    <PasswordForm
+                        formData={formData}
+                        handleChange={handleChange}
+                        handleSubmit={handleSubmit}
+                        loading={loading}
+                        submitLabel="Mettre à jour mon mot de passe"
+                        loadingLabel="Mise à jour en cours..."
+                    />
 
-                        <Form.Group className="mb-4">
-                            <Form.Label>Confirmer le mot de passe</Form.Label>
-                            <Form.Control
-                                type="password"
-                                name="confirmPassword"
-                                value={formData.confirmPassword}
-                                onChange={handleChange}
-                                placeholder="Retapez votre mot de passe"
-                                autoComplete="new-password"
-                            />
-                        </Form.Group>
-
-                        <div className="d-grid gap-2">
-                            <Button 
-                                type="submit" 
-                                variant="primary"
-                                disabled={loading}
-                            >
-                                {loading ? (
-                                    <>
-                                        <Spinner animation="border" size="sm" className="me-2" />
-                                        Mise à jour en cours...
-                                    </>
-                                ) : 'Mettre à jour mon mot de passe'}
-                            </Button>
-                            <Button 
-                                variant="outline-secondary"
-                                onClick={handleLogout}
-                                disabled={loading}
-                            >
-                                Se déconnecter
-                            </Button>
-                        </div>
-                    </Form>
+                    <Button 
+                        variant="outline-secondary"
+                        className="w-100 mt-2"
+                        onClick={handleLogout}
+                        disabled={loading}
+                    >
+                        Se déconnecter
+                    </Button>
                 </Card.Body>
             </Card>
         </Container>

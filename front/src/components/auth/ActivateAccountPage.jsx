@@ -1,64 +1,33 @@
-import React, { useState } from 'react';
+import React from 'react';
 import { useSearchParams, useNavigate } from 'react-router-dom';
-import { Container, Card, Form, Button, Alert, Spinner } from 'react-bootstrap';
+import { Container, Card, Alert } from 'react-bootstrap';
 import adminUserService from '../../services/adminUserService';
+import usePasswordForm from '../../hooks/usePasswordForm';
+import PasswordForm from './PasswordForm';
+import SuccessCard from '../common/SuccessCard';
 
 const ActivateAccountPage = () => {
     const [searchParams] = useSearchParams();
     const navigate = useNavigate();
     const email = searchParams.get('email');
 
-    const [formData, setFormData] = useState({
-        newPassword: '',
-        confirmPassword: ''
-    });
-    const [error, setError] = useState(null);
-    const [success, setSuccess] = useState(false);
-    const [loading, setLoading] = useState(false);
-
-    const handleChange = (e) => {
-        const { name, value } = e.target;
-        setFormData(prev => ({
-            ...prev,
-            [name]: value
-        }));
-    };
-
-    const handleSubmit = async (e) => {
-        e.preventDefault();
-        setError(null);
-
-        // Validation
-        if (!formData.newPassword) {
-            setError('Le mot de passe est requis');
-            return;
-        }
-        if (formData.newPassword.length < 6) {
-            setError('Le mot de passe doit contenir au moins 6 caractères');
-            return;
-        }
-        if (formData.newPassword !== formData.confirmPassword) {
-            setError('Les mots de passe ne correspondent pas');
-            return;
-        }
+    const submitAction = async (newPassword) => {
         if (!email) {
-            setError("Email manquant dans l'URL");
-            return;
+            throw new Error("Email manquant dans l'URL");
         }
-
-        setLoading(true);
-        try {
-            await adminUserService.activateAccount(email, formData.newPassword);
-            setSuccess(true);
-            setTimeout(() => {
-                navigate('/login');
-            }, 3000);
-        } catch (err) {
-            setError(err.message);
-        } finally {
-            setLoading(false);
-        }
+        await adminUserService.activateAccount(email, newPassword);
     };
+
+    const onSuccess = () => {
+        setTimeout(() => {
+            navigate('/login');
+        }, 3000);
+    };
+
+    const { formData, error, success, loading, handleChange, handleSubmit } = usePasswordForm(
+        submitAction,
+        onSuccess
+    );
 
     if (!email) {
         return (
@@ -76,21 +45,13 @@ const ActivateAccountPage = () => {
 
     if (success) {
         return (
-            <Container className="d-flex justify-content-center align-items-center" style={{ minHeight: '80vh' }}>
-                <Card className="text-center p-4" style={{ maxWidth: '500px' }}>
-                    <Card.Body>
-                        <h1 className="text-success">✅ Compte activé !</h1>
-                        <p>Votre compte a été activé avec succès.</p>
-                        <p className="text-muted">Vous allez être redirigé vers la page de connexion...</p>
-                        <Button 
-                            variant="primary"
-                            onClick={() => navigate('/login')}
-                        >
-                            Aller à la connexion
-                        </Button>
-                    </Card.Body>
-                </Card>
-            </Container>
+            <SuccessCard
+                title="✅ Compte activé !"
+                message="Votre compte a été activé avec succès."
+                redirectMessage="Vous allez être redirigé vers la page de connexion..."
+                buttonLabel="Aller à la connexion"
+                onButtonClick={() => navigate('/login')}
+            />
         );
     }
 
@@ -108,45 +69,14 @@ const ActivateAccountPage = () => {
                         <Alert variant="danger">{error}</Alert>
                     )}
 
-                    <Form onSubmit={handleSubmit}>
-                        <Form.Group className="mb-3">
-                            <Form.Label>Nouveau mot de passe</Form.Label>
-                            <Form.Control
-                                type="password"
-                                name="newPassword"
-                                value={formData.newPassword}
-                                onChange={handleChange}
-                                placeholder="Minimum 6 caractères"
-                                autoComplete="new-password"
-                            />
-                        </Form.Group>
-
-                        <Form.Group className="mb-4">
-                            <Form.Label>Confirmer le mot de passe</Form.Label>
-                            <Form.Control
-                                type="password"
-                                name="confirmPassword"
-                                value={formData.confirmPassword}
-                                onChange={handleChange}
-                                placeholder="Retapez votre mot de passe"
-                                autoComplete="new-password"
-                            />
-                        </Form.Group>
-
-                        <Button 
-                            type="submit" 
-                            variant="primary"
-                            className="w-100"
-                            disabled={loading}
-                        >
-                            {loading ? (
-                                <>
-                                    <Spinner animation="border" size="sm" className="me-2" />
-                                    Activation en cours...
-                                </>
-                            ) : 'Activer mon compte'}
-                        </Button>
-                    </Form>
+                    <PasswordForm
+                        formData={formData}
+                        handleChange={handleChange}
+                        handleSubmit={handleSubmit}
+                        loading={loading}
+                        submitLabel="Activer mon compte"
+                        loadingLabel="Activation en cours..."
+                    />
 
                     <Alert variant="info" className="mt-4">
                         ℹ️ Une fois votre compte activé, vous pourrez vous connecter avec votre email et votre nouveau mot de passe.

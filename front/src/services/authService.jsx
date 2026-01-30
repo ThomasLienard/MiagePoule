@@ -71,6 +71,7 @@ const authService = {
             const isExpired = payload.exp * 1000 < Date.now();
             return !isExpired;
         } catch (error) {
+            console.error('Error decoding token:', error);
             return false;
         }
     },
@@ -88,6 +89,7 @@ const authService = {
         try {
             return JSON.parse(userStr);
         } catch (error) {
+            console.error('Error parsing user data:', error);
             return null;
         }
     },
@@ -112,6 +114,7 @@ const authService = {
             const payload = JSON.parse(atob(token.split('.')[1]));
             return payload;
         } catch (error) {
+            console.error('Error decoding token:', error);
             return null;
         }
     }
@@ -137,7 +140,7 @@ axios.interceptors.response.use(
     (error) => {
         if (error.response?.status === 401 || error.response?.status === 403) {
             authService.logout();
-            window.location.href = '/login';
+            globalThis.location.href = '/login';
         }
         return Promise.reject(error);
     }
