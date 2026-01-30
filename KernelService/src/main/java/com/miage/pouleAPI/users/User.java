@@ -1,6 +1,8 @@
 package com.miage.pouleAPI.users;
 
+import com.miage.pouleAPI.dtos.NotificationDTO;
 import com.miage.pouleAPI.entity.Notification;
+import com.miage.pouleAPI.services.SseNotificationService;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -24,6 +26,7 @@ public class User implements Observer{
     private String email;
 
     private Set<Notification> notifications;
+    private SseNotificationService sseNotificationService;
 
     public Notification addNotification(Notification notification) {
         this.getNotifications().add(notification);
@@ -35,8 +38,13 @@ public class User implements Observer{
         return notification;
     }
 
+    // Dans ApplicationUser.update()
     @Override
     public void update(Notification notification) {
-        this.addNotification(notification);
+        this.notifications.add(notification);
+
+        // Pousse au front si connecté
+        sseNotificationService.sendNotification(this.getId(),
+                NotificationDTO.fromEntity(notification));
     }
 }
