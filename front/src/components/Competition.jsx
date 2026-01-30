@@ -1,68 +1,105 @@
 import React, {useEffect, useState} from "react";
-import {Link, useNavigate, useParams} from "react-router-dom";
+import {useNavigate, useParams} from "react-router-dom";
 import {getCompetitionById} from "../services/competitionService.jsx";
-import {Button, Card} from "react-bootstrap";
+import {eventService} from "../services/eventService.jsx";
+import TrialsAndEventsCard from "./TrialsAndEventsCard.jsx";
+import {isPastEvent} from "../utils/dateFormatter.js";
+import {Button} from "react-bootstrap";
 
 const Competition = () => {
-    const {id: championshipId, idComp} = useParams();
-    const [competition, setCompetition] = useState([]);
+    const {id: idChampionship, idComp: idCompetition} = useParams();
+    const [events, setEvents] = useState([]);
+    const [trials, setTrials] = useState([]);
+    const [competition, setCompetition] = useState(null);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
     const navigate = useNavigate();
 
+
     useEffect(() => {
-        const fetchCompetitions = async () => {
-            try {
-                const data = await getCompetitionById(championshipId, idComp);
-                setCompetition(data);
-            } catch (err) {
-                setError("Erreur lors du chargement des compétitions" + err);
-            } finally {
-                setLoading(false);
-            }
-        };
+        fetchAllData();
+    }, [idChampionship, idCompetition]);
 
-        fetchCompetitions();
-    }, [championshipId, idComp]);
+    const fetchAllData = async () => {
+        try {
+            setLoading(true);
+            const [eventsData, trialsData, competitionData] = await Promise.all([
+                eventService.getJustEventsByCompetition(idChampionship, idCompetition),
+                eventService.getTrialsByCompetition(idChampionship, idCompetition),
+                getCompetitionById(idChampionship, idCompetition)
+            ]);
 
-    if (loading) return <p>Chargement...</p>;
-    if (error) return <p>{error}</p>;
-    if (!competition) return <p>Aucune compétition disponible.</p>;
-    const {name, start, end, description} = competition;
+            const detailedEvents = await Promise.all(
+                eventsData.map(async (event) => {
+                    try {
+                        return await eventService.getById(event.id);
+                    } catch (error) {
+                        console.warn(`Failed to load details for event ${event.id}:`, error);
+                        return {...event, _isTrial: false};
+                    }
+                })
+            ).then(events => events.map(e => ({...e, _isTrial: false})));
+
+            const detailedTrials = await Promise.all(
+                trialsData.map(async (trial) => {
+                    try {
+                        const response = await fetch(`http://localhost:8084/public/trials/${trial.id}`);
+                        if (response.ok) {
+                            const detailed = await response.json();
+                            return {...detailed, idEvent: trial.idEvent, _isTrial: true};
+                        }
+                        return {...trial, _isTrial: true};
+                    } catch {
+                        return {...trial, _isTrial: true};
+                    }
+                })
+            );
+
+            setEvents(detailedEvents);
+            setTrials(detailedTrials);
+            setCompetition(competitionData)
+        } catch (err) {
+            console.error('Fetch error:', err);
+            setError(err.message);
+        } finally {
+            setLoading(false);
+        }
+    };
+
+    const pastTrials = () => trials.filter(trial => isPastEvent(trial))
+
+
+    const pastEvents = () => events.filter(event => isPastEvent(event))
+
+
+    const futurTrials = () => trials.filter(trial => !isPastEvent(trial))
+
+
+    const futurEvents = () => events.filter(event => !isPastEvent(event))
+
+    if (loading) return <div className="loading">Chargement des événements...</div>;
+    if (error) return <div className="error">Erreur: {error}</div>;
     return (
         <>
-            <div className="d-flex justify-content-center pt-2">
-                <Card className="p-3">
-                    <Card.Body>
-                        <Card.Title className="text-center" as="h3">{name}</Card.Title>
-                        <Card.Subtitle className="text-center text-body-tertiary">{description}</Card.Subtitle>
-                        <div className="d-flex justify-content-center">
-                            <hr style={{width: "3rem"}}/>
-                        </div>
-                        <Card.Text className="mt-2">
-                            <p><strong>Date de début:</strong> {formatDate(start)}</p>
-                            <p><strong>Date de fin:</strong> {formatDate(end)}</p>
-                            <Link to={`/public/championship/${championshipId}/comp/${idComp}/events`}>
-                                <Button variant="secondary">Voir les détails</Button>
-                            </Link>
-                        </Card.Text>
-                    </Card.Body>
-                </Card>
+            <h2 className="text-center">{competition.name}</h2>
+            <h5 className="text-center text-body-tertiary">{competition.description}</h5>
+            <div className="d-flex justify-content-center flex-md-row flex-column">
+                <div className="d-flex flex-column w-100 mx-md-3 p-3">
+                    <TrialsAndEventsCard trials={futurTrials()} events={futurEvents()} title={"A venir"}/>
+                </div>
+                <div className="vr d-none d-md-inline"></div>
+                <div className="d-flex flex-column w-100 mx-md-3 p-3">
+                    <TrialsAndEventsCard trials={pastTrials()} events={pastEvents()} title={"Passés"}/>
+                </div>
             </div>
-            <div className="d-flex justify-content-center pt-2">
-                <Button variant="outline-secondary" onClick={() => navigate(-1)}>
-                    ← Retour à la liste
-                </Button>
-            </div>
+            <Button onClick={() => navigate(-1)}
+                    variant="outline-secondary" className="m-2">
+                ← Retour
+            </Button>
         </>
 
     );
 };
-
-function formatDate(dateStr) {
-    const [year, month, day] = dateStr.split("-");
-    return `${day}/${month}/${year}`;
-}
 
 
 export default Competition;

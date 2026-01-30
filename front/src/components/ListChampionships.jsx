@@ -1,7 +1,7 @@
-import React, { useEffect, useState } from "react";
-import { Link } from "react-router-dom";
+import React, {useEffect, useState} from "react";
 import {getChampionships} from "../services/championshipService.jsx";
-import {Button, Card, Col, Row} from "react-bootstrap";
+import {Col, Container, Row} from "react-bootstrap";
+import Championship from "./Championship.jsx";
 
 
 const ListChampionships = () => {
@@ -29,35 +29,17 @@ const ListChampionships = () => {
     if (championships.length === 0) return <p>Aucun championnat disponible.</p>;
 
     return (
-        <Row>
-            {championships.map(championship => {
-                <Col>
-                    {/*TODO faire un composant Competition*/}
-                </Col>
-            })}
-        </Row>
-        // <div className="d-flex justify-content-center pt-2">
-        //     <Card className="p-3">
-        //         <Card.Body>
-        //             <Card.Title className="text-center" as="h3">Liste des championnats</Card.Title>
-        //             <div className="d-flex justify-content-center">
-        //                 <hr style={{width:"3rem"}}/>
-        //             </div>
-        //             <Card.Text>
-        //                 <div className="d-flex flex-column gap-3">
-        //                     {championships.map((c) => (
-        //                         <Card key={c.id} className="p-2">
-        //                             <Card.Title className="text-center mt-2">{c.name}</Card.Title>
-        //                             <Link to={`/public/championship/${c.id}/comp`} className="text-center mb-2">
-        //                                 <Button variant="secondary">Voir les détails</Button>
-        //                             </Link>
-        //                         </Card>
-        //                     ))}
-        //                 </div>
-        //             </Card.Text>
-        //         </Card.Body>
-        //     </Card>
-        // </div>
+        <Container>
+            <Row className="g-0">
+                {championships.map((championship) => (
+                    <Col xs={12} md={6} key={`championship-${championship.id}`} className="py-3">
+                        <Container>
+                            <Championship championship={championship}/>
+                        </Container>
+                    </Col>
+                ))}
+            </Row>
+        </Container>
     );
 };
 

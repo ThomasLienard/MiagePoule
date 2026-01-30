@@ -11,7 +11,7 @@ import {
     MAP_CONTAINER_STYLE
 } from '../../constants/mapSettings';
 import {Card, Col, Row, Spinner, Form, FloatingLabel} from "react-bootstrap";
-import {formatDate} from "../../utils/dateFormatter.js";
+import {formatDate, isPastEvent} from "../../utils/dateFormatter.js";
 
 const PublicMapPage = () => {
     const [events, setEvents] = useState([]);
@@ -177,18 +177,6 @@ const PublicMapPage = () => {
         return item.competitionName === selectedCompetition;
     };
 
-    const isPastEvent = (item) => {
-        const eventDate = item.timeSlot?.start || item.date || item.startDate;
-        if (!eventDate) return false;
-
-        const today = new Date();
-        today.setHours(0, 0, 0, 0);
-        
-        const itemDate = new Date(eventDate);
-        itemDate.setHours(0, 0, 0, 0);
-
-        return itemDate < today;
-    };
 
     const matchesPastEventFilter = (item) => {
         if (showPastEvents) return true; // Si ON, afficher tous les événements
@@ -366,12 +354,10 @@ const PublicMapPage = () => {
                                             <Card.Body className="text-center">
                                                 <Card.Title>{trial.name}</Card.Title>
                                                 <Card.Subtitle></Card.Subtitle>
-                                                <Card.Text>
-                                                    {trial.timeSlot?.start && (
-                                                        <span
-                                                            className="text-body-tertiary">{formatDate(trial.timeSlot.start, trial.timeSlot.end)}</span>
-                                                    )}
-                                                </Card.Text>
+                                                {trial.timeSlot?.start && (
+                                                    <span
+                                                        className="text-body-tertiary">{formatDate(trial.timeSlot.start, trial.timeSlot.end)}</span>
+                                                )}
                                             </Card.Body>
                                         </Card>
                                     ))}
@@ -399,12 +385,10 @@ const PublicMapPage = () => {
                                             <Card.Body className="text-center">
                                                 <Card.Title>{event.name}</Card.Title>
                                                 <Card.Subtitle></Card.Subtitle>
-                                                <Card.Text>
-                                                    {event.timeSlot?.start && (
-                                                        <span
-                                                            className="text-body-tertiary">{formatDate(event.timeSlot.start, event.timeSlot.end)}</span>
-                                                    )}
-                                                </Card.Text>
+                                                {event.timeSlot?.start && (
+                                                    <span
+                                                        className="text-body-tertiary">{formatDate(event.timeSlot.start, event.timeSlot.end)}</span>
+                                                )}
                                             </Card.Body>
                                         </Card>
                                     ))}
