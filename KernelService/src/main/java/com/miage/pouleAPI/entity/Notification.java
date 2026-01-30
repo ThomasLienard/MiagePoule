@@ -1,5 +1,6 @@
 package com.miage.pouleAPI.entity;
 
+import com.miage.pouleAPI.services.TypeNotification;
 import jakarta.persistence.*;
 import java.time.LocalDateTime;
 import java.util.HashSet;
@@ -40,9 +41,8 @@ public class Notification {
     @JoinColumn(name = "name_severity", nullable = false)
     private Severity severity;
 
-    @ManyToOne
-    @JoinColumn(name = "name_type_of_notification", nullable = false)
-    private TypeOfNotification type;
+    @Enumerated(EnumType.STRING)
+    private TypeNotification type;
 
     @ManyToMany(mappedBy = "notifications")
     private Set<ApplicationUser> users = new HashSet<>();
