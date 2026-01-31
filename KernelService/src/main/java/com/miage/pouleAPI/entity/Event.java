@@ -3,6 +3,7 @@ package com.miage.pouleAPI.entity;
 import java.util.HashSet;
 import java.util.Set;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
@@ -50,6 +51,7 @@ public class Event {
     private Competition competition;
 
     @ManyToMany(mappedBy = "events")
+    @JsonIgnore
     @JsonIgnoreProperties({"events", "geolocs", "teams", "dailyTasks", "notifications", "metrics", "password"})
     private Set<ApplicationUser> users = new HashSet<>();
 

@@ -3,6 +3,7 @@ package com.miage.pouleAPI.entity;
 import java.util.HashSet;
 import java.util.Set;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
@@ -51,6 +52,7 @@ public class ApplicationUser {
         inverseJoinColumns = @JoinColumn(name = "id_geoloc")
     )
     @JsonIgnoreProperties({"users", "hibernateLazyInitializer", "handler"})
+    @JsonIgnore
     private Set<Geoloc> geolocs = new HashSet<>();
 
     @ManyToMany
@@ -60,6 +62,7 @@ public class ApplicationUser {
         inverseJoinColumns = @JoinColumn(name = "id_event")
     )
     @JsonIgnoreProperties({"users", "tasks", "metrics", "hibernateLazyInitializer", "handler"})
+    @JsonIgnore
     private Set<Event> events = new HashSet<>();
 
     @ManyToMany
@@ -79,6 +82,7 @@ public class ApplicationUser {
     )
     @Column(name = "daily_tasks")
     @JsonIgnoreProperties({"events", "hibernateLazyInitializer", "handler"})
+    @JsonIgnore
     private Set<Task> dailyTasks = new HashSet<>();
 
     @ManyToMany
@@ -88,9 +92,11 @@ public class ApplicationUser {
         inverseJoinColumns = @JoinColumn(name = "id_notification")
     )
     @JsonIgnoreProperties({"hibernateLazyInitializer", "handler"})
+    @JsonIgnore
     private Set<Notification> notifications = new HashSet<>();
 
     @ManyToMany(mappedBy = "users")
     @JsonIgnoreProperties({"users", "metricsEvents", "hibernateLazyInitializer", "handler"})
+    @JsonIgnore
     private Set<Metrics> metrics = new HashSet<>();
 }

@@ -1,10 +1,12 @@
 package com.miage.pouleAPI.auth;
 
+import com.miage.pouleAPI.adapters.UserAdapter;
 import com.miage.pouleAPI.auth.dto.LoginRequest;
 import com.miage.pouleAPI.auth.dto.SignUpRequest;
 import com.miage.pouleAPI.auth.dto.SignUpResponse;
 import com.miage.pouleAPI.auth.jwt.JwtService;
 import com.miage.pouleAPI.auth.repository.ApplicationUserRepository;
+import com.miage.pouleAPI.dtos.profile.UpdateProfileRequestDTO;
 import com.miage.pouleAPI.entity.ApplicationUser;
 import com.miage.pouleAPI.entity.Country;
 import com.miage.pouleAPI.entity.Role;
@@ -43,6 +45,9 @@ class AuthServiceTest {
 
     @Mock
     private JwtService jwtService;
+
+    @Mock
+    private UserAdapter userAdapter;
 
     @InjectMocks
     private AuthService authService;
@@ -262,52 +267,16 @@ class AuthServiceTest {
     }
 
     @Test
-    void testUpdateProfile_Success_ProfileChangedAndAvailable() {
-        Integer userId = 1;
-        String newEmail = "new@mail.com";
+    void testUpdateProfile_WithMapStruct() {
+        UpdateProfileRequestDTO dto = new UpdateProfileRequestDTO();
+        dto.setName("Nouveau");
+        when(userRepo.findById(1)).thenReturn(Optional.of(testUser));
 
-        when(userRepo.findById(userId)).thenReturn(Optional.of(testUser));
-        when(userRepo.existsByEmail(newEmail)).thenReturn(false);
+        authService.updateProfile(1, dto);
 
-        Country newCountry = new Country();
-        newCountry.setCode("BE");
-
-        authService.updateProfile(userId, newEmail, "NewName", "NewLast", newCountry);
-
-        assertEquals(newEmail, testUser.getEmail());
-        assertEquals("NewName", testUser.getName());
-        assertEquals("NewLast", testUser.getLastname());
-        assertEquals(newCountry, testUser.getCountry());
-        verify(userRepo, times(1)).save(testUser);
-    }
-
-    @Test
-    void testUpdateProfile_Success_EmailUnchanged() {
-        Integer userId = 1;
-        String sameEmail = testUser.getEmail();
-
-        when(userRepo.findById(userId)).thenReturn(Optional.of(testUser));
-
-        authService.updateProfile(userId, sameEmail, "NewName", "NewLast", testCountry);
-
-        verify(userRepo, never()).existsByEmail(anyString());
-        assertEquals("NewName", testUser.getName());
-        assertEquals("NewLast", testUser.getLastname());
-        verify(userRepo, times(1)).save(testUser);
-    }
-
-    @Test
-    void testUpdateProfile_EmailAlreadyExists_ThrowsException() {
-        Integer userId = 1;
-        String takenEmail = "taken@mail.com";
-
-        when(userRepo.findById(userId)).thenReturn(Optional.of(testUser));
-        when(userRepo.existsByEmail(takenEmail)).thenReturn(true);
-        //si l'utilisateur veut changer son email par un email existant
-        assertThrows(IllegalArgumentException.class,
-                () -> authService.updateProfile(userId, takenEmail, "NewName", "NewLast", testCountry));
-
-        verify(userRepo, never()).save(any(ApplicationUser.class));
+        // On vérifie que le mapper a bien été appelé pour fusionner les données
+        verify(userAdapter).updateEntityFromDto(eq(dto), any(ApplicationUser.class));
+        verify(userRepo).save(any(ApplicationUser.class));
     }
 
     @Test
@@ -323,7 +292,7 @@ class AuthServiceTest {
         authService.changePassword(userId, currentPassword, newPassword);
 
         assertEquals("encodedNew", testUser.getPassword());
-        verify(userRepo, times(1)).save(testUser);
+        verify(userRepo).save(testUser);
     }
 
     @Test

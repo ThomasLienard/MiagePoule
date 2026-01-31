@@ -1,11 +1,12 @@
 package com.miage.pouleAPI.controllers;
 
+import com.miage.pouleAPI.adapters.UserAdapter;
 import com.miage.pouleAPI.auth.AuthService;
-import com.miage.pouleAPI.auth.jwt.JwtService;
 import com.miage.pouleAPI.auth.repository.ApplicationUserRepository;
-import com.miage.pouleAPI.dtos.profile.ApplicationUserProfileDTO;
+import com.miage.pouleAPI.dtos.profile.ChangePasswordRequestDTO;
+import com.miage.pouleAPI.dtos.profile.UpdateProfileRequestDTO;
+import com.miage.pouleAPI.dtos.profile.UserProfileResponseDTO;
 import com.miage.pouleAPI.entity.ApplicationUser;
-import com.miage.pouleAPI.repositories.CountryRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
@@ -17,36 +18,36 @@ import org.springframework.web.bind.annotation.*;
 public class ProfileController {
     private final AuthService authService;
     private final ApplicationUserRepository userRepo;
-    private final JwtService jwtService;
-    private final CountryRepository countryRepo;
-
+    private final UserAdapter userAdapter;
 
     @GetMapping
-    public ResponseEntity<ApplicationUser> getProfile(Authentication auth) {
-        String email = auth.getName();
-        ApplicationUser user = userRepo.findByEmail(email).orElseThrow();
-        return ResponseEntity.ok(user);
+    public ResponseEntity<UserProfileResponseDTO> getProfile(Authentication auth) {
+        return userRepo.findByEmail(auth.getName())
+                .map(userAdapter::toResponseDTO)
+                .map(ResponseEntity::ok)
+                .orElse(ResponseEntity.notFound().build());
     }
 
     @PutMapping("/settings")
-    public ResponseEntity<String> updateProfile(@RequestBody ApplicationUserProfileDTO dto, Authentication authentication) {
-        ApplicationUser user = userRepo.findByEmail(authentication.getName()).orElseThrow();
-        authService.updateProfile(
-                user.getId(),
-                dto.getEmail(),
-                dto.getName(),
-                dto.getLastname(),
-                dto.getCountry()
-        );
+    public ResponseEntity<UserProfileResponseDTO> updateProfile(
+            @RequestBody UpdateProfileRequestDTO dto,
+            Authentication auth) {
 
-        return ResponseEntity.ok("Updated");
+        ApplicationUser user = userRepo.findByEmail(auth.getName()).orElseThrow();
+
+        ApplicationUser updatedUser = authService.updateProfile(user.getId(), dto);
+
+        return ResponseEntity.ok(userAdapter.toResponseDTO(updatedUser));
     }
 
     @PutMapping("/password")
-    public ResponseEntity<String> changePassword(@RequestBody ApplicationUserProfileDTO req, Authentication auth) {
-        String email = auth.getName();
-        ApplicationUser user = userRepo.findByEmail(email).orElseThrow();
-        authService.changePassword(user.getId(), req.getCurrentPassword(), req.getNewPassword());
-        return ResponseEntity.ok("Password changed");
+    public ResponseEntity<Void> changePassword(
+            @RequestBody ChangePasswordRequestDTO dto,
+            Authentication auth) {
+
+        ApplicationUser user = userRepo.findByEmail(auth.getName()).orElseThrow();
+        authService.changePassword(user.getId(), dto.getCurrentPassword(), dto.getNewPassword());
+
+        return ResponseEntity.noContent().build(); // 204 pour un succès sans corps
     }
 }
