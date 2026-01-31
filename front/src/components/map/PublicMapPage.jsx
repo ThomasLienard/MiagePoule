@@ -1,7 +1,7 @@
 import React, {useState, useEffect, useCallback, useRef, useMemo} from 'react';
 import {useNavigate} from 'react-router-dom';
 import {GoogleMap, useJsApiLoader} from '@react-google-maps/api';
-import {fetchEventAndTrialsData} from '../../services/eventService';
+import {eventService} from '../../services/eventService';
 import EventInfoWindow from './EventInfoWindow.jsx';
 import ManualMarkerCluster from "./ManualMarkerCluster.jsx";
 import {
@@ -11,7 +11,7 @@ import {
     MAP_CONTAINER_STYLE
 } from '../../constants/mapSettings';
 import {Card, Col, Row, Spinner, Form, FloatingLabel} from "react-bootstrap";
-import {formatDate} from "../../utils/dateFormatter.js";
+import {formatDate, isPastEvent} from "../../utils/dateFormatter.js";
 
 const PublicMapPage = () => {
     const [events, setEvents] = useState([]);
@@ -21,6 +21,8 @@ const PublicMapPage = () => {
     const [searchTerm, setSearchTerm] = useState('');
     const [activeFilter, setActiveFilter] = useState('all');
     const [selectedDate, setSelectedDate] = useState('');
+    const [selectedCompetition, setSelectedCompetition] = useState('');
+    const [showPastEvents, setShowPastEvents] = useState(false);
     const [selectedEvent, setSelectedEvent] = useState(null);
     const navigate = useNavigate();
     const mapRef = useRef(null);
@@ -48,29 +50,21 @@ const PublicMapPage = () => {
     const fetchAllData = async () => {
         try {
             setLoading(true);
-            const {events: basicEvents, trials: basicTrials} = await fetchEventAndTrialsData();
-
-            const trialEventIds = new Set(
-                basicTrials
-                    .map(trial => trial.idEvent)
-                    .filter(id => id != null)
-            );
+            const [basicEvents, basicTrials] = await Promise.all([
+                eventService.getJustEvent(),
+                eventService.getTrials()
+            ]);
 
             const detailedEvents = await Promise.all(
                 basicEvents.map(async (event) => {
                     try {
-                        const response = await fetch(`http://localhost:8084/public/events/${event.id}`);
-                        if (response.ok) {
-                            const detailed = await response.json();
-                            return {...detailed, _isTrial: false};
-                        }
-                        return {...event, _isTrial: false};
-                    } catch {
+                        return await eventService.getById(event.id);
+                    } catch (error) {
+                        console.warn(`Failed to load details for event ${event.id}:`, error);
                         return {...event, _isTrial: false};
                     }
                 })
-            );
-
+            ).then(events => events.map(e => ({...e, _isTrial: false})));
 
             const detailedTrials = await Promise.all(
                 basicTrials.map(async (basicTrial) => {
@@ -87,10 +81,7 @@ const PublicMapPage = () => {
                 })
             );
 
-
-            const nonTrialEvents = detailedEvents.filter(event => !trialEventIds.has(event.id));
-
-            setEvents(nonTrialEvents);
+            setEvents(detailedEvents);
             setTrials(detailedTrials);
         } catch (err) {
             setError(err.message);
@@ -171,18 +162,33 @@ const PublicMapPage = () => {
         return itemDateStr === selectedDate;
     };
 
+    const matchesCompetitionFilter = (item) => {
+        if (!selectedCompetition) return true;
+        return item.competitionName === selectedCompetition;
+    };
+
+
+    const matchesPastEventFilter = (item) => {
+        if (showPastEvents) return true; // Si ON, afficher tous les événements
+        return !isPastEvent(item); // Si OFF, cacher les événements passés
+    };
+
     const filteredTrials = trials.filter(trial => {
         const matchesSearch = trial.name?.toLowerCase().includes(searchTerm.toLowerCase()) ||
             trial.description?.toLowerCase().includes(searchTerm.toLowerCase());
         const matchesDate = matchesDateFilter(trial);
-        return matchesSearch && matchesDate;
+        const matchesCompetition = matchesCompetitionFilter(trial);
+        const matchesPastFilter = matchesPastEventFilter(trial);
+        return matchesSearch && matchesDate && matchesCompetition && matchesPastFilter;
     });
 
     const filteredEvents = events.filter(event => {
         const matchesSearch = event.name?.toLowerCase().includes(searchTerm.toLowerCase()) ||
             event.description?.toLowerCase().includes(searchTerm.toLowerCase());
         const matchesDate = matchesDateFilter(event);
-        return matchesSearch && matchesDate;
+        const matchesCompetition = matchesCompetitionFilter(event);
+        const matchesPastFilter = matchesPastEventFilter(event);
+        return matchesSearch && matchesDate && matchesCompetition && matchesPastFilter;
     });
 
     const getDisplayedItems = () => {
@@ -281,7 +287,25 @@ const PublicMapPage = () => {
                                     label="🏅 Évènements passés"
                                     type="switch"
                                     name="typeFilter"
+                                    checked={showPastEvents}
+                                    onChange={(e) => setShowPastEvents(e.target.checked)}
                                 />
+                            </Card.Body>
+                        </Card>
+                        <Card>
+                            <Card.Body>
+                                <Form.Select
+                                    value={selectedCompetition}
+                                    onChange={(e) => setSelectedCompetition(e.target.value)}
+                                    size="sm"
+                                >
+                                    <option value="">🏆 Toutes les compétitions</option>
+                                    {competitionNames.map((name) => (
+                                        <option key={name} value={name}>
+                                            {name}
+                                        </option>
+                                    ))}
+                                </Form.Select>
                             </Card.Body>
                         </Card>
                     </div>
@@ -315,17 +339,15 @@ const PublicMapPage = () => {
                                             onClick={() => handleEventClick(trial)}
                                             onMouseEnter={() => handleEventHover(trial)}
                                             style={{cursor: "pointer"}}
-                                            className="mb-1"
+                                            className={`mb-1 ${isPastEvent(trial) ? 'bg-light text-muted' : ''}`}
                                         >
                                             <Card.Body className="text-center">
                                                 <Card.Title>{trial.name}</Card.Title>
                                                 <Card.Subtitle></Card.Subtitle>
-                                                <Card.Text>
-                                                    {trial.timeSlot?.start && (
-                                                        <span
-                                                            className="text-body-tertiary">{formatDate(trial.timeSlot.start, trial.timeSlot.end)}</span>
-                                                    )}
-                                                </Card.Text>
+                                                {trial.timeSlot?.start && (
+                                                    <span
+                                                        className="text-body-tertiary">{formatDate(trial.timeSlot.start, trial.timeSlot.end)}</span>
+                                                )}
                                             </Card.Body>
                                         </Card>
                                     ))}
@@ -348,17 +370,15 @@ const PublicMapPage = () => {
                                             onClick={() => handleEventClick(event)}
                                             onMouseEnter={() => handleEventHover(event)}
                                             style={{cursor: "pointer"}}
-                                            className="mb-1"
+                                            className={`mb-1 ${isPastEvent(event) ? 'bg-light text-muted' : ''}`}
                                         >
                                             <Card.Body className="text-center">
                                                 <Card.Title>{event.name}</Card.Title>
                                                 <Card.Subtitle></Card.Subtitle>
-                                                <Card.Text>
-                                                    {event.timeSlot?.start && (
-                                                        <span
-                                                            className="text-body-tertiary">{formatDate(event.timeSlot.start, event.timeSlot.end)}</span>
-                                                    )}
-                                                </Card.Text>
+                                                {event.timeSlot?.start && (
+                                                    <span
+                                                        className="text-body-tertiary">{formatDate(event.timeSlot.start, event.timeSlot.end)}</span>
+                                                )}
                                             </Card.Body>
                                         </Card>
                                     ))}

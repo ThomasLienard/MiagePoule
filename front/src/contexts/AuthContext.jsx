@@ -14,6 +14,7 @@ export const useAuth = () => {
 export const AuthProvider = ({ children }) => {
     const [user, setUser] = useState(null);
     const [loading, setLoading] = useState(true);
+    const [mustChangePassword, setMustChangePassword] = useState(false);
 
     useEffect(() => {
         // Vérifier l'authentification au chargement
@@ -21,6 +22,11 @@ export const AuthProvider = ({ children }) => {
             if (authService.isAuthenticated()) {
                 const userData = authService.getUser();
                 setUser(userData);
+                // Vérifier si l'utilisateur doit changer son mot de passe
+                const storedMustChange = localStorage.getItem('mustChangePassword');
+                if (storedMustChange === 'true') {
+                    setMustChangePassword(true);
+                }
             }
             setLoading(false);
         };
@@ -45,7 +51,15 @@ export const AuthProvider = ({ children }) => {
             localStorage.setItem('user', JSON.stringify(userData));
 
             setUser(userData);
-            return { success: true };
+            
+            // Gérer le changement de mot de passe obligatoire
+            if (response.mustChangePassword) {
+                localStorage.setItem('mustChangePassword', 'true');
+                setMustChangePassword(true);
+                return { success: true, mustChangePassword: true };
+            }
+            
+            return { success: true, mustChangePassword: false };
         } catch (error) {
             return { success: false, message: error.message };
         }
@@ -83,16 +97,25 @@ export const AuthProvider = ({ children }) => {
 
     const logout = () => {
         authService.logout();
+        localStorage.removeItem('mustChangePassword');
         setUser(null);
+        setMustChangePassword(false);
         window.location.href = '/login';
+    };
+
+    const clearMustChangePassword = () => {
+        localStorage.removeItem('mustChangePassword');
+        setMustChangePassword(false);
     };
 
     const value = {
         user,
         loading,
+        mustChangePassword,
         login,
         register,
         logout,
+        clearMustChangePassword,
         isAuthenticated: authService.isAuthenticated,
         hasRole: authService.hasRole,
         hasAnyRole: authService.hasAnyRole

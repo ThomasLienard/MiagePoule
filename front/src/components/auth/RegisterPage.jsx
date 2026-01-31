@@ -30,7 +30,6 @@ const RegisterPage = () => {
         e.preventDefault();
         setError('');
         setSuccess('');
-        console.log(formData);
 
         // Validation
         if (formData.password !== formData.confirmPassword) {
@@ -75,7 +74,6 @@ const RegisterPage = () => {
                     <div className="d-flex justify-content-center">
                         <hr style={{width: "16rem"}}/>
                     </div>
-                    <Card.Text>
                     {error && (
                         <div>
                             {error}
@@ -147,7 +145,6 @@ const RegisterPage = () => {
                             </Button>
                         </div>
                     </Form>
-
                     <div className="auth-footer">
                         <p className="auth-link-text">
                             Déjà un compte ?{' '}
@@ -156,7 +153,6 @@ const RegisterPage = () => {
                             </Link>
                         </p>
                     </div>
-                    </Card.Text>
                 </Card.Body>
             </Card>
         </div>

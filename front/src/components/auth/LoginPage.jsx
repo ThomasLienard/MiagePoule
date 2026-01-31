@@ -20,7 +20,12 @@ const LoginPage = () => {
         const result = await login(email, password);
 
         if (result.success) {
-            navigate('/');
+            // Rediriger vers la page de changement de mot de passe si nécessaire
+            if (result.mustChangePassword) {
+                navigate('/change-password');
+            } else {
+                navigate('/');
+            }
         } else {
             setError(result.message);
         }
@@ -37,7 +42,6 @@ const LoginPage = () => {
                     <div className="d-flex justify-content-center">
                         <hr style={{width: "16rem"}}/>
                     </div>
-                    <Card.Text>
 
                 {error && (
                     <div className="auth-error">
@@ -82,7 +86,6 @@ const LoginPage = () => {
                         </Link>
                     </p>
                 </div>
-                    </Card.Text>
                 </Card.Body>
             </Card>
         </div>
