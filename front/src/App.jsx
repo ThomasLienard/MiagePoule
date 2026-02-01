@@ -14,6 +14,7 @@ import ListeEvenementsParCompetition from './components/ListeEvenementsParCompet
 import EventDetails from './components/EventDetails';
 import Layout from "./components/layout/Layout.jsx";
 import Profile from "./components/profile/Profile.jsx";
+import PrivacySettings from "./components/profile/PrivacySettings.jsx";
 
 function App() {
 
@@ -40,6 +41,11 @@ function App() {
                             <Route path="/account" element={
                                 <ProtectedRoute>
                                     <Profile />
+                                </ProtectedRoute>
+                            } />
+                            <Route path="/privacy" element={
+                                <ProtectedRoute>
+                                    <PrivacySettings />
                                 </ProtectedRoute>
                             } />
 

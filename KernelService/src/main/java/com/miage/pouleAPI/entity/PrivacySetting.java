@@ -1,0 +1,31 @@
+package com.miage.pouleAPI.entity;
+
+import jakarta.persistence.*;
+import lombok.AllArgsConstructor;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
+
+@Entity
+@Getter
+@Setter
+@NoArgsConstructor
+@AllArgsConstructor
+public class PrivacySetting {
+
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Long id;
+
+    @ManyToOne
+    @JoinColumn(name = "user_id")
+    private ApplicationUser user;
+
+    @Enumerated(EnumType.STRING)
+    private DataCategory category;
+
+    private boolean enabled;
+
+    public PrivacySetting(ApplicationUser user, DataCategory cat, boolean enabled) {
+    }
+}
