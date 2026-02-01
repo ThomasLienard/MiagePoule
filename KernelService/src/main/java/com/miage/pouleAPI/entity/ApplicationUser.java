@@ -116,4 +116,8 @@ public class ApplicationUser {
     @ManyToMany(mappedBy = "users")
     @JsonIgnoreProperties({"users", "metricsEvents", "hibernateLazyInitializer", "handler"})
     private Set<Metrics> metrics = new HashSet<>();
+
+    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL)
+    @JsonIgnoreProperties({"user", "hibernateLazyInitializer", "handler"})
+    private Set<Document> documents = new HashSet<>();
 }

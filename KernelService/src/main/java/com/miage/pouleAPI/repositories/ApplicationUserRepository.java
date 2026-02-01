@@ -1,11 +1,13 @@
-package com.miage.pouleAPI.auth.repository;
+package com.miage.pouleAPI.repositories;
 
 import com.miage.pouleAPI.entity.ApplicationUser;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
+import org.springframework.stereotype.Repository;
 
 import java.util.Optional;
 
+@Repository
 public interface ApplicationUserRepository extends JpaRepository<ApplicationUser, Integer> {
     Optional<ApplicationUser> findByEmail(String email);
 
@@ -13,4 +15,5 @@ public interface ApplicationUserRepository extends JpaRepository<ApplicationUser
     Integer findMaxId();
 
     boolean existsByEmail(String email);
+    Optional<ApplicationUser> findByIdAndIsActiveTrue(Integer id);
 }

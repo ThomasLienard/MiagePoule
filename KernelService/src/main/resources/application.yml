@@ -1,6 +1,6 @@
 spring:
   datasource:
-    url: jdbc:postgresql://postgres:5432/miagepoule
+    url: jdbc:postgresql://localhost:5433/miagepoule
     username: miageuser
     password: miagepassword
     driver-class-name: org.postgresql.Driver
@@ -12,6 +12,9 @@ spring:
       hibernate:
         dialect: org.hibernate.dialect.PostgreSQLDialect
         format_sql: true
+        jdbc:
+          lob:
+            non_contextual_creation: true
     defer-datasource-initialization: true
     show-sql: true
 
@@ -20,6 +23,14 @@ spring:
       mode: always
       continue-on-error: true
 
+  servlet:
+    multipart:
+      max-file-size: 10MB
+      max-request-size: 10MB
+
+  main:
+    allow-bean-definition-overriding: true
+
 server:
   port: 8082
 
@@ -27,3 +38,13 @@ security:
   jwt:
     secret: votreTresLongSecretQuiFaitPlusDe32CaracteresPourJWT256bits12345
     expiration-ms : 3600000
+
+app:
+  encryption:
+    enabled: true
+    master-key: "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA"
+
+  storage:
+    max-file-size: 10485760 # 10MB
+    allowed-content-types: application/pdf
+    max-documents-per-user: 50

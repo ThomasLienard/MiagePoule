@@ -14,6 +14,7 @@ import ListChampionships from "./components/ListChampionships.jsx";
 import PublicMapPage from './components/map/PublicMapPage';
 import TrialsAndEventsDetails from './components/TrialsAndEventsDetails.jsx';
 import Layout from "./components/layout/Layout.jsx";
+import TicketsPage from './components/tickets/TicketsPage.jsx';
 
 function App() {
 
@@ -48,6 +49,12 @@ function App() {
                                 <ProtectedRoute>
                                     {/* Composant Profile à créer */}
                                     <div>Profil utilisateur</div>
+                                </ProtectedRoute>
+                            } />
+
+                            <Route path="/tickets" element={
+                                <ProtectedRoute>
+                                    <TicketsPage />
                                 </ProtectedRoute>
                             } />
 
