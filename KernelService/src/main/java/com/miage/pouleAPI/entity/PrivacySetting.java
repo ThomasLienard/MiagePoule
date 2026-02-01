@@ -17,13 +17,15 @@ public class PrivacySetting {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @ManyToOne
-    @JoinColumn(name = "user_id")
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "user_id", nullable = false)
     private ApplicationUser user;
 
     @Enumerated(EnumType.STRING)
+    @Column(name = "category", nullable = false)
     private DataCategory category;
 
+    @Column(name = "enabled", nullable = false)
     private boolean enabled;
 
     public PrivacySetting(ApplicationUser user, DataCategory cat, boolean enabled) {

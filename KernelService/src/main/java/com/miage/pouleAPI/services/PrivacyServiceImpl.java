@@ -56,7 +56,12 @@ public class PrivacyServiceImpl implements PrivacyService {
                 .orElseThrow(() -> new RuntimeException("Utilisateur non trouvé"));
 
         PrivacySetting setting = privacyRepo.findByUserIdAndCategory(userId, cat)
-                .orElse(new PrivacySetting(user, cat, enabled));
+                .orElseGet(() -> {
+                    PrivacySetting newSetting = new PrivacySetting();
+                    newSetting.setUser(user);
+                    newSetting.setCategory(cat);
+                    return newSetting;
+                });
 
         setting.setEnabled(enabled);
         privacyRepo.save(setting);

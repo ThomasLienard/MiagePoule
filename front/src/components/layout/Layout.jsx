@@ -14,12 +14,13 @@ export default function Layout() {
         return <Navigate to="/change-password" replace />;
     }
 
-    const handleLogout = () => {
+    const handleLogout = (e) => {
+        e.preventDefault();
         logout();
         navigate('/');
     };
     const handleProfile = () => {
-        navigate('/profile');
+        navigate('/account');
     };
     return (
         <>
@@ -51,10 +52,14 @@ export default function Layout() {
                                     >Déconnexion</Link>
                                 </Nav.Link>
                                 <Nav.Link className="auth-button secondary me-2" as="span">
-                                    <Link to="/profile"
+                                    <Link to="/account"
                                           className="text-decoration-none text-body-secondary"
                                           onClick={handleProfile}
-                                    >Profile</Link>
+                                    >Profil</Link>
+                                </Nav.Link>
+                                <Nav.Link className="auth-button secondary me-2" as="span">
+                                    <Link to="/privacy"
+                                          className="text-decoration-none text-body-secondary">Confidentialité</Link>
                                 </Nav.Link>
                             </Nav>
                         ) : (
