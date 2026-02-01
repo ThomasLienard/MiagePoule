@@ -7,6 +7,8 @@ import com.miage.pouleAPI.auth.dto.SignUpResponse;
 import com.miage.pouleAPI.auth.jwt.JwtService;
 import com.miage.pouleAPI.auth.repository.ApplicationUserRepository;
 import com.miage.pouleAPI.dtos.profile.UpdateProfileRequestDTO;
+import com.miage.pouleAPI.dtos.profile.UpdateProfileResponse;
+import com.miage.pouleAPI.dtos.profile.UserProfileResponseDTO;
 import com.miage.pouleAPI.entity.ApplicationUser;
 import com.miage.pouleAPI.entity.Country;
 import com.miage.pouleAPI.entity.Role;
@@ -277,6 +279,110 @@ class AuthServiceTest {
         // On vérifie que le mapper a bien été appelé pour fusionner les données
         verify(userAdapter).updateEntityFromDto(eq(dto), any(ApplicationUser.class));
         verify(userRepo).save(any(ApplicationUser.class));
+    }
+
+    @Test
+    void updateProfile_ShouldUpdateNameEmailAndCountry_AndReturnNewToken() {
+        Integer userId = 1;
+
+        Role userRole = new Role();
+        userRole.setRoleName("USER");
+
+        ApplicationUser existingUser = new ApplicationUser();
+        existingUser.setId(userId);
+        existingUser.setName("AncienNom");
+        existingUser.setEmail("ancien@mail.com");
+        existingUser.setRole(userRole);
+
+        UpdateProfileRequestDTO dto = new UpdateProfileRequestDTO();
+        dto.setName("NouveauNom");
+        dto.setEmail("nouveau@mail.com");
+        dto.setCountryCode("FR");
+
+        Country mockCountry = new Country();
+        mockCountry.setCode("FR");
+
+        UserProfileResponseDTO mockResponseDTO = new UserProfileResponseDTO();
+        mockResponseDTO.setEmail("nouveau@mail.com");
+
+        when(userRepo.findById(userId)).thenReturn(Optional.of(existingUser));
+        when(userRepo.findByEmail("nouveau@mail.com")).thenReturn(Optional.empty()); // Email libre
+        when(countryRepository.findById("FR")).thenReturn(Optional.of(mockCountry));
+        when(jwtService.generateToken(any(), any(), any())).thenReturn("nouveau.jwt.token");
+        when(userAdapter.toResponseDTO(any(ApplicationUser.class))).thenReturn(mockResponseDTO);
+        when(userRepo.save(any(ApplicationUser.class))).thenAnswer(i -> i.getArguments()[0]);
+
+        UpdateProfileResponse response = authService.updateProfile(userId, dto);
+
+        verify(userAdapter).updateEntityFromDto(dto, existingUser);
+
+        assertEquals("nouveau@mail.com", existingUser.getEmail());
+
+        assertEquals("FR", existingUser.getCountry().getCode());
+
+        assertNotNull(response);
+        assertEquals("nouveau.jwt.token", response.token());
+        assertEquals("nouveau@mail.com", response.user().getEmail());
+
+        verify(userRepo).save(existingUser);
+        verify(jwtService).generateToken(eq(userId), eq("nouveau@mail.com"), eq("USER"));
+    }
+
+    @Test
+    void updateProfile_ShouldThrowException_WhenEmailAlreadyExists() {
+        Integer userId = 1;
+        ApplicationUser existingUser = new ApplicationUser();
+        existingUser.setId(userId);
+        existingUser.setEmail("old@test.com");
+
+        UpdateProfileRequestDTO dto = new UpdateProfileRequestDTO();
+        dto.setEmail("taken@test.com");
+
+        when(userRepo.findById(userId)).thenReturn(Optional.of(existingUser));
+        // On simule qu'un AUTRE utilisateur possède déjà cet email
+        when(userRepo.findByEmail("taken@test.com")).thenReturn(Optional.of(new ApplicationUser()));
+
+        IllegalArgumentException ex = assertThrows(IllegalArgumentException.class, () -> {
+            authService.updateProfile(userId, dto);
+        });
+
+        assertEquals("Email incorrect", ex.getMessage());
+    }
+
+    @Test
+    void updateProfile_ShouldReturnNewToken_WhenEmailIsUpdated() {
+        Integer userId = 1;
+        ApplicationUser user = new ApplicationUser();
+        user.setId(userId);
+        user.setEmail("old@test.com");
+        user.setRole(new Role("USER"));
+
+        UpdateProfileRequestDTO dto = new UpdateProfileRequestDTO();
+        dto.setEmail("new@test.com");
+
+        when(userRepo.findById(userId)).thenReturn(Optional.of(user));
+        when(userRepo.findByEmail("new@test.com")).thenReturn(Optional.empty());
+        when(jwtService.generateToken(any(), any(), any())).thenReturn("new.jwt.token");
+        when(userAdapter.toResponseDTO(any())).thenReturn(new UserProfileResponseDTO());
+
+        UpdateProfileResponse response = authService.updateProfile(userId, dto);
+
+        assertEquals("new.jwt.token", response.token());
+        verify(jwtService).generateToken(eq(userId), eq("new@test.com"), any());
+    }
+
+    @Test
+    void updateProfile_ShouldThrowException_WhenCountryNotFound() {
+        Integer userId = 1;
+        UpdateProfileRequestDTO dto = new UpdateProfileRequestDTO();
+        dto.setCountryCode("INVALID");
+
+        when(userRepo.findById(userId)).thenReturn(Optional.of(new ApplicationUser()));
+        when(countryRepository.findById("INVALID")).thenReturn(Optional.empty());
+
+        assertThrows(IllegalArgumentException.class, () -> {
+            authService.updateProfile(userId, dto);
+        });
     }
 
     @Test

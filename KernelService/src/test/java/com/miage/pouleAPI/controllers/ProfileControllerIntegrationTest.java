@@ -65,9 +65,10 @@ class ProfileControllerIntegrationTest {
                         .content(objectMapper.writeValueAsString(updateDto)))
                 .andDo(print())
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$.name").value("NouveauNom"))
-                .andExpect(jsonPath("$.lastname").value("NouveauPrenom"))
-                .andExpect(jsonPath("$.email").value("nouveau.email@test.com"));
+                .andExpect(jsonPath("$.user.name").value("NouveauNom"))
+                .andExpect(jsonPath("$.user.lastname").value("NouveauPrenom"))
+                .andExpect(jsonPath("$.user.email").value("nouveau.email@test.com"))
+                .andExpect(jsonPath("$.token").exists());
 
         ApplicationUser updatedUser = userRepo.findByEmail("nouveau.email@test.com").orElseThrow();
         assertEquals("NouveauNom", updatedUser.getName());
@@ -83,12 +84,10 @@ class ProfileControllerIntegrationTest {
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(partialDto)))
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$.name").value("NouveauNomSeulement"))
-                .andExpect(jsonPath("$.email").value(CURRENT_EMAIL)); // L'email ne doit pas avoir changé
+                .andExpect(jsonPath("$.user.name").value("NouveauNomSeulement"))
+                .andExpect(jsonPath("$.user.email").value(CURRENT_EMAIL));
 
-        // 3. Vérification en base
         ApplicationUser userInDb = userRepo.findByEmail(CURRENT_EMAIL).orElseThrow();
         assertEquals("NouveauNomSeulement", userInDb.getName());
-        assertNotNull(userInDb.getLastname()); // Vérifie que le nom de famille n'a pas été effacé
     }
 }

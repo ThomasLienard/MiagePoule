@@ -5,6 +5,7 @@ import com.miage.pouleAPI.auth.AuthService;
 import com.miage.pouleAPI.auth.repository.ApplicationUserRepository;
 import com.miage.pouleAPI.dtos.profile.ChangePasswordRequestDTO;
 import com.miage.pouleAPI.dtos.profile.UpdateProfileRequestDTO;
+import com.miage.pouleAPI.dtos.profile.UpdateProfileResponse;
 import com.miage.pouleAPI.dtos.profile.UserProfileResponseDTO;
 import com.miage.pouleAPI.entity.ApplicationUser;
 import lombok.RequiredArgsConstructor;
@@ -29,15 +30,16 @@ public class ProfileController {
     }
 
     @PutMapping("/settings")
-    public ResponseEntity<UserProfileResponseDTO> updateProfile(
+    public ResponseEntity<UpdateProfileResponse> updateProfile(
             @RequestBody UpdateProfileRequestDTO dto,
             Authentication auth) {
 
-        ApplicationUser user = userRepo.findByEmail(auth.getName()).orElseThrow();
+        ApplicationUser user = userRepo.findByEmail(auth.getName())
+                .orElseThrow(() -> new RuntimeException("Utilisateur non trouvé"));
 
-        ApplicationUser updatedUser = authService.updateProfile(user.getId(), dto);
+        UpdateProfileResponse response = authService.updateProfile(user.getId(), dto);
 
-        return ResponseEntity.ok(userAdapter.toResponseDTO(updatedUser));
+        return ResponseEntity.ok(response);
     }
 
     @PutMapping("/password")

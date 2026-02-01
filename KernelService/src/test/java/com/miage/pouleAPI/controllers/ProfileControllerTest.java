@@ -4,6 +4,7 @@ import com.miage.pouleAPI.adapters.UserAdapter;
 import com.miage.pouleAPI.auth.AuthService;
 import com.miage.pouleAPI.auth.repository.ApplicationUserRepository;
 import com.miage.pouleAPI.dtos.profile.UpdateProfileRequestDTO;
+import com.miage.pouleAPI.dtos.profile.UpdateProfileResponse;
 import com.miage.pouleAPI.dtos.profile.UserProfileResponseDTO;
 import com.miage.pouleAPI.entity.ApplicationUser;
 import org.junit.jupiter.api.BeforeEach;
@@ -56,21 +57,26 @@ class ProfileControllerTest {
     }
 
     @Test
-    void updateProfile_ShouldCallServiceWithDto() {
+    void updateProfile_ShouldCallServiceAndReturnNewToken() {
         UpdateProfileRequestDTO requestDto = new UpdateProfileRequestDTO();
         requestDto.setEmail("new@mail.com");
 
-        UserProfileResponseDTO responseDto = new UserProfileResponseDTO();
-        responseDto.setEmail("new@mail.com");
+        UserProfileResponseDTO userResponseDto = new UserProfileResponseDTO();
+        userResponseDto.setEmail("new@mail.com");
+
+        UpdateProfileResponse serviceResponse = new UpdateProfileResponse(userResponseDto, "new.jwt.token");
 
         when(authentication.getName()).thenReturn("test@miage.fr");
         when(userRepo.findByEmail("test@miage.fr")).thenReturn(Optional.of(mockUser));
-        when(authService.updateProfile(eq(1), any(UpdateProfileRequestDTO.class))).thenReturn(mockUser);
-        when(userAdapter.toResponseDTO(mockUser)).thenReturn(responseDto);
+        when(authService.updateProfile(eq(1), any(UpdateProfileRequestDTO.class))).thenReturn(serviceResponse);
 
-        ResponseEntity<UserProfileResponseDTO> response = profileController.updateProfile(requestDto, authentication);
+        ResponseEntity<UpdateProfileResponse> response = profileController.updateProfile(requestDto, authentication);
 
         verify(authService).updateProfile(eq(1), any(UpdateProfileRequestDTO.class));
-        assertEquals("new@mail.com", response.getBody().getEmail());
+
+        assertNotNull(response.getBody());
+        assertEquals(200, response.getStatusCode().value());
+        assertEquals("new@mail.com", response.getBody().user().getEmail());
+        assertEquals("new.jwt.token", response.getBody().token());
     }
 }
