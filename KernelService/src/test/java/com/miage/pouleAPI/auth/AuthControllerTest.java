@@ -2,9 +2,9 @@ package com.miage.pouleAPI.auth;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.miage.pouleAPI.auth.dto.LoginRequest;
-import com.miage.pouleAPI.auth.dto.LoginResponse;
 import com.miage.pouleAPI.auth.dto.SignUpRequest;
 import com.miage.pouleAPI.auth.dto.SignUpResponse;
+import com.miage.pouleAPI.services.AdminUserService;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
@@ -31,26 +31,34 @@ class AuthControllerTest {
     @MockitoBean
     private AuthService authService;
 
+    @MockitoBean
+    private AdminUserService adminUserService;
+
     @Test
     void testLogin_Success() throws Exception {
         // Arrange
         LoginRequest request = new LoginRequest("test@example.com", "password123");
-        String token = "jwt-token-123";
+        AuthService.LoginResponseWithStatus response = 
+            new AuthService.LoginResponseWithStatus("jwt-token-123", false, true);
 
-        when(authService.login(any(LoginRequest.class))).thenReturn(token);
+        when(authService.loginWithStatus(any(LoginRequest.class))).thenReturn(response);
 
         // Act & Assert
         mockMvc.perform(post("/auth/login")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(request)))
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$.token").value(token));
+                .andExpect(jsonPath("$.token").value("jwt-token-123"));
     }
 
     @Test
     void testLogin_EmptyRequest() throws Exception {
         // Arrange
         LoginRequest request = new LoginRequest("", "");
+        AuthService.LoginResponseWithStatus response = 
+            new AuthService.LoginResponseWithStatus("token", false, false);
+
+        when(authService.loginWithStatus(any(LoginRequest.class))).thenReturn(response);
 
         // Act & Assert
         mockMvc.perform(post("/auth/login")

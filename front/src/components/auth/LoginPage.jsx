@@ -20,7 +20,12 @@ const LoginPage = () => {
         const result = await login(email, password);
 
         if (result.success) {
-            navigate('/account');
+            // Rediriger vers la page de changement de mot de passe si nécessaire
+            if (result.mustChangePassword) {
+                navigate('/change-password');
+            } else {
+                navigate('/account');
+            }
         } else {
             setError(result.message);
         }
