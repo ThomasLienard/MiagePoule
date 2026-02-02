@@ -1,10 +1,10 @@
 package com.miage.pouleAPI.services;
 
-import com.miage.pouleAPI.auth.repository.ApplicationUserRepository;
 import com.miage.pouleAPI.dtos.admin.*;
 import com.miage.pouleAPI.entity.ApplicationUser;
 import com.miage.pouleAPI.entity.Country;
 import com.miage.pouleAPI.entity.Role;
+import com.miage.pouleAPI.repositories.ApplicationUserRepository;
 import com.miage.pouleAPI.repositories.CountryRepository;
 import com.miage.pouleAPI.repositories.RoleRepository;
 import lombok.RequiredArgsConstructor;

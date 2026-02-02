@@ -1,9 +1,9 @@
 package com.miage.pouleAPI.controllers;
 
-import com.miage.pouleAPI.auth.repository.ApplicationUserRepository;
 import com.miage.pouleAPI.dtos.profile.PrivacyDTO;
 import com.miage.pouleAPI.dtos.profile.PrivacyUpdateRequestDTO;
 import com.miage.pouleAPI.entity.ApplicationUser;
+import com.miage.pouleAPI.repositories.ApplicationUserRepository;
 import com.miage.pouleAPI.services.interfaces.PrivacyService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;

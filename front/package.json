@@ -12,11 +12,13 @@
   "dependencies": {
     "@googlemaps/markerclusterer": "^2.6.2",
     "@react-google-maps/api": "^2.20.7",
-    "axios": "^1.13.2",
+    "axios": "^1.13.4",
     "bootstrap": "^5.3.8",
+    "date-fns": "^4.1.0",
     "prop-types": "^15.8.1",
     "react": "^19.1.1",
     "react-bootstrap": "^2.10.10",
+    "react-bootstrap-icons": "^1.11.6",
     "react-dom": "^19.1.1",
     "react-router-dom": "^7.10.1"
   },

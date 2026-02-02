@@ -1,9 +1,8 @@
 package com.miage.pouleAPI.auth;
 
-import com.miage.pouleAPI.auth.repository.ApplicationUserRepository;
 import com.miage.pouleAPI.entity.ApplicationUser;
-import com.miage.pouleAPI.entity.Country;
 import com.miage.pouleAPI.entity.Role;
+import com.miage.pouleAPI.repositories.ApplicationUserRepository;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
