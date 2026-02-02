@@ -239,7 +239,7 @@ const TicketsPage = () => {
                             Vous n'avez pas encore de billets. Commencez par en ajouter un !
                         </p>
                         <Button
-                            variant="primary"
+                            variant="secondary"
                             onClick={() => setShowUploadModal(true)}
                             className="d-inline-flex align-items-center"
                         >
