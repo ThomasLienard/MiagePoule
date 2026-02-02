@@ -37,7 +37,7 @@ const EventInfoWindow = ({ event, loading, onClose, onViewDetails }) => {
                 <Card>
                     <Card.Body>
                         <Card.Title>{name}</Card.Title>
-                        <Card.Text>
+                        <div>
                             <hr/>
 
                             {description && (
@@ -64,7 +64,7 @@ const EventInfoWindow = ({ event, loading, onClose, onViewDetails }) => {
                                     <p>{formatDate(timeSlot.start, timeSlot.end)}</p>
                                 </div>
                             )}
-                        </Card.Text>
+                        </div>
                         <div className="d-flex justify-content-center">
                             <Button
                                 onClick={() => onViewDetails(id)}

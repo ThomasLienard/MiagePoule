@@ -38,3 +38,16 @@ export const getRelativeTime = (dateString) => {
         return date.toLocaleDateString();
     }
 };
+
+export const isPastEvent = (item) => {
+    const eventDate = item.timeSlot?.start || item.date || item.startDate;
+    if (!eventDate) return false;
+
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+
+    const itemDate = new Date(eventDate);
+    itemDate.setHours(0, 0, 0, 0);
+
+    return itemDate < today;
+};

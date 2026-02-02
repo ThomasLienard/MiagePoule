@@ -30,7 +30,6 @@ const RegisterPage = () => {
         e.preventDefault();
         setError('');
         setSuccess('');
-        console.log(formData);
 
         // Validation
         if (formData.password !== formData.confirmPassword) {
@@ -49,16 +48,17 @@ const RegisterPage = () => {
         const userData = {
             email: formData.email,
             password: formData.password,
-            firstName: formData.firstName,
-            lastName: formData.lastName,
-            role: 'SPECTATEUR'
+            name: formData.firstName,
+            lastname: formData.lastName,
+            countryCode: "FR",
+            roleName: "SPECTATEUR"
         };
 
         const result = await register(userData);
 
         if (result.success) {
             setSuccess(result.message);
-            setTimeout(() => navigate('/'), 2000);
+            setTimeout(() => navigate('/account'), 2000);
         } else {
             setError(result.message);
         }
@@ -75,7 +75,6 @@ const RegisterPage = () => {
                     <div className="d-flex justify-content-center">
                         <hr style={{width: "16rem"}}/>
                     </div>
-                    <Card.Text>
                     {error && (
                         <div>
                             {error}
@@ -155,7 +154,6 @@ const RegisterPage = () => {
                             </Link>
                         </p>
                     </div>
-                    </Card.Text>
                 </Card.Body>
             </Card>
         </div>
