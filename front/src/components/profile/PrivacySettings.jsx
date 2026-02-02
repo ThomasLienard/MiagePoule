@@ -36,7 +36,7 @@ const PrivacySettings = () => {
                 s.categoryName === categoryName ? { ...s, enabled: !currentStatus } : s
             ));
 
-            setMessage({ type: "success", text: "Préférence mise à jour." });
+            setMessage({ type: "success", text: "Préférences mise à jour." });
             setTimeout(() => setMessage({}), 3000); // Cache le message après 3s
         } catch (error) {
             setMessage({ type: "danger", text: "Impossible de modifier ce réglage." });
