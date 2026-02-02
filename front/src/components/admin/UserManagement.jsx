@@ -4,6 +4,7 @@ import adminUserService from '../../services/adminUserService';
 import UserList from './UserList';
 import CreateUserModal from './CreateUserModal';
 import UserDetailsModal from './UserDetailsModal';
+import Plus from '../../assets/ajouter.png'
 
 const UserManagement = () => {
     const [users, setUsers] = useState([]);
@@ -120,8 +121,10 @@ const UserManagement = () => {
                     <h1>👥 Gestion des comptes</h1>
                     <p className="text-muted">Créer et gérer les comptes utilisateurs</p>
                 </div>
-                <Button variant="primary" onClick={() => setShowCreateModal(true)}>
-                    ➕ Nouveau compte
+                <Button variant="secondary" onClick={() => setShowCreateModal(true)}>
+                    <img src={Plus} alt="Nouveau compte" style={{height: '20px', marginRight: '8px', marginBottom: '3px'}} />
+                    {' '}
+                    Nouveau compte
                 </Button>
             </div>
 
