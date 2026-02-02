@@ -2,6 +2,16 @@ import axios from 'axios';
 
 const API_URL = 'http://localhost:8084/api/documents';
 
+// Fonction pour récupérer le token
+const getAuthToken = () => {
+    // Essayez plusieurs méthodes pour récupérer le token
+    const token = localStorage.getItem('authToken') ||
+        localStorage.getItem('token') ||
+        sessionStorage.getItem('authToken') ||
+        sessionStorage.getItem('token');
+    return token;
+};
+
 // Créer une instance axios avec interceptor pour ajouter le token
 const getAxiosInstance = () => {
     const instance = axios.create({
@@ -14,8 +24,9 @@ const getAxiosInstance = () => {
     // Interceptor pour ajouter le token d'authentification
     instance.interceptors.request.use(
         (config) => {
-            const token = localStorage.getItem('authToken');
+            const token = getAuthToken();
             if (token) {
+                // Selon votre configuration, essayez les deux formats courants
                 config.headers.Authorization = `Bearer ${token}`;
             }
             return config;
@@ -25,15 +36,30 @@ const getAxiosInstance = () => {
         }
     );
 
+    // Interceptor pour gérer les erreurs
+    instance.interceptors.response.use(
+        (response) => response,
+        (error) => {
+            if (error.response?.status === 401) {
+                // Rediriger vers la page de login si non authentifié
+                localStorage.removeItem('authToken');
+                localStorage.removeItem('token');
+                window.location.href = '/login';
+            }
+            return Promise.reject(error);
+        }
+    );
+
     return instance;
 };
 
 export const documentService = {
-    // Uploader un ticket
-    uploadTicket: async (file, typeId, description) => {
+    // Uploader un ticket (typeId n'est pas nécessaire, mettez une valeur par défaut)
+    uploadTicket: async (file, description) => {
         const formData = new FormData();
         formData.append('file', file);
-        formData.append('typeId', typeId);
+        formData.append('typeId', '3');
+        // Pas besoin de typeId si c'est toujours "TICKET"
         if (description) {
             formData.append('description', description);
         }
@@ -48,8 +74,13 @@ export const documentService = {
 
     // Récupérer tous les tickets de l'utilisateur
     getUserTickets: async () => {
-        const response = await getAxiosInstance().get('/tickets');
-        return response.data;
+        try {
+            const response = await getAxiosInstance().get('/tickets');
+            return response.data;
+        } catch (error) {
+            console.error('Erreur lors de la récupération des tickets:', error);
+            throw error;
+        }
     },
 
     // Récupérer un ticket spécifique

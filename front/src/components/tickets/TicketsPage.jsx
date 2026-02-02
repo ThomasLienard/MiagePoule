@@ -11,8 +11,7 @@ import {
     Modal,
     Badge,
     Form,
-    FloatingLabel,
-    ProgressBar
+    FloatingLabel
 } from 'react-bootstrap';
 import {
     Eye,
@@ -33,17 +32,12 @@ const TicketsPage = () => {
     const [tickets, setTickets] = useState([]);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
-    const [selectedTicket, setSelectedTicket] = useState(null);
-    const [showPreview, setShowPreview] = useState(false);
     const [showUploadModal, setShowUploadModal] = useState(false);
     const [uploading, setUploading] = useState(false);
-    const [uploadProgress, setUploadProgress] = useState(0);
     const [deleteConfirm, setDeleteConfirm] = useState(null);
 
-    // État pour le formulaire d'upload
     const [uploadForm, setUploadForm] = useState({
         file: null,
-        typeId: '',
         description: ''
     });
 
@@ -55,21 +49,33 @@ const TicketsPage = () => {
         try {
             setLoading(true);
             const data = await documentService.getUserTickets();
+            console.log('Tickets reçus:', data); // Debug
             setTickets(data);
             setError(null);
         } catch (err) {
-            setError('Erreur lors du chargement des billets. Veuillez réessayer.');
-            console.error('Erreur:', err);
+            console.error('Erreur détaillée:', err);
+            if (err.response?.status === 401) {
+                setError('Vous devez être connecté pour voir vos billets. Veuillez vous reconnecter.');
+                // Redirection automatique vers login gérée par l'interceptor
+            } else {
+                setError('Erreur lors du chargement des billets. Veuillez réessayer.');
+            }
         } finally {
             setLoading(false);
         }
     };
 
-    const handlePreview = async (ticketId) => {
+    const handlePreview = async (ticketId, fileName) => {
         try {
             const blob = await documentService.downloadTicket(ticketId);
             const url = URL.createObjectURL(blob);
-            window.open(url, '_blank');
+
+            // Créer une fenêtre pour prévisualiser
+            const newWindow = window.open(url, '_blank');
+            if (!newWindow) {
+                // Si popup bloquée, télécharger directement
+                handleDownload(ticketId, fileName);
+            }
         } catch (err) {
             setError('Erreur lors de l\'ouverture du billet');
             console.error('Erreur:', err);
@@ -107,6 +113,12 @@ const TicketsPage = () => {
     const handleFileChange = (e) => {
         const file = e.target.files[0];
         if (file) {
+            // Vérifier la taille du fichier (max 10MB)
+            if (file.size > 10 * 1024 * 1024) {
+                setError('Le fichier est trop volumineux (max 10MB)');
+                return;
+            }
+
             setUploadForm({
                 ...uploadForm,
                 file: file
@@ -122,27 +134,11 @@ const TicketsPage = () => {
 
         try {
             setUploading(true);
-            setUploadProgress(0);
-
-            // Simulation de progression
-            const progressInterval = setInterval(() => {
-                setUploadProgress(prev => {
-                    if (prev >= 90) {
-                        clearInterval(progressInterval);
-                        return prev;
-                    }
-                    return prev + 10;
-                });
-            }, 200);
-
+            // Pas besoin de typeId, seulement file et description
             await documentService.uploadTicket(
                 uploadForm.file,
-                uploadForm.typeId,
                 uploadForm.description
             );
-
-            clearInterval(progressInterval);
-            setUploadProgress(100);
 
             // Rafraîchir la liste
             await fetchTickets();
@@ -150,15 +146,13 @@ const TicketsPage = () => {
             // Réinitialiser le formulaire
             setUploadForm({
                 file: null,
-                typeId: '',
                 description: ''
             });
             setShowUploadModal(false);
 
-            setTimeout(() => setUploadProgress(0), 1000);
         } catch (err) {
-            setError('Erreur lors de l\'upload du billet');
-            console.error('Erreur:', err);
+            console.error('Erreur upload:', err);
+            setError(err.response?.data?.message || 'Erreur lors de l\'upload du billet');
         } finally {
             setUploading(false);
         }
@@ -183,22 +177,18 @@ const TicketsPage = () => {
 
     const formatDate = (dateString) => {
         try {
-            return format(new Date(dateString), 'dd MMMM yyyy à HH:mm', { locale: fr });
+            return format(new Date(dateString), 'dd/MM/yyyy HH:mm', { locale: fr });
         } catch (e) {
-            return dateString;
+            return dateString || 'Date inconnue';
         }
     };
 
-    const getTypeBadge = (typeId) => {
-        const types = {
-            1: { label: 'Entrée', variant: 'success' },
-            2: { label: 'VIP', variant: 'warning' },
-            3: { label: 'Standard', variant: 'info' },
-            4: { label: 'Réduit', variant: 'secondary' }
-        };
-
-        const type = types[typeId] || { label: `Type ${typeId}`, variant: 'primary' };
-        return <Badge bg={type.variant}>{type.label}</Badge>;
+    // Fonction pour formater la taille du fichier
+    const formatFileSize = (bytes) => {
+        if (!bytes) return '-';
+        if (bytes < 1024) return bytes + ' B';
+        if (bytes < 1024 * 1024) return (bytes / 1024).toFixed(1) + ' KB';
+        return (bytes / (1024 * 1024)).toFixed(1) + ' MB';
     };
 
     if (loading) {
@@ -220,12 +210,12 @@ const TicketsPage = () => {
         <Container className="py-4">
             <Row className="mb-4">
                 <Col>
-                    <h2 className="mb-0">📄 Mes Billets</h2>
+                    <h2>📄 Mes Billets</h2>
                     <p className="text-muted">Gérez vos billets d'événements</p>
                 </Col>
                 <Col className="text-end">
                     <Button
-                        variant="primary"
+                        variant="secondary"
                         onClick={() => setShowUploadModal(true)}
                         className="d-inline-flex align-items-center"
                     >
@@ -245,7 +235,7 @@ const TicketsPage = () => {
                     <Card.Body>
                         <FileText size={48} className="text-muted mb-3" />
                         <h4>Aucun billet trouvé</h4>
-                        <p className="text-muted">
+                        <p className="text-muted mb-4">
                             Vous n'avez pas encore de billets. Commencez par en ajouter un !
                         </p>
                         <Button
@@ -260,31 +250,27 @@ const TicketsPage = () => {
             ) : (
                 <>
                     <Card className="mb-4">
-                        <Card.Body>
-                            <Table responsive hover>
+                        <Card.Body className="p-0">
+                            <Table responsive hover className="mb-0">
                                 <thead>
                                 <tr>
-                                    <th>Nom du fichier</th>
-                                    <th>Type</th>
+                                    <th className="ps-3">Nom du fichier</th>
                                     <th>Description</th>
                                     <th>Date d'ajout</th>
                                     <th>Taille</th>
-                                    <th className="text-center">Actions</th>
+                                    <th className="text-center pe-3">Actions</th>
                                 </tr>
                                 </thead>
                                 <tbody>
                                 {tickets.map((ticket) => (
                                     <tr key={ticket.id}>
-                                        <td className="align-middle">
+                                        <td className="align-middle ps-3">
                                             <div className="d-flex align-items-center">
                                                 {getFileIcon(ticket.fileName)}
-                                                <span className="text-truncate" style={{ maxWidth: '200px' }}>
+                                                <span className="text-truncate" style={{ maxWidth: '150px' }}>
                                                         {ticket.fileName || `Ticket ${ticket.id}`}
                                                     </span>
                                             </div>
-                                        </td>
-                                        <td className="align-middle">
-                                            {getTypeBadge(ticket.typeId)}
                                         </td>
                                         <td className="align-middle">
                                             {ticket.description || '-'}
@@ -292,18 +278,18 @@ const TicketsPage = () => {
                                         <td className="align-middle">
                                             <div className="d-flex align-items-center">
                                                 <Calendar className="me-2 text-muted" size={14} />
-                                                {formatDate(ticket.createdAt || ticket.uploadDate)}
+                                                {formatDate(ticket.createdAt)}
                                             </div>
                                         </td>
                                         <td className="align-middle">
-                                            {ticket.fileSize ? `${(ticket.fileSize / 1024).toFixed(1)} KB` : '-'}
+                                            {formatFileSize(ticket.fileSize)}
                                         </td>
-                                        <td className="align-middle">
+                                        <td className="align-middle pe-3">
                                             <div className="d-flex justify-content-center gap-2">
                                                 <Button
                                                     variant="outline-primary"
                                                     size="sm"
-                                                    onClick={() => handlePreview(ticket.id)}
+                                                    onClick={() => handlePreview(ticket.id, ticket.fileName)}
                                                     className="d-flex align-items-center"
                                                     title="Visualiser"
                                                 >
@@ -336,27 +322,26 @@ const TicketsPage = () => {
                         </Card.Body>
                     </Card>
 
-                    <Row>
-                        <Col className="text-muted">
-                            <small>Total : {tickets.length} billet{tickets.length > 1 ? 's' : ''}</small>
-                        </Col>
-                    </Row>
+                    <div className="text-muted">
+                        <small>Total : {tickets.length} billet{tickets.length > 1 ? 's' : ''}</small>
+                    </div>
                 </>
             )}
 
             {/* Modal d'upload */}
-            <Modal show={showUploadModal} onHide={() => setShowUploadModal(false)} size="lg">
+            <Modal show={showUploadModal} onHide={() => !uploading && setShowUploadModal(false)}>
                 <Modal.Header closeButton>
                     <Modal.Title>📤 Ajouter un nouveau billet</Modal.Title>
                 </Modal.Header>
                 <Modal.Body>
                     <Form>
-                        <FloatingLabel controlId="floatingFile" label="Fichier du billet" className="mb-3">
+                        <FloatingLabel controlId="floatingFile" label="Fichier du billet *" className="mb-3">
                             <Form.Control
                                 type="file"
                                 accept=".pdf,.jpg,.jpeg,.png"
                                 onChange={handleFileChange}
                                 disabled={uploading}
+                                required
                             />
                             <Form.Text className="text-muted">
                                 Formats acceptés : PDF, JPG, PNG (max 10MB)
@@ -369,44 +354,16 @@ const TicketsPage = () => {
                             )}
                         </FloatingLabel>
 
-                        <FloatingLabel controlId="floatingType" label="Type de billet" className="mb-3">
-                            <Form.Select
-                                value={uploadForm.typeId}
-                                onChange={(e) => setUploadForm({...uploadForm, typeId: e.target.value})}
-                                disabled={uploading}
-                            >
-                                <option value="">Sélectionnez un type</option>
-                                <option value="1">Entrée</option>
-                                <option value="2">VIP</option>
-                                <option value="3">Standard</option>
-                                <option value="4">Réduit</option>
-                            </Form.Select>
-                        </FloatingLabel>
-
                         <FloatingLabel controlId="floatingDescription" label="Description (optionnelle)">
                             <Form.Control
                                 as="textarea"
-                                placeholder="Description"
-                                style={{ height: '100px' }}
+                                placeholder="Ex: Billet pour la finale, Place 12A, etc."
+                                style={{ height: '80px' }}
                                 value={uploadForm.description}
                                 onChange={(e) => setUploadForm({...uploadForm, description: e.target.value})}
                                 disabled={uploading}
                             />
                         </FloatingLabel>
-
-                        {uploading && (
-                            <div className="mt-3">
-                                <ProgressBar
-                                    now={uploadProgress}
-                                    label={`${uploadProgress}%`}
-                                    animated
-                                    className="mb-2"
-                                />
-                                <p className="text-center text-muted">
-                                    Upload en cours...
-                                </p>
-                            </div>
-                        )}
                     </Form>
                 </Modal.Body>
                 <Modal.Footer>
@@ -414,15 +371,15 @@ const TicketsPage = () => {
                         Annuler
                     </Button>
                     <Button
-                        variant="primary"
+                        variant="secondary"
                         onClick={handleUpload}
-                        disabled={uploading || !uploadForm.file || !uploadForm.typeId}
+                        disabled={uploading || !uploadForm.file}
                         className="d-flex align-items-center"
                     >
                         {uploading ? (
                             <>
                                 <Spinner animation="border" size="sm" className="me-2" />
-                                Upload...
+                                Upload en cours...
                             </>
                         ) : (
                             <>
@@ -443,7 +400,7 @@ const TicketsPage = () => {
                     Êtes-vous sûr de vouloir supprimer ce billet ? Cette action est irréversible.
                 </Modal.Body>
                 <Modal.Footer>
-                    <Button variant="secondary" onClick={() => setDeleteConfirm(null)}>
+                    <Button variant="outline-secondary" onClick={() => setDeleteConfirm(null)}>
                         Annuler
                     </Button>
                     <Button

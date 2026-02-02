@@ -167,6 +167,15 @@ const PublicMapPage = () => {
         return item.competitionName === selectedCompetition;
     };
 
+    const competitionNames = useMemo(() => {
+        const names = new Set();
+        allItems.forEach(item => {
+            if (item?.competitionName) {
+                names.add(item.competitionName);
+            }
+        });
+        return Array.from(names).sort();
+    }, [allItems]);
 
     const matchesPastEventFilter = (item) => {
         if (showPastEvents) return true; // Si ON, afficher tous les événements
