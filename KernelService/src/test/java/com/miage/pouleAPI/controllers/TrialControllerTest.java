@@ -1,5 +1,6 @@
 package com.miage.pouleAPI.controllers;
 
+import com.miage.pouleAPI.auth.repository.ApplicationUserRepository;
 import com.miage.pouleAPI.dtos.place.PlaceDTO;
 import com.miage.pouleAPI.dtos.timeslot.TimeSlotDTO;
 import com.miage.pouleAPI.dtos.trial.TrialDetailDTO;
@@ -48,6 +49,7 @@ class TrialControllerTest {
     private TrialSummaryDTO trialSummary1;
     private TrialSummaryDTO trialSummary2;
     private TrialDetailDTO trialDetail;
+    private ApplicationUser testUser;
 
     @BeforeEach
     void setUp() {
@@ -79,6 +81,13 @@ class TrialControllerTest {
             place,
             new ArrayList<>()
         );
+
+        // Setup test user
+        testUser = new ApplicationUser();
+        testUser.setId(1);
+        testUser.setEmail("athlete@test.com");
+        testUser.setName("Test");
+        testUser.setLastname("User");
     }
 
     @Test

@@ -28,7 +28,8 @@ VALUES ('INFO', 'Information message'),
 -- ======================
 INSERT INTO type_of_document (id_type_doc, name_type_doc)
 VALUES (1, 'PASSPORT'),
-       (2, 'LICENSE');
+       (2, 'LICENSE'),
+       (3, 'TICKET');
 
 -- ======================
 -- Type of notification
@@ -115,23 +116,24 @@ VALUES (1),
 -- mdp : "test123"
 
 
-INSERT INTO application_user (id, name, lastname, password, email, country_code, role_name, is_active, is_account_activated, must_change_password)
+INSERT INTO application_user (id, name, lastname, password, email, country_code, role_name, is_active, is_account_activated, must_change_password, created_at, created_by)
 VALUES
     -- Admin existant - email: anna@smith.com
-    (1, 'Anna', 'Smith', '$2a$10$vycWMvbko2wycSl3u6bIL.vCeHgNBQfNq7jpVc7pCEnfER6A2vTLi', 'anna@smith.com', 'US', 'ADMIN', true, true, false),
+    (1, 'Anna', 'Smith', '$2a$10$vycWMvbko2wycSl3u6bIL.vCeHgNBQfNq7jpVc7pCEnfER6A2vTLi', 'anna@smith.com', 'US', 'ADMIN', true, true, false, NOW(), 'system'),
     -- Nouveaux utilisateurs pour chaque rôle
-    (2, 'Pierre', 'Commissaire', '$2a$10$vycWMvbko2wycSl3u6bIL.vCeHgNBQfNq7jpVc7pCEnfER6A2vTLi', 'commissaire@test.com', 'FR', 'COMMISSAIRE', true, true, false),
-    (3, 'Marie', 'Athlete', '$2a$10$vycWMvbko2wycSl3u6bIL.vCeHgNBQfNq7jpVc7pCEnfER6A2vTLi', 'athlete@test.com', 'FR', 'ATHLETE', true, true, false),
-    (4, 'Jean', 'Volontaire', '$2a$10$vycWMvbko2wycSl3u6bIL.vCeHgNBQfNq7jpVc7pCEnfER6A2vTLi', 'volontaire@test.com', 'FR', 'VOLONTAIRE', true, true, false),
-    (5, 'John', 'Doe', '$2a$10$vycWMvbko2wycSl3u6bIL.vCeHgNBQfNq7jpVc7pCEnfER6A2vTLi', 'john@doe.com', 'US', 'ATHLETE', true, true, false),
-    (6, 'Jane', 'Smith', '$2a$10$vycWMvbko2wycSl3u6bIL.vCeHgNBQfNq7jpVc7pCEnfER6A2vTLi', 'jane@smith.com', 'US', 'COMMISSAIRE', true, true, false);
+    (2, 'Pierre', 'Commissaire', '$2a$10$vycWMvbko2wycSl3u6bIL.vCeHgNBQfNq7jpVc7pCEnfER6A2vTLi', 'commissaire@test.com', 'FR', 'COMMISSAIRE', true, true, false, NOW(), 'system'),
+    (3, 'Marie', 'Athlete', '$2a$10$vycWMvbko2wycSl3u6bIL.vCeHgNBQfNq7jpVc7pCEnfER6A2vTLi', 'athlete@test.com', 'FR', 'ATHLETE', true, true, false, NOW(), 'system'),
+    (4, 'Jean', 'Volontaire', '$2a$10$vycWMvbko2wycSl3u6bIL.vCeHgNBQfNq7jpVc7pCEnfER6A2vTLi', 'volontaire@test.com', 'FR', 'VOLONTAIRE', true, true, false, NOW(), 'system'),
+    (5, 'John', 'Doe', '$2a$10$vycWMvbko2wycSl3u6bIL.vCeHgNBQfNq7jpVc7pCEnfER6A2vTLi', 'john@doe.com', 'US', 'ATHLETE', true, true, false, NOW(), 'system'),
+    (6, 'Jane', 'Smith', '$2a$10$vycWMvbko2wycSl3u6bIL.vCeHgNBQfNq7jpVc7pCEnfER6A2vTLi', 'jane@smith.com', 'US', 'COMMISSAIRE', true, true, false, NOW(), 'system');
     
 -- ======================
 -- Documents
 -- ======================
-INSERT INTO document (id_doc, file, id_type_doc, id)
-VALUES (1, X'010203', 1, 1),
-       (2, X'0A0B0C', 2, 2);
+
+-- ======================
+-- NE PAS INSÉRER DANS LA TABLE DOCUMENT ICI !
+-- ======================
 
 -- ======================
 -- Teams

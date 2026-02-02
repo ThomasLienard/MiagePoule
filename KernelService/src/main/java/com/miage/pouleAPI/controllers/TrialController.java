@@ -4,6 +4,7 @@ import com.miage.pouleAPI.dtos.trial.AssignedTrialsResponseDTO;
 import com.miage.pouleAPI.dtos.trial.TrialDetailDTO;
 import com.miage.pouleAPI.dtos.trial.TrialSummaryDTO;
 import com.miage.pouleAPI.services.interfaces.TrialService;
+import com.miage.pouleAPI.auth.repository.ApplicationUserRepository;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
@@ -16,10 +17,12 @@ import java.util.List;
 public class TrialController {
     
     private TrialService trialService;
+    private ApplicationUserRepository userRepository;
 
     @Autowired
-    public TrialController(TrialService trialService) {
+    public TrialController(TrialService trialService, ApplicationUserRepository userRepository) {
         this.trialService = trialService;
+        this.userRepository = userRepository;
     }
     
     @GetMapping("/public/trials")
