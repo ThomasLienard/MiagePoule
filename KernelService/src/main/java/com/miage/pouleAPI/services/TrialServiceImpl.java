@@ -1,6 +1,7 @@
 package com.miage.pouleAPI.services;
 
 import com.miage.pouleAPI.adapters.TrialAdapter;
+import com.miage.pouleAPI.dtos.trial.AssignedTrialsResponseDTO;
 import com.miage.pouleAPI.dtos.trial.TrialDetailDTO;
 import com.miage.pouleAPI.dtos.trial.TrialSummaryDTO;
 import com.miage.pouleAPI.repositories.TrialRepository;
@@ -43,5 +44,18 @@ public class TrialServiceImpl implements TrialService {
         return trialAdapter.entityListToSummaryDtoList(
             trialRepository.findByCompetitionId(competitionId)
         );
+    }
+
+    @Override
+    public AssignedTrialsResponseDTO getAssignedTrialsForUser(Integer userId) {
+        List<TrialSummaryDTO> soloTrials = trialAdapter.entityListToSummaryDtoList(
+            trialRepository.findSoloTrialsByUserId(userId)
+        );
+
+        List<TrialSummaryDTO> teamTrials = trialAdapter.entityListToSummaryDtoList(
+            trialRepository.findTeamTrialsByUserId(userId)
+        );
+
+        return new AssignedTrialsResponseDTO(soloTrials, teamTrials);
     }
 }
