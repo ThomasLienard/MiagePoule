@@ -42,7 +42,7 @@ const PasswordForm = ({
 
             <Button 
                 type="submit" 
-                variant="primary"
+                variant="secondary"
                 className="w-100"
                 disabled={loading}
             >

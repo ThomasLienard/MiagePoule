@@ -46,7 +46,7 @@ const ChangePasswordPage = () => {
                         <h1 className="text-danger">❌ Non connecté</h1>
                         <p>Vous devez être connecté pour accéder à cette page.</p>
                         <Button 
-                            variant="primary"
+                            variant="secondary"
                             onClick={() => navigate('/login')}
                         >
                             Aller à la connexion

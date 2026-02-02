@@ -18,7 +18,7 @@ const AdminPage = () => {
                             <Card.Text>
                                 Créer et gérer les comptes des sportifs, volontaires et commissaires.
                             </Card.Text>
-                            <Button as={Link} to="/admin/users" variant="primary">
+                            <Button as={Link} to="/admin/users" variant="secondary">
                                 Gérer les comptes
                             </Button>
                         </Card.Body>

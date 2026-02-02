@@ -1,9 +1,12 @@
 package com.miage.pouleAPI.auth;
 
+import com.miage.pouleAPI.adapters.UserAdapter;
 import com.miage.pouleAPI.auth.dto.LoginRequest;
 import com.miage.pouleAPI.auth.dto.SignUpRequest;
 import com.miage.pouleAPI.auth.dto.SignUpResponse;
 import com.miage.pouleAPI.auth.jwt.JwtService;
+import com.miage.pouleAPI.dtos.profile.UpdateProfileRequestDTO;
+import com.miage.pouleAPI.dtos.profile.UpdateProfileResponse;
 import com.miage.pouleAPI.entity.ApplicationUser;
 import com.miage.pouleAPI.entity.Country;
 import com.miage.pouleAPI.entity.Role;
@@ -15,6 +18,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 @Service
 @RequiredArgsConstructor
@@ -26,6 +30,7 @@ public class AuthService {
     private final CountryRepository countryRepository;
     private final PasswordEncoder passwordEncoder;
     private final JwtService jwtService;
+    private final UserAdapter userAdapter;
 
     public String login(LoginRequest request) {
         log.info("Tentative de login pour: {}", request.email());
@@ -167,5 +172,47 @@ public class AuthService {
                 role.getRoleName(),
                 "User registered successfully"
         );
+    }
+
+    @Transactional
+    public UpdateProfileResponse updateProfile(Integer userId, UpdateProfileRequestDTO dto) {
+        ApplicationUser user = userRepo.findById(userId)
+                .orElseThrow(() -> new RuntimeException("Utilisateur non trouvé"));
+
+        boolean emailChanged = false;
+        if (dto.getEmail() != null && !dto.getEmail().equals(user.getEmail())) {
+            if (userRepo.findByEmail(dto.getEmail()).isPresent()) {
+                throw new IllegalArgumentException("Email incorrect");
+            }
+            user.setEmail(dto.getEmail());
+            emailChanged = true;
+        }
+
+        // MapStruct vérifie chaque champ du DTO.
+        // S'il est null, il ne touche pas au champ correspondant dans 'user'.
+        userAdapter.updateEntityFromDto(dto, user);
+        if (dto.getCountryCode() != null) {
+            Country country = countryRepository.findById(dto.getCountryCode())
+                    .orElseThrow(() -> new IllegalArgumentException("Code pays invalide"));
+            user.setCountry(country);
+        }
+
+        String newToken = jwtService.generateToken(user.getId(), user.getEmail(), user.getRole().getRoleName());
+        userRepo.save(user);
+
+        return new UpdateProfileResponse(userAdapter.toResponseDTO(user), newToken);
+    }
+
+    //Si il y a une erreur rien n'est écrit en BDD
+    @Transactional
+    public void changePassword(Integer userId, String currentPassword, String newPassword) {
+        ApplicationUser user = userRepo.findById(userId)
+                .orElseThrow(() -> new RuntimeException("Utilisateur non trouvé"));
+
+        if (!passwordEncoder.matches(currentPassword, user.getPassword())) {
+            throw new BadCredentialsException("L'ancien mot de passe est incorrect");
+        }
+        user.setPassword(passwordEncoder.encode(newPassword));
+        userRepo.save(user);
     }
 }

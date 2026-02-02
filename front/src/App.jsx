@@ -15,6 +15,8 @@ import PublicMapPage from './components/map/PublicMapPage';
 import TrialsAndEventsDetails from './components/TrialsAndEventsDetails.jsx';
 import Layout from "./components/layout/Layout.jsx";
 import TicketsPage from './components/tickets/TicketsPage.jsx';
+import Profile from "./components/profile/Profile.jsx";
+import PrivacySettings from "./components/profile/PrivacySettings.jsx";
 
 function App() {
 
@@ -45,10 +47,14 @@ function App() {
                             } />
 
                             {/* Routes qui nécessitent une connexion */}
-                            <Route path="/profile" element={
+                            <Route path="/account" element={
                                 <ProtectedRoute>
-                                    {/* Composant Profile à créer */}
-                                    <div>Profil utilisateur</div>
+                                    <Profile />
+                                </ProtectedRoute>
+                            } />
+                            <Route path="/privacy" element={
+                                <ProtectedRoute>
+                                    <PrivacySettings />
                                 </ProtectedRoute>
                             } />
 
