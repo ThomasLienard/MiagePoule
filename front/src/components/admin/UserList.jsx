@@ -58,7 +58,7 @@ const UserList = ({ users, onSelectUser, onResetPassword }) => {
                             <td>{getStatusBadge(user)}</td>
                             <td>
                                 <Button
-                                    variant="outline-primary"
+                                    variant="outline-secondary"
                                     size="sm"
                                     className="me-2"
                                     onClick={() => onSelectUser(user)}
