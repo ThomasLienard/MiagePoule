@@ -259,7 +259,7 @@ const UserDetailsModal = ({
                             Annuler
                         </Button>
                         <Button 
-                            variant="primary"
+                            variant="secondary"
                             onClick={handleSave}
                             disabled={submitting}
                         >

@@ -22,7 +22,7 @@ const SuccessCard = ({
                         <p className="text-muted">{redirectMessage}</p>
                     )}
                     <Button 
-                        variant="primary"
+                        variant="secondary"
                         onClick={onButtonClick}
                     >
                         {buttonLabel}
