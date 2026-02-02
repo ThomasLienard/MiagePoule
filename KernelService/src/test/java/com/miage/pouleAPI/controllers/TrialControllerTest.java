@@ -1,9 +1,12 @@
 package com.miage.pouleAPI.controllers;
 
+import com.miage.pouleAPI.auth.repository.ApplicationUserRepository;
 import com.miage.pouleAPI.dtos.place.PlaceDTO;
 import com.miage.pouleAPI.dtos.timeslot.TimeSlotDTO;
 import com.miage.pouleAPI.dtos.trial.TrialDetailDTO;
 import com.miage.pouleAPI.dtos.trial.TrialSummaryDTO;
+import com.miage.pouleAPI.dtos.trial.AssignedTrialsResponseDTO;
+import com.miage.pouleAPI.entity.ApplicationUser;
 import com.miage.pouleAPI.services.interfaces.TrialService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
@@ -14,6 +17,7 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.Authentication;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 
@@ -36,6 +40,12 @@ class TrialControllerTest {
     @Mock
     private TrialService trialService;
 
+    @Mock
+    private ApplicationUserRepository userRepository;
+
+    @Mock
+    private Authentication authentication;
+
     @InjectMocks
     private TrialController trialController;
 
@@ -43,6 +53,7 @@ class TrialControllerTest {
     private TrialSummaryDTO trialSummary1;
     private TrialSummaryDTO trialSummary2;
     private TrialDetailDTO trialDetail;
+    private ApplicationUser testUser;
 
     @BeforeEach
     void setUp() {
@@ -74,6 +85,13 @@ class TrialControllerTest {
             place,
             new ArrayList<>()
         );
+
+        // Setup test user
+        testUser = new ApplicationUser();
+        testUser.setId(1);
+        testUser.setEmail("athlete@test.com");
+        testUser.setName("Test");
+        testUser.setLastname("User");
     }
 
     @Test
@@ -304,7 +322,7 @@ class TrialControllerTest {
 
     @Test
     @DisplayName("GET /public/championships/{championshipId}/comp/{competitionId}/trials - Devrait propager les exceptions")
-    void testGetTrialsByChampionshipAndCompetition_ServiceException() throws Exception {
+    void testGetTrialsByChampionshipAndCompetition_ServiceException() {
         // Given
         when(trialService.getTrialsByChampionshipAndCompetition(1, 1))
                 .thenThrow(new RuntimeException("Database error"));
@@ -313,5 +331,108 @@ class TrialControllerTest {
         assertThrows(RuntimeException.class, 
             () -> trialController.getTrialsByChampionshipAndCompetition(1, 1));
         verify(trialService, times(1)).getTrialsByChampionshipAndCompetition(1, 1);
+    }
+
+    @Test
+    @DisplayName("GET /public/trials/assigned - Devrait retourner les épreuves assignées (solo et équipe)")
+    void testGetAssignedTrials_Success() {
+        // Given
+        List<TrialSummaryDTO> soloTrials = Arrays.asList(trialSummary1);
+        List<TrialSummaryDTO> teamTrials = Arrays.asList(trialSummary2);
+        AssignedTrialsResponseDTO response = new AssignedTrialsResponseDTO(soloTrials, teamTrials);
+
+        when(authentication.getName()).thenReturn("athlete@test.com");
+        when(userRepository.findByEmail("athlete@test.com")).thenReturn(Optional.of(testUser));
+        when(trialService.getAssignedTrialsForUser(1)).thenReturn(response);
+
+        // When
+        ResponseEntity<AssignedTrialsResponseDTO> result = trialController.getAssignedTrials(authentication);
+
+        // Then
+        assertEquals(HttpStatus.OK, result.getStatusCode());
+        assertNotNull(result.getBody());
+        assertEquals(1, result.getBody().getSoloTrials().size());
+        assertEquals(1, result.getBody().getTeamTrials().size());
+        assertEquals("Marathon de Paris", result.getBody().getSoloTrials().get(0).getName());
+        assertEquals("100m Sprint", result.getBody().getTeamTrials().get(0).getName());
+
+        verify(userRepository, times(1)).findByEmail("athlete@test.com");
+        verify(trialService, times(1)).getAssignedTrialsForUser(1);
+    }
+
+    @Test
+    @DisplayName("GET /public/trials/assigned - Devrait retourner des listes vides quand pas d'épreuves assignées")
+    void testGetAssignedTrials_EmptyLists() {
+        // Given
+        AssignedTrialsResponseDTO response = new AssignedTrialsResponseDTO(
+            Collections.emptyList(), 
+            Collections.emptyList()
+        );
+
+        when(authentication.getName()).thenReturn("athlete@test.com");
+        when(userRepository.findByEmail("athlete@test.com")).thenReturn(Optional.of(testUser));
+        when(trialService.getAssignedTrialsForUser(1)).thenReturn(response);
+
+        // When
+        ResponseEntity<AssignedTrialsResponseDTO> result = trialController.getAssignedTrials(authentication);
+
+        // Then
+        assertEquals(HttpStatus.OK, result.getStatusCode());
+        assertNotNull(result.getBody());
+        assertTrue(result.getBody().getSoloTrials().isEmpty());
+        assertTrue(result.getBody().getTeamTrials().isEmpty());
+
+        verify(userRepository, times(1)).findByEmail("athlete@test.com");
+        verify(trialService, times(1)).getAssignedTrialsForUser(1);
+    }
+
+    @Test
+    @DisplayName("GET /public/trials/assigned - Devrait retourner 404 si utilisateur non trouvé")
+    void testGetAssignedTrials_UserNotFound() {
+        // Given
+        when(authentication.getName()).thenReturn("unknown@test.com");
+        when(userRepository.findByEmail("unknown@test.com")).thenReturn(Optional.empty());
+
+        // When
+        ResponseEntity<AssignedTrialsResponseDTO> result = trialController.getAssignedTrials(authentication);
+
+        // Then
+        assertEquals(HttpStatus.NOT_FOUND, result.getStatusCode());
+        assertNull(result.getBody());
+
+        verify(userRepository, times(1)).findByEmail("unknown@test.com");
+        verify(trialService, never()).getAssignedTrialsForUser(any());
+    }
+
+    @Test
+    @DisplayName("GET /public/trials/assigned - Devrait retourner les deux types d'épreuves")
+    void testGetAssignedTrials_BothTypes() {
+        // Given
+        TrialSummaryDTO soloTrial = new TrialSummaryDTO(1, 10, "Solo Trial", "Solo description");
+        TrialSummaryDTO teamTrial1 = new TrialSummaryDTO(2, 20, "Team Trial 1", "Team description 1");
+        TrialSummaryDTO teamTrial2 = new TrialSummaryDTO(3, 30, "Team Trial 2", "Team description 2");
+
+        List<TrialSummaryDTO> soloTrials = Arrays.asList(soloTrial);
+        List<TrialSummaryDTO> teamTrials = Arrays.asList(teamTrial1, teamTrial2);
+        AssignedTrialsResponseDTO response = new AssignedTrialsResponseDTO(soloTrials, teamTrials);
+
+        when(authentication.getName()).thenReturn("athlete@test.com");
+        when(userRepository.findByEmail("athlete@test.com")).thenReturn(Optional.of(testUser));
+        when(trialService.getAssignedTrialsForUser(1)).thenReturn(response);
+
+        // When
+        ResponseEntity<AssignedTrialsResponseDTO> result = trialController.getAssignedTrials(authentication);
+
+        // Then
+        assertEquals(HttpStatus.OK, result.getStatusCode());
+        assertNotNull(result.getBody());
+        assertEquals(1, result.getBody().getSoloTrials().size());
+        assertEquals(2, result.getBody().getTeamTrials().size());
+        assertEquals("Solo Trial", result.getBody().getSoloTrials().get(0).getName());
+        assertEquals("Team Trial 1", result.getBody().getTeamTrials().get(0).getName());
+        assertEquals("Team Trial 2", result.getBody().getTeamTrials().get(1).getName());
+
+        verify(userRepository, times(1)).findByEmail("athlete@test.com");
+        verify(trialService, times(1)).getAssignedTrialsForUser(1);
     }
 }

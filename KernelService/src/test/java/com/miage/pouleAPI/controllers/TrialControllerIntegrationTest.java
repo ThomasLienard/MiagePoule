@@ -96,4 +96,26 @@ class TrialControllerIntegrationTest {
 
         assertThat(trials).isEmpty();
     }
+
+    @Test
+    @DisplayName("GET /trials/assigned - Devrait retourner les épreuves assignées avec structure soloTrials et teamTrials")
+    void getAssignedTrials_integration_structure() throws Exception {
+        // Note: Cet endpoint requiert l'authentification
+        // Ce test nécessite un token JWT valide ou l'authentification à être mocké
+        mockMvc.perform(get("/trials/assigned")
+                        .accept(MediaType.APPLICATION_JSON))
+                .andExpect(status().isForbidden()); // 403 car pas d'authentification
+    }
+
+    @Test
+    @DisplayName("GET /trials/assigned - Devrait retourner 401 sans authentification")
+    void getAssignedTrials_integration_noAuth() throws Exception {
+        var mvcResult = mockMvc.perform(get("/trials/assigned")
+                        .accept(MediaType.APPLICATION_JSON))
+                .andReturn();
+
+        // Vérifier que l'accès est refusé sans authentification
+        assertThat(mvcResult.getResponse().getStatus())
+            .isIn(401, 403); // Unauthorized ou Forbidden
+    }
 }

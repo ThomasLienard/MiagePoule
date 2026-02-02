@@ -3,6 +3,7 @@ package com.miage.pouleAPI.services;
 import com.miage.pouleAPI.adapters.TrialAdapter;
 import com.miage.pouleAPI.dtos.trial.TrialDetailDTO;
 import com.miage.pouleAPI.dtos.trial.TrialSummaryDTO;
+import com.miage.pouleAPI.dtos.trial.AssignedTrialsResponseDTO;
 import com.miage.pouleAPI.entity.Competition;
 import com.miage.pouleAPI.entity.Event;
 import com.miage.pouleAPI.entity.Place;
@@ -345,5 +346,81 @@ class TrialServiceImplTest {
         assertThrows(RuntimeException.class, 
             () -> trialService.getTrialsByChampionshipAndCompetition(championshipId, competitionId));
         verify(trialRepository, times(1)).findByCompetitionId(competitionId);
+    }
+
+    @Test
+    @DisplayName("getAssignedTrialsForUser - Devrait retourner les épreuves solo et équipe")
+    void testGetAssignedTrialsForUser_Success() {
+        // Given
+        Integer userId = 1;
+        List<Trial> soloTrials = Arrays.asList(trial1);
+        List<Trial> teamTrials = Arrays.asList(trial2);
+
+        when(trialRepository.findSoloTrialsByUserId(userId)).thenReturn(soloTrials);
+        when(trialRepository.findTeamTrialsByUserId(userId)).thenReturn(teamTrials);
+        when(trialAdapter.entityListToSummaryDtoList(soloTrials))
+            .thenReturn(Arrays.asList(summary1));
+        when(trialAdapter.entityListToSummaryDtoList(teamTrials))
+            .thenReturn(Arrays.asList(summary2));
+
+        // When
+        AssignedTrialsResponseDTO result = trialService.getAssignedTrialsForUser(userId);
+
+        // Then
+        assertNotNull(result);
+        assertEquals(1, result.getSoloTrials().size());
+        assertEquals(1, result.getTeamTrials().size());
+
+        verify(trialRepository, times(1)).findSoloTrialsByUserId(userId);
+        verify(trialRepository, times(1)).findTeamTrialsByUserId(userId);
+    }
+
+    @Test
+    @DisplayName("getAssignedTrialsForUser - Devrait retourner des listes vides si pas d'épreuves")
+    void testGetAssignedTrialsForUser_EmptyLists() {
+        // Given
+        Integer userId = 1;
+
+        when(trialRepository.findSoloTrialsByUserId(userId)).thenReturn(Collections.emptyList());
+        when(trialRepository.findTeamTrialsByUserId(userId)).thenReturn(Collections.emptyList());
+        when(trialAdapter.entityListToSummaryDtoList(Collections.emptyList()))
+            .thenReturn(Collections.emptyList());
+
+        // When
+        AssignedTrialsResponseDTO result = trialService.getAssignedTrialsForUser(userId);
+
+        // Then
+        assertNotNull(result);
+        assertTrue(result.getSoloTrials().isEmpty());
+        assertTrue(result.getTeamTrials().isEmpty());
+
+        verify(trialRepository, times(1)).findSoloTrialsByUserId(userId);
+        verify(trialRepository, times(1)).findTeamTrialsByUserId(userId);
+    }
+
+    @Test
+    @DisplayName("getAssignedTrialsForUser - Devrait retourner seulement des épreuves solo")
+    void testGetAssignedTrialsForUser_OnlySoloTrials() {
+        // Given
+        Integer userId = 1;
+        List<Trial> soloTrials = Arrays.asList(trial1);
+
+        when(trialRepository.findSoloTrialsByUserId(userId)).thenReturn(soloTrials);
+        when(trialRepository.findTeamTrialsByUserId(userId)).thenReturn(Collections.emptyList());
+        when(trialAdapter.entityListToSummaryDtoList(soloTrials))
+            .thenReturn(Arrays.asList(summary1));
+        when(trialAdapter.entityListToSummaryDtoList(Collections.emptyList()))
+            .thenReturn(Collections.emptyList());
+
+        // When
+        AssignedTrialsResponseDTO result = trialService.getAssignedTrialsForUser(userId);
+
+        // Then
+        assertNotNull(result);
+        assertEquals(1, result.getSoloTrials().size());
+        assertTrue(result.getTeamTrials().isEmpty());
+
+        verify(trialRepository, times(1)).findSoloTrialsByUserId(userId);
+        verify(trialRepository, times(1)).findTeamTrialsByUserId(userId);
     }
 }
