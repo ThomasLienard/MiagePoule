@@ -176,7 +176,7 @@ const CreateUserModal = ({ roles, onClose, onCreate }) => {
                     <Button variant="secondary" onClick={onClose} disabled={submitting}>
                         Annuler
                     </Button>
-                    <Button variant="primary" type="submit" disabled={submitting}>
+                    <Button variant="secondary" type="submit" disabled={submitting}>
                         {submitting ? (
                             <>
                                 <Spinner animation="border" size="sm" className="me-2" />

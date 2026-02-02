@@ -13,10 +13,10 @@ import java.util.List;
 public interface EventRepository extends JpaRepository<Event, Integer> {
     @Query("SELECT e FROM Event e WHERE e.competition.id = :competitionId")
     List<Event> findByCompetitionId(@Param("competitionId") Integer competitionId);
-    
+
     @Query("SELECT e FROM Event e WHERE e.typeEvent.name != 'TRIAL'")
     List<Event> findByTypeEventNameNotEqual();
-    
+
     @Query("SELECT e FROM Event e WHERE e.competition.id = :competitionId AND e.typeEvent.name != 'TRIAL'")
     List<Event> findByCompetitionIdAndTypeEventNameNotEqual(@Param("competitionId") Integer competitionId);
     Event findEventById(@Param("eventId") Integer eventId);

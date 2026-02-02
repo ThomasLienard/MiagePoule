@@ -24,7 +24,7 @@ const LoginPage = () => {
             if (result.mustChangePassword) {
                 navigate('/change-password');
             } else {
-                navigate('/');
+                navigate('/account');
             }
         } else {
             setError(result.message);

@@ -122,6 +122,17 @@ VALUES (1, X'010203', 1, 1),
        (2, X'0A0B0C', 2, 2);
 
 -- ======================
+-- Privacy Settings (Structure)
+-- ======================
+CREATE TABLE IF NOT EXISTS privacy_settings (
+                                                id SERIAL PRIMARY KEY,
+                                                category VARCHAR(50) NOT NULL,
+    enabled BOOLEAN NOT NULL,
+    user_id INTEGER NOT NULL,
+    CONSTRAINT fk_privacy_user FOREIGN KEY (user_id) REFERENCES application_user(id) ON DELETE CASCADE
+    );
+
+-- ======================
 -- Teams
 -- ======================
 INSERT INTO team (id_team, name_team, country_code)

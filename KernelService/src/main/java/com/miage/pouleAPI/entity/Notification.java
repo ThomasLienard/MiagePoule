@@ -1,6 +1,7 @@
 package com.miage.pouleAPI.entity;
 
 import com.miage.pouleAPI.services.TypeNotification;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import java.time.LocalDateTime;
 import java.util.HashSet;
@@ -45,6 +46,7 @@ public class Notification {
     private TypeNotification type;
 
     @ManyToMany(mappedBy = "notifications")
+    @JsonIgnore
     private Set<ApplicationUser> users = new HashSet<>();
 
     @ManyToMany(mappedBy = "metricsNotifications")
