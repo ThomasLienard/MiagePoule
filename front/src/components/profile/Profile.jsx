@@ -70,7 +70,7 @@ const Profile = () => {
                                 <h5>{user.name} {user.lastname}</h5>
                                 <p className="text-muted">{user.email}</p>
                                 <p><strong>Pays :</strong> {user.countryCode || "Non renseigné"}</p>
-                                <Button variant="outline-primary" onClick={() => setIsEditing(true)} className="w-100">Modifier le profil</Button>
+                                <Button variant="outline-secondary" onClick={() => setIsEditing(true)} className="w-100">Modifier le profil</Button>
                                 <Button variant="outline-danger" onClick={() => setShowPassModal(true)} className="w-100 mt-2">Changer le mot de passe</Button>
                             </>
                         ) : (

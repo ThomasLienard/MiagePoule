@@ -78,7 +78,7 @@ const PrivacySettings = () => {
                                 <div className="small text-muted">{s.purpose}</div>
                             </td>
                             <td className="text-center align-middle">
-                                <Badge pill bg={s.sharingLevel === 'Public' ? 'success' : 'info'}>
+                                <Badge pill bg={s.sharingLevel === 'Public' ? 'success' : (s.sharingLevel === 'Privé' ? 'primary' : 'info')}>
                                     {s.sharingLevel}
                                 </Badge>
                             </td>

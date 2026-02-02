@@ -4,8 +4,8 @@ import lombok.Getter;
 
 @Getter
 public enum DataCategory {
-    CONNECTION_HISTORY("Historique de connexions", "Sécurité et détection d'intrusions", "Privée", true),
-    NOTIFICATION_SUBS("Abonnements notifications", "Envoi d'alertes en temps réel", "Privée", false),
+    CONNECTION_HISTORY("Historique de connexions", "Sécurité et détection d'intrusions", "Privé", true),
+    NOTIFICATION_SUBS("Abonnements notifications", "Envoi d'alertes en temps réel", "Privé", false),
     COMPETITION_PREFS("Préférences compétitions", "Personnalisation des contenus", "Public", false);
 
     private final String label;
