@@ -1,6 +1,5 @@
 describe('Page d’accueil', () => {
   it('doit afficher la page', () => {
-    cy.visit('/');                  // ira sur http://localhost:3000
+    cy.visit('/');
     cy.get('body').should('be.visible');
-  });
-});
+  });})
