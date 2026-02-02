@@ -16,7 +16,6 @@ import java.util.List;
 @RestController
 public class TrialController {
     
-    
     private TrialService trialService;
     private ApplicationUserRepository userRepository;
 
@@ -47,8 +46,9 @@ public class TrialController {
 
     @GetMapping("/trials/assigned")
     public ResponseEntity<AssignedTrialsResponseDTO> getAssignedTrials(Authentication auth) {
-        return userRepository.findByEmail(auth.getName())
-                .map(user -> ResponseEntity.ok(trialService.getAssignedTrialsForUser(user.getId())))
+        return trialService.getAssignedTrialsForUserEmail(auth.getName())
+                .map(ResponseEntity::ok)
                 .orElse(ResponseEntity.notFound().build());
     }
 }
+    

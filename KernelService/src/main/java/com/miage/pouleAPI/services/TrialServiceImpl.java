@@ -1,6 +1,7 @@
 package com.miage.pouleAPI.services;
 
 import com.miage.pouleAPI.adapters.TrialAdapter;
+import com.miage.pouleAPI.auth.repository.ApplicationUserRepository;
 import com.miage.pouleAPI.dtos.trial.AssignedTrialsResponseDTO;
 import com.miage.pouleAPI.dtos.trial.TrialDetailDTO;
 import com.miage.pouleAPI.dtos.trial.TrialSummaryDTO;
@@ -17,12 +18,13 @@ import java.util.Optional;
 public class TrialServiceImpl implements TrialService {
     
     private TrialRepository trialRepository;
-   
+    private ApplicationUserRepository userRepository;
     private TrialAdapter trialAdapter;
 
     @Autowired
-    public TrialServiceImpl(TrialRepository trialRepository, TrialAdapter trialAdapter) {
+    public TrialServiceImpl(TrialRepository trialRepository, ApplicationUserRepository userRepository, TrialAdapter trialAdapter) {
         this.trialRepository = trialRepository;
+        this.userRepository = userRepository;
         this.trialAdapter = trialAdapter;
     }
     
@@ -47,7 +49,12 @@ public class TrialServiceImpl implements TrialService {
     }
 
     @Override
-    public AssignedTrialsResponseDTO getAssignedTrialsForUser(Integer userId) {
+    public Optional<AssignedTrialsResponseDTO> getAssignedTrialsForUserEmail(String email) {
+        return userRepository.findByEmail(email)
+                .map(user -> buildAssignedTrialsResponse(user.getId()));
+    }
+
+    private AssignedTrialsResponseDTO buildAssignedTrialsResponse(Integer userId) {
         List<TrialSummaryDTO> soloTrials = trialAdapter.entityListToSummaryDtoList(
             trialRepository.findSoloTrialsByUserId(userId)
         );
