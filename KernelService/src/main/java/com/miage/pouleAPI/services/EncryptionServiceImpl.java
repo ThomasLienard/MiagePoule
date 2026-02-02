@@ -47,12 +47,10 @@ public class EncryptionServiceImpl implements EncryptionService {
 
             // Chiffrer la clé du document avec la clé maître
             String encryptedDocumentKey = encryptKey(documentKey.getEncoded());
-            log.info("Encryption successful. Encrypted data length: {} bytes", encryptedData.length);
 
             return new EncryptedData(encryptedData, encryptedDocumentKey, Base64.getEncoder().encodeToString(iv));
 
         } catch (Exception e) {
-            log.error("Error encrypting data. Data length was: {} bytes", data != null ? data.length : 0, e);
             throw new RuntimeException("Failed to encrypt data", e);
         }
     }
@@ -73,7 +71,6 @@ public class EncryptionServiceImpl implements EncryptionService {
             return cipher.doFinal(encryptedData.getData());
 
         } catch (Exception e) {
-            log.error("Error decrypting data", e);
             throw new RuntimeException("Failed to decrypt data", e);
         }
     }
@@ -88,8 +85,6 @@ public class EncryptionServiceImpl implements EncryptionService {
 
     private String encryptKey(byte[] keyToEncrypt) throws Exception {
         if (masterKeyBase64 == null || masterKeyBase64.isEmpty()) {
-            // Mode développement sans clé maître
-            log.warn("Master key not configured, storing key in plain text");
             return Base64.getEncoder().encodeToString(keyToEncrypt);
         }
 

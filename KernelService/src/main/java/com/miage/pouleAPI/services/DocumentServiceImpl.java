@@ -68,48 +68,31 @@ public class DocumentServiceImpl implements DocumentService {
             // Convertir en DTO
             DocumentDTO documentDTO = mapToDTO(savedDocument);
 
-            log.info("Ticket uploaded successfully for user {}: {}", userId, savedDocument.getFileName());
 
             return new DocumentResponse("Ticket uploaded and encrypted successfully", documentDTO);
 
         } catch (Exception e) {
-            log.error("Failed to upload ticket for user {}", userId, e);
             throw new RuntimeException("Failed to upload ticket: " + e.getMessage(), e);
         }
     }
 
     @Override
     public List<DocumentDTO> getUserTickets(Integer userId) {
-        log.info("=== DEBUG getUserTickets for userId: {} ===", userId);
-
-        // Vérifier d'abord tous les documents de l'utilisateur
-        List<Document> allDocuments = documentRepository.findByUserId(userId);
-        log.info("Total documents for user {}: {}", userId, allDocuments.size());
-
-        for (Document doc : allDocuments) {
-            log.info("Document - ID: {}, Type: {}, TypeName: {}, UserID: {}",
-                    doc.getId(),
-                    doc.getType().getId(),
-                    doc.getType().getName(),
-                    doc.getUser().getId());
-        }
 
         // Maintenant chercher par type
         List<Document> ticketDocs = documentRepository.findByUserIdAndTypeName(userId, "TICKET");
-        log.info("Found {} documents with type 'TICKET'", ticketDocs.size());
+
 
         List<Document> eventTicketDocs = documentRepository.findByUserIdAndTypeName(userId, "EVENT_TICKET");
-        log.info("Found {} documents with type 'EVENT_TICKET'", eventTicketDocs.size());
+
 
         List<Document> seasonPassDocs = documentRepository.findByUserIdAndTypeName(userId, "SEASON_PASS");
-        log.info("Found {} documents with type 'SEASON_PASS'", seasonPassDocs.size());
 
         // Combiner tous les types de tickets
         List<Document> allTicketDocuments = new ArrayList<>(ticketDocs);
         allTicketDocuments.addAll(eventTicketDocs);
         allTicketDocuments.addAll(seasonPassDocs);
 
-        log.info("Total tickets found: {}", allTicketDocuments.size());
 
         return allTicketDocuments.stream()
                 .map(this::mapToDTO)
@@ -140,7 +123,6 @@ public class DocumentServiceImpl implements DocumentService {
             return encryptionService.decrypt(encryptedData);
 
         } catch (Exception e) {
-            log.error("Failed to decrypt ticket {} for user {}", documentId, userId, e);
             throw new RuntimeException("Failed to download ticket: " + e.getMessage(), e);
         }
     }
@@ -152,7 +134,6 @@ public class DocumentServiceImpl implements DocumentService {
                 .orElseThrow(() -> new EntityNotFoundException("Document not found"));
 
         documentRepository.delete(document);
-        log.info("Ticket {} deleted for user {}", documentId, userId);
     }
 
     @Override
