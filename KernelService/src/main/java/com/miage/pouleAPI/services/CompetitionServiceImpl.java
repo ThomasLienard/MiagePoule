@@ -18,7 +18,6 @@ public class CompetitionServiceImpl implements CompetitionService {
         this.competitionJpaAdapter = competitionJpaAdapter;
     }
 
-
     @Override
     public List<CompetitionDTO> findAll() {
         return competitionJpaAdapter.findAll();
@@ -37,9 +36,17 @@ public class CompetitionServiceImpl implements CompetitionService {
     @Override
     public List<CompetitionDTO> findByChampionship(Integer championshipId) {
         return competitionJpaAdapter.findByChampionshipId(championshipId);
-
-
     }
 
+    public void addObserverToCompetition(Integer competitionId, Integer userId) {
+        competitionJpaAdapter.addObserver(competitionId, userId);
+    }
 
+    public void removeObserverFromCompetition(Integer competitionId, Integer userId) {
+        competitionJpaAdapter.removeObserver(competitionId, userId);
+    }
+
+    public List<Integer> getCompetitionObservers(Integer competitionId) {
+        return competitionJpaAdapter.getObserverIds(competitionId);
+    }
 }
