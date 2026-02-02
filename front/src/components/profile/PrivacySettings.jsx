@@ -79,7 +79,6 @@ const PrivacySettings = () => {
                             </td>
                             <td className="text-center align-middle">
                                     {s.sharingLevel}
-                                </Badge>
                             </td>
                             <td className="text-center align-middle">
                                 <Form.Check
