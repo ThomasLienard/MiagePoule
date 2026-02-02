@@ -1,10 +1,10 @@
 package com.miage.pouleAPI.controllers;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.miage.pouleAPI.auth.repository.ApplicationUserRepository;
 import com.miage.pouleAPI.dtos.profile.ChangePasswordRequestDTO;
 import com.miage.pouleAPI.dtos.profile.UpdateProfileRequestDTO;
 import com.miage.pouleAPI.entity.ApplicationUser;
+import com.miage.pouleAPI.repositories.ApplicationUserRepository;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
@@ -16,7 +16,6 @@ import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.transaction.annotation.Transactional;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;

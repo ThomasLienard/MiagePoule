@@ -1,10 +1,10 @@
 package com.miage.pouleAPI.services;
 
-import com.miage.pouleAPI.auth.repository.ApplicationUserRepository;
 import com.miage.pouleAPI.dtos.profile.PrivacyDTO;
 import com.miage.pouleAPI.entity.ApplicationUser;
 import com.miage.pouleAPI.entity.DataCategory;
 import com.miage.pouleAPI.entity.PrivacySetting;
+import com.miage.pouleAPI.repositories.ApplicationUserRepository;
 import com.miage.pouleAPI.repositories.PrivacySettingRepository;
 import com.miage.pouleAPI.services.interfaces.PrivacyService;
 import lombok.RequiredArgsConstructor;
