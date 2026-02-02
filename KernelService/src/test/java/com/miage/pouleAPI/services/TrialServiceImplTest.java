@@ -1,9 +1,11 @@
 package com.miage.pouleAPI.services;
 
 import com.miage.pouleAPI.adapters.TrialAdapter;
+import com.miage.pouleAPI.auth.repository.ApplicationUserRepository;
 import com.miage.pouleAPI.dtos.trial.TrialDetailDTO;
 import com.miage.pouleAPI.dtos.trial.TrialSummaryDTO;
 import com.miage.pouleAPI.dtos.trial.AssignedTrialsResponseDTO;
+import com.miage.pouleAPI.entity.ApplicationUser;
 import com.miage.pouleAPI.entity.Competition;
 import com.miage.pouleAPI.entity.Event;
 import com.miage.pouleAPI.entity.Place;
@@ -35,6 +37,9 @@ class TrialServiceImplTest {
 
     @Mock
     private TrialRepository trialRepository;
+
+    @Mock
+    private ApplicationUserRepository userRepository;
 
     @Mock
     private TrialAdapter trialAdapter;
@@ -349,78 +354,80 @@ class TrialServiceImplTest {
     }
 
     @Test
-    @DisplayName("getAssignedTrialsForUser - Devrait retourner les épreuves solo et équipe")
-    void testGetAssignedTrialsForUser_Success() {
+    @DisplayName("getAssignedTrialsForUserEmail - Devrait retourner les épreuves solo et équipe")
+    void testGetAssignedTrialsForUserEmail_Success() {
         // Given
-        Integer userId = 1;
+        String email = "athlete@test.com";
+        ApplicationUser user = new ApplicationUser();
+        user.setId(1);
+        user.setEmail(email);
+
         List<Trial> soloTrials = Arrays.asList(trial1);
         List<Trial> teamTrials = Arrays.asList(trial2);
 
-        when(trialRepository.findSoloTrialsByUserId(userId)).thenReturn(soloTrials);
-        when(trialRepository.findTeamTrialsByUserId(userId)).thenReturn(teamTrials);
+        when(userRepository.findByEmail(email)).thenReturn(Optional.of(user));
+        when(trialRepository.findSoloTrialsByUserId(1)).thenReturn(soloTrials);
+        when(trialRepository.findTeamTrialsByUserId(1)).thenReturn(teamTrials);
         when(trialAdapter.entityListToSummaryDtoList(soloTrials))
             .thenReturn(Arrays.asList(summary1));
         when(trialAdapter.entityListToSummaryDtoList(teamTrials))
             .thenReturn(Arrays.asList(summary2));
 
         // When
-        AssignedTrialsResponseDTO result = trialService.getAssignedTrialsForUser(userId);
+        Optional<AssignedTrialsResponseDTO> result = trialService.getAssignedTrialsForUserEmail(email);
 
         // Then
-        assertNotNull(result);
-        assertEquals(1, result.getSoloTrials().size());
-        assertEquals(1, result.getTeamTrials().size());
+        assertTrue(result.isPresent());
+        assertEquals(1, result.get().getSoloTrials().size());
+        assertEquals(1, result.get().getTeamTrials().size());
 
-        verify(trialRepository, times(1)).findSoloTrialsByUserId(userId);
-        verify(trialRepository, times(1)).findTeamTrialsByUserId(userId);
+        verify(userRepository, times(1)).findByEmail(email);
+        verify(trialRepository, times(1)).findSoloTrialsByUserId(1);
+        verify(trialRepository, times(1)).findTeamTrialsByUserId(1);
     }
 
     @Test
-    @DisplayName("getAssignedTrialsForUser - Devrait retourner des listes vides si pas d'épreuves")
-    void testGetAssignedTrialsForUser_EmptyLists() {
+    @DisplayName("getAssignedTrialsForUserEmail - Devrait retourner empty si utilisateur non trouvé")
+    void testGetAssignedTrialsForUserEmail_UserNotFound() {
         // Given
-        Integer userId = 1;
+        String email = "unknown@test.com";
 
-        when(trialRepository.findSoloTrialsByUserId(userId)).thenReturn(Collections.emptyList());
-        when(trialRepository.findTeamTrialsByUserId(userId)).thenReturn(Collections.emptyList());
+        when(userRepository.findByEmail(email)).thenReturn(Optional.empty());
+
+        // When
+        Optional<AssignedTrialsResponseDTO> result = trialService.getAssignedTrialsForUserEmail(email);
+
+        // Then
+        assertTrue(result.isEmpty());
+
+        verify(userRepository, times(1)).findByEmail(email);
+        verify(trialRepository, never()).findSoloTrialsByUserId(any());
+        verify(trialRepository, never()).findTeamTrialsByUserId(any());
+    }
+
+    @Test
+    @DisplayName("getAssignedTrialsForUserEmail - Devrait retourner des listes vides si pas d'épreuves")
+    void testGetAssignedTrialsForUserEmail_EmptyLists() {
+        // Given
+        String email = "athlete@test.com";
+        ApplicationUser user = new ApplicationUser();
+        user.setId(1);
+        user.setEmail(email);
+
+        when(userRepository.findByEmail(email)).thenReturn(Optional.of(user));
+        when(trialRepository.findSoloTrialsByUserId(1)).thenReturn(Collections.emptyList());
+        when(trialRepository.findTeamTrialsByUserId(1)).thenReturn(Collections.emptyList());
         when(trialAdapter.entityListToSummaryDtoList(Collections.emptyList()))
             .thenReturn(Collections.emptyList());
 
         // When
-        AssignedTrialsResponseDTO result = trialService.getAssignedTrialsForUser(userId);
+        Optional<AssignedTrialsResponseDTO> result = trialService.getAssignedTrialsForUserEmail(email);
 
         // Then
-        assertNotNull(result);
-        assertTrue(result.getSoloTrials().isEmpty());
-        assertTrue(result.getTeamTrials().isEmpty());
+        assertTrue(result.isPresent());
+        assertTrue(result.get().getSoloTrials().isEmpty());
+        assertTrue(result.get().getTeamTrials().isEmpty());
 
-        verify(trialRepository, times(1)).findSoloTrialsByUserId(userId);
-        verify(trialRepository, times(1)).findTeamTrialsByUserId(userId);
-    }
-
-    @Test
-    @DisplayName("getAssignedTrialsForUser - Devrait retourner seulement des épreuves solo")
-    void testGetAssignedTrialsForUser_OnlySoloTrials() {
-        // Given
-        Integer userId = 1;
-        List<Trial> soloTrials = Arrays.asList(trial1);
-
-        when(trialRepository.findSoloTrialsByUserId(userId)).thenReturn(soloTrials);
-        when(trialRepository.findTeamTrialsByUserId(userId)).thenReturn(Collections.emptyList());
-        when(trialAdapter.entityListToSummaryDtoList(soloTrials))
-            .thenReturn(Arrays.asList(summary1));
-        when(trialAdapter.entityListToSummaryDtoList(Collections.emptyList()))
-            .thenReturn(Collections.emptyList());
-
-        // When
-        AssignedTrialsResponseDTO result = trialService.getAssignedTrialsForUser(userId);
-
-        // Then
-        assertNotNull(result);
-        assertEquals(1, result.getSoloTrials().size());
-        assertTrue(result.getTeamTrials().isEmpty());
-
-        verify(trialRepository, times(1)).findSoloTrialsByUserId(userId);
-        verify(trialRepository, times(1)).findTeamTrialsByUserId(userId);
+        verify(userRepository, times(1)).findByEmail(email);
     }
 }
