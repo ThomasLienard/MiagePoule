@@ -23,48 +23,86 @@ Projet MiagePoule - Application de gestion d'evenements sportifs.
 Pour démarrer l'application avec Docker, exécutez la commande suivante à la racine du projet :
 
 ```bash
-  docker compose up
+  docker compose up --build
 ```
 ou
 ```bash
-  docker-compose up
+  docker-compose up --build
 ```
 
 **Note** : Le téléchargement et le démarrage peuvent prendre un certain temps.
 
-Pour démarrer uniquement le service postgres : 
+### Accès aux services
+
+- Frontend : http://localhost:3001/
+
+
+### Eteindre l'application
+```bash
+  docker compose down -v
+```
+ou
+```bash
+  docker-compose down -v
+```
+
+## Accès pour tester les différents rôles 
+
+- Commissaire :
+  - Mail : anna@smith.com
+  - Mot de passe : test123
+- Responsable déploiement :
+  - Mail : anna@smith.com
+  - Mot de passe : test123
+- Sportif
+  - Mail : athlete@test.com
+  - Mot de passe : test123
+
+
+
+## État actuel du projet
+✅ = Fini
+⌛ = En cours dans ce sprint
+❌ = Pas encore commencé
+
+- ✅ Fonctionnalité de carte de visualisation des évènements.
+- ✅ Création de compte / Connexion.
+- ✅ Visualisation des compétitions
+- ✅ Visualisation des évènements 
+- ✅ Page d'administration des comptes (Responsable déploiement)
+- ✅ Gestion du profil
+- ✅ Visualisation des résultats d'une épreuve
+- ✅ Stockage du billet dans le profil utilisateur
+- ⌛ Gestion des notifications
+- ⌛ Visualisation des épreuves assignées (Sportif)
+- ⌛ Visualisation des résultats des épreuves passées (Sportif)
+- ⌛ Visualisation des performances de ses concurrents (Sportif)
+- ⌛ Signature de la charte (Sportif)
+- ⌛ Création d'un évènement (Responsable déploiement)
+- ⌛ Inscription d'un participant à une épreuve (Commissaire)
+- ⌛ Forfait à une épreuve (Commissaire)
+- ⌛ Dépôt de documents (Bénévole, Commissaire, Sportif)
+- ❌ Accès à l'agenda (Bénévole, Commissaire, Sportif)
+- ❌ Saisie des résultats (Commissaire)
+- ❌ Déclarer forfait (Sportif)
+- ❌ Modifier un évènement (Responsable déploiement, Commissaire)
+- ❌ Valider le compte d'un sportif (Commissaire)
+- ❌ Valider le compte d'un commissaire ou d'un bénévole (Responsable déploiement)
+- ❌ Téléverser un agenda (Responsable déploiement)
+- ❌ Tracking du sportif
+- ❌ Carte agrégée
+- ❌ Métrics
+
+## Cas spécifique
+
+Pour démarrer uniquement le service postgres :
 ```bash
   docker compose -f 'docker-compose.yml' up -d --build 'postgres'
 ```
 (Cela nécessite de lancer les autres services manuellement)
-
-### Accès aux services
-
-- Frontend : http://localhost:3000/
-
 
 - Base de données PostgreSQL :
 ```bash
   psql -h localhost -p 5433 -U miageuser -d miagepoule
 ```
 Mot de passe : miagepassword
-
-### État actuel du projet
-
-- Base de données PostgreSQL opérationnelle.
-- Carte accessible avec les points de rendez-vous.
-- Liste des compétitions visibles.
-- Liste des épreuves visibles.
-- Détails des épreuves visibles.
-
-## Maintenance
-### Nettoyage Docker
-
-Après utilisation, vous pouvez libérer de l'espace en supprimant tous les conteneurs, images et volumes avec :
-bash
-
-```bash
-  docker system prune -a --volumes -f
-```
-
-Attention : Cette commande supprimera toutes les données non persistantes.
