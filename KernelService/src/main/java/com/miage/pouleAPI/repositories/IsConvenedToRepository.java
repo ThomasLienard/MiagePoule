@@ -13,4 +13,8 @@ import java.util.List;
 public interface IsConvenedToRepository extends JpaRepository<IsConvenedTo, IsConvenedToId> {
     @Query("SELECT i FROM IsConvenedTo i WHERE i.trial.id = :trialId ORDER BY i.result ASC")
     List<IsConvenedTo> findByTrialIdOrderedByResult(@Param("trialId") Integer trialId);
+
+    @Query("SELECT i FROM IsConvenedTo i WHERE i.trial.id = :trialId")
+    List<IsConvenedTo> findByTrialId(@Param("trialId") Integer trialId);
 }
+

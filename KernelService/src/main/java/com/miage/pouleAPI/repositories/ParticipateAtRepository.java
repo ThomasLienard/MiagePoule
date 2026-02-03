@@ -13,4 +13,8 @@ import java.util.List;
 public interface ParticipateAtRepository extends JpaRepository<ParticipateAt, ParticipateAtId> {
     @Query("SELECT p FROM ParticipateAt p WHERE p.trial.id = :trialId ORDER BY p.result ASC")
     List<ParticipateAt> findByTrialIdOrderedByResult(@Param("trialId") Integer trialId);
+
+    @Query("SELECT p FROM ParticipateAt p WHERE p.trial.id = :trialId")
+    List<ParticipateAt> findByTrialId(@Param("trialId") Integer trialId);
 }
+

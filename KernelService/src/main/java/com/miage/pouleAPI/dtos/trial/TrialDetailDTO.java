@@ -21,5 +21,8 @@ public class TrialDetailDTO {
     private TimeSlotDTO timeSlot;
     private PlaceDTO place;
     private List<RankingDTO> rankings;
+    private boolean isTeamEvent;
+    private List<SoloParticipantDTO> soloParticipants;
+    private List<TeamParticipantDTO> teamParticipants;
 }
 

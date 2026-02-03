@@ -1,7 +1,7 @@
 package com.miage.pouleAPI.services;
 
 import com.miage.pouleAPI.adapters.TrialAdapter;
-import com.miage.pouleAPI.auth.repository.ApplicationUserRepository;
+import com.miage.pouleAPI.repositories.ApplicationUserRepository;
 import com.miage.pouleAPI.dtos.trial.TrialDetailDTO;
 import com.miage.pouleAPI.dtos.trial.TrialSummaryDTO;
 import com.miage.pouleAPI.dtos.trial.AssignedTrialsResponseDTO;
