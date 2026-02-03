@@ -4,7 +4,7 @@ import com.miage.pouleAPI.dtos.trial.AssignedTrialsResponseDTO;
 import com.miage.pouleAPI.dtos.trial.TrialDetailDTO;
 import com.miage.pouleAPI.dtos.trial.TrialSummaryDTO;
 import com.miage.pouleAPI.services.interfaces.TrialService;
-import com.miage.pouleAPI.auth.repository.ApplicationUserRepository;
+import com.miage.pouleAPI.repositories.ApplicationUserRepository;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;

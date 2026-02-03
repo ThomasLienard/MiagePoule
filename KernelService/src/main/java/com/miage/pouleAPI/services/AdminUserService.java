@@ -57,13 +57,8 @@ public class AdminUserService {
         String tempPassword = (request.lastname() + "." + request.name()).toLowerCase()
             .replaceAll("\\s+", "");
 
-        // Générer un nouvel ID
-        Integer maxId = userRepository.findMaxId();
-        Integer newId = (maxId != null ? maxId : 0) + 1;
-
-        // Créer l'utilisateur
+        // Créer l'utilisateur - l'ID sera auto-généré
         ApplicationUser user = new ApplicationUser();
-        user.setId(newId);
         user.setName(request.name());
         user.setLastname(request.lastname());
         user.setEmail(request.email());

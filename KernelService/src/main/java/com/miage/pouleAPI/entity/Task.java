@@ -18,6 +18,7 @@ import lombok.Setter;
 public class Task {
 
     @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "id_task")
     private Integer id;
 

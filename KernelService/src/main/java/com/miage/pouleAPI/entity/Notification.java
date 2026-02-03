@@ -20,6 +20,7 @@ import lombok.Setter;
 public class Notification {
 
     @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "id_notification")
     private Integer id;
 
