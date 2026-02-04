@@ -30,5 +30,7 @@ public class ParticipateAt {
     @Column(name = "trial_result_team")
     private String result;
 
+    @Column(name = "is_forfeit")
+    private Boolean isForfeit = false;
 }
 

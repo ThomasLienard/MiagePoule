@@ -153,21 +153,21 @@ VALUES (1, 1),
 -- Participation
 -- ======================
 -- Team participation: Trial 1 and Trial 2 have team participation
-INSERT INTO participate_at (id_team, id_trial, trial_result_team)
-VALUES (1, 1, '11.2s'),
-       (2, 1, '11.5s'),
-       (1, 2, '11.8s'),
-       (2, 3, '10.9s');
+INSERT INTO participate_at (id_team, id_trial, trial_result_team, is_forfeit)
+VALUES (1, 1, '11.2s', false),
+       (2, 1, '11.5s', false),
+       (1, 2, '11.8s', false),
+       (2, 3, '10.9s', false);
 
 -- ======================
 -- Convened athletes
 -- ======================
 -- Athletes participation: Trial 4 and Trial 5 have athlete convocation (no participate_at)
-INSERT INTO is_convened_to (id, id_trial, trial_result_athlete)
-VALUES (1, 4, '2h15m'),
-       (2, 4, '2h05m'),
-       (3, 5, '11.6s'),
-       (4, 5, '11.1s');
+INSERT INTO is_convened_to (id, id_trial, trial_result_athlete, is_forfeit)
+VALUES (1, 4, '2h15m', false),
+       (2, 4, '2h05m', false),
+       (3, 5, '11.6s', false),
+       (4, 5, '11.1s', false);
 
 -- ======================
 -- Notifications
@@ -200,12 +200,18 @@ VALUES (1, 1);
 -- ======================
 -- User event schedule
 -- ======================
+-- Commissaire (id=2) est assigné aux épreuves 1, 2 et 3
+-- Jane Smith commissaire (id=6) est assignée aux épreuves 4 et 5
 INSERT INTO have_a_time_schedule (id, id_event)
 VALUES (1, 1),
+       (2, 1),
        (2, 2),
+       (2, 3),
        (3, 3),
        (4, 4),
        (5, 5),
+       (6, 4),
+       (6, 5),
        (6, 6);
 
 -- ======================

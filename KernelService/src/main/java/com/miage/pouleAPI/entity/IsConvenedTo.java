@@ -30,4 +30,6 @@ public class IsConvenedTo {
     @Column(name = "trial_result_athlete")
     private String result;
 
+    @Column(name = "is_forfeit")
+    private Boolean isForfeit = false;
 }

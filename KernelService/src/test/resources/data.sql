@@ -150,16 +150,16 @@ VALUES (1, 1),
 -- Participation
 -- ======================
 -- Team participation in trial 2
-INSERT INTO participate_at (id_team, id_trial, trial_result_team)
-VALUES (1, 2, '12.4s'),
-       (2, 2, '11.9s');
+INSERT INTO participate_at (id_team, id_trial, trial_result_team, is_forfeit)
+VALUES (1, 2, '12.4s', false),
+       (2, 2, '11.9s', false);
 
 -- ======================
 -- Convened athletes
 -- ======================
 -- Athletes participating in trial 2
-INSERT INTO is_convened_to (id, id_trial, trial_result_athlete)
-VALUES (1, 2, '12.4s');
+INSERT INTO is_convened_to (id, id_trial, trial_result_athlete, is_forfeit)
+VALUES (1, 2, '12.4s', false);
 
 -- ======================
 -- Notifications
@@ -189,8 +189,12 @@ VALUES (1, 1);
 -- ======================
 -- User event schedule
 -- ======================
+-- Commissaire (id=2) est assigné aux épreuves 1, 2 et 3
 INSERT INTO have_a_time_schedule (id, id_event)
-VALUES (1, 1);
+VALUES (1, 1),
+       (2, 1),
+       (2, 2),
+       (2, 3);
 
 -- ======================
 -- Tasks

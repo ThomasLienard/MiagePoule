@@ -1,0 +1,133 @@
+package com.miage.pouleAPI.controllers;
+
+import com.miage.pouleAPI.dtos.participant.AddParticipantRequest;
+import com.miage.pouleAPI.dtos.participant.ForfeitRequest;
+import com.miage.pouleAPI.dtos.participant.ParticipantDTO;
+import com.miage.pouleAPI.dtos.participant.TrialParticipantsDTO;
+import com.miage.pouleAPI.dtos.participant.TrialParticipantsFullDTO;
+import com.miage.pouleAPI.services.interfaces.ParticipantService;
+import jakarta.validation.Valid;
+import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.*;
+
+import java.util.List;
+
+@RestController
+@RequestMapping("/commissaire/trials")
+@RequiredArgsConstructor
+@Slf4j
+public class ParticipantController {
+
+    private final ParticipantService participantService;
+
+    public record ApiResponse(String message) {}
+
+    /**
+     * Récupère toutes les épreuves avec leurs participants
+     */
+    @GetMapping
+    public ResponseEntity<List<TrialParticipantsDTO>> getAllTrials() {
+        List<TrialParticipantsDTO> trials = participantService.getTrialsForCommissaire();
+        return ResponseEntity.ok(trials);
+    }
+
+    /**
+     * Récupère les participants d'une épreuve spécifique
+     */
+    @GetMapping("/{trialId}/participants")
+    public ResponseEntity<TrialParticipantsDTO> getTrialParticipants(@PathVariable Integer trialId) {
+        return participantService.getTrialParticipants(trialId)
+                .map(ResponseEntity::ok)
+                .orElse(ResponseEntity.notFound().build());
+    }
+    
+    /**
+     * Récupère les participants d'une épreuve avec tous les potentiels (athlètes ET équipes)
+     */
+    @GetMapping("/{trialId}/participants/full")
+    public ResponseEntity<TrialParticipantsFullDTO> getTrialParticipantsFull(@PathVariable Integer trialId) {
+        return participantService.getTrialParticipantsFull(trialId)
+                .map(ResponseEntity::ok)
+                .orElse(ResponseEntity.notFound().build());
+    }
+
+    /**
+     * Inscrit un participant à une épreuve
+     */
+    @PostMapping("/{trialId}/participants")
+    public ResponseEntity<Object> addParticipant(
+            @PathVariable Integer trialId,
+            @Valid @RequestBody AddParticipantRequest request) {
+        try {
+            ParticipantDTO participant;
+            
+            if ("ATHLETE".equalsIgnoreCase(request.getParticipantType())) {
+                participant = participantService.addAthleteToTrial(trialId, request.getParticipantId());
+            } else if ("TEAM".equalsIgnoreCase(request.getParticipantType())) {
+                participant = participantService.addTeamToTrial(trialId, request.getParticipantId());
+            } else {
+                return ResponseEntity.badRequest()
+                        .body(new ApiResponse("Type de participant invalide. Utilisez 'ATHLETE' ou 'TEAM'."));
+            }
+            
+            return ResponseEntity.ok(participant);
+        } catch (IllegalArgumentException e) {
+            return ResponseEntity.badRequest()
+                    .body(new ApiResponse(e.getMessage()));
+        }
+    }
+
+    /**
+     * Déclare un participant forfait
+     */
+    @PostMapping("/{trialId}/forfeit")
+    public ResponseEntity<Object> forfeitParticipant(
+            @PathVariable Integer trialId,
+            @Valid @RequestBody ForfeitRequest request) {
+        try {
+            ParticipantDTO participant;
+            
+            if ("ATHLETE".equalsIgnoreCase(request.getParticipantType())) {
+                participant = participantService.forfeitAthlete(trialId, request.getParticipantId());
+            } else if ("TEAM".equalsIgnoreCase(request.getParticipantType())) {
+                participant = participantService.forfeitTeam(trialId, request.getParticipantId());
+            } else {
+                return ResponseEntity.badRequest()
+                        .body(new ApiResponse("Type de participant invalide. Utilisez 'ATHLETE' ou 'TEAM'."));
+            }
+            
+            return ResponseEntity.ok(participant);
+        } catch (IllegalArgumentException e) {
+            return ResponseEntity.badRequest()
+                    .body(new ApiResponse(e.getMessage()));
+        }
+    }
+
+    /**
+     * Annule le forfait d'un participant
+     */
+    @PostMapping("/{trialId}/unforfeit")
+    public ResponseEntity<Object> unforfeitParticipant(
+            @PathVariable Integer trialId,
+            @Valid @RequestBody ForfeitRequest request) {
+        try {
+            ParticipantDTO participant;
+            
+            if ("ATHLETE".equalsIgnoreCase(request.getParticipantType())) {
+                participant = participantService.unforfeitAthlete(trialId, request.getParticipantId());
+            } else if ("TEAM".equalsIgnoreCase(request.getParticipantType())) {
+                participant = participantService.unforfeitTeam(trialId, request.getParticipantId());
+            } else {
+                return ResponseEntity.badRequest()
+                        .body(new ApiResponse("Type de participant invalide. Utilisez 'ATHLETE' ou 'TEAM'."));
+            }
+            
+            return ResponseEntity.ok(participant);
+        } catch (IllegalArgumentException e) {
+            return ResponseEntity.badRequest()
+                    .body(new ApiResponse(e.getMessage()));
+        }
+    }
+}
