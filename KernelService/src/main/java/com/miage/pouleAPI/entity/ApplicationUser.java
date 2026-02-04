@@ -22,6 +22,7 @@ import lombok.Setter;
 public class ApplicationUser implements Observer {
 
     @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "id")
     private Integer id;
 
@@ -115,8 +116,8 @@ public class ApplicationUser implements Observer {
         joinColumns = @JoinColumn(name = "id"),
         inverseJoinColumns = @JoinColumn(name = "id_notification")
     )
-    @JsonIgnore
     @JsonIgnoreProperties({"hibernateLazyInitializer", "handler"})
+    @JsonIgnore
     private Set<Notification> notifications = new HashSet<>();
 
     @ManyToMany(mappedBy = "users")
@@ -131,4 +132,8 @@ public class ApplicationUser implements Observer {
     public void update(Notification notification) {
 
     }
+
+    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL)
+    @JsonIgnoreProperties({"user", "hibernateLazyInitializer", "handler"})
+    private Set<Document> documents = new HashSet<>();
 }

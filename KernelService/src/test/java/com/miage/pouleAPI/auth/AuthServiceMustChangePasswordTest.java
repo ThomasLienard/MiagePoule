@@ -2,9 +2,9 @@ package com.miage.pouleAPI.auth;
 
 import com.miage.pouleAPI.auth.dto.LoginRequest;
 import com.miage.pouleAPI.auth.jwt.JwtService;
-import com.miage.pouleAPI.auth.repository.ApplicationUserRepository;
 import com.miage.pouleAPI.entity.ApplicationUser;
 import com.miage.pouleAPI.entity.Role;
+import com.miage.pouleAPI.repositories.ApplicationUserRepository;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;

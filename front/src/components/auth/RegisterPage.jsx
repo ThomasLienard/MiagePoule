@@ -22,7 +22,7 @@ const RegisterPage = () => {
     const handleChange = (e) => {
         setFormData({
             ...formData,
-            [e.target.id]: e.target.value,
+            [e.currentTarget.name]: e.currentTarget.value,
         });
     };
 
@@ -48,8 +48,8 @@ const RegisterPage = () => {
         const userData = {
             email: formData.email,
             password: formData.password,
-            name: formData.firstName,
-            lastname: formData.lastName,
+            firstName: formData.firstName,
+            lastName: formData.lastName,
             countryCode: "FR",
             roleName: "SPECTATEUR"
         };
@@ -90,6 +90,7 @@ const RegisterPage = () => {
                     <Form onSubmit={handleSubmit} className="mt-2">
                             <FloatingLabel label="Prénom" controlId="firstName">
                                 <Form.Control
+                                    name="firstName"
                                     type="text"
                                     placeholder="Prénom"
                                     onChange={handleChange}
@@ -99,6 +100,7 @@ const RegisterPage = () => {
                         </FloatingLabel>
                             <FloatingLabel label="Nom" controlId="lastName" className="mt-1">
                                 <Form.Control
+                                    name="lastName"
                                     type="text"
                                     placeholder="Nom"
                                     onChange={handleChange}
@@ -108,8 +110,9 @@ const RegisterPage = () => {
                             </FloatingLabel>
                             <FloatingLabel label="Email" controlId="email"  className="mt-1">
                                 <Form.Control
+                                    name="email"
                                     type="email"
-                                    placeholder="Eail"
+                                    placeholder="Email"
                                     onChange={handleChange}
                                     required
                                     value={formData.email}
@@ -118,6 +121,7 @@ const RegisterPage = () => {
                         <div>
                                 <FloatingLabel label="Mot de passe" controlId="password"  className="mt-1">
                                     <Form.Control
+                                        name="password"
                                         type="password"
                                         placeholder="Mot de passe"
                                         onChange={handleChange}
@@ -129,6 +133,7 @@ const RegisterPage = () => {
                         </div>
                             <FloatingLabel label="Confirmez le mot de passe" controlId="confirmPassword"  className="mt-2">
                                 <Form.Control
+                                    name="confirmPassword"
                                     type="password"
                                     placeholder="Confirmez le mot de passe"
                                     onChange={handleChange}

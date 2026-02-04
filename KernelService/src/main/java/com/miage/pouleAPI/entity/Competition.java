@@ -18,6 +18,7 @@ import java.util.Set;
 public class Competition implements Subject {
 
     @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "id_competition")
     private Integer id;
 

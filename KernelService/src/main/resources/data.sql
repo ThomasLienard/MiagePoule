@@ -26,9 +26,10 @@ VALUES ('INFO', 'Information message'),
 -- ======================
 -- Type of documents
 -- ======================
-INSERT INTO type_of_document (id_type_doc, name_type_doc)
-VALUES (1, 'PASSPORT'),
-       (2, 'LICENSE');
+INSERT INTO type_of_document (name_type_doc)
+VALUES ('PASSPORT'),
+       ('LICENSE'),
+       ('TICKET');
 
 -- ======================
 -- Type of notification
@@ -49,53 +50,53 @@ VALUES ('MEETING'),
 -- ======================
 -- Championships
 -- ======================
-INSERT INTO championship (id_championship, description_championship, name_championship,
+INSERT INTO championship (description_championship, name_championship,
                           start_date_championship, end_date_championship)
-VALUES (1, 'World level championship', 'World Cup', '2025-01-01', '2025-01-02'),
-       (2, 'National level championship', 'National League', '2025-01-01', '2025-01-02');
+VALUES ('World level championship', 'World Cup', '2025-01-01', '2025-01-02'),
+       ('National level championship', 'National League', '2025-01-01', '2025-01-02');
 
 -- ======================
 -- Competitions
 -- ======================
-INSERT INTO competition (id_competition, name_competition, description_competition,
+INSERT INTO competition (name_competition, description_competition,
                          id_championship, start_date_competition, end_date_competition)
-VALUES (1, '100m Sprint', 'Short distance run', 1, '2025-01-01', '2025-01-02'),
-       (2, 'Marathon', 'Long distance run', 1, '2025-01-01', '2025-01-02');
+VALUES ('100m Sprint', 'Short distance run', 1, '2025-01-01', '2025-01-02'),
+       ('Marathon', 'Long distance run', 1, '2025-01-01', '2025-01-02');
 
 -- ======================
 -- Places
 -- ======================
-INSERT INTO place (id_place, name_place, city_place, zip_code_place, street_place,
+INSERT INTO place (name_place, city_place, zip_code_place, street_place,
                    parking_place, number_place, description_place,
                    latitude_place, longitude_place)
-VALUES (1, 'France Stadium', 'Saint-Denis', '93200', 'Main Street', TRUE, '1',
+VALUES ('France Stadium', 'Saint-Denis', '93200', 'Main Street', TRUE, '1',
         'Central stadium', 48.924459, 2.360164),
-       (2, 'Bercy Sports Palace', 'Paris', '75012', 'Boulevard de Bercy', FALSE, '8',
+       ('Bercy Sports Palace', 'Paris', '75012', 'Boulevard de Bercy', FALSE, '8',
         'Indoor sports complex', 48.8365, 2.3738),
-       (3, 'Champ de Mars', 'Paris', '75007', 'Avenue de la Bourdonnais', TRUE, '2',
+       ('Champ de Mars', 'Paris', '75007', 'Avenue de la Bourdonnais', TRUE, '2',
         'Large public greenspace', 48.8550, 2.2980);
 
 -- ======================
 -- Time slots
 -- ======================
-INSERT INTO time_slot (id_time_slot, start_time, end_time)
-VALUES (1, '2025-01-01 09:00:00', '2025-01-01 10:00:00'),
-       (2, '2026-01-01 10:00:00', '2026-01-01 11:00:00'),
-       (3, '2026-10-09 09:00:00', '2026-10-09 10:00:00');
+INSERT INTO time_slot (start_time, end_time)
+VALUES ('2025-01-01 09:00:00', '2025-01-01 10:00:00'),
+       ('2026-01-01 10:00:00', '2026-01-01 11:00:00'),
+       ('2026-10-09 09:00:00', '2026-10-09 10:00:00');
 
 -- ======================
 -- Events
 -- ======================
-INSERT INTO event (id_event, name_event, description_event, type_event_name,
+INSERT INTO event (name_event, description_event, type_event_name,
                    id_place, id_time_slot, id_competition)
-VALUES (1, '100m Trial Heat 1', 'First qualification heat', 'TRIAL', 1, 1, 1),
-       (2, '100m Trial Heat 2', 'Second qualification heat', 'TRIAL', 1, 2, 1),
-       (3, '100m Trial Final', 'Final race', 'TRIAL', 1, 3, 1),
-       (4, 'Marathon Trial Warm-up', 'Warm-up session', 'TRIAL', 2, 2, 2),
-       (5, 'Marathon Qualification', 'Main qualification heat', 'TRIAL', 2, 1, 2),
-       (6, 'Training Session A', 'Regular training', 'TRAINING', 3, 1, 1),
-       (7, 'Training Session B', 'Regular training', 'TRAINING', 3, 2, 1),
-       (8, 'Championship Meeting', 'Official gathering', 'MEETING', 3, 3, 2);
+VALUES ('100m Trial Heat 1', 'First qualification heat', 'TRIAL', 1, 1, 1),
+       ('100m Trial Heat 2', 'Second qualification heat', 'TRIAL', 1, 2, 1),
+       ('100m Trial Final', 'Final race', 'TRIAL', 1, 3, 1),
+       ('Marathon Trial Warm-up', 'Warm-up session', 'TRIAL', 2, 2, 2),
+       ('Marathon Qualification', 'Main qualification heat', 'TRIAL', 2, 1, 2),
+       ('Training Session A', 'Regular training', 'TRAINING', 3, 1, 1),
+       ('Training Session B', 'Regular training', 'TRAINING', 3, 2, 1),
+       ('Championship Meeting', 'Official gathering', 'MEETING', 3, 3, 2);
 
 -- ======================
 -- Trials
@@ -115,30 +116,31 @@ VALUES (1),
 -- mdp : "test123"
 
 
-INSERT INTO application_user (id, name, lastname, password, email, country_code, role_name, is_active, is_account_activated, must_change_password)
+INSERT INTO application_user (name, lastname, password, email, country_code, role_name, is_active, is_account_activated, must_change_password, created_at, created_by)
 VALUES
     -- Admin existant - email: anna@smith.com
-    (1, 'Anna', 'Smith', '$2a$10$vycWMvbko2wycSl3u6bIL.vCeHgNBQfNq7jpVc7pCEnfER6A2vTLi', 'anna@smith.com', 'US', 'ADMIN', true, true, false),
+    ('Anna', 'Smith', '$2a$10$vycWMvbko2wycSl3u6bIL.vCeHgNBQfNq7jpVc7pCEnfER6A2vTLi', 'anna@smith.com', 'US', 'ADMIN', true, true, false, NOW(), 'system'),
     -- Nouveaux utilisateurs pour chaque rôle
-    (2, 'Pierre', 'Commissaire', '$2a$10$vycWMvbko2wycSl3u6bIL.vCeHgNBQfNq7jpVc7pCEnfER6A2vTLi', 'commissaire@test.com', 'FR', 'COMMISSAIRE', true, true, false),
-    (3, 'Marie', 'Athlete', '$2a$10$vycWMvbko2wycSl3u6bIL.vCeHgNBQfNq7jpVc7pCEnfER6A2vTLi', 'athlete@test.com', 'FR', 'ATHLETE', true, true, false),
-    (4, 'Jean', 'Volontaire', '$2a$10$vycWMvbko2wycSl3u6bIL.vCeHgNBQfNq7jpVc7pCEnfER6A2vTLi', 'volontaire@test.com', 'FR', 'VOLONTAIRE', true, true, false),
-    (5, 'John', 'Doe', '$2a$10$vycWMvbko2wycSl3u6bIL.vCeHgNBQfNq7jpVc7pCEnfER6A2vTLi', 'john@doe.com', 'US', 'ATHLETE', true, true, false),
-    (6, 'Jane', 'Smith', '$2a$10$vycWMvbko2wycSl3u6bIL.vCeHgNBQfNq7jpVc7pCEnfER6A2vTLi', 'jane@smith.com', 'US', 'COMMISSAIRE', true, true, false);
+    ('Pierre', 'Commissaire', '$2a$10$vycWMvbko2wycSl3u6bIL.vCeHgNBQfNq7jpVc7pCEnfER6A2vTLi', 'commissaire@test.com', 'FR', 'COMMISSAIRE', true, true, false, NOW(), 'system'),
+    ('Marie', 'Athlete', '$2a$10$vycWMvbko2wycSl3u6bIL.vCeHgNBQfNq7jpVc7pCEnfER6A2vTLi', 'athlete@test.com', 'FR', 'ATHLETE', true, true, false, NOW(), 'system'),
+    ('Jean', 'Volontaire', '$2a$10$vycWMvbko2wycSl3u6bIL.vCeHgNBQfNq7jpVc7pCEnfER6A2vTLi', 'volontaire@test.com', 'FR', 'VOLONTAIRE', true, true, false, NOW(), 'system'),
+    ('John', 'Doe', '$2a$10$vycWMvbko2wycSl3u6bIL.vCeHgNBQfNq7jpVc7pCEnfER6A2vTLi', 'john@doe.com', 'US', 'ATHLETE', true, true, false, NOW(), 'system'),
+    ('Jane', 'Smith', '$2a$10$vycWMvbko2wycSl3u6bIL.vCeHgNBQfNq7jpVc7pCEnfER6A2vTLi', 'jane@smith.com', 'US', 'COMMISSAIRE', true, true, false, NOW(), 'system');
     
 -- ======================
 -- Documents
 -- ======================
-INSERT INTO document (id_doc, file, id_type_doc, id)
-VALUES (1, X'010203', 1, 1),
-       (2, X'0A0B0C', 2, 2);
+
+-- ======================
+-- NE PAS INSÉRER DANS LA TABLE DOCUMENT ICI !
+-- ======================
 
 -- ======================
 -- Teams
 -- ======================
-INSERT INTO team (id_team, name_team, country_code)
-VALUES (1, 'Team A', 'FR'),
-       (2, 'Team B', 'US');
+INSERT INTO team (name_team, country_code)
+VALUES ('Team A', 'FR'),
+       ('Team B', 'US');
 
 -- ======================
 -- Membership
@@ -170,12 +172,12 @@ VALUES (1, 4, '2h15m'),
 -- ======================
 -- Notifications
 -- ======================
-INSERT INTO notification (id_notification, description_notification, emission_date,
+INSERT INTO notification (description_notification, emission_date,
                           id_place, id_event, name_severity, name_type_of_notification)
-VALUES (1, 'Trial 1 starting soon', '2025-01-01 08:30:00', 1, 1, 'WARNING', 'EMAIL'),
-       (2, 'Trial 2 delayed', '2025-01-01 09:45:00', 1, 2, 'WARNING', 'SMS'),
-       (3, 'Trial 3 finals announcement', '2025-01-01 10:00:00', 1, 3, 'INFO', 'SYSTEM'),
-       (4, 'Marathon Trial info', '2025-01-01 08:00:00', 1, 4, 'INFO', 'EMAIL');
+VALUES ('Trial 1 starting soon', '2025-01-01 08:30:00', 1, 1, 'WARNING', 'EMAIL'),
+       ('Trial 2 delayed', '2025-01-01 09:45:00', 1, 2, 'WARNING', 'SMS'),
+       ('Trial 3 finals announcement', '2025-01-01 10:00:00', 1, 3, 'INFO', 'SYSTEM'),
+       ('Marathon Trial info', '2025-01-01 08:00:00', 1, 4, 'INFO', 'EMAIL');
 
 -- ======================
 -- User subscriptions
@@ -186,8 +188,8 @@ VALUES (1, 1);
 -- ======================
 -- Geolocs
 -- ======================
-INSERT INTO geoloc (id_geoloc, latitude_geoloc, longitude_geoloc)
-VALUES (1, 48.8566, 2.3522);
+INSERT INTO geoloc (latitude_geoloc, longitude_geoloc)
+VALUES (48.8566, 2.3522);
 
 -- ======================
 -- User locations
@@ -209,9 +211,9 @@ VALUES (1, 1),
 -- ======================
 -- Tasks
 -- ======================
-INSERT INTO task (id_task, task_name, task_description)
-VALUES (1, 'Prepare track', 'Ensure the track surface is clean'),
-       (2, 'Check timing system', 'Verify sensors and timing devices');
+INSERT INTO task (task_name, task_description)
+VALUES ('Prepare track', 'Ensure the track surface is clean'),
+       ('Check timing system', 'Verify sensors and timing devices');
 
 -- ======================
 -- Event-task association

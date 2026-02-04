@@ -2,12 +2,12 @@ package com.miage.pouleAPI.controllers;
 
 import com.miage.pouleAPI.adapters.UserAdapter;
 import com.miage.pouleAPI.auth.AuthService;
-import com.miage.pouleAPI.auth.repository.ApplicationUserRepository;
 import com.miage.pouleAPI.dtos.profile.ChangePasswordRequestDTO;
 import com.miage.pouleAPI.dtos.profile.UpdateProfileRequestDTO;
 import com.miage.pouleAPI.dtos.profile.UpdateProfileResponse;
 import com.miage.pouleAPI.dtos.profile.UserProfileResponseDTO;
 import com.miage.pouleAPI.entity.ApplicationUser;
+import com.miage.pouleAPI.repositories.ApplicationUserRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;

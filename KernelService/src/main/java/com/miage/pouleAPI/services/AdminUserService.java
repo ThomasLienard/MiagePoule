@@ -1,10 +1,10 @@
 package com.miage.pouleAPI.services;
 
-import com.miage.pouleAPI.auth.repository.ApplicationUserRepository;
 import com.miage.pouleAPI.dtos.admin.*;
 import com.miage.pouleAPI.entity.ApplicationUser;
 import com.miage.pouleAPI.entity.Country;
 import com.miage.pouleAPI.entity.Role;
+import com.miage.pouleAPI.repositories.ApplicationUserRepository;
 import com.miage.pouleAPI.repositories.CountryRepository;
 import com.miage.pouleAPI.repositories.RoleRepository;
 import lombok.RequiredArgsConstructor;
@@ -57,13 +57,8 @@ public class AdminUserService {
         String tempPassword = (request.lastname() + "." + request.name()).toLowerCase()
             .replaceAll("\\s+", "");
 
-        // Générer un nouvel ID
-        Integer maxId = userRepository.findMaxId();
-        Integer newId = (maxId != null ? maxId : 0) + 1;
-
-        // Créer l'utilisateur
+        // Créer l'utilisateur - l'ID sera auto-généré
         ApplicationUser user = new ApplicationUser();
-        user.setId(newId);
         user.setName(request.name());
         user.setLastname(request.lastname());
         user.setEmail(request.email());

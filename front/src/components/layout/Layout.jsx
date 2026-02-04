@@ -42,11 +42,19 @@ export default function Layout() {
                                 <Link to="/public/championship"
                                       className="text-decoration-none text-body-secondary">Championnats</Link>
                             </Nav.Link>
+                            {isAuthenticated() && (
+                                <Nav.Link className="auth-button secondary me-2" as="span">
+                                    <Link to="/tickets"
+                                          className="text-decoration-none text-body-secondary">📄 Mes Billets</Link>
+                                </Nav.Link>
+                            )}
+
                             {user?.roles?.includes('ADMIN') && (
                                 <Nav.Link className="auth-button secondary me-2" as="span">
                                     <Link to="/admin" className="text-decoration-none text-body-secondary">Administration</Link>
                                 </Nav.Link>
                             )}
+
                         </Nav>
 
                         {/* ← NOUVEAU : Badge notifications (UNIQUEMENT si connecté) */}

@@ -14,6 +14,7 @@ import ListChampionships from "./components/ListChampionships.jsx";
 import PublicMapPage from './components/map/PublicMapPage';
 import TrialsAndEventsDetails from './components/TrialsAndEventsDetails.jsx';
 import Layout from "./components/layout/Layout.jsx";
+import TicketsPage from './components/tickets/TicketsPage.jsx';
 import Profile from "./components/profile/Profile.jsx";
 import PrivacySettings from "./components/profile/PrivacySettings.jsx";
 
@@ -54,6 +55,12 @@ function App() {
                             <Route path="/privacy" element={
                                 <ProtectedRoute>
                                     <PrivacySettings />
+                                </ProtectedRoute>
+                            } />
+
+                            <Route path="/tickets" element={
+                                <ProtectedRoute>
+                                    <TicketsPage />
                                 </ProtectedRoute>
                             } />
 
