@@ -18,6 +18,7 @@ import java.time.LocalDateTime;
 public class Document {
 
     @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "id_doc")
     private Integer id;
 

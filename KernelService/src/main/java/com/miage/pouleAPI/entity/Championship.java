@@ -17,6 +17,7 @@ import java.time.LocalDate;
 public class Championship {
 
     @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "id_championship")
     private Integer id;
 

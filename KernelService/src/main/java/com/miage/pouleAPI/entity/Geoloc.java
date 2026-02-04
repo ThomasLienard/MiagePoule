@@ -19,6 +19,7 @@ import lombok.Setter;
 public class Geoloc {
 
     @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "id_geoloc")
     private Integer id;
 
