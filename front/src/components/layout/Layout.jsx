@@ -52,7 +52,7 @@ export default function Layout() {
 
                             {user?.roles?.includes('COMMISSAIRE') && (
                                 <Nav.Link className="auth-button secondary me-2" as="span">
-                                    <Link to="/commissaire/epreuves"
+                                    <Link to="/commissaire/trials"
                                           className="text-decoration-none text-body-secondary">Admin épreuves</Link>
                                 </Nav.Link>
                             )}

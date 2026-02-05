@@ -51,12 +51,12 @@ function App() {
                             } />
 
                             {/* Routes protégées Commissaire */}
-                            <Route path="/commissaire/epreuves" element={
+                            <Route path="/commissaire/trials" element={
                                 <ProtectedRoute allowedRoles={['COMMISSAIRE']}>
                                     <AdminEpreuves />
                                 </ProtectedRoute>
                             } />
-                            <Route path="/commissaire/epreuves/:trialId/participants" element={
+                            <Route path="/commissaire/trials/:trialId/participants" element={
                                 <ProtectedRoute allowedRoles={['COMMISSAIRE']}>
                                     <ManageParticipants />
                                 </ProtectedRoute>

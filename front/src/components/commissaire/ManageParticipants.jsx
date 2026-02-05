@@ -398,13 +398,6 @@ const ManageParticipants = () => {
                                                                     🌍 {participant.country}
                                                                 </small>
                                                             )}
-                                                            {participant.result && (
-                                                                <div>
-                                                                    <small className="text-success">
-                                                                        ⏱️ {participant.result}
-                                                                    </small>
-                                                                </div>
-                                                            )}
                                                         </div>
                                                     </div>
                                                     <div className="d-flex gap-1">
@@ -454,7 +447,7 @@ const ManageParticipants = () => {
             <Button 
                 variant="outline-secondary" 
                 className="mt-4"
-                onClick={() => navigate('/commissaire/epreuves')}
+                onClick={() => navigate('/commissaire/trials')}
             >
                 ← Retour aux épreuves
             </Button>

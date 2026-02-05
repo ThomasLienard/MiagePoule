@@ -12,6 +12,5 @@ public class ParticipantDTO {
     private String name;
     private String type; // "ATHLETE" or "TEAM"
     private String country;
-    private String result;
     private boolean isForfeit;
 }

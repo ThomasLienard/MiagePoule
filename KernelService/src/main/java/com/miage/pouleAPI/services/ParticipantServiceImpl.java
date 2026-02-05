@@ -119,7 +119,7 @@ public class ParticipantServiceImpl implements ParticipantService {
         
         isConvenedToRepository.save(inscription);
         
-        return createAthleteParticipantDTO(athlete, null, false);
+        return createAthleteParticipantDTO(athlete, false);
     }
 
     @Override
@@ -151,7 +151,7 @@ public class ParticipantServiceImpl implements ParticipantService {
         
         participateAtRepository.save(inscription);
         
-        return createTeamParticipantDTO(team, null, false);
+        return createTeamParticipantDTO(team, false);
     }
 
     @Override
@@ -163,7 +163,7 @@ public class ParticipantServiceImpl implements ParticipantService {
         inscription.setIsForfeit(true);
         isConvenedToRepository.save(inscription);
         
-        return createAthleteParticipantDTO(inscription.getUser(), inscription.getResult(), true);
+        return createAthleteParticipantDTO(inscription.getUser(), true);
     }
 
     @Override
@@ -175,7 +175,7 @@ public class ParticipantServiceImpl implements ParticipantService {
         inscription.setIsForfeit(true);
         participateAtRepository.save(inscription);
         
-        return createTeamParticipantDTO(inscription.getTeam(), inscription.getResult(), true);
+        return createTeamParticipantDTO(inscription.getTeam(), true);
     }
 
     @Override
@@ -187,7 +187,7 @@ public class ParticipantServiceImpl implements ParticipantService {
         inscription.setIsForfeit(false);
         isConvenedToRepository.save(inscription);
         
-        return createAthleteParticipantDTO(inscription.getUser(), inscription.getResult(), false);
+        return createAthleteParticipantDTO(inscription.getUser(), false);
     }
 
     @Override
@@ -199,7 +199,7 @@ public class ParticipantServiceImpl implements ParticipantService {
         inscription.setIsForfeit(false);
         participateAtRepository.save(inscription);
         
-        return createTeamParticipantDTO(inscription.getTeam(), inscription.getResult(), false);
+        return createTeamParticipantDTO(inscription.getTeam(), false);
     }
 
     @Override
@@ -240,14 +240,14 @@ public class ParticipantServiceImpl implements ParticipantService {
     
     private List<ParticipantDTO> getTeamParticipants(Integer trialId) {
         return participateAtRepository.findByTrialIdOrderedByResult(trialId).stream()
-                .map(p -> createTeamParticipantDTO(p.getTeam(), p.getResult(), 
+                .map(p -> createTeamParticipantDTO(p.getTeam(), 
                         p.getIsForfeit() != null && p.getIsForfeit()))
                 .toList();
     }
     
     private List<ParticipantDTO> getAthleteParticipants(Integer trialId) {
         return isConvenedToRepository.findByTrialIdOrderedByResult(trialId).stream()
-                .map(i -> createAthleteParticipantDTO(i.getUser(), i.getResult(), 
+                .map(i -> createAthleteParticipantDTO(i.getUser(), 
                         i.getIsForfeit() != null && i.getIsForfeit()))
                 .toList();
     }
@@ -264,24 +264,22 @@ public class ParticipantServiceImpl implements ParticipantService {
                 .toList();
     }
     
-    private ParticipantDTO createTeamParticipantDTO(Team team, String result, boolean isForfeit) {
+    private ParticipantDTO createTeamParticipantDTO(Team team, boolean isForfeit) {
         ParticipantDTO dto = new ParticipantDTO();
         dto.setId(team.getId());
         dto.setName(team.getName());
         dto.setType("TEAM");
         dto.setCountry(team.getCountry() != null ? team.getCountry().getCode() : null);
-        dto.setResult(result);
         dto.setForfeit(isForfeit);
         return dto;
     }
     
-    private ParticipantDTO createAthleteParticipantDTO(ApplicationUser user, String result, boolean isForfeit) {
+    private ParticipantDTO createAthleteParticipantDTO(ApplicationUser user, boolean isForfeit) {
         ParticipantDTO dto = new ParticipantDTO();
         dto.setId(user.getId());
         dto.setName(user.getName() + " " + user.getLastname());
         dto.setType("ATHLETE");
         dto.setCountry(user.getCountry() != null ? user.getCountry().getCode() : null);
-        dto.setResult(result);
         dto.setForfeit(isForfeit);
         return dto;
     }

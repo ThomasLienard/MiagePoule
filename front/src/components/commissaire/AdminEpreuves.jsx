@@ -75,7 +75,7 @@ const AdminEpreuves = () => {
                                             <div className="d-flex gap-2">
                                                 <Button 
                                                     variant="outline-primary"
-                                                    onClick={() => navigate(`/commissaire/epreuves/${trial.trialId}/participants`)}
+                                                    onClick={() => navigate(`/commissaire/trials/${trial.trialId}/participants`)}
                                                 >
                                                     Modifier participants
                                                 </Button>
