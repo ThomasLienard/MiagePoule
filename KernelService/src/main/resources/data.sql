@@ -140,7 +140,9 @@ VALUES
 -- ======================
 INSERT INTO team (name_team, country_code)
 VALUES ('Team A', 'FR'),
-       ('Team B', 'US');
+       ('Team B', 'US'),
+       ('Team C', 'DE'),
+       ('Team D', 'ES');
 
 -- ======================
 -- Membership
@@ -153,9 +155,10 @@ VALUES (1, 1),
 -- Participation
 -- ======================
 -- Team participation: Trial 1 and Trial 2 have team participation
+-- Team B est en forfait sur Trial 1 pour les tests
 INSERT INTO participate_at (id_team, id_trial, trial_result_team, is_forfeit)
 VALUES (1, 1, '11.2s', false),
-       (2, 1, '11.5s', false),
+       (2, 1, null, true),
        (1, 2, '11.8s', false),
        (2, 3, '10.9s', false);
 
