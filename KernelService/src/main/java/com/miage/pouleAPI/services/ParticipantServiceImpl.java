@@ -203,6 +203,24 @@ public class ParticipantServiceImpl implements ParticipantService {
     }
 
     @Override
+    @Transactional
+    public void removeAthleteFromTrial(Integer trialId, Integer athleteId) {
+        IsConvenedTo inscription = isConvenedToRepository.findByTrialIdAndUserId(trialId, athleteId)
+                .orElseThrow(() -> new IllegalArgumentException("L'athlète n'est pas inscrit à cette épreuve"));
+        
+        isConvenedToRepository.delete(inscription);
+    }
+
+    @Override
+    @Transactional
+    public void removeTeamFromTrial(Integer trialId, Integer teamId) {
+        ParticipateAt inscription = participateAtRepository.findByTrialIdAndTeamId(trialId, teamId)
+                .orElseThrow(() -> new IllegalArgumentException("L'équipe n'est pas inscrite à cette épreuve"));
+        
+        participateAtRepository.delete(inscription);
+    }
+
+    @Override
     public List<TrialParticipantsDTO> getTrialsForCommissaire() {
         // Récupérer l'email du commissaire connecté
         String email = SecurityContextHolder.getContext().getAuthentication().getName();

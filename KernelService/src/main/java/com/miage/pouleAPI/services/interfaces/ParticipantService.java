@@ -50,6 +50,16 @@ public interface ParticipantService {
     ParticipantDTO unforfeitTeam(Integer trialId, Integer teamId);
     
     /**
+     * Retire un athlète d'une épreuve
+     */
+    void removeAthleteFromTrial(Integer trialId, Integer athleteId);
+    
+    /**
+     * Retire une équipe d'une épreuve
+     */
+    void removeTeamFromTrial(Integer trialId, Integer teamId);
+    
+    /**
      * Récupère les épreuves pour lesquelles le commissaire peut gérer les participants
      */
     List<TrialParticipantsDTO> getTrialsForCommissaire();

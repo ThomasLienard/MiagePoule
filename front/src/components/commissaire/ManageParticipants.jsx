@@ -19,9 +19,17 @@ const ManageParticipants = () => {
     const [showForfeitModal, setShowForfeitModal] = useState(false);
     const [forfeitTarget, setForfeitTarget] = useState(null);
     
+    // Modal de confirmation suppression
+    const [showRemoveModal, setShowRemoveModal] = useState(false);
+    const [removeTarget, setRemoveTarget] = useState(null);
+    
     // Modal de détails pour l'inscription
     const [showAddModal, setShowAddModal] = useState(false);
     const [addTarget, setAddTarget] = useState(null);
+    
+    // Drag and drop
+    const [draggedParticipant, setDraggedParticipant] = useState(null);
+    const [dropZoneActive, setDropZoneActive] = useState(null); // 'potential' ou 'registered'
 
     useEffect(() => {
         fetchTrialParticipants();
@@ -41,6 +49,71 @@ const ManageParticipants = () => {
         }
     };
 
+    // Drag and drop handlers
+    const handleDragStart = (e, participant, source) => {
+        setDraggedParticipant({ ...participant, source });
+        e.dataTransfer.effectAllowed = 'move';
+    };
+
+    const handleDragOver = (e, zone) => {
+        e.preventDefault();
+        e.stopPropagation();
+        e.dataTransfer.dropEffect = 'move';
+        if (dropZoneActive !== zone) {
+            setDropZoneActive(zone);
+        }
+    };
+
+    const handleDragLeave = (e) => {
+        // Ne pas désactiver si on entre dans un élément enfant
+        const rect = e.currentTarget.getBoundingClientRect();
+        const x = e.clientX;
+        const y = e.clientY;
+        
+        if (x < rect.left || x > rect.right || y < rect.top || y > rect.bottom) {
+            setDropZoneActive(null);
+        }
+    };
+    
+    const handleDragEnd = () => {
+        setDropZoneActive(null);
+        setDraggedParticipant(null);
+    };
+
+    const handleDrop = async (e, targetZone) => {
+        e.preventDefault();
+        setDropZoneActive(null);
+        
+        if (!draggedParticipant) return;
+        
+        // Vérifier si le drag est valide
+        if (draggedParticipant.source === 'potential' && targetZone === 'registered') {
+            // Ajouter un participant
+            await handleAddParticipant(draggedParticipant);
+        } else if (draggedParticipant.source === 'registered' && targetZone === 'potential') {
+            // Retirer un participant
+            openRemoveModal(draggedParticipant);
+        }
+        
+        setDraggedParticipant(null);
+    };
+
+    const handleAddParticipant = async (participant) => {
+        try {
+            setActionLoading(true);
+            if (participant.type === 'ATHLETE') {
+                await participantService.addAthlete(trialId, participant.id);
+            } else {
+                await participantService.addTeam(trialId, participant.id);
+            }
+            await fetchTrialParticipants();
+        } catch (err) {
+            setError(err.message);
+        } finally {
+            setActionLoading(false);
+        }
+    };
+
     const openAddModal = (participant) => {
         setAddTarget(participant);
         setShowAddModal(true);
@@ -48,22 +121,9 @@ const ManageParticipants = () => {
 
     const handleConfirmAdd = async () => {
         if (!addTarget) return;
-        
-        try {
-            setActionLoading(true);
-            if (addTarget.type === 'ATHLETE') {
-                await participantService.addAthlete(trialId, addTarget.id);
-            } else {
-                await participantService.addTeam(trialId, addTarget.id);
-            }
-            setShowAddModal(false);
-            setAddTarget(null);
-            await fetchTrialParticipants();
-        } catch (err) {
-            setError(err.message);
-        } finally {
-            setActionLoading(false);
-        }
+        await handleAddParticipant(addTarget);
+        setShowAddModal(false);
+        setAddTarget(null);
     };
 
     const openForfeitModal = (participant) => {
@@ -99,6 +159,31 @@ const ManageParticipants = () => {
             } else {
                 await participantService.unforfeitTeam(trialId, participant.id);
             }
+            await fetchTrialParticipants();
+        } catch (err) {
+            setError(err.message);
+        } finally {
+            setActionLoading(false);
+        }
+    };
+    
+    const openRemoveModal = (participant) => {
+        setRemoveTarget(participant);
+        setShowRemoveModal(true);
+    };
+    
+    const handleConfirmRemove = async () => {
+        if (!removeTarget) return;
+        
+        try {
+            setActionLoading(true);
+            if (removeTarget.type === 'ATHLETE') {
+                await participantService.removeAthlete(trialId, removeTarget.id);
+            } else {
+                await participantService.removeTeam(trialId, removeTarget.id);
+            }
+            setShowRemoveModal(false);
+            setRemoveTarget(null);
             await fetchTrialParticipants();
         } catch (err) {
             setError(err.message);
@@ -184,9 +269,21 @@ const ManageParticipants = () => {
             <Row className="g-4">
                 {/* Colonne des participants potentiels */}
                 <Col md={5}>
-                    <Card className="h-100">
-                        <Card.Header as="h5" className="text-center bg-light">
+                    <Card 
+                        className={`h-100 ${dropZoneActive === 'potential' ? 'border-warning border-2' : ''}`}
+                        onDragOver={(e) => handleDragOver(e, 'potential')}
+                        onDragLeave={handleDragLeave}
+                        onDrop={(e) => handleDrop(e, 'potential')}
+                    >
+                        <Card.Header as="h5" className="text-center bg-light position-relative">
                             {viewMode === 'team' ? 'Équipes potentielles' : 'Participants potentiels'}
+                            {dropZoneActive === 'potential' && (
+                                <div className="position-absolute top-100 start-50 translate-middle-x mt-2" style={{ zIndex: 10 }}>
+                                    <Badge bg="warning" className="px-3 py-2">
+                                        🗑️ Relâchez pour retirer
+                                    </Badge>
+                                </div>
+                            )}
                         </Card.Header>
                         <Card.Body className="overflow-auto" style={{ maxHeight: '60vh' }}>
                             {potentialParticipants?.length === 0 ? (
@@ -196,16 +293,26 @@ const ManageParticipants = () => {
                             ) : (
                                 <div className="d-flex flex-column gap-2">
                                     {potentialParticipants?.map((participant) => (
-                                        <Card key={`potential-${participant.type}-${participant.id}`} className="shadow-sm">
+                                        <Card 
+                                            key={`potential-${participant.type}-${participant.id}`} 
+                                            className="shadow-sm"
+                                            draggable
+                                            onDragStart={(e) => handleDragStart(e, participant, 'potential')}
+                                            onDragEnd={handleDragEnd}
+                                            style={{ cursor: 'grab' }}
+                                        >
                                             <Card.Body className="py-2">
                                                 <div className="d-flex justify-content-between align-items-center">
-                                                    <div>
-                                                        <div className="fw-semibold">{participant.name}</div>
-                                                        {participant.country && (
-                                                            <small className="text-muted">
-                                                                🌍 {participant.country}
-                                                            </small>
-                                                        )}
+                                                    <div className="d-flex align-items-center">
+                                                        <span className="me-2 text-muted">⠿</span>
+                                                        <div>
+                                                            <div className="fw-semibold">{participant.name}</div>
+                                                            {participant.country && (
+                                                                <small className="text-muted">
+                                                                    🌍 {participant.country}
+                                                                </small>
+                                                            )}
+                                                        </div>
                                                     </div>
                                                     <Button
                                                         variant="outline-primary"
@@ -213,7 +320,7 @@ const ManageParticipants = () => {
                                                         disabled={actionLoading}
                                                         onClick={() => openAddModal(participant)}
                                                     >
-                                                        Détails
+                                                        + Ajouter
                                                     </Button>
                                                 </div>
                                             </Card.Body>
@@ -228,26 +335,34 @@ const ManageParticipants = () => {
                 {/* Flèche centrale */}
                 <Col md={2} className="d-flex align-items-center justify-content-center">
                     <div className="text-center">
-                        <Button
-                            variant="outline-secondary"
-                            size="lg"
-                            className="rounded-circle"
-                            style={{ width: '60px', height: '60px' }}
-                            disabled
-                        >
-                            &gt;
-                        </Button>
+                        <div className="d-flex flex-column align-items-center gap-2">
+                            <Badge bg="secondary" className="px-3 py-2">
+                                ↔️ Glisser-déposer
+                            </Badge>
+                        </div>
                         <div className="mt-2 text-muted small">
-                            Cliquez sur "Détails" pour inscrire
+                            ou utilisez les boutons
                         </div>
                     </div>
                 </Col>
 
                 {/* Colonne des participants inscrits */}
                 <Col md={5}>
-                    <Card className="h-100">
-                        <Card.Header as="h5" className="text-center bg-light">
-                            Participants
+                    <Card 
+                        className={`h-100 ${dropZoneActive === 'registered' ? 'border-success border-2' : ''}`}
+                        onDragOver={(e) => handleDragOver(e, 'registered')}
+                        onDragLeave={handleDragLeave}
+                        onDrop={(e) => handleDrop(e, 'registered')}
+                    >
+                        <Card.Header as="h5" className="text-center bg-light position-relative">
+                            Participants inscrits
+                            {dropZoneActive === 'registered' && (
+                                <div className="position-absolute top-100 start-50 translate-middle-x mt-2" style={{ zIndex: 10 }}>
+                                    <Badge bg="success" className="px-3 py-2">
+                                        ✅ Relâchez pour inscrire
+                                    </Badge>
+                                </div>
+                            )}
                         </Card.Header>
                         <Card.Body className="overflow-auto" style={{ maxHeight: '60vh' }}>
                             {trialData.participants?.length === 0 ? (
@@ -260,51 +375,71 @@ const ManageParticipants = () => {
                                         <Card 
                                             key={`participant-${participant.type}-${participant.id}`} 
                                             className={`shadow-sm ${participant.forfeit ? 'border-danger' : ''}`}
+                                            draggable={!participant.forfeit}
+                                            onDragStart={(e) => !participant.forfeit && handleDragStart(e, participant, 'registered')}
+                                            onDragEnd={handleDragEnd}
+                                            style={{ cursor: participant.forfeit ? 'default' : 'grab' }}
                                         >
                                             <Card.Body className="py-2">
                                                 <div className="d-flex justify-content-between align-items-center">
-                                                    <div>
-                                                        <div className="fw-semibold">
-                                                            {participant.name}
-                                                            {participant.forfeit && (
-                                                                <Badge bg="danger" className="ms-2">
-                                                                    Forfait
-                                                                </Badge>
+                                                    <div className="d-flex align-items-center">
+                                                        {!participant.forfeit && <span className="me-2 text-muted">⠿</span>}
+                                                        <div>
+                                                            <div className="fw-semibold">
+                                                                {participant.name}
+                                                                {participant.forfeit && (
+                                                                    <Badge bg="danger" className="ms-2">
+                                                                        Forfait
+                                                                    </Badge>
+                                                                )}
+                                                            </div>
+                                                            {participant.country && (
+                                                                <small className="text-muted">
+                                                                    🌍 {participant.country}
+                                                                </small>
+                                                            )}
+                                                            {participant.result && (
+                                                                <div>
+                                                                    <small className="text-success">
+                                                                        ⏱️ {participant.result}
+                                                                    </small>
+                                                                </div>
                                                             )}
                                                         </div>
-                                                        {participant.country && (
-                                                            <small className="text-muted">
-                                                                🌍 {participant.country}
-                                                            </small>
+                                                    </div>
+                                                    <div className="d-flex gap-1">
+                                                        {!participant.forfeit && (
+                                                            <>
+                                                                <Button
+                                                                    variant="outline-secondary"
+                                                                    size="sm"
+                                                                    disabled={actionLoading}
+                                                                    onClick={() => openRemoveModal(participant)}
+                                                                    title="Retirer"
+                                                                >
+                                                                    ✕
+                                                                </Button>
+                                                                <Button
+                                                                    variant="outline-danger"
+                                                                    size="sm"
+                                                                    disabled={actionLoading}
+                                                                    onClick={() => openForfeitModal(participant)}
+                                                                >
+                                                                    Forfait
+                                                                </Button>
+                                                            </>
                                                         )}
-                                                        {participant.result && (
-                                                            <div>
-                                                                <small className="text-success">
-                                                                    ⏱️ {participant.result}
-                                                                </small>
-                                                            </div>
+                                                        {participant.forfeit && (
+                                                            <Button
+                                                                variant="outline-success"
+                                                                size="sm"
+                                                                disabled={actionLoading}
+                                                                onClick={() => handleUnforfeit(participant)}
+                                                            >
+                                                                Annuler forfait
+                                                            </Button>
                                                         )}
                                                     </div>
-                                                    {!participant.forfeit && (
-                                                        <Button
-                                                            variant="outline-danger"
-                                                            size="sm"
-                                                            disabled={actionLoading}
-                                                            onClick={() => openForfeitModal(participant)}
-                                                        >
-                                                            Forfait
-                                                        </Button>
-                                                    )}
-                                                    {participant.forfeit && (
-                                                        <Button
-                                                            variant="outline-success"
-                                                            size="sm"
-                                                            disabled={actionLoading}
-                                                            onClick={() => handleUnforfeit(participant)}
-                                                        >
-                                                            Annuler forfait
-                                                        </Button>
-                                                    )}
                                                 </div>
                                             </Card.Body>
                                         </Card>
@@ -387,7 +522,7 @@ const ManageParticipants = () => {
                         <strong>{forfeitTarget?.name}</strong> ?
                     </p>
                     <p className="text-muted small">
-                        Cette action est irréversible. {forfeitTarget?.type === 'TEAM' ? 'L\'équipe' : 'Le sportif'}{' '}
+                        {forfeitTarget?.type === 'TEAM' ? 'L\'équipe' : 'Le sportif'}{' '}
                         sera marqué(e) comme forfait pour cette épreuve.
                     </p>
                 </Modal.Body>
@@ -411,6 +546,46 @@ const ManageParticipants = () => {
                             </>
                         ) : (
                             'Confirmer le forfait'
+                        )}
+                    </Button>
+                </Modal.Footer>
+            </Modal>
+            
+            {/* Modal de confirmation de suppression */}
+            <Modal show={showRemoveModal} onHide={() => setShowRemoveModal(false)} centered>
+                <Modal.Header closeButton>
+                    <Modal.Title>🗑️ Retirer le participant</Modal.Title>
+                </Modal.Header>
+                <Modal.Body>
+                    <p>
+                        Êtes-vous sûr de vouloir retirer{' '}
+                        <strong>{removeTarget?.name}</strong> de cette épreuve ?
+                    </p>
+                    <p className="text-muted small">
+                        {removeTarget?.type === 'TEAM' ? 'L\'équipe' : 'L\'athlète'} sera désinscrit(e) de l'épreuve 
+                        et pourra être réinscrit(e) ultérieurement.
+                    </p>
+                </Modal.Body>
+                <Modal.Footer>
+                    <Button 
+                        variant="secondary" 
+                        onClick={() => setShowRemoveModal(false)}
+                        disabled={actionLoading}
+                    >
+                        Annuler
+                    </Button>
+                    <Button 
+                        variant="warning" 
+                        onClick={handleConfirmRemove}
+                        disabled={actionLoading}
+                    >
+                        {actionLoading ? (
+                            <>
+                                <Spinner animation="border" size="sm" className="me-2" />
+                                Traitement...
+                            </>
+                        ) : (
+                            'Retirer le participant'
                         )}
                     </Button>
                 </Modal.Footer>

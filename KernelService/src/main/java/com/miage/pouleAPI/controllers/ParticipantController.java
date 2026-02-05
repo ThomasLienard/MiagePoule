@@ -130,4 +130,29 @@ public class ParticipantController {
                     .body(new ApiResponse(e.getMessage()));
         }
     }
+
+    /**
+     * Retire un participant d'une épreuve
+     */
+    @DeleteMapping("/{trialId}/participants")
+    public ResponseEntity<Object> removeParticipant(
+            @PathVariable Integer trialId,
+            @RequestParam Integer participantId,
+            @RequestParam String participantType) {
+        try {
+            if ("ATHLETE".equalsIgnoreCase(participantType)) {
+                participantService.removeAthleteFromTrial(trialId, participantId);
+            } else if ("TEAM".equalsIgnoreCase(participantType)) {
+                participantService.removeTeamFromTrial(trialId, participantId);
+            } else {
+                return ResponseEntity.badRequest()
+                        .body(new ApiResponse("Type de participant invalide. Utilisez 'ATHLETE' ou 'TEAM'."));
+            }
+            
+            return ResponseEntity.ok(new ApiResponse("Participant retiré avec succès"));
+        } catch (IllegalArgumentException e) {
+            return ResponseEntity.badRequest()
+                    .body(new ApiResponse(e.getMessage()));
+        }
+    }
 }

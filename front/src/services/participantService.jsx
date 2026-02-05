@@ -168,6 +168,36 @@ const participantService = {
         } catch (error) {
             throw new Error(error.response?.data?.message || 'Erreur lors de l\'annulation du forfait');
         }
+    },
+
+    /**
+     * Retire un athlète d'une épreuve
+     */
+    removeAthlete: async (trialId, athleteId) => {
+        try {
+            const response = await axios.delete(
+                `${API_BASE_URL}/commissaire/trials/${trialId}/participants?participantId=${athleteId}&participantType=ATHLETE`,
+                { headers: getAuthHeaders() }
+            );
+            return response.data;
+        } catch (error) {
+            throw new Error(error.response?.data?.message || 'Erreur lors du retrait de l\'athlète');
+        }
+    },
+
+    /**
+     * Retire une équipe d'une épreuve
+     */
+    removeTeam: async (trialId, teamId) => {
+        try {
+            const response = await axios.delete(
+                `${API_BASE_URL}/commissaire/trials/${trialId}/participants?participantId=${teamId}&participantType=TEAM`,
+                { headers: getAuthHeaders() }
+            );
+            return response.data;
+        } catch (error) {
+            throw new Error(error.response?.data?.message || 'Erreur lors du retrait de l\'équipe');
+        }
     }
 };
 
