@@ -21,6 +21,7 @@ import lombok.Setter;
 public class Event {
 
     @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "id_event")
     private Integer id;
 

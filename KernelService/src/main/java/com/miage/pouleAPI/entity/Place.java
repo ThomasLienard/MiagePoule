@@ -16,6 +16,7 @@ import lombok.Setter;
 public class Place {
 
     @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "id_place")
     private Integer id;
 

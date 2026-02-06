@@ -73,7 +73,6 @@ class AdminUserServiceMustChangePasswordTest {
             when(roleRepository.findById("ATHLETE")).thenReturn(Optional.of(athleteRole));
             when(countryRepository.findById("FR")).thenReturn(Optional.of(france));
             when(passwordEncoder.encode(anyString())).thenReturn("encodedPassword");
-            when(userRepository.findMaxId()).thenReturn(10);
             when(userRepository.save(any(ApplicationUser.class))).thenAnswer(i -> i.getArguments()[0]);
 
             // Act
@@ -104,7 +103,6 @@ class AdminUserServiceMustChangePasswordTest {
             when(roleRepository.findById("SPECTATEUR")).thenReturn(Optional.of(spectateurRole));
             when(countryRepository.findById("FR")).thenReturn(Optional.of(france));
             when(passwordEncoder.encode(anyString())).thenReturn("encodedPassword");
-            when(userRepository.findMaxId()).thenReturn(10);
             when(userRepository.save(any(ApplicationUser.class))).thenAnswer(i -> i.getArguments()[0]);
 
             // Act
@@ -135,7 +133,6 @@ class AdminUserServiceMustChangePasswordTest {
             when(roleRepository.findById("VOLONTAIRE")).thenReturn(Optional.of(volontaireRole));
             when(countryRepository.findById("FR")).thenReturn(Optional.of(france));
             when(passwordEncoder.encode(anyString())).thenReturn("encodedPassword");
-            when(userRepository.findMaxId()).thenReturn(10);
             when(userRepository.save(any(ApplicationUser.class))).thenAnswer(i -> i.getArguments()[0]);
 
             // Act
@@ -160,7 +157,6 @@ class AdminUserServiceMustChangePasswordTest {
             when(userRepository.existsByEmail("pierre.dupont@example.com")).thenReturn(false);
             when(roleRepository.findById("ATHLETE")).thenReturn(Optional.of(athleteRole));
             when(passwordEncoder.encode("dupont.pierre")).thenReturn("encodedPassword");
-            when(userRepository.findMaxId()).thenReturn(10);
             when(userRepository.save(any(ApplicationUser.class))).thenAnswer(i -> i.getArguments()[0]);
 
             // Act

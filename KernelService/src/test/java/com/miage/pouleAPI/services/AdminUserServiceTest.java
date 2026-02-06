@@ -103,12 +103,10 @@ class AdminUserServiceTest {
             when(roleRepository.findById("ATHLETE")).thenReturn(Optional.of(athleteRole));
             when(countryRepository.findById("FR")).thenReturn(Optional.of(france));
             when(passwordEncoder.encode(anyString())).thenReturn("encodedPassword");
-            when(userRepository.findMaxId()).thenReturn(10);
             when(userRepository.save(any(ApplicationUser.class))).thenAnswer(i -> i.getArguments()[0]);
 
             CreateUserResponse response = adminUserService.createUser(request, "admin@test.com");
 
-            assertThat(response.id()).isEqualTo(11);
             assertThat(response.name()).isEqualTo("Jane");
             assertThat(response.lastname()).isEqualTo("Smith");
             assertThat(response.email()).isEqualTo("jane.smith@test.com");
@@ -157,12 +155,11 @@ class AdminUserServiceTest {
             when(userRepository.existsByEmail("jane@test.com")).thenReturn(false);
             when(roleRepository.findById("ATHLETE")).thenReturn(Optional.of(athleteRole));
             when(passwordEncoder.encode(anyString())).thenReturn("encodedPassword");
-            when(userRepository.findMaxId()).thenReturn(null);
             when(userRepository.save(any(ApplicationUser.class))).thenAnswer(i -> i.getArguments()[0]);
 
             CreateUserResponse response = adminUserService.createUser(request, "admin@test.com");
 
-            assertThat(response.id()).isEqualTo(1);
+            assertThat(response.email()).isEqualTo("jane@test.com");
             verify(countryRepository, never()).findById(anyString());
         }
 
@@ -176,7 +173,6 @@ class AdminUserServiceTest {
             when(userRepository.existsByEmail("jane@test.com")).thenReturn(false);
             when(roleRepository.findById("ATHLETE")).thenReturn(Optional.of(athleteRole));
             when(passwordEncoder.encode(anyString())).thenReturn("encodedPassword");
-            when(userRepository.findMaxId()).thenReturn(5);
             when(userRepository.save(any(ApplicationUser.class))).thenAnswer(i -> i.getArguments()[0]);
 
             CreateUserResponse response = adminUserService.createUser(request, "admin@test.com");
