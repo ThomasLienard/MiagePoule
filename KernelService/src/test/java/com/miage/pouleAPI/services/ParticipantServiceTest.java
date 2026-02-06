@@ -2,7 +2,6 @@ package com.miage.pouleAPI.services;
 
 import com.miage.pouleAPI.dtos.participant.ParticipantDTO;
 import com.miage.pouleAPI.dtos.participant.TrialParticipantsDTO;
-import com.miage.pouleAPI.dtos.participant.TrialParticipantsFullDTO;
 import com.miage.pouleAPI.entity.*;
 import com.miage.pouleAPI.repositories.*;
 import org.junit.jupiter.api.BeforeEach;
@@ -24,7 +23,6 @@ import java.util.Optional;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.anyInt;
 import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
@@ -475,7 +473,6 @@ class ParticipantServiceTest {
 
             when(trialRepository.findById(1)).thenReturn(Optional.of(testTrial));
             when(participateAtRepository.hasTeamParticipation(1)).thenReturn(false);
-            when(isConvenedToRepository.hasAthleteParticipation(1)).thenReturn(true);
             when(isConvenedToRepository.findByTrialIdOrderedByResult(1)).thenReturn(List.of(inscription));
             when(userRepository.findAthletesNotInTrial(1)).thenReturn(List.of());
 
@@ -537,7 +534,6 @@ class ParticipantServiceTest {
                     .thenReturn(List.of(testTrial));
             when(trialRepository.findById(1)).thenReturn(Optional.of(testTrial));
             when(participateAtRepository.hasTeamParticipation(1)).thenReturn(false);
-            when(isConvenedToRepository.hasAthleteParticipation(1)).thenReturn(false);
             when(isConvenedToRepository.findByTrialIdOrderedByResult(1)).thenReturn(List.of());
             when(userRepository.findAthletesNotInTrial(1)).thenReturn(List.of());
 

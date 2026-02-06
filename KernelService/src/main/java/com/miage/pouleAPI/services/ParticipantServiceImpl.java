@@ -13,13 +13,18 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
-import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 import java.util.Optional;
 
 @Service
 @RequiredArgsConstructor
 public class ParticipantServiceImpl implements ParticipantService {
+
+    private static final String ATHLETE_TYPE = "ATHLETE";
+    private static final String TEAM_TYPE = "TEAM";
+    private static final String ATHLETE_NOT_REGISTERED = "L'athlète n'est pas inscrit à cette épreuve";
+    private static final String TEAM_NOT_REGISTERED = "L'équipe n'est pas inscrite à cette épreuve";
 
     private final TrialRepository trialRepository;
     private final ApplicationUserRepository userRepository;
@@ -36,7 +41,6 @@ public class ParticipantServiceImpl implements ParticipantService {
             
             // Déterminer si c'est une épreuve en équipe ou solo
             boolean hasTeamParticipation = participateAtRepository.hasTeamParticipation(trialId);
-            boolean hasAthleteParticipation = isConvenedToRepository.hasAthleteParticipation(trialId);
             
             // L'épreuve est en équipe si elle a déjà des participations d'équipe
             // Sinon elle est considérée comme solo (ou indéterminée si vide)
@@ -95,7 +99,7 @@ public class ParticipantServiceImpl implements ParticipantService {
                 .orElseThrow(() -> new IllegalArgumentException("Athlète non trouvé"));
         
         // Vérifier que c'est bien un athlète
-        if (!"ATHLETE".equals(athlete.getRole().getRoleName())) {
+        if (!ATHLETE_TYPE.equals(athlete.getRole().getRoleName())) {
             throw new IllegalArgumentException("L'utilisateur n'est pas un athlète");
         }
         
@@ -158,7 +162,7 @@ public class ParticipantServiceImpl implements ParticipantService {
     @Transactional
     public ParticipantDTO forfeitAthlete(Integer trialId, Integer athleteId) {
         IsConvenedTo inscription = isConvenedToRepository.findByTrialIdAndUserId(trialId, athleteId)
-                .orElseThrow(() -> new IllegalArgumentException("L'athlète n'est pas inscrit à cette épreuve"));
+                .orElseThrow(() -> new IllegalArgumentException(ATHLETE_NOT_REGISTERED));
         
         inscription.setIsForfeit(true);
         isConvenedToRepository.save(inscription);
@@ -170,7 +174,7 @@ public class ParticipantServiceImpl implements ParticipantService {
     @Transactional
     public ParticipantDTO forfeitTeam(Integer trialId, Integer teamId) {
         ParticipateAt inscription = participateAtRepository.findByTrialIdAndTeamId(trialId, teamId)
-                .orElseThrow(() -> new IllegalArgumentException("L'équipe n'est pas inscrite à cette épreuve"));
+                .orElseThrow(() -> new IllegalArgumentException(TEAM_NOT_REGISTERED));
         
         inscription.setIsForfeit(true);
         participateAtRepository.save(inscription);
@@ -182,7 +186,7 @@ public class ParticipantServiceImpl implements ParticipantService {
     @Transactional
     public ParticipantDTO unforfeitAthlete(Integer trialId, Integer athleteId) {
         IsConvenedTo inscription = isConvenedToRepository.findByTrialIdAndUserId(trialId, athleteId)
-                .orElseThrow(() -> new IllegalArgumentException("L'athlète n'est pas inscrit à cette épreuve"));
+                .orElseThrow(() -> new IllegalArgumentException(ATHLETE_NOT_REGISTERED));
         
         inscription.setIsForfeit(false);
         isConvenedToRepository.save(inscription);
@@ -194,7 +198,7 @@ public class ParticipantServiceImpl implements ParticipantService {
     @Transactional
     public ParticipantDTO unforfeitTeam(Integer trialId, Integer teamId) {
         ParticipateAt inscription = participateAtRepository.findByTrialIdAndTeamId(trialId, teamId)
-                .orElseThrow(() -> new IllegalArgumentException("L'équipe n'est pas inscrite à cette épreuve"));
+                .orElseThrow(() -> new IllegalArgumentException(TEAM_NOT_REGISTERED));
         
         inscription.setIsForfeit(false);
         participateAtRepository.save(inscription);
@@ -206,7 +210,7 @@ public class ParticipantServiceImpl implements ParticipantService {
     @Transactional
     public void removeAthleteFromTrial(Integer trialId, Integer athleteId) {
         IsConvenedTo inscription = isConvenedToRepository.findByTrialIdAndUserId(trialId, athleteId)
-                .orElseThrow(() -> new IllegalArgumentException("L'athlète n'est pas inscrit à cette épreuve"));
+                .orElseThrow(() -> new IllegalArgumentException(ATHLETE_NOT_REGISTERED));
         
         isConvenedToRepository.delete(inscription);
     }
@@ -215,7 +219,7 @@ public class ParticipantServiceImpl implements ParticipantService {
     @Transactional
     public void removeTeamFromTrial(Integer trialId, Integer teamId) {
         ParticipateAt inscription = participateAtRepository.findByTrialIdAndTeamId(trialId, teamId)
-                .orElseThrow(() -> new IllegalArgumentException("L'équipe n'est pas inscrite à cette épreuve"));
+                .orElseThrow(() -> new IllegalArgumentException(TEAM_NOT_REGISTERED));
         
         participateAtRepository.delete(inscription);
     }
@@ -232,7 +236,7 @@ public class ParticipantServiceImpl implements ParticipantService {
         // Ne retourner que les épreuves assignées à ce commissaire et non terminées
         return trialRepository.findActiveTrialsAssignedToUser(commissaire.getId(), LocalDateTime.now()).stream()
                 .map(trial -> getTrialParticipants(trial.getId()).orElse(null))
-                .filter(dto -> dto != null)
+                .filter(Objects::nonNull)
                 .toList();
     }
 
@@ -268,7 +272,7 @@ public class ParticipantServiceImpl implements ParticipantService {
         ParticipantDTO dto = new ParticipantDTO();
         dto.setId(team.getId());
         dto.setName(team.getName());
-        dto.setType("TEAM");
+        dto.setType(TEAM_TYPE);
         dto.setCountry(team.getCountry() != null ? team.getCountry().getCode() : null);
         dto.setForfeit(isForfeit);
         return dto;
@@ -278,7 +282,7 @@ public class ParticipantServiceImpl implements ParticipantService {
         ParticipantDTO dto = new ParticipantDTO();
         dto.setId(user.getId());
         dto.setName(user.getName() + " " + user.getLastname());
-        dto.setType("ATHLETE");
+        dto.setType(ATHLETE_TYPE);
         dto.setCountry(user.getCountry() != null ? user.getCountry().getCode() : null);
         dto.setForfeit(isForfeit);
         return dto;
@@ -288,7 +292,7 @@ public class ParticipantServiceImpl implements ParticipantService {
         PotentialParticipantDTO dto = new PotentialParticipantDTO();
         dto.setId(team.getId());
         dto.setName(team.getName());
-        dto.setType("TEAM");
+        dto.setType(TEAM_TYPE);
         dto.setCountry(team.getCountry() != null ? team.getCountry().getCode() : null);
         return dto;
     }
@@ -297,7 +301,7 @@ public class ParticipantServiceImpl implements ParticipantService {
         PotentialParticipantDTO dto = new PotentialParticipantDTO();
         dto.setId(user.getId());
         dto.setName(user.getName() + " " + user.getLastname());
-        dto.setType("ATHLETE");
+        dto.setType(ATHLETE_TYPE);
         dto.setCountry(user.getCountry() != null ? user.getCountry().getCode() : null);
         return dto;
     }

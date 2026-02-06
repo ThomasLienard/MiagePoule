@@ -20,6 +20,10 @@ import java.util.List;
 @Slf4j
 public class ParticipantController {
 
+    private static final String ATHLETE_TYPE = "ATHLETE";
+    private static final String TEAM_TYPE = "TEAM";
+    private static final String INVALID_PARTICIPANT_TYPE = "Type de participant invalide. Utilisez 'ATHLETE' ou 'TEAM'.";
+
     private final ParticipantService participantService;
 
     public record ApiResponse(String message) {}
@@ -63,13 +67,13 @@ public class ParticipantController {
         try {
             ParticipantDTO participant;
             
-            if ("ATHLETE".equalsIgnoreCase(request.getParticipantType())) {
+            if (ATHLETE_TYPE.equalsIgnoreCase(request.getParticipantType())) {
                 participant = participantService.addAthleteToTrial(trialId, request.getParticipantId());
-            } else if ("TEAM".equalsIgnoreCase(request.getParticipantType())) {
+            } else if (TEAM_TYPE.equalsIgnoreCase(request.getParticipantType())) {
                 participant = participantService.addTeamToTrial(trialId, request.getParticipantId());
             } else {
                 return ResponseEntity.badRequest()
-                        .body(new ApiResponse("Type de participant invalide. Utilisez 'ATHLETE' ou 'TEAM'."));
+                        .body(new ApiResponse(INVALID_PARTICIPANT_TYPE));
             }
             
             return ResponseEntity.ok(participant);
@@ -89,13 +93,13 @@ public class ParticipantController {
         try {
             ParticipantDTO participant;
             
-            if ("ATHLETE".equalsIgnoreCase(request.getParticipantType())) {
+            if (ATHLETE_TYPE.equalsIgnoreCase(request.getParticipantType())) {
                 participant = participantService.forfeitAthlete(trialId, request.getParticipantId());
-            } else if ("TEAM".equalsIgnoreCase(request.getParticipantType())) {
+            } else if (TEAM_TYPE.equalsIgnoreCase(request.getParticipantType())) {
                 participant = participantService.forfeitTeam(trialId, request.getParticipantId());
             } else {
                 return ResponseEntity.badRequest()
-                        .body(new ApiResponse("Type de participant invalide. Utilisez 'ATHLETE' ou 'TEAM'."));
+                        .body(new ApiResponse(INVALID_PARTICIPANT_TYPE));
             }
             
             return ResponseEntity.ok(participant);
@@ -115,13 +119,13 @@ public class ParticipantController {
         try {
             ParticipantDTO participant;
             
-            if ("ATHLETE".equalsIgnoreCase(request.getParticipantType())) {
+            if (ATHLETE_TYPE.equalsIgnoreCase(request.getParticipantType())) {
                 participant = participantService.unforfeitAthlete(trialId, request.getParticipantId());
-            } else if ("TEAM".equalsIgnoreCase(request.getParticipantType())) {
+            } else if (TEAM_TYPE.equalsIgnoreCase(request.getParticipantType())) {
                 participant = participantService.unforfeitTeam(trialId, request.getParticipantId());
             } else {
                 return ResponseEntity.badRequest()
-                        .body(new ApiResponse("Type de participant invalide. Utilisez 'ATHLETE' ou 'TEAM'."));
+                        .body(new ApiResponse(INVALID_PARTICIPANT_TYPE));
             }
             
             return ResponseEntity.ok(participant);
@@ -140,13 +144,13 @@ public class ParticipantController {
             @RequestParam Integer participantId,
             @RequestParam String participantType) {
         try {
-            if ("ATHLETE".equalsIgnoreCase(participantType)) {
+            if (ATHLETE_TYPE.equalsIgnoreCase(participantType)) {
                 participantService.removeAthleteFromTrial(trialId, participantId);
-            } else if ("TEAM".equalsIgnoreCase(participantType)) {
+            } else if (TEAM_TYPE.equalsIgnoreCase(participantType)) {
                 participantService.removeTeamFromTrial(trialId, participantId);
             } else {
                 return ResponseEntity.badRequest()
-                        .body(new ApiResponse("Type de participant invalide. Utilisez 'ATHLETE' ou 'TEAM'."));
+                        .body(new ApiResponse(INVALID_PARTICIPANT_TYPE));
             }
             
             return ResponseEntity.ok(new ApiResponse("Participant retiré avec succès"));

@@ -1,7 +1,248 @@
 import React, { useState, useEffect } from 'react';
+import PropTypes from 'prop-types';
 import { Container, Row, Col, Card, Button, Spinner, Alert, Badge, Modal, ButtonGroup } from 'react-bootstrap';
 import { useParams, useNavigate } from 'react-router-dom';
 import participantService from '../../services/participantService';
+
+// Définition de la forme des props de participant
+const participantShape = PropTypes.shape({
+    id: PropTypes.number,
+    name: PropTypes.string,
+    type: PropTypes.string,
+    country: PropTypes.string,
+    forfeit: PropTypes.bool,
+});
+
+// Sous-composant pour l'état de chargement
+const LoadingState = () => (
+    <Container className="py-4 text-center">
+        <Spinner animation="border" role="status">
+            <span className="visually-hidden">Chargement...</span>
+        </Spinner>
+    </Container>
+);
+
+// Sous-composant pour l'état d'erreur
+const ErrorState = ({ error, onDismiss, onBack }) => (
+    <Container className="py-4">
+        <Alert variant="danger" dismissible onClose={onDismiss}>
+            {error}
+        </Alert>
+        <Button variant="outline-secondary" onClick={onBack}>
+            ← Retour
+        </Button>
+    </Container>
+);
+
+// Sous-composant pour l'état "non trouvé"
+const NotFoundState = ({ onBack }) => (
+    <Container className="py-4">
+        <Alert variant="warning">Épreuve non trouvée</Alert>
+        <Button variant="outline-secondary" onClick={onBack}>
+            ← Retour
+        </Button>
+    </Container>
+);
+
+// Sous-composant pour une carte de participant
+const ParticipantCard = ({ participant, source, onDragStart, onDragEnd, actionLoading, onAction, actionLabel, actionVariant }) => (
+    <Card 
+        key={`${source}-${participant.type}-${participant.id}`} 
+        className="shadow-sm"
+        draggable
+        onDragStart={(e) => onDragStart(e, participant, source)}
+        onDragEnd={onDragEnd}
+        style={{ cursor: 'grab' }}
+    >
+        <Card.Body className="py-2">
+            <div className="d-flex justify-content-between align-items-center">
+                <div className="d-flex align-items-center">
+                    <span className="me-2 text-muted">⠿</span>
+                    <div>
+                        <div className="fw-semibold">{participant.name}</div>
+                        {participant.country && (
+                            <small className="text-muted">🌍 {participant.country}</small>
+                        )}
+                    </div>
+                </div>
+                <Button
+                    variant={actionVariant}
+                    size="sm"
+                    disabled={actionLoading}
+                    onClick={() => onAction(participant)}
+                >
+                    {actionLabel}
+                </Button>
+            </div>
+        </Card.Body>
+    </Card>
+);
+
+// Sous-composant pour une carte de participant inscrit
+const RegisteredParticipantCard = ({ participant, onDragStart, onDragEnd, actionLoading, onRemove, onForfeit, onUnforfeit }) => (
+    <Card 
+        className={`shadow-sm ${participant.forfeit ? 'border-danger' : ''}`}
+        draggable={!participant.forfeit}
+        onDragStart={(e) => !participant.forfeit && onDragStart(e, participant, 'registered')}
+        onDragEnd={onDragEnd}
+        style={{ cursor: participant.forfeit ? 'default' : 'grab' }}
+    >
+        <Card.Body className="py-2">
+            <div className="d-flex justify-content-between align-items-center">
+                <div className="d-flex align-items-center">
+                    {!participant.forfeit && <span className="me-2 text-muted">⠿</span>}
+                    <div>
+                        <div className="fw-semibold">
+                            {participant.name}
+                            {participant.forfeit && <Badge bg="danger" className="ms-2">Forfait</Badge>}
+                        </div>
+                        {participant.country && (
+                            <small className="text-muted">🌍 {participant.country}</small>
+                        )}
+                    </div>
+                </div>
+                <div className="d-flex gap-1">
+                    {!participant.forfeit ? (
+                        <>
+                            <Button variant="outline-secondary" size="sm" disabled={actionLoading} onClick={() => onRemove(participant)} title="Retirer">✕</Button>
+                            <Button variant="outline-danger" size="sm" disabled={actionLoading} onClick={() => onForfeit(participant)}>Forfait</Button>
+                        </>
+                    ) : (
+                        <Button variant="outline-success" size="sm" disabled={actionLoading} onClick={() => onUnforfeit(participant)}>Annuler forfait</Button>
+                    )}
+                </div>
+            </div>
+        </Card.Body>
+    </Card>
+);
+
+// Sous-composant pour le modal d'ajout
+const AddParticipantModal = ({ show, target, trialName, actionLoading, onHide, onConfirm }) => (
+    <Modal show={show} onHide={onHide} centered>
+        <Modal.Header closeButton>
+            <Modal.Title>📋 Détails - {target?.type === 'TEAM' ? 'Équipe' : 'Athlète'}</Modal.Title>
+        </Modal.Header>
+        <Modal.Body>
+            <div className="mb-3"><strong>Nom :</strong> {target?.name}</div>
+            {target?.country && <div className="mb-3"><strong>Pays :</strong> 🌍 {target?.country}</div>}
+            <div className="mb-3">
+                <strong>Type :</strong>{' '}
+                <Badge bg={target?.type === 'TEAM' ? 'info' : 'success'}>
+                    {target?.type === 'TEAM' ? '👥 Équipe' : '🏃 Athlète'}
+                </Badge>
+            </div>
+            <hr />
+            <p className="text-muted">
+                Voulez-vous inscrire {target?.type === 'TEAM' ? 'cette équipe' : 'cet athlète'} à l'épreuve <strong>{trialName}</strong> ?
+            </p>
+        </Modal.Body>
+        <Modal.Footer>
+            <Button variant="secondary" onClick={onHide} disabled={actionLoading}>Annuler</Button>
+            <Button variant="primary" onClick={onConfirm} disabled={actionLoading}>
+                {actionLoading ? <><Spinner animation="border" size="sm" className="me-2" />Inscription...</> : 'Inscrire le participant'}
+            </Button>
+        </Modal.Footer>
+    </Modal>
+);
+
+// Sous-composant pour le modal de forfait
+const ForfeitModal = ({ show, target, actionLoading, onHide, onConfirm }) => (
+    <Modal show={show} onHide={onHide} centered>
+        <Modal.Header closeButton>
+            <Modal.Title>⚠️ Confirmer le forfait</Modal.Title>
+        </Modal.Header>
+        <Modal.Body>
+            <p>Êtes-vous sûr de vouloir déclarer forfait pour <strong>{target?.name}</strong> ?</p>
+            <p className="text-muted small">
+                {target?.type === 'TEAM' ? 'L\'équipe' : 'Le sportif'} sera marqué(e) comme forfait pour cette épreuve.
+            </p>
+        </Modal.Body>
+        <Modal.Footer>
+            <Button variant="secondary" onClick={onHide} disabled={actionLoading}>Annuler</Button>
+            <Button variant="danger" onClick={onConfirm} disabled={actionLoading}>
+                {actionLoading ? <><Spinner animation="border" size="sm" className="me-2" />Traitement...</> : 'Confirmer le forfait'}
+            </Button>
+        </Modal.Footer>
+    </Modal>
+);
+
+// Sous-composant pour le modal de suppression
+const RemoveModal = ({ show, target, actionLoading, onHide, onConfirm }) => (
+    <Modal show={show} onHide={onHide} centered>
+        <Modal.Header closeButton>
+            <Modal.Title>🗑️ Retirer le participant</Modal.Title>
+        </Modal.Header>
+        <Modal.Body>
+            <p>Êtes-vous sûr de vouloir retirer <strong>{target?.name}</strong> de cette épreuve ?</p>
+            <p className="text-muted small">
+                {target?.type === 'TEAM' ? 'L\'équipe' : 'L\'athlète'} sera désinscrit(e) de l'épreuve et pourra être réinscrit(e) ultérieurement.
+            </p>
+        </Modal.Body>
+        <Modal.Footer>
+            <Button variant="secondary" onClick={onHide} disabled={actionLoading}>Annuler</Button>
+            <Button variant="warning" onClick={onConfirm} disabled={actionLoading}>
+                {actionLoading ? <><Spinner animation="border" size="sm" className="me-2" />Traitement...</> : 'Retirer le participant'}
+            </Button>
+        </Modal.Footer>
+    </Modal>
+);
+
+// PropTypes definitions
+ErrorState.propTypes = {
+    error: PropTypes.string,
+    onDismiss: PropTypes.func.isRequired,
+    onBack: PropTypes.func.isRequired,
+};
+
+NotFoundState.propTypes = {
+    onBack: PropTypes.func.isRequired,
+};
+
+ParticipantCard.propTypes = {
+    participant: participantShape.isRequired,
+    source: PropTypes.string.isRequired,
+    onDragStart: PropTypes.func.isRequired,
+    onDragEnd: PropTypes.func.isRequired,
+    actionLoading: PropTypes.bool,
+    onAction: PropTypes.func.isRequired,
+    actionLabel: PropTypes.string.isRequired,
+    actionVariant: PropTypes.string.isRequired,
+};
+
+RegisteredParticipantCard.propTypes = {
+    participant: participantShape.isRequired,
+    onDragStart: PropTypes.func.isRequired,
+    onDragEnd: PropTypes.func.isRequired,
+    actionLoading: PropTypes.bool,
+    onRemove: PropTypes.func.isRequired,
+    onForfeit: PropTypes.func.isRequired,
+    onUnforfeit: PropTypes.func.isRequired,
+};
+
+AddParticipantModal.propTypes = {
+    show: PropTypes.bool.isRequired,
+    target: participantShape,
+    trialName: PropTypes.string,
+    actionLoading: PropTypes.bool,
+    onHide: PropTypes.func.isRequired,
+    onConfirm: PropTypes.func.isRequired,
+};
+
+ForfeitModal.propTypes = {
+    show: PropTypes.bool.isRequired,
+    target: participantShape,
+    actionLoading: PropTypes.bool,
+    onHide: PropTypes.func.isRequired,
+    onConfirm: PropTypes.func.isRequired,
+};
+
+RemoveModal.propTypes = {
+    show: PropTypes.bool.isRequired,
+    target: participantShape,
+    actionLoading: PropTypes.bool,
+    onHide: PropTypes.func.isRequired,
+    onConfirm: PropTypes.func.isRequired,
+};
 
 const ManageParticipants = () => {
     const { trialId } = useParams();
@@ -199,37 +440,15 @@ const ManageParticipants = () => {
     };
 
     if (loading) {
-        return (
-            <Container className="py-4 text-center">
-                <Spinner animation="border" role="status">
-                    <span className="visually-hidden">Chargement...</span>
-                </Spinner>
-            </Container>
-        );
+        return <LoadingState />;
     }
 
     if (error) {
-        return (
-            <Container className="py-4">
-                <Alert variant="danger" dismissible onClose={() => setError(null)}>
-                    {error}
-                </Alert>
-                <Button variant="outline-secondary" onClick={() => navigate(-1)}>
-                    ← Retour
-                </Button>
-            </Container>
-        );
+        return <ErrorState error={error} onDismiss={() => setError(null)} onBack={() => navigate(-1)} />;
     }
 
     if (!trialData) {
-        return (
-            <Container className="py-4">
-                <Alert variant="warning">Épreuve non trouvée</Alert>
-                <Button variant="outline-secondary" onClick={() => navigate(-1)}>
-                    ← Retour
-                </Button>
-            </Container>
-        );
+        return <NotFoundState onBack={() => navigate(-1)} />;
     }
 
     const potentialParticipants = getPotentialParticipants();
@@ -293,38 +512,17 @@ const ManageParticipants = () => {
                             ) : (
                                 <div className="d-flex flex-column gap-2">
                                     {potentialParticipants?.map((participant) => (
-                                        <Card 
-                                            key={`potential-${participant.type}-${participant.id}`} 
-                                            className="shadow-sm"
-                                            draggable
-                                            onDragStart={(e) => handleDragStart(e, participant, 'potential')}
+                                        <ParticipantCard
+                                            key={`potential-${participant.type}-${participant.id}`}
+                                            participant={participant}
+                                            source="potential"
+                                            onDragStart={handleDragStart}
                                             onDragEnd={handleDragEnd}
-                                            style={{ cursor: 'grab' }}
-                                        >
-                                            <Card.Body className="py-2">
-                                                <div className="d-flex justify-content-between align-items-center">
-                                                    <div className="d-flex align-items-center">
-                                                        <span className="me-2 text-muted">⠿</span>
-                                                        <div>
-                                                            <div className="fw-semibold">{participant.name}</div>
-                                                            {participant.country && (
-                                                                <small className="text-muted">
-                                                                    🌍 {participant.country}
-                                                                </small>
-                                                            )}
-                                                        </div>
-                                                    </div>
-                                                    <Button
-                                                        variant="outline-primary"
-                                                        size="sm"
-                                                        disabled={actionLoading}
-                                                        onClick={() => openAddModal(participant)}
-                                                    >
-                                                        + Ajouter
-                                                    </Button>
-                                                </div>
-                                            </Card.Body>
-                                        </Card>
+                                            actionLoading={actionLoading}
+                                            onAction={openAddModal}
+                                            actionLabel="+ Ajouter"
+                                            actionVariant="outline-primary"
+                                        />
                                     ))}
                                 </div>
                             )}
@@ -372,70 +570,16 @@ const ManageParticipants = () => {
                             ) : (
                                 <div className="d-flex flex-column gap-2">
                                     {trialData.participants?.map((participant) => (
-                                        <Card 
-                                            key={`participant-${participant.type}-${participant.id}`} 
-                                            className={`shadow-sm ${participant.forfeit ? 'border-danger' : ''}`}
-                                            draggable={!participant.forfeit}
-                                            onDragStart={(e) => !participant.forfeit && handleDragStart(e, participant, 'registered')}
+                                        <RegisteredParticipantCard
+                                            key={`participant-${participant.type}-${participant.id}`}
+                                            participant={participant}
+                                            onDragStart={handleDragStart}
                                             onDragEnd={handleDragEnd}
-                                            style={{ cursor: participant.forfeit ? 'default' : 'grab' }}
-                                        >
-                                            <Card.Body className="py-2">
-                                                <div className="d-flex justify-content-between align-items-center">
-                                                    <div className="d-flex align-items-center">
-                                                        {!participant.forfeit && <span className="me-2 text-muted">⠿</span>}
-                                                        <div>
-                                                            <div className="fw-semibold">
-                                                                {participant.name}
-                                                                {participant.forfeit && (
-                                                                    <Badge bg="danger" className="ms-2">
-                                                                        Forfait
-                                                                    </Badge>
-                                                                )}
-                                                            </div>
-                                                            {participant.country && (
-                                                                <small className="text-muted">
-                                                                    🌍 {participant.country}
-                                                                </small>
-                                                            )}
-                                                        </div>
-                                                    </div>
-                                                    <div className="d-flex gap-1">
-                                                        {!participant.forfeit && (
-                                                            <>
-                                                                <Button
-                                                                    variant="outline-secondary"
-                                                                    size="sm"
-                                                                    disabled={actionLoading}
-                                                                    onClick={() => openRemoveModal(participant)}
-                                                                    title="Retirer"
-                                                                >
-                                                                    ✕
-                                                                </Button>
-                                                                <Button
-                                                                    variant="outline-danger"
-                                                                    size="sm"
-                                                                    disabled={actionLoading}
-                                                                    onClick={() => openForfeitModal(participant)}
-                                                                >
-                                                                    Forfait
-                                                                </Button>
-                                                            </>
-                                                        )}
-                                                        {participant.forfeit && (
-                                                            <Button
-                                                                variant="outline-success"
-                                                                size="sm"
-                                                                disabled={actionLoading}
-                                                                onClick={() => handleUnforfeit(participant)}
-                                                            >
-                                                                Annuler forfait
-                                                            </Button>
-                                                        )}
-                                                    </div>
-                                                </div>
-                                            </Card.Body>
-                                        </Card>
+                                            actionLoading={actionLoading}
+                                            onRemove={openRemoveModal}
+                                            onForfeit={openForfeitModal}
+                                            onUnforfeit={handleUnforfeit}
+                                        />
                                     ))}
                                 </div>
                             )}
@@ -452,137 +596,30 @@ const ManageParticipants = () => {
                 ← Retour aux épreuves
             </Button>
 
-            {/* Modal de détails et inscription */}
-            <Modal show={showAddModal} onHide={() => setShowAddModal(false)} centered>
-                <Modal.Header closeButton>
-                    <Modal.Title>
-                        📋 Détails - {addTarget?.type === 'TEAM' ? 'Équipe' : 'Athlète'}
-                    </Modal.Title>
-                </Modal.Header>
-                <Modal.Body>
-                    <div className="mb-3">
-                        <strong>Nom :</strong> {addTarget?.name}
-                    </div>
-                    {addTarget?.country && (
-                        <div className="mb-3">
-                            <strong>Pays :</strong> 🌍 {addTarget?.country}
-                        </div>
-                    )}
-                    <div className="mb-3">
-                        <strong>Type :</strong>{' '}
-                        <Badge bg={addTarget?.type === 'TEAM' ? 'info' : 'success'}>
-                            {addTarget?.type === 'TEAM' ? '👥 Équipe' : '🏃 Athlète'}
-                        </Badge>
-                    </div>
-                    <hr />
-                    <p className="text-muted">
-                        Voulez-vous inscrire {addTarget?.type === 'TEAM' ? 'cette équipe' : 'cet athlète'} à l'épreuve <strong>{trialData?.trialName}</strong> ?
-                    </p>
-                </Modal.Body>
-                <Modal.Footer>
-                    <Button 
-                        variant="secondary" 
-                        onClick={() => setShowAddModal(false)}
-                        disabled={actionLoading}
-                    >
-                        Annuler
-                    </Button>
-                    <Button 
-                        variant="primary" 
-                        onClick={handleConfirmAdd}
-                        disabled={actionLoading}
-                    >
-                        {actionLoading ? (
-                            <>
-                                <Spinner animation="border" size="sm" className="me-2" />
-                                Inscription...
-                            </>
-                        ) : (
-                            'Inscrire le participant'
-                        )}
-                    </Button>
-                </Modal.Footer>
-            </Modal>
+            <AddParticipantModal
+                show={showAddModal}
+                target={addTarget}
+                trialName={trialData?.trialName}
+                actionLoading={actionLoading}
+                onHide={() => setShowAddModal(false)}
+                onConfirm={handleConfirmAdd}
+            />
 
-            {/* Modal de confirmation de forfait */}
-            <Modal show={showForfeitModal} onHide={() => setShowForfeitModal(false)} centered>
-                <Modal.Header closeButton>
-                    <Modal.Title>⚠️ Confirmer le forfait</Modal.Title>
-                </Modal.Header>
-                <Modal.Body>
-                    <p>
-                        Êtes-vous sûr de vouloir déclarer forfait pour{' '}
-                        <strong>{forfeitTarget?.name}</strong> ?
-                    </p>
-                    <p className="text-muted small">
-                        {forfeitTarget?.type === 'TEAM' ? 'L\'équipe' : 'Le sportif'}{' '}
-                        sera marqué(e) comme forfait pour cette épreuve.
-                    </p>
-                </Modal.Body>
-                <Modal.Footer>
-                    <Button 
-                        variant="secondary" 
-                        onClick={() => setShowForfeitModal(false)}
-                        disabled={actionLoading}
-                    >
-                        Annuler
-                    </Button>
-                    <Button 
-                        variant="danger" 
-                        onClick={handleConfirmForfeit}
-                        disabled={actionLoading}
-                    >
-                        {actionLoading ? (
-                            <>
-                                <Spinner animation="border" size="sm" className="me-2" />
-                                Traitement...
-                            </>
-                        ) : (
-                            'Confirmer le forfait'
-                        )}
-                    </Button>
-                </Modal.Footer>
-            </Modal>
-            
-            {/* Modal de confirmation de suppression */}
-            <Modal show={showRemoveModal} onHide={() => setShowRemoveModal(false)} centered>
-                <Modal.Header closeButton>
-                    <Modal.Title>🗑️ Retirer le participant</Modal.Title>
-                </Modal.Header>
-                <Modal.Body>
-                    <p>
-                        Êtes-vous sûr de vouloir retirer{' '}
-                        <strong>{removeTarget?.name}</strong> de cette épreuve ?
-                    </p>
-                    <p className="text-muted small">
-                        {removeTarget?.type === 'TEAM' ? 'L\'équipe' : 'L\'athlète'} sera désinscrit(e) de l'épreuve 
-                        et pourra être réinscrit(e) ultérieurement.
-                    </p>
-                </Modal.Body>
-                <Modal.Footer>
-                    <Button 
-                        variant="secondary" 
-                        onClick={() => setShowRemoveModal(false)}
-                        disabled={actionLoading}
-                    >
-                        Annuler
-                    </Button>
-                    <Button 
-                        variant="warning" 
-                        onClick={handleConfirmRemove}
-                        disabled={actionLoading}
-                    >
-                        {actionLoading ? (
-                            <>
-                                <Spinner animation="border" size="sm" className="me-2" />
-                                Traitement...
-                            </>
-                        ) : (
-                            'Retirer le participant'
-                        )}
-                    </Button>
-                </Modal.Footer>
-            </Modal>
+            <ForfeitModal
+                show={showForfeitModal}
+                target={forfeitTarget}
+                actionLoading={actionLoading}
+                onHide={() => setShowForfeitModal(false)}
+                onConfirm={handleConfirmForfeit}
+            />
+
+            <RemoveModal
+                show={showRemoveModal}
+                target={removeTarget}
+                actionLoading={actionLoading}
+                onHide={() => setShowRemoveModal(false)}
+                onConfirm={handleConfirmRemove}
+            />
         </Container>
     );
 };
