@@ -20,7 +20,10 @@ public interface EventRepository extends JpaRepository<Event, Integer> {
     @Query("SELECT e FROM Event e WHERE e.competition.id = :competitionId AND e.typeEvent.name != 'TRIAL'")
     List<Event> findByCompetitionIdAndTypeEventNameNotEqual(@Param("competitionId") Integer competitionId);
     Event findEventById(@Param("eventId") Integer eventId);
-    List<Event> findByTimeSlotStartBeforeAndTimeSlotEndAfter(LocalDateTime now);
+
+    @Query("SELECT e FROM Event e WHERE e.timeSlot.start < :now AND e.timeSlot.end > :now")
+    List<Event> findOngoingEvents(@Param("now") LocalDateTime now);
+
     List<Event> findByTimeSlotEndBetween(LocalDateTime start, LocalDateTime end);
 
 }

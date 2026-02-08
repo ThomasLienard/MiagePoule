@@ -13,3 +13,11 @@ export const getCompetitionById = (championshipId, idComp) => {
         .get(`${API_BASE}/championship/${championshipId}/comp/${idComp}`)
         .then(res => res.data);
 };
+
+export const subscribeToCompetition = (championshipId, competitionId, userId) => {
+    return axios
+        .post(`${API_BASE}/championship/${championshipId}/comp/${competitionId}/subscribe`, null, {
+            params: { userId }
+        })
+        .then(res => res.data);
+};

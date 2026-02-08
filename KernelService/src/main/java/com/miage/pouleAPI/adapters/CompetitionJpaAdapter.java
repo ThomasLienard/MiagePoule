@@ -1,10 +1,10 @@
 package com.miage.pouleAPI.adapters;
 
-import com.miage.pouleAPI.auth.repository.ApplicationUserRepository;
 import com.miage.pouleAPI.dtos.competition.CompetitionDTO;
 import com.miage.pouleAPI.entity.ApplicationUser;
 import com.miage.pouleAPI.entity.Championship;
 import com.miage.pouleAPI.entity.Competition;
+import com.miage.pouleAPI.repositories.ApplicationUserRepository;
 import com.miage.pouleAPI.repositories.ChampionshipRepository;
 import com.miage.pouleAPI.repositories.CompetitionRepository;
 

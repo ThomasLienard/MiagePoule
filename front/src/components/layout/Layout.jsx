@@ -2,6 +2,7 @@ import {Link, Outlet, useNavigate, useLocation, Navigate} from "react-router-dom
 import React from "react";
 import {useAuth} from "../../contexts/AuthContext.jsx";
 import { useNotificationsSSE } from "../../hooks/useNotificationSSE.js"; // ← IMPORT
+import { Navbar, Container, Nav, Badge } from "react-bootstrap";
 
 export default function Layout() {
     const { user, logout, isAuthenticated, mustChangePassword } = useAuth();

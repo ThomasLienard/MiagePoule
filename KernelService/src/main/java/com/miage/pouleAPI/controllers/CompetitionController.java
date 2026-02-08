@@ -25,4 +25,13 @@ public class CompetitionController {
                 .orElse(ResponseEntity.notFound().build());
     }
 
+    @PostMapping("/{id}/comp/{idComp}/subscribe")
+    public ResponseEntity<Void> subscribeToCompetition(
+            @PathVariable Integer id,
+            @PathVariable Integer idComp,
+            @RequestParam Integer userId) {
+        competitionService.addObserverToCompetition(idComp, userId);
+        return ResponseEntity.ok().build();
+    }
+
 }

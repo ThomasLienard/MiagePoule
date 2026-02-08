@@ -5,7 +5,6 @@ package com.miage.pouleAPI.services;
 import com.miage.pouleAPI.entity.Event;
 import com.miage.pouleAPI.repositories.EventRepository;
 import com.miage.pouleAPI.services.interfaces.EventService;
-import com.miage.pouleAPI.services.interfaces.NotificationService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.scheduling.annotation.Scheduled;
@@ -34,7 +33,7 @@ public class SchedulerService {
 
         // Évènements dont le début est passé mais la fin pas encore
         List<Event> startingEvents = eventRepository
-                .findByTimeSlotStartBeforeAndTimeSlotEndAfter(now);
+                .findOngoingEvents(now);
 
         logger.info("Checking events: {} starting now", startingEvents.size());
 

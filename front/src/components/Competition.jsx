@@ -1,10 +1,11 @@
 import React, {useEffect, useState} from "react";
 import {useNavigate, useParams} from "react-router-dom";
-import {getCompetitionById} from "../services/competitionService.jsx";
+import {getCompetitionById, subscribeToCompetition} from "../services/competitionService.jsx";
 import {eventService} from "../services/eventService.jsx";
 import TrialsAndEventsCard from "./TrialsAndEventsCard.jsx";
 import {isPastEvent} from "../utils/dateFormatter.js";
 import {Button} from "react-bootstrap";
+import {useAuth} from "../contexts/AuthContext.jsx";
 
 const Competition = () => {
     const {id: idChampionship, idComp: idCompetition} = useParams();
@@ -13,7 +14,10 @@ const Competition = () => {
     const [competition, setCompetition] = useState(null);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
+    const [subscribing, setSubscribing] = useState(false);
+    const [subscribeSuccess, setSubscribeSuccess] = useState(false);
     const navigate = useNavigate();
+    const { user, isAuthenticated } = useAuth();
 
 
     useEffect(() => {
@@ -77,12 +81,45 @@ const Competition = () => {
 
     const futurEvents = () => events.filter(event => !isPastEvent(event))
 
+    const handleSubscribe = async () => {
+        if (!isAuthenticated() || !user?.id) {
+            alert("Vous devez être connecté pour vous abonner");
+            return;
+        }
+        try {
+            setSubscribing(true);
+            // Utiliser user.id qui est l'ID numérique depuis le JWT
+            await subscribeToCompetition(idChampionship, idCompetition, user.id);
+            setSubscribeSuccess(true);
+            setTimeout(() => setSubscribeSuccess(false), 3000);
+        } catch (err) {
+            console.error('Erreur lors de l\'abonnement:', err);
+            alert("Erreur lors de l'abonnement à la compétition");
+        } finally {
+            setSubscribing(false);
+        }
+    };
+
     if (loading) return <div className="loading">Chargement des événements...</div>;
     if (error) return <div className="error">Erreur: {error}</div>;
     return (
         <>
             <h2 className="text-center">{competition.name}</h2>
             <h5 className="text-center text-body-tertiary">{competition.description}</h5>
+            
+            {isAuthenticated() && (
+                <div className="d-flex justify-content-center mb-3">
+                    <Button 
+                        onClick={handleSubscribe}
+                        disabled={subscribing}
+                        variant={subscribeSuccess ? "success" : "primary"}
+                        className="m-2"
+                    >
+                        {subscribing ? "Abonnement en cours..." : subscribeSuccess ? "✓ Abonné!" : "📌 S'abonner à cette compétition"}
+                    </Button>
+                </div>
+            )}
+
             <div className="d-flex justify-content-center flex-md-row flex-column">
                 <div className="d-flex flex-column w-100 mx-md-3 p-3">
                     <TrialsAndEventsCard trials={futurTrials()} events={futurEvents()} title={"A venir"}/>

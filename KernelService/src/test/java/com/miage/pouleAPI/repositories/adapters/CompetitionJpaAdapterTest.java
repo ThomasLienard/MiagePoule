@@ -1,7 +1,7 @@
 package com.miage.pouleAPI.repositories.adapters;
 
 import com.miage.pouleAPI.adapters.CompetitionJpaAdapter;
-import com.miage.pouleAPI.auth.repository.ApplicationUserRepository;
+import com.miage.pouleAPI.repositories.ApplicationUserRepository;
 import com.miage.pouleAPI.dtos.competition.CompetitionDTO;
 import com.miage.pouleAPI.entity.Championship;
 import com.miage.pouleAPI.entity.Competition;
