@@ -17,6 +17,7 @@ import lombok.Setter;
 public class TimeSlot {
 
     @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "id_time_slot")
     private Integer id;
 

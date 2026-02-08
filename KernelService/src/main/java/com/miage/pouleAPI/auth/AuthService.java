@@ -135,15 +135,10 @@ public class AuthService {
                     return new IllegalArgumentException("Country not found: " + request.countryCode());
                 });
 
-        // Générer un nouvel ID (utiliser la séquence max + 1)
-        Integer maxId = userRepo.findMaxId();
-        Integer newId = (maxId != null ? maxId : 0) + 1;
+        log.info("Création d'un nouvel utilisateur");
 
-        log.info("Création d'un nouvel utilisateur avec ID: {}", newId);
-
-        // Créer l'utilisateur - ajuster selon votre constructeur ApplicationUser
+        // Créer l'utilisateur - l'ID sera auto-généré
         ApplicationUser user = new ApplicationUser();
-        user.setId(newId);
         user.setEmail(request.email());
         user.setPassword(passwordEncoder.encode(request.password()));
         user.setName(request.name());

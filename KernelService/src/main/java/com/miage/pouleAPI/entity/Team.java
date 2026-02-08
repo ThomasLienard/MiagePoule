@@ -19,6 +19,7 @@ import lombok.Setter;
 public class Team {
 
     @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "id_team")
     private Integer id;
 

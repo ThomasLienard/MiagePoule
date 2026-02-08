@@ -15,6 +15,7 @@ import lombok.Setter;
 public class TypeOfDocument{
 
     @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "id_type_doc")
     private Integer id;
 

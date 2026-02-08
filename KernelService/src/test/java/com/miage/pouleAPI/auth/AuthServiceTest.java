@@ -138,9 +138,13 @@ class AuthServiceTest {
         when(userRepo.findByEmail("newuser@example.com")).thenReturn(Optional.empty());
         when(roleRepository.findById("ATHLETE")).thenReturn(Optional.of(testRole));
         when(countryRepository.findById("FR")).thenReturn(Optional.of(testCountry));
-        when(userRepo.findMaxId()).thenReturn(100);
         when(passwordEncoder.encode("Password123!")).thenReturn("encodedPassword123");
-        when(jwtService.generateToken(101, "newuser@example.com", "ATHLETE"))
+        when(userRepo.save(any(ApplicationUser.class))).thenAnswer(invocation -> {
+            ApplicationUser user = invocation.getArgument(0);
+            user.setId(1); // Simuler l'auto-génération de l'ID
+            return user;
+        });
+        when(jwtService.generateToken(1, "newuser@example.com", "ATHLETE"))
                 .thenReturn("new-jwt-token");
 
         // Act
@@ -156,9 +160,8 @@ class AuthServiceTest {
         assertEquals("User registered successfully", response.message());
 
         verify(userRepo, times(1)).save(any(ApplicationUser.class));
-        verify(userRepo, times(1)).findMaxId();
         verify(passwordEncoder, times(1)).encode("Password123!");
-        verify(jwtService, times(1)).generateToken(101, "newuser@example.com", "ATHLETE");
+        verify(jwtService, times(1)).generateToken(anyInt(), eq("newuser@example.com"), eq("ATHLETE"));
     }
 
     @Test
@@ -249,8 +252,12 @@ class AuthServiceTest {
         when(userRepo.findByEmail("firstuser@example.com")).thenReturn(Optional.empty());
         when(roleRepository.findById("ATHLETE")).thenReturn(Optional.of(testRole));
         when(countryRepository.findById("FR")).thenReturn(Optional.of(testCountry));
-        when(userRepo.findMaxId()).thenReturn(null); // Aucun utilisateur existant
         when(passwordEncoder.encode("Password123!")).thenReturn("encodedPassword");
+        when(userRepo.save(any(ApplicationUser.class))).thenAnswer(invocation -> {
+            ApplicationUser user = invocation.getArgument(0);
+            user.setId(1); // Simuler l'auto-génération de l'ID
+            return user;
+        });
         when(jwtService.generateToken(1, "firstuser@example.com", "ATHLETE"))
                 .thenReturn("first-jwt-token");
 
@@ -259,7 +266,7 @@ class AuthServiceTest {
 
         // Assert
         assertNotNull(response);
-        assertEquals(1, response.token().startsWith("first-jwt-token") ? 1 : 0);
+        assertEquals("first-jwt-token", response.token());
         assertEquals("firstuser@example.com", response.email());
         assertEquals("First", response.name());
         assertEquals("User", response.lastname());
