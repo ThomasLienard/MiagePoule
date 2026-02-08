@@ -38,6 +38,7 @@ function App() {
                             <Route path="/admin" element={
                                 <ProtectedRoute allowedRoles={['ADMIN']}>
                                     <AdminPage />
+                                    <Route path="/create-event" element={<CreateEventPage />} />
                                 </ProtectedRoute>
                             } />
                             <Route path="/admin/users" element={
