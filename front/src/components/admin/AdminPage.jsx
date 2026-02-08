@@ -24,6 +24,24 @@ const AdminPage = () => {
                         </Card.Body>
                     </Card>
                 </Col>
+
+                <Col md={6} lg={4} className="mb-4">
+                    <Card className="h-100">
+                        <Card.Body>
+                            <Card.Title>📅 Planification</Card.Title>
+                            <Card.Text>
+                                Créer et modifier des épreuves ou activités extra-compétition.
+                                Gérez les lieux, horaires et accès PMR/Parking.
+                            </Card.Text>
+                            <Button as={Link} to="/admin/create-event" variant="secondary">
+                                Créer un évènement
+                            </Button>
+                            <Button variant="secondary" disabled>
+                                Modifier un évènement
+                            </Button>
+                        </Card.Body>
+                    </Card>
+                </Col>
                 
                 <Col md={6} lg={4} className="mb-4">
                     <Card className="h-100">

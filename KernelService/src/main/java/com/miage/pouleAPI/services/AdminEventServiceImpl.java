@@ -8,6 +8,8 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.Optional;
+
 @Service
 @RequiredArgsConstructor
 public class AdminEventServiceImpl implements AdminEventService {
@@ -18,20 +20,38 @@ public class AdminEventServiceImpl implements AdminEventService {
     private final TimeSlotRepository timeSlotRepo;
     private final CompetitionRepository competitionRepo;
     private final TypeEventRepository typeRepo;
+    private final GeocodingService geocodingService;
 
     @Override
     @Transactional
     public void createEvent(CreateEventRequestDTO req) {
-        Place place = new Place();
-        place.setName(req.placeName());
-        place.setCity(req.city());
-        place.setParking(req.hasParking());
-        place.setDescription(req.descriptionPlace());
-        place.setStreet(req.street());
-        place.setNumber(req.number());
-        place.setZip(req.zipCode());
-        place.setLatitude(req.latitude());
-        place.setLongitude(req.longitude());
+
+        Optional<Place> existingPlace = placeRepo.findByNameAndStreetAndCity(
+                req.placeName(), req.street(), req.city()
+        );
+
+        Place place;
+        if (existingPlace.isPresent()) {
+            place = existingPlace.get();
+        } else {
+            place = new Place();
+            place.setName(req.placeName());
+            place.setCity(req.city());
+            place.setParking(req.hasParking());
+            place.setDescription(req.descriptionPlace());
+            place.setStreet(req.street());
+            place.setNumber(req.number());
+            place.setZip(req.zipCode());
+            place.setLatitude(req.latitude());
+            place.setLongitude(req.longitude());
+
+            String fullAddress =req.number() + " "+ req.street() + ", " + req.zipCode() + " " + req.city();
+            Double[] coords = geocodingService.getCoordinates(fullAddress);
+            place.setLatitude(coords[0]);
+            place.setLongitude(coords[1]);
+        }
+
+
         place = placeRepo.save(place);
         TimeSlot slot = new TimeSlot();
         slot.setStart(req.startTime());

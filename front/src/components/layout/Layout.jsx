@@ -49,10 +49,6 @@ export default function Layout() {
                                         <Link to="/admin"
                                               className="text-decoration-none text-body-secondary">Administration</Link>
                                     </Nav.Link>
-                                    <Nav.Link className="auth-button secondary me-2" as="span">
-                                        <Link to="/admin/create-event"
-                                              className="text-decoration-none text-body-secondary">Gestion des événements</Link>
-                                    </Nav.Link>
                                 </>
                             )}
 
