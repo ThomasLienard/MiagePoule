@@ -96,19 +96,21 @@ VALUES ('100m Trial Heat 1', 'First qualification heat', 'TRIAL', 1, 1, 1),
        ('Marathon Qualification', 'Main qualification heat', 'TRIAL', 2, 1, 2),
        ('Training Session A', 'Regular training', 'TRAINING', 3, 1, 1),
        ('Training Session B', 'Regular training', 'TRAINING', 3, 2, 1),
-       ('Championship Meeting', 'Official gathering', 'MEETING', 3, 3, 2);
+       ('Championship Meeting', 'Official gathering', 'MEETING', 3, 3, 2),
+        ('Marathon Final', 'Final race', 'TRIAL', 2, 3, 2);
 
 -- ======================
 -- Trials
 -- ======================
 -- With JOINED inheritance, Trial shares the same primary key with Event
--- Only events with type 'TRIAL' become trials (id 1-5)
+-- Only events with type 'TRIAL' become trials (id 1-5 & 9)
 INSERT INTO trial (id_event)
 VALUES (1),
        (2),
        (3),
        (4),
-       (5);
+       (5),
+       (9);
 
 -- ======================
 -- Users (MODIFIÉ avec BCrypt)
@@ -160,7 +162,7 @@ INSERT INTO participate_at (id_team, id_trial, trial_result_team, is_forfeit)
 VALUES (1, 1, '11.2s', false),
        (2, 1, null, true),
        (1, 2, '11.8s', false),
-       (2, 3, '10.9s', false);
+       (2,2, '10.9s', false);
 
 -- ======================
 -- Convened athletes
@@ -170,7 +172,8 @@ INSERT INTO is_convened_to (id, id_trial, trial_result_athlete, is_forfeit)
 VALUES (1, 4, '2h15m', false),
        (2, 4, '2h05m', false),
        (3, 5, '11.6s', false),
-       (4, 5, '11.1s', false);
+       (4, 5, '11.1s', false),
+       (3, 9, null, false);
 
 -- ======================
 -- Notifications
@@ -215,7 +218,8 @@ VALUES (1, 1),
        (5, 5),
        (6, 4),
        (6, 5),
-       (6, 6);
+       (6, 6),
+       (6, 9);
 
 -- ======================
 -- Tasks
