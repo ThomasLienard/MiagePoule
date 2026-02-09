@@ -4,7 +4,6 @@ import com.miage.pouleAPI.dtos.admin.*;
 import com.miage.pouleAPI.services.AdminUserService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
@@ -39,6 +38,28 @@ public class AdminUserController {
             
             return ResponseEntity.status(HttpStatus.CREATED).body(response);
         } catch (IllegalArgumentException e) {
+            return ResponseEntity.badRequest()
+                .body(new ApiResponse(e.getMessage()));
+        }
+    }
+
+    /**
+     * Crée plusieurs comptes utilisateurs à partir d'une liste JSON
+     */
+    @PostMapping("/bulk")
+    public ResponseEntity<Object> bulkCreateUsers(
+            @Valid @RequestBody BulkCreateUsersRequest request,
+            Authentication authentication) {
+        try {
+            String createdBy = authentication.getName();
+            BulkCreateUsersResponse response = adminUserService.bulkCreateUsers(request, createdBy);
+            
+            if (response.failed() == response.totalRequested()) {
+                return ResponseEntity.badRequest().body(response);
+            }
+            
+            return ResponseEntity.status(HttpStatus.CREATED).body(response);
+        } catch (Exception e) {
             return ResponseEntity.badRequest()
                 .body(new ApiResponse(e.getMessage()));
         }

@@ -25,6 +25,20 @@ const adminUserService = {
         }
     },
 
+    // Créer plusieurs utilisateurs en masse
+    bulkCreateUsers: async (usersData) => {
+        try {
+            const response = await axios.post(
+                `${API_BASE_URL}/admin/users/bulk`,
+                usersData,
+                { headers: getAuthHeaders() }
+            );
+            return response.data;
+        } catch (error) {
+            throw new Error(error.response?.data?.message || 'Erreur lors de la création en masse des utilisateurs');
+        }
+    },
+
     // Récupérer tous les utilisateurs
     getAllUsers: async () => {
         try {

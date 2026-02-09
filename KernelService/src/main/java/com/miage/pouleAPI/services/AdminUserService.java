@@ -22,6 +22,7 @@ import java.util.List;
 public class AdminUserService {
 
     private static final String USER_NOT_FOUND = "Utilisateur non trouvé: ";
+    private static final String ROLE_NOT_FOUND = "Rôle non trouvé: ";
 
     private final ApplicationUserRepository userRepository;
     private final RoleRepository roleRepository;
@@ -44,7 +45,7 @@ public class AdminUserService {
 
         // Vérifier le rôle
         Role role = roleRepository.findById(request.roleName())
-            .orElseThrow(() -> new IllegalArgumentException("Rôle non trouvé: " + request.roleName()));
+            .orElseThrow(() -> new IllegalArgumentException(ROLE_NOT_FOUND + request.roleName()));
 
         // Vérifier le pays si fourni
         Country country = null;
@@ -86,6 +87,102 @@ public class AdminUserService {
             role.getRoleName(),
             tempPassword,
             "Compte créé avec succès"
+        );
+    }
+
+    /**
+     * Crée plusieurs comptes utilisateurs à partir d'une liste
+     */
+    @Transactional
+    public BulkCreateUsersResponse bulkCreateUsers(BulkCreateUsersRequest request, String createdBy) {
+        log.info("Création en masse de {} utilisateurs par {}", request.users().size(), createdBy);
+        
+        List<BulkCreateUsersResponse.UserCreationResult> results = request.users().stream()
+            .map(userRequest -> {
+                try {
+                    // Vérifier si l'email existe déjà
+                    if (userRepository.existsByEmail(userRequest.email())) {
+                        return new BulkCreateUsersResponse.UserCreationResult(
+                            userRequest.email(),
+                            false,
+                            "Un compte avec cet email existe déjà",
+                            null
+                        );
+                    }
+
+                    // Vérifier le rôle
+                    Role role = roleRepository.findById(userRequest.roleName())
+                        .orElse(null);
+                    if (role == null) {
+                        return new BulkCreateUsersResponse.UserCreationResult(
+                            userRequest.email(),
+                            false,
+                            ROLE_NOT_FOUND + userRequest.roleName(),
+                            null
+                        );
+                    }
+
+                    // Vérifier le pays si fourni
+                    Country country = null;
+                    if (userRequest.countryCode() != null && !userRequest.countryCode().isBlank()) {
+                        country = countryRepository.findById(userRequest.countryCode())
+                            .orElse(null);
+                    }
+
+                    // Générer le mot de passe temporaire
+                    String tempPassword = (userRequest.lastname() + "." + userRequest.name()).toLowerCase()
+                        .replaceAll("\\s+", "");
+
+                    // Créer l'utilisateur
+                    ApplicationUser user = new ApplicationUser();
+                    user.setName(userRequest.name());
+                    user.setLastname(userRequest.lastname());
+                    user.setEmail(userRequest.email());
+                    user.setPassword(passwordEncoder.encode(tempPassword));
+                    user.setRole(role);
+                    user.setCountry(country);
+                    user.setIsActive(true);
+                    
+                    // Les spectateurs sont automatiquement validés
+                    boolean isSpectateur = "SPECTATEUR".equals(userRequest.roleName());
+                    user.setIsAccountActivated(isSpectateur);
+                    user.setMustChangePassword(!isSpectateur);
+                    
+                    user.setCreatedAt(LocalDateTime.now());
+                    user.setCreatedBy(createdBy);
+
+                    userRepository.save(user);
+                    log.info("Utilisateur créé avec succès: {} (ID: {})", user.getEmail(), user.getId());
+
+                    return new BulkCreateUsersResponse.UserCreationResult(
+                        userRequest.email(),
+                        true,
+                        "Compte créé avec succès",
+                        tempPassword
+                    );
+                } catch (Exception e) {
+                    log.error("Erreur lors de la création de l'utilisateur {}: {}", 
+                        userRequest.email(), e.getMessage(), e);
+                    return new BulkCreateUsersResponse.UserCreationResult(
+                        userRequest.email(),
+                        false,
+                        "Erreur: " + e.getMessage(),
+                        null
+                    );
+                }
+            })
+            .toList();
+
+        long successCount = results.stream().filter(BulkCreateUsersResponse.UserCreationResult::success).count();
+        long failedCount = results.stream().filter(r -> !r.success()).count();
+
+        log.info("Création en masse terminée: {} succès, {} échecs", successCount, failedCount);
+
+        return new BulkCreateUsersResponse(
+            request.users().size(),
+            (int) successCount,
+            (int) failedCount,
+            results
         );
     }
 
@@ -140,7 +237,7 @@ public class AdminUserService {
         }
         if (request.roleName() != null && !request.roleName().isBlank()) {
             Role role = roleRepository.findById(request.roleName())
-                .orElseThrow(() -> new IllegalArgumentException("Rôle non trouvé: " + request.roleName()));
+                .orElseThrow(() -> new IllegalArgumentException(ROLE_NOT_FOUND + request.roleName()));
             user.setRole(role);
         }
         if (request.countryCode() != null) {
