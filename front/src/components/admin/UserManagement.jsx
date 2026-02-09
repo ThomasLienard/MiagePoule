@@ -15,6 +15,7 @@ const UserManagement = () => {
     const [showCreateModal, setShowCreateModal] = useState(false);
     const [selectedUser, setSelectedUser] = useState(null);
     const [searchTerm, setSearchTerm] = useState('');
+    const [hideSpectators, setHideSpectators] = useState(true);
 
     const roles = [
         { value: '', label: 'Tous les rôles' },
@@ -99,6 +100,11 @@ const UserManagement = () => {
     };
 
     const filteredUsers = users.filter(user => {
+        // Filtrer les spectateurs si l'option est activée
+        if (hideSpectators && user.roleName === 'SPECTATEUR') {
+            return false;
+        }
+        
         if (!searchTerm) return true;
         const search = searchTerm.toLowerCase();
         return (
@@ -172,7 +178,7 @@ const UserManagement = () => {
             <Card className="mb-4">
                 <Card.Body>
                     <Row>
-                        <Col md={6}>
+                        <Col md={5}>
                             <Form.Group>
                                 <Form.Label>Filtrer par rôle</Form.Label>
                                 <Form.Select
@@ -187,7 +193,7 @@ const UserManagement = () => {
                                 </Form.Select>
                             </Form.Group>
                         </Col>
-                        <Col md={6}>
+                        <Col md={5}>
                             <Form.Group>
                                 <Form.Label>Rechercher</Form.Label>
                                 <Form.Control
@@ -195,6 +201,16 @@ const UserManagement = () => {
                                     placeholder="Nom, prénom ou email..."
                                     value={searchTerm}
                                     onChange={(e) => setSearchTerm(e.target.value)}
+                                />
+                            </Form.Group>
+                        </Col>
+                        <Col md={2} className="d-flex align-items-end">
+                            <Form.Group>
+                                <Form.Check
+                                    type="checkbox"
+                                    label="Masquer spectateurs"
+                                    checked={hideSpectators}
+                                    onChange={(e) => setHideSpectators(e.target.checked)}
                                 />
                             </Form.Group>
                         </Col>
