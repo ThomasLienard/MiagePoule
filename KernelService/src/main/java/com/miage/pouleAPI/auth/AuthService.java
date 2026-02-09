@@ -184,13 +184,11 @@ public class AuthService {
         ApplicationUser user = userRepo.findById(userId)
                 .orElseThrow(() -> new RuntimeException("Utilisateur non trouvé"));
 
-        boolean emailChanged = false;
         if (dto.getEmail() != null && !dto.getEmail().equals(user.getEmail())) {
             if (userRepo.findByEmail(dto.getEmail()).isPresent()) {
                 throw new IllegalArgumentException("Email incorrect");
             }
             user.setEmail(dto.getEmail());
-            emailChanged = true;
         }
 
         // MapStruct vérifie chaque champ du DTO.

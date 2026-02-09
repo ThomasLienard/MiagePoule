@@ -628,4 +628,301 @@ class AdminUserServiceTest {
             assertThat(dto.countryCode()).isNull();
         }
     }
+
+    @Nested
+    @DisplayName("Tests bulkCreateUsers")
+    class BulkCreateUsersTests {
+
+        @Test
+        @DisplayName("Devrait créer plusieurs utilisateurs avec succès")
+        void bulkCreateUsers_shouldCreateMultipleUsersSuccessfully() {
+            // Arrange
+            CreateUserRequest request1 = new CreateUserRequest(
+                "Jean", "Dupont", "jean.dupont@test.com", "ATHLETE", "FR"
+            );
+            CreateUserRequest request2 = new CreateUserRequest(
+                "Marie", "Martin", "marie.martin@test.com", "VOLONTAIRE", "FR"
+            );
+            BulkCreateUsersRequest bulkRequest = new BulkCreateUsersRequest(
+                Arrays.asList(request1, request2)
+            );
+
+            Role volontaireRole = new Role();
+            volontaireRole.setRoleName("VOLONTAIRE");
+
+            when(userRepository.existsByEmail("jean.dupont@test.com")).thenReturn(false);
+            when(userRepository.existsByEmail("marie.martin@test.com")).thenReturn(false);
+            when(roleRepository.findById("ATHLETE")).thenReturn(Optional.of(athleteRole));
+            when(roleRepository.findById("VOLONTAIRE")).thenReturn(Optional.of(volontaireRole));
+            when(countryRepository.findById("FR")).thenReturn(Optional.of(france));
+            when(passwordEncoder.encode(anyString())).thenReturn("encodedPassword");
+            when(userRepository.save(any(ApplicationUser.class))).thenAnswer(invocation -> {
+                ApplicationUser user = invocation.getArgument(0);
+                user.setId((int) (Math.random() * 1000));
+                return user;
+            });
+
+            // Act
+            BulkCreateUsersResponse response = adminUserService.bulkCreateUsers(bulkRequest, "admin@test.com");
+
+            // Assert
+            assertThat(response.totalRequested()).isEqualTo(2);
+            assertThat(response.successfullyCreated()).isEqualTo(2);
+            assertThat(response.failed()).isEqualTo(0);
+            assertThat(response.results()).hasSize(2);
+
+            BulkCreateUsersResponse.UserCreationResult result1 = response.results().get(0);
+            assertThat(result1.email()).isEqualTo("jean.dupont@test.com");
+            assertThat(result1.success()).isTrue();
+            assertThat(result1.temporaryPassword()).isEqualTo("dupont.jean");
+
+            BulkCreateUsersResponse.UserCreationResult result2 = response.results().get(1);
+            assertThat(result2.email()).isEqualTo("marie.martin@test.com");
+            assertThat(result2.success()).isTrue();
+            assertThat(result2.temporaryPassword()).isEqualTo("martin.marie");
+
+            verify(userRepository, times(2)).save(any(ApplicationUser.class));
+        }
+
+        @Test
+        @DisplayName("Devrait gérer les emails déjà existants")
+        void bulkCreateUsers_shouldHandleExistingEmails() {
+            // Arrange
+            CreateUserRequest request1 = new CreateUserRequest(
+                "Jean", "Dupont", "jean.dupont@test.com", "ATHLETE", "FR"
+            );
+            CreateUserRequest request2 = new CreateUserRequest(
+                "Marie", "Martin", "existing@test.com", "VOLONTAIRE", "FR"
+            );
+            BulkCreateUsersRequest bulkRequest = new BulkCreateUsersRequest(
+                Arrays.asList(request1, request2)
+            );
+
+            when(userRepository.existsByEmail("jean.dupont@test.com")).thenReturn(false);
+            when(userRepository.existsByEmail("existing@test.com")).thenReturn(true);
+            when(roleRepository.findById("ATHLETE")).thenReturn(Optional.of(athleteRole));
+            when(countryRepository.findById("FR")).thenReturn(Optional.of(france));
+            when(passwordEncoder.encode(anyString())).thenReturn("encodedPassword");
+            when(userRepository.save(any(ApplicationUser.class))).thenAnswer(invocation -> {
+                ApplicationUser user = invocation.getArgument(0);
+                user.setId((int) (Math.random() * 1000));
+                return user;
+            });
+
+            // Act
+            BulkCreateUsersResponse response = adminUserService.bulkCreateUsers(bulkRequest, "admin@test.com");
+
+            // Assert
+            assertThat(response.totalRequested()).isEqualTo(2);
+            assertThat(response.successfullyCreated()).isEqualTo(1);
+            assertThat(response.failed()).isEqualTo(1);
+
+            BulkCreateUsersResponse.UserCreationResult successResult = response.results().get(0);
+            assertThat(successResult.email()).isEqualTo("jean.dupont@test.com");
+            assertThat(successResult.success()).isTrue();
+
+            BulkCreateUsersResponse.UserCreationResult failedResult = response.results().get(1);
+            assertThat(failedResult.email()).isEqualTo("existing@test.com");
+            assertThat(failedResult.success()).isFalse();
+            assertThat(failedResult.message()).isEqualTo("Un compte avec cet email existe déjà");
+
+            verify(userRepository, times(1)).save(any(ApplicationUser.class));
+        }
+
+        @Test
+        @DisplayName("Devrait gérer les rôles invalides")
+        void bulkCreateUsers_shouldHandleInvalidRoles() {
+            // Arrange
+            CreateUserRequest request = new CreateUserRequest(
+                "Jean", "Dupont", "jean.dupont@test.com", "INVALID_ROLE", "FR"
+            );
+            BulkCreateUsersRequest bulkRequest = new BulkCreateUsersRequest(
+                List.of(request)
+            );
+
+            when(userRepository.existsByEmail("jean.dupont@test.com")).thenReturn(false);
+            when(roleRepository.findById("INVALID_ROLE")).thenReturn(Optional.empty());
+
+            // Act
+            BulkCreateUsersResponse response = adminUserService.bulkCreateUsers(bulkRequest, "admin@test.com");
+
+            // Assert
+            assertThat(response.totalRequested()).isEqualTo(1);
+            assertThat(response.successfullyCreated()).isEqualTo(0);
+            assertThat(response.failed()).isEqualTo(1);
+
+            BulkCreateUsersResponse.UserCreationResult result = response.results().get(0);
+            assertThat(result.email()).isEqualTo("jean.dupont@test.com");
+            assertThat(result.success()).isFalse();
+            assertThat(result.message()).contains("Rôle non trouvé");
+
+            verify(userRepository, never()).save(any(ApplicationUser.class));
+        }
+
+        @Test
+        @DisplayName("Devrait créer des spectateurs avec compte activé")
+        void bulkCreateUsers_shouldCreateSpectateursWithActivatedAccount() {
+            // Arrange
+            CreateUserRequest request = new CreateUserRequest(
+                "Jean", "Dupont", "jean.dupont@test.com", "SPECTATEUR", "FR"
+            );
+            BulkCreateUsersRequest bulkRequest = new BulkCreateUsersRequest(
+                List.of(request)
+            );
+
+            when(userRepository.existsByEmail("jean.dupont@test.com")).thenReturn(false);
+            when(roleRepository.findById("SPECTATEUR")).thenReturn(Optional.of(spectateurRole));
+            when(countryRepository.findById("FR")).thenReturn(Optional.of(france));
+            when(passwordEncoder.encode(anyString())).thenReturn("encodedPassword");
+
+            ArgumentCaptor<ApplicationUser> userCaptor = ArgumentCaptor.forClass(ApplicationUser.class);
+            when(userRepository.save(userCaptor.capture())).thenAnswer(invocation -> {
+                ApplicationUser user = invocation.getArgument(0);
+                user.setId(1);
+                return user;
+            });
+
+            // Act
+            BulkCreateUsersResponse response = adminUserService.bulkCreateUsers(bulkRequest, "admin@test.com");
+
+            // Assert
+            assertThat(response.successfullyCreated()).isEqualTo(1);
+
+            ApplicationUser savedUser = userCaptor.getValue();
+            assertThat(savedUser.getIsAccountActivated()).isTrue();
+            assertThat(savedUser.getMustChangePassword()).isFalse();
+        }
+
+        @Test
+        @DisplayName("Devrait créer des non-spectateurs avec compte non activé")
+        void bulkCreateUsers_shouldCreateNonSpectateursWithInactiveAccount() {
+            // Arrange
+            CreateUserRequest request = new CreateUserRequest(
+                "Jean", "Dupont", "jean.dupont@test.com", "ATHLETE", "FR"
+            );
+            BulkCreateUsersRequest bulkRequest = new BulkCreateUsersRequest(
+                List.of(request)
+            );
+
+            when(userRepository.existsByEmail("jean.dupont@test.com")).thenReturn(false);
+            when(roleRepository.findById("ATHLETE")).thenReturn(Optional.of(athleteRole));
+            when(countryRepository.findById("FR")).thenReturn(Optional.of(france));
+            when(passwordEncoder.encode(anyString())).thenReturn("encodedPassword");
+
+            ArgumentCaptor<ApplicationUser> userCaptor = ArgumentCaptor.forClass(ApplicationUser.class);
+            when(userRepository.save(userCaptor.capture())).thenAnswer(invocation -> {
+                ApplicationUser user = invocation.getArgument(0);
+                user.setId(1);
+                return user;
+            });
+
+            // Act
+            BulkCreateUsersResponse response = adminUserService.bulkCreateUsers(bulkRequest, "admin@test.com");
+
+            // Assert
+            assertThat(response.successfullyCreated()).isEqualTo(1);
+
+            ApplicationUser savedUser = userCaptor.getValue();
+            assertThat(savedUser.getIsAccountActivated()).isFalse();
+            assertThat(savedUser.getMustChangePassword()).isTrue();
+        }
+
+        @Test
+        @DisplayName("Devrait créer des utilisateurs sans code pays")
+        void bulkCreateUsers_shouldCreateUsersWithoutCountryCode() {
+            // Arrange
+            CreateUserRequest request = new CreateUserRequest(
+                "Jean", "Dupont", "jean.dupont@test.com", "ATHLETE", null
+            );
+            BulkCreateUsersRequest bulkRequest = new BulkCreateUsersRequest(
+                List.of(request)
+            );
+
+            when(userRepository.existsByEmail("jean.dupont@test.com")).thenReturn(false);
+            when(roleRepository.findById("ATHLETE")).thenReturn(Optional.of(athleteRole));
+            when(passwordEncoder.encode(anyString())).thenReturn("encodedPassword");
+
+            ArgumentCaptor<ApplicationUser> userCaptor = ArgumentCaptor.forClass(ApplicationUser.class);
+            when(userRepository.save(userCaptor.capture())).thenAnswer(invocation -> {
+                ApplicationUser user = invocation.getArgument(0);
+                user.setId(1);
+                return user;
+            });
+
+            // Act
+            BulkCreateUsersResponse response = adminUserService.bulkCreateUsers(bulkRequest, "admin@test.com");
+
+            // Assert
+            assertThat(response.successfullyCreated()).isEqualTo(1);
+
+            ApplicationUser savedUser = userCaptor.getValue();
+            assertThat(savedUser.getCountry()).isNull();
+        }
+
+        @Test
+        @DisplayName("Devrait gérer un mélange de succès et d'échecs")
+        void bulkCreateUsers_shouldHandleMixOfSuccessAndFailures() {
+            // Arrange
+            CreateUserRequest request1 = new CreateUserRequest(
+                "Jean", "Dupont", "jean.dupont@test.com", "ATHLETE", "FR"
+            );
+            CreateUserRequest request2 = new CreateUserRequest(
+                "Marie", "Martin", "existing@test.com", "VOLONTAIRE", "FR"
+            );
+            CreateUserRequest request3 = new CreateUserRequest(
+                "Pierre", "Bernard", "pierre.bernard@test.com", "INVALID_ROLE", "FR"
+            );
+            CreateUserRequest request4 = new CreateUserRequest(
+                "Sophie", "Dubois", "sophie.dubois@test.com", "COMMISSAIRE", "FR"
+            );
+            BulkCreateUsersRequest bulkRequest = new BulkCreateUsersRequest(
+                Arrays.asList(request1, request2, request3, request4)
+            );
+
+            Role commissaireRole = new Role();
+            commissaireRole.setRoleName("COMMISSAIRE");
+
+            when(userRepository.existsByEmail("jean.dupont@test.com")).thenReturn(false);
+            when(userRepository.existsByEmail("existing@test.com")).thenReturn(true);
+            when(userRepository.existsByEmail("pierre.bernard@test.com")).thenReturn(false);
+            when(userRepository.existsByEmail("sophie.dubois@test.com")).thenReturn(false);
+            when(roleRepository.findById("ATHLETE")).thenReturn(Optional.of(athleteRole));
+            when(roleRepository.findById("INVALID_ROLE")).thenReturn(Optional.empty());
+            when(roleRepository.findById("COMMISSAIRE")).thenReturn(Optional.of(commissaireRole));
+            when(countryRepository.findById("FR")).thenReturn(Optional.of(france));
+            when(passwordEncoder.encode(anyString())).thenReturn("encodedPassword");
+            when(userRepository.save(any(ApplicationUser.class))).thenAnswer(invocation -> {
+                ApplicationUser user = invocation.getArgument(0);
+                user.setId((int) (Math.random() * 1000));
+                return user;
+            });
+
+            // Act
+            BulkCreateUsersResponse response = adminUserService.bulkCreateUsers(bulkRequest, "admin@test.com");
+
+            // Assert
+            assertThat(response.totalRequested()).isEqualTo(4);
+            assertThat(response.successfullyCreated()).isEqualTo(2);
+            assertThat(response.failed()).isEqualTo(2);
+            assertThat(response.results()).hasSize(4);
+
+            // Vérifier les succès
+            List<BulkCreateUsersResponse.UserCreationResult> successResults = response.results().stream()
+                .filter(BulkCreateUsersResponse.UserCreationResult::success)
+                .toList();
+            assertThat(successResults).hasSize(2);
+            assertThat(successResults).extracting(BulkCreateUsersResponse.UserCreationResult::email)
+                .containsExactlyInAnyOrder("jean.dupont@test.com", "sophie.dubois@test.com");
+
+            // Vérifier les échecs
+            List<BulkCreateUsersResponse.UserCreationResult> failedResults = response.results().stream()
+                .filter(r -> !r.success())
+                .toList();
+            assertThat(failedResults).hasSize(2);
+            assertThat(failedResults).extracting(BulkCreateUsersResponse.UserCreationResult::email)
+                .containsExactlyInAnyOrder("existing@test.com", "pierre.bernard@test.com");
+
+            verify(userRepository, times(2)).save(any(ApplicationUser.class));
+        }
+    }
 }
