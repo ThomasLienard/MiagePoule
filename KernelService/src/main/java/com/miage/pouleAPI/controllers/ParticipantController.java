@@ -17,7 +17,6 @@ import java.util.List;
 @RestController
 @RequestMapping("/commissaire/trials")
 @RequiredArgsConstructor
-@Slf4j
 public class ParticipantController {
 
     private static final String ATHLETE_TYPE = "ATHLETE";
