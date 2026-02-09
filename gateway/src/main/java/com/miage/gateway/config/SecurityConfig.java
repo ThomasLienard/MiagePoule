@@ -35,7 +35,7 @@ public class SecurityConfig {
         configuration.setAllowedMethods(List.of("GET", "POST", "PUT", "DELETE", "PATCH", "OPTIONS"));
         configuration.setAllowedHeaders(List.of("*"));
         configuration.setAllowCredentials(true);
-        configuration.setExposedHeaders(List.of("Authorization"));
+        configuration.setExposedHeaders(List.of("Authorization", "Content-Type", "X-Content-Type-Options"));
 
         configuration.setMaxAge(3600L);
 
@@ -55,6 +55,7 @@ public class SecurityConfig {
                         .requestMatchers("/auth/**").permitAll()
                         .requestMatchers("/public/**").permitAll()
                         .requestMatchers("/error").permitAll()
+                        .requestMatchers("/api/notifications/stream/**").permitAll()
 
                         .requestMatchers("/admin/**").hasRole("ADMIN")
 

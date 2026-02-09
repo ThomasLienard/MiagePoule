@@ -1,5 +1,7 @@
 package com.miage.pouleAPI.services;
 
+import com.miage.pouleAPI.dtos.NotificationDTO;
+import com.miage.pouleAPI.entity.ApplicationUser;
 import com.miage.pouleAPI.entity.Event;
 import com.miage.pouleAPI.entity.Notification;
 import com.miage.pouleAPI.repositories.NotificationRepository;
@@ -9,9 +11,11 @@ import org.springframework.stereotype.Service;
 public class NotificationServiceImpl implements com.miage.pouleAPI.services.interfaces.NotificationService {
 
     private final NotificationRepository notificationRepository;
+    private final SseNotificationService sseNotificationService;
 
-    public NotificationServiceImpl(NotificationRepository notificationRepository) {
+    public NotificationServiceImpl(NotificationRepository notificationRepository, SseNotificationService sseNotificationService) {
         this.notificationRepository = notificationRepository;
+        this.sseNotificationService = sseNotificationService;
     }
 
     @Override
@@ -26,6 +30,14 @@ public class NotificationServiceImpl implements com.miage.pouleAPI.services.inte
 
         // on notifie les observateurs de l'event
         event.getCompetition().notifyObservers(n);
+
+        // Ici : création du DTO + envoi SSE
+        NotificationDTO dto = NotificationDTO.fromEntity(n);
+
+        // À adapter : récupérer la liste des utilisateurs à notifier
+        for (ApplicationUser user : event.getCompetition().getObservers()) {
+            sseNotificationService.sendNotification(user.getId(), dto);
+        }
     }
 
     /**

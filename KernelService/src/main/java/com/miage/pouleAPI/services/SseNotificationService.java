@@ -17,7 +17,9 @@ public class SseNotificationService {
     private final Map<Integer, SseEmitter> emitters = new ConcurrentHashMap<>();
 
     public SseEmitter subscribe(Integer userId) {
-        SseEmitter emitter = new SseEmitter(0L); // timeout infini
+        // Set timeout to 24 hours (in milliseconds) to allow for long-lived connections
+        // while preventing indefinite hangs
+        SseEmitter emitter = new SseEmitter(24 * 60 * 60 * 1000L);
 
         emitters.put(userId, emitter);
 

@@ -27,7 +27,7 @@ public class SchedulerService {
     }
 
     // Vérifie toutes les minutes les évènements qui commencent
-    @Scheduled(fixedRate = 60000) // 60 secondes
+    @Scheduled(fixedRate = 10000) // 10 secondes
     public void checkEventsStartingNow() {
         LocalDateTime now = LocalDateTime.now();
 
