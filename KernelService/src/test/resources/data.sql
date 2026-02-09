@@ -84,7 +84,10 @@ VALUES (1, '2025-01-01 09:00:00', '2025-01-01 10:00:00'),
 INSERT INTO event (id_event, name_event, description_event, type_event_name,
                    id_place, id_time_slot, id_competition)
 VALUES (1, 'Morning Sprint Session', 'Speed training', 'TRAINING', 1, 1, 1),
-       (2, 'Final Sprint Race', 'Official competition', 'TRIAL', 1, 2, 2);
+       (2, 'Final Sprint Race', 'Official competition', 'TRIAL', 1, 2, 2),
+       (3, '400m Trial', 'Medium distance race', 'TRIAL', 1, 2, 2),
+       (4, 'Team Relay Trial', 'Team competition', 'TRIAL', 1, 2, 2),
+       (5, 'Individual 800m Trial', 'Distance race', 'TRIAL', 1, 2, 2);
 
 -- ======================
 -- Trials
@@ -92,9 +95,15 @@ VALUES (1, 'Morning Sprint Session', 'Speed training', 'TRAINING', 1, 1, 1),
 -- With JOINED inheritance, Trial shares the same primary key with Event
 -- Event 1 becomes a Trial
 -- Event 2 becomes a Trial  
+-- Event 3 becomes a Trial
+-- Event 4 becomes a Trial
+-- Event 5 becomes a Trial
 INSERT INTO trial (id_event)
 VALUES (1),
-       (2);
+       (2),
+       (3),
+       (4),
+       (5);
 
 -- ======================
 -- Users (MODIFIÉ avec BCrypt)
@@ -150,16 +159,16 @@ VALUES (1, 1),
 -- Participation
 -- ======================
 -- Team participation in trial 2
-INSERT INTO participate_at (id_team, id_trial, trial_result_team)
-VALUES (1, 2, '12.4s'),
-       (2, 2, '11.9s');
+INSERT INTO participate_at (id_team, id_trial, trial_result_team, is_forfeit)
+VALUES (1, 2, '12.4s', false),
+       (2, 2, '11.9s', false);
 
--- ======================
--- Convened athletes
--- ======================
--- Athletes participating in trial 2
-INSERT INTO is_convened_to (id, id_trial, trial_result_athlete)
-VALUES (1, 2, '12.4s');
+-- Athletes participating in trial 4 and 5
+INSERT INTO is_convened_to (id, id_trial, trial_result_athlete, is_forfeit)
+VALUES (3, 4, '45.2s', false),
+       (4, 4, '46.1s', false),
+       (3, 5, '125.3s', false),
+       (4, 5, '128.5s', false);
 
 -- ======================
 -- Notifications
@@ -189,8 +198,12 @@ VALUES (1, 1);
 -- ======================
 -- User event schedule
 -- ======================
+-- Commissaire (id=2) est assigné aux épreuves 1, 2 et 3
 INSERT INTO have_a_time_schedule (id, id_event)
-VALUES (1, 1);
+VALUES (1, 1),
+       (2, 1),
+       (2, 2),
+       (2, 3);
 
 -- ======================
 -- Tasks

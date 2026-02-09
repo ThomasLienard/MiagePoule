@@ -7,6 +7,7 @@ import org.springframework.stereotype.Repository;
 
 import com.miage.pouleAPI.entity.Trial;
 
+import java.time.LocalDateTime;
 import java.util.List;
 
 @Repository
@@ -27,5 +28,12 @@ public interface TrialRepository extends JpaRepository<Trial, Integer> {
             "WHERE u.id = :userId " +
             "ORDER BY t.timeSlot.start")
     List<Trial> findTeamTrialsByUserId(@Param("userId") Integer userId);
+    
+    @Query("SELECT t FROM Trial t " +
+            "JOIN t.users u " +
+            "WHERE u.id = :userId " +
+            "AND t.timeSlot.end > :now " +
+            "ORDER BY t.timeSlot.start")
+    List<Trial> findActiveTrialsAssignedToUser(@Param("userId") Integer userId, @Param("now") LocalDateTime now);
 }
 
