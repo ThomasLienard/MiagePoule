@@ -15,6 +15,8 @@ import com.miage.pouleAPI.repositories.CountryRepository;
 import com.miage.pouleAPI.repositories.RoleRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+
+import java.time.LocalDateTime;
 import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
@@ -62,6 +64,10 @@ public class AuthService {
         String role = user.getRole().getRoleName();
         log.info("Rôle de l'utilisateur: {}", role);
 
+        // Mettre à jour la date de dernière connexion
+        user.setLastLoginAt(LocalDateTime.now());
+        userRepo.save(user);
+
         // Inclure l'info mustChangePassword dans le token ou la réponse
         Boolean mustChangePassword = user.getMustChangePassword() != null && user.getMustChangePassword();
         Boolean isAccountActivated = user.getIsAccountActivated() != null && user.getIsAccountActivated();
@@ -93,6 +99,10 @@ public class AuthService {
             log.error("Compte désactivé: {}", request.email());
             throw new BadCredentialsException("Account is deactivated");
         }
+
+        // Mettre à jour la date de dernière connexion
+        user.setLastLoginAt(LocalDateTime.now());
+        userRepo.save(user);
 
         String role = user.getRole().getRoleName();
         Boolean mustChangePassword = user.getMustChangePassword() != null && user.getMustChangePassword();
