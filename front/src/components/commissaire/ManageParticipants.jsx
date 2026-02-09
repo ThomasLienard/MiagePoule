@@ -138,7 +138,7 @@ const AddParticipantModal = ({ show, target, trialName, actionLoading, onHide, o
         </Modal.Body>
         <Modal.Footer>
             <Button variant="secondary" onClick={onHide} disabled={actionLoading}>Annuler</Button>
-            <Button variant="primary" onClick={onConfirm} disabled={actionLoading}>
+            <Button variant="secondary" onClick={onConfirm} disabled={actionLoading}>
                 {actionLoading ? <><Spinner animation="border" size="sm" className="me-2" />Inscription...</> : 'Inscrire le participant'}
             </Button>
         </Modal.Footer>
@@ -463,7 +463,7 @@ const ManageParticipants = () => {
                 <div className="d-flex justify-content-center mb-4">
                     <ButtonGroup>
                         <Button 
-                            variant={viewMode === 'solo' ? 'primary' : 'outline-primary'}
+                            variant={viewMode === 'solo' ? 'secondary' : 'outline-secondary'}
                             onClick={() => setViewMode('solo')}
                         >
                             🏃 Solo
@@ -521,7 +521,7 @@ const ManageParticipants = () => {
                                             actionLoading={actionLoading}
                                             onAction={openAddModal}
                                             actionLabel="+ Ajouter"
-                                            actionVariant="outline-primary"
+                                            actionVariant="outline-secondary"
                                         />
                                     ))}
                                 </div>

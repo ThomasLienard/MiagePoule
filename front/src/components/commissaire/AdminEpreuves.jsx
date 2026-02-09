@@ -74,7 +74,7 @@ const AdminEpreuves = () => {
                                             </div>
                                             <div className="d-flex gap-2">
                                                 <Button 
-                                                    variant="outline-primary"
+                                                    variant="outline-secondary"
                                                     onClick={() => navigate(`/commissaire/trials/${trial.trialId}/participants`)}
                                                 >
                                                     Modifier participants
