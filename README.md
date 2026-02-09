@@ -49,7 +49,7 @@ ou
 ## Accès pour tester les différents rôles 
 
 - Commissaire :
-  - Mail : anna@smith.com
+  - Mail : commissaire@test.com
   - Mot de passe : test123
 - Responsable déploiement :
   - Mail : anna@smith.com
