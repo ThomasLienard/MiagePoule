@@ -15,7 +15,6 @@ import java.util.List;
 @RestController
 @RequestMapping("/admin/users")
 @RequiredArgsConstructor
-@Slf4j
 public class AdminUserController {
 
     private final AdminUserService adminUserService;
