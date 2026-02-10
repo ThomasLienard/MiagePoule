@@ -18,6 +18,11 @@ import TicketsPage from './components/tickets/TicketsPage.jsx';
 import Profile from "./components/profile/Profile.jsx";
 import PrivacySettings from "./components/profile/PrivacySettings.jsx";
 import CreateEventPage from "./components/admin/CreateEventPage.jsx";
+
+// Commissaire components
+import AdminEpreuves from './components/commissaire/AdminEpreuves.jsx';
+import ManageParticipants from './components/commissaire/ManageParticipants.jsx';
+import CreateEventPage from "./components/admin/CreateEventPage.jsx";
 import CreateChampionshipPage from "./components/admin/CreateChampionshipPage.jsx";
 import CreateCompetitionPage from "./components/admin/CreateCompetitionPage.jsx";
 
@@ -61,6 +66,18 @@ function App() {
                             <Route path="/admin/create-comp" element={
                                 <ProtectedRoute allowedRoles={['ADMIN']}>
                                     <CreateCompetitionPage />
+                                </ProtectedRoute>
+                            } />
+
+                            {/* Routes protégées Commissaire */}
+                            <Route path="/commissaire/trials" element={
+                                <ProtectedRoute allowedRoles={['COMMISSAIRE']}>
+                                    <AdminEpreuves />
+                                </ProtectedRoute>
+                            } />
+                            <Route path="/commissaire/trials/:trialId/participants" element={
+                                <ProtectedRoute allowedRoles={['COMMISSAIRE']}>
+                                    <ManageParticipants />
                                 </ProtectedRoute>
                             } />
 

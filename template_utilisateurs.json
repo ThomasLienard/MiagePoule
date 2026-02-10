@@ -1,0 +1,30 @@
+[
+  {
+    "email": "jean.dupont@example.com",
+    "name": "Jean",
+    "lastname": "Dupont",
+    "roleName": "ATHLETE",
+    "countryCode": "FR"
+  },
+  {
+    "email": "marie.martin@example.com",
+    "name": "Marie",
+    "lastname": "Martin",
+    "roleName": "VOLONTAIRE",
+    "countryCode": "FR"
+  },
+  {
+    "email": "pierre.bernard@example.com",
+    "name": "Pierre",
+    "lastname": "Bernard",
+    "roleName": "COMMISSAIRE",
+    "countryCode": "FR"
+  },
+  {
+    "email": "sophie.dubois@example.com",
+    "name": "Sophie",
+    "lastname": "Dubois",
+    "roleName": "SPECTATEUR",
+    "countryCode": "BE"
+  }
+]
