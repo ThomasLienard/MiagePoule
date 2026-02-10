@@ -1,6 +1,7 @@
 package com.miage.pouleAPI.services;
 
 import com.fasterxml.jackson.databind.JsonNode;
+import org.springframework.boot.web.client.RestTemplateBuilder;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpMethod;
@@ -11,8 +12,12 @@ import org.springframework.web.util.UriComponentsBuilder;
 
 @Service
 public class GeocodingService {
-    private final RestTemplate restTemplate = new RestTemplate();
     private final String USER_AGENT = "PouleAPI-Lille-StudentProject/1.0";
+    private RestTemplate restTemplate;
+
+    public GeocodingService(RestTemplateBuilder restTemplateBuilder) {
+        this.restTemplate = restTemplateBuilder.build();
+    }
 
     public Double[] getCoordinates(String address) {
         if (address == null || address.isBlank()) return new Double[]{48.8566, 2.3522};

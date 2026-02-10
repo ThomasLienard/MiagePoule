@@ -32,7 +32,6 @@ class ChampionshipJpaAdapterTest {
     private Championship championship1;
     private Championship championship2;
     private CreateChampionshipRequestDTO championshipDTO1;
-    private ChampionshipDTO championshipDTO2;
 
     @BeforeEach
     void setUp() {
@@ -61,13 +60,6 @@ class ChampionshipJpaAdapterTest {
                 LocalDate.of(2024, 1, 1)
         );
 
-        championshipDTO2 = new ChampionshipDTO(
-                "Championship 1 Description",
-                LocalDate.of(2024, 12, 31),
-                4,
-                "Championship 1",
-                LocalDate.of(2024, 1, 1)
-        );
     }
 
     @Test

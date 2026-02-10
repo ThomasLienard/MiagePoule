@@ -1,8 +1,6 @@
 package com.miage.pouleAPI.controllers;
 
-import com.miage.pouleAPI.dtos.championship.CreateChampionshipRequestDTO;
 import com.miage.pouleAPI.dtos.competition.CreateCompetitionRequestDTO;
-import com.miage.pouleAPI.services.interfaces.ChampionshipService;
 import com.miage.pouleAPI.services.interfaces.CompetitionService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;

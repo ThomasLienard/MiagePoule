@@ -1,6 +1,5 @@
 package com.miage.pouleAPI.adapters;
 
-import com.miage.pouleAPI.dtos.championship.CreateChampionshipRequestDTO;
 import com.miage.pouleAPI.dtos.competition.CompetitionDTO;
 import com.miage.pouleAPI.dtos.competition.CreateCompetitionRequestDTO;
 import com.miage.pouleAPI.entity.Championship;
