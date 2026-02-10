@@ -17,6 +17,7 @@ import Layout from "./components/layout/Layout.jsx";
 import TicketsPage from './components/tickets/TicketsPage.jsx';
 import Profile from "./components/profile/Profile.jsx";
 import PrivacySettings from "./components/profile/PrivacySettings.jsx";
+import CreateEventPage from "./components/admin/CreateEventPage.jsx";
 
 // Commissaire components
 import AdminEpreuves from './components/commissaire/AdminEpreuves.jsx';
@@ -47,6 +48,11 @@ function App() {
                             <Route path="/admin/users" element={
                                 <ProtectedRoute allowedRoles={['ADMIN']}>
                                     <UserManagement />
+                                </ProtectedRoute>
+                            } />
+                            <Route path="/admin/create-event" element={
+                                <ProtectedRoute allowedRoles={['ADMIN']}>
+                                    <CreateEventPage />
                                 </ProtectedRoute>
                             } />
 
