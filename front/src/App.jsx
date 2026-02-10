@@ -17,11 +17,12 @@ import Layout from "./components/layout/Layout.jsx";
 import TicketsPage from './components/tickets/TicketsPage.jsx';
 import Profile from "./components/profile/Profile.jsx";
 import PrivacySettings from "./components/profile/PrivacySettings.jsx";
-import CreateEventPage from "./components/admin/CreateEventPage.jsx";
 
 // Commissaire components
 import AdminEpreuves from './components/commissaire/AdminEpreuves.jsx';
 import ManageParticipants from './components/commissaire/ManageParticipants.jsx';
+
+//Admin
 import CreateEventPage from "./components/admin/CreateEventPage.jsx";
 import CreateChampionshipPage from "./components/admin/CreateChampionshipPage.jsx";
 import CreateCompetitionPage from "./components/admin/CreateCompetitionPage.jsx";
