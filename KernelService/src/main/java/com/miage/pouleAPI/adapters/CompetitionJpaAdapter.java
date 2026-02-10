@@ -1,6 +1,8 @@
 package com.miage.pouleAPI.adapters;
 
+import com.miage.pouleAPI.dtos.championship.CreateChampionshipRequestDTO;
 import com.miage.pouleAPI.dtos.competition.CompetitionDTO;
+import com.miage.pouleAPI.dtos.competition.CreateCompetitionRequestDTO;
 import com.miage.pouleAPI.entity.Championship;
 import com.miage.pouleAPI.entity.Competition;
 import com.miage.pouleAPI.repositories.ChampionshipRepository;
@@ -31,8 +33,8 @@ public class CompetitionJpaAdapter {
         return repository.findById(id).map(this::toDomain);
     }
 
-    public CompetitionDTO save(CompetitionDTO model) {
-        Competition entity = toEntity(model);
+    public CompetitionDTO save(CreateCompetitionRequestDTO model) {
+        Competition entity = toEntityRequest(model);
         Competition saved = repository.save(entity);
         return toDomain(saved);
     }
@@ -74,5 +76,18 @@ public class CompetitionJpaAdapter {
                 competition.getStart(),
                 competition.getEnd()
         );
+    }
+
+    private Competition toEntityRequest(CreateCompetitionRequestDTO dto){
+        if (dto == null){
+            return null;
+        }
+        Competition entity = new Competition();
+        entity.setName(dto.getName());
+        entity.setDescription(dto.getDescription());
+        entity.setStart(dto.getStart());
+        entity.setEnd(dto.getEnd());
+        entity.setChampionship(championshipRepository.findById(dto.getChampionshipId()).get());
+        return entity;
     }
 }

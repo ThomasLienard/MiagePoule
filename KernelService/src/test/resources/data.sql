@@ -26,9 +26,9 @@ VALUES ('INFO', 'Information message'),
 -- ======================
 -- Type of documents
 -- ======================
-INSERT INTO type_of_document (id_type_doc, name_type_doc)
-VALUES (1, 'PASSPORT'),
-       (2, 'LICENSE');
+INSERT INTO type_of_document ( name_type_doc)
+VALUES ( 'PASSPORT'),
+       ( 'LICENSE');
 
 -- ======================
 -- Type of notification
@@ -49,42 +49,41 @@ VALUES ('MEETING'),
 -- ======================
 -- Championships
 -- ======================
-INSERT INTO championship (id_championship, description_championship, name_championship,
+INSERT INTO championship ( description_championship, name_championship,
                           start_date_championship, end_date_championship)
-VALUES (1, 'World level championship', 'World Cup', '2025-01-01', '2025-01-02'),
-       (2, 'National level championship', 'National League', '2025-01-01', '2025-01-02');
+VALUES ( 'World level championship', 'World Cup', '2025-01-01', '2025-01-02'),
+       ('National level championship', 'National League', '2025-01-01', '2025-01-02');
 
 -- ======================
 -- Competitions
 -- ======================
-INSERT INTO competition (id_competition, name_competition, description_competition,
+INSERT INTO competition ( name_competition, description_competition,
                          id_championship, start_date_competition, end_date_competition)
-VALUES (1, '100m Sprint', 'Short distance run', 1, '2025-01-01', '2025-01-02'),
-       (2, 'Marathon', 'Long distance run', 1, '2025-01-01', '2025-01-02');
+VALUES ( '100m Sprint', 'Short distance run', 1, '2025-01-01', '2025-01-02'),
+       ( 'Marathon', 'Long distance run', 1, '2025-01-01', '2025-01-02');
 
 -- ======================
 -- Places
 -- ======================
-INSERT INTO place (id_place, name_place, city_place, zip_code_place, street_place,
+INSERT INTO place (name_place, city_place, zip_code_place, street_place,
                    parking_place, number_place, description_place,
                    latitude_place, longitude_place)
-VALUES (1, 'Olympic Stadium', 'Paris', '75000', 'Main Street', TRUE, '10',
+VALUES ('Olympic Stadium', 'Paris', '75000', 'Main Street', TRUE, '10',
         'Central stadium', 48.85, 2.35);
 
 -- ======================
 -- Time slots
 -- ======================
-INSERT INTO time_slot (id_time_slot, start_time, end_time)
-VALUES (1, '2025-01-01 09:00:00', '2025-01-01 10:00:00'),
-       (2, '2025-01-01 10:00:00', '2025-01-01 11:00:00');
-
+INSERT INTO time_slot (start_time, end_time)
+VALUES ('2025-01-01 09:00:00', '2025-01-01 10:00:00'),
+       ('2025-01-01 10:00:00', '2025-01-01 11:00:00');
 -- ======================
 -- Events
 -- ======================
-INSERT INTO event (id_event, name_event, description_event, type_event_name,
+INSERT INTO event ( name_event, description_event, type_event_name,
                    id_place, id_time_slot, id_competition)
-VALUES (1, 'Morning Sprint Session', 'Speed training', 'TRAINING', 1, 1, 1),
-       (2, 'Final Sprint Race', 'Official competition', 'TRIAL', 1, 2, 2);
+VALUES ('Morning Sprint Session', 'Speed training', 'TRAINING', 1, 1, 1),
+       ('Final Sprint Race', 'Official competition', 'TRIAL', 1, 2, 2);
 
 -- ======================
 -- Trials

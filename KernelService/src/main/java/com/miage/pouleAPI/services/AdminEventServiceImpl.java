@@ -49,10 +49,11 @@ public class AdminEventServiceImpl implements AdminEventService {
             Double[] coords = geocodingService.getCoordinates(fullAddress);
             place.setLatitude(coords[0]);
             place.setLongitude(coords[1]);
+            place = placeRepo.save(place);
         }
 
 
-        place = placeRepo.save(place);
+
         TimeSlot slot = new TimeSlot();
         slot.setStart(req.startTime());
         slot.setEnd(req.endTime());
