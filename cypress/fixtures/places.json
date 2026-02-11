@@ -1,0 +1,14 @@
+[
+  {
+    "id": 1,
+    "name_place": "Olympic Stadium",
+    "city_place": "Paris",
+    "zip_code_place": "75000",
+    "street_place": "Main Street",
+    "parking_place": true,
+    "number_place": "10",
+    "description_place": "Central stadium",
+    "latitude_place": 48.85,
+    "longitude_place": 2.35
+  }
+]

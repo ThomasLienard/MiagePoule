@@ -97,19 +97,21 @@ VALUES ('100m Trial Heat 1', 'First qualification heat', 'TRIAL', 1, 1, 1),
        ('Marathon Qualification', 'Main qualification heat', 'TRIAL', 2, 1, 2),
        ('Training Session A', 'Regular training', 'TRAINING', 3, 1, 1),
        ('Training Session B', 'Regular training', 'TRAINING', 3, 2, 1),
-       ('Championship Meeting', 'Official gathering', 'MEETING', 3, 3, 2);
+       ('Championship Meeting', 'Official gathering', 'MEETING', 3, 3, 2),
+        ('Marathon Final', 'Final race', 'TRIAL', 2, 3, 2);
 
 -- ======================
 -- Trials
 -- ======================
 -- With JOINED inheritance, Trial shares the same primary key with Event
--- Only events with type 'TRIAL' become trials (id 1-5)
+-- Only events with type 'TRIAL' become trials (id 1-5 & 9)
 INSERT INTO trial (id_event)
 VALUES (1),
        (2),
        (3),
        (4),
-       (5);
+       (5),
+       (9);
 
 -- ======================
 -- Users (MODIFIÉ avec BCrypt)
@@ -141,7 +143,9 @@ VALUES
 -- ======================
 INSERT INTO team (name_team, country_code)
 VALUES ('Team A', 'FR'),
-       ('Team B', 'US');
+       ('Team B', 'US'),
+       ('Team C', 'DE'),
+       ('Team D', 'ES');
 
 -- ======================
 -- Membership
@@ -154,21 +158,23 @@ VALUES (1, 1),
 -- Participation
 -- ======================
 -- Team participation: Trial 1 and Trial 2 have team participation
-INSERT INTO participate_at (id_team, id_trial, trial_result_team)
-VALUES (1, 1, '11.2s'),
-       (2, 1, '11.5s'),
-       (1, 2, '11.8s'),
-       (2, 3, '10.9s');
+-- Team B est en forfait sur Trial 1 pour les tests
+INSERT INTO participate_at (id_team, id_trial, trial_result_team, is_forfeit)
+VALUES (1, 1, '11.2s', false),
+       (2, 1, null, true),
+       (1, 2, '11.8s', false),
+       (2,2, '10.9s', false);
 
 -- ======================
 -- Convened athletes
 -- ======================
 -- Athletes participation: Trial 4 and Trial 5 have athlete convocation (no participate_at)
-INSERT INTO is_convened_to (id, id_trial, trial_result_athlete)
-VALUES (1, 4, '2h15m'),
-       (2, 4, '2h05m'),
-       (3, 5, '11.6s'),
-       (4, 5, '11.1s');
+INSERT INTO is_convened_to (id, id_trial, trial_result_athlete, is_forfeit)
+VALUES (1, 4, '2h15m', false),
+       (2, 4, '2h05m', false),
+       (3, 5, '11.6s', false),
+       (4, 5, '11.1s', false),
+       (3, 9, null, false);
 
 -- ======================
 -- Notifications
@@ -201,13 +207,20 @@ VALUES (1, 1);
 -- ======================
 -- User event schedule
 -- ======================
+-- Commissaire (id=2) est assigné aux épreuves 1, 2 et 3
+-- Jane Smith commissaire (id=6) est assignée aux épreuves 4 et 5
 INSERT INTO have_a_time_schedule (id, id_event)
 VALUES (1, 1),
+       (2, 1),
        (2, 2),
+       (2, 3),
        (3, 3),
        (4, 4),
        (5, 5),
-       (6, 6);
+       (6, 4),
+       (6, 5),
+       (6, 6),
+       (6, 9);
 
 -- ======================
 -- Tasks

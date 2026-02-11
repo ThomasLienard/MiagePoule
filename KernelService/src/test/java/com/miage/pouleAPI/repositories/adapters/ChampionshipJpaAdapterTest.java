@@ -2,6 +2,7 @@ package com.miage.pouleAPI.repositories.adapters;
 
 import com.miage.pouleAPI.adapters.ChampionshipJpaAdapter;
 import com.miage.pouleAPI.dtos.championship.ChampionshipDTO;
+import com.miage.pouleAPI.dtos.championship.CreateChampionshipRequestDTO;
 import com.miage.pouleAPI.entity.Championship;
 import com.miage.pouleAPI.repositories.ChampionshipRepository;
 
@@ -30,7 +31,7 @@ class ChampionshipJpaAdapterTest {
 
     private Championship championship1;
     private Championship championship2;
-    private ChampionshipDTO championshipDTO1;
+    private CreateChampionshipRequestDTO championshipDTO1;
 
     @BeforeEach
     void setUp() {
@@ -52,13 +53,13 @@ class ChampionshipJpaAdapterTest {
                 LocalDate.of(2024, 6, 30)
         );
 
-        championshipDTO1 = new ChampionshipDTO(
+        championshipDTO1 = new CreateChampionshipRequestDTO(
                 "Championship 1 Description",
-                LocalDate.of(2024, 12, 31),
-                1,
                 "Championship 1",
+                LocalDate.of(2024, 12, 31),
                 LocalDate.of(2024, 1, 1)
         );
+
     }
 
     @Test
@@ -117,11 +118,10 @@ class ChampionshipJpaAdapterTest {
 
     @Test
     void save_ShouldConvertAndSaveChampionshipModel() {
-        ChampionshipDTO modelToSave = new ChampionshipDTO(
+        CreateChampionshipRequestDTO modelToSave = new CreateChampionshipRequestDTO(
                 "New Championship Description",
-                LocalDate.of(2025, 12, 31),
-                null,
                 "New Championship",
+                LocalDate.of(2025, 12, 31),
                 LocalDate.of(2025, 1, 1)
         );
 
@@ -172,23 +172,25 @@ class ChampionshipJpaAdapterTest {
 
     @Test
     void toEntity_ShouldConvertModelToEntity() {
-        Championship entityToSave = new Championship(
-                championshipDTO1.getId(),
+        Championship savedEntity = new Championship(
+                4, // L'ID généré par la BDD(simulé)
                 championshipDTO1.getDescription(),
                 championshipDTO1.getName(),
                 championshipDTO1.getStart(),
                 championshipDTO1.getEnd()
         );
 
-        when(repository.save(any(Championship.class))).thenReturn(entityToSave);
+        when(repository.save(any(Championship.class))).thenReturn(savedEntity);
 
         ChampionshipDTO result = adapter.save(championshipDTO1);
 
         assertThat(result).isNotNull();
+        assertThat(result.getId()).isEqualTo(4);
+
         verify(repository).save(argThat(entity ->
-                entity.getId().equals(championshipDTO1.getId()) &&
-                entity.getName().equals(championshipDTO1.getName()) &&
-                entity.getDescription().equals(championshipDTO1.getDescription())
+                entity.getId() == null && //car auto-généré en base
+                        entity.getName().equals(championshipDTO1.getName()) &&
+                        entity.getDescription().equals(championshipDTO1.getDescription())
         ));
     }
 
@@ -220,6 +222,13 @@ class ChampionshipJpaAdapterTest {
                 LocalDate.of(2024, 1, 1)
         );
 
+        CreateChampionshipRequestDTO completeRequest = new CreateChampionshipRequestDTO(
+                "Complete Description",
+                "Complete Championship",
+                LocalDate.of(2024, 12, 31),
+                LocalDate.of(2024, 1, 1)
+        );
+
         Championship savedEntity = new Championship(
                 5,
                 "Complete Description",
@@ -230,7 +239,7 @@ class ChampionshipJpaAdapterTest {
 
         when(repository.save(any(Championship.class))).thenReturn(savedEntity);
 
-        ChampionshipDTO result = adapter.save(completeModel);
+        ChampionshipDTO result = adapter.save(completeRequest);
 
         assertThat(result.getId()).isEqualTo(completeModel.getId());
         assertThat(result.getName()).isEqualTo(completeModel.getName());

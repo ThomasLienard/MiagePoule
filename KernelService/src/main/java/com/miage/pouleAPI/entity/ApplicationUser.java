@@ -59,6 +59,9 @@ public class ApplicationUser {
     @Column(name = "deactivation_reason")
     private String deactivationReason;
 
+    @Column(name = "last_login_at")
+    private LocalDateTime lastLoginAt;
+
     @ManyToOne
     @JoinColumn(name = "Country_code")
     @JsonIgnoreProperties({"hibernateLazyInitializer", "handler"})

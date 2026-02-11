@@ -2,6 +2,7 @@ package com.miage.pouleAPI.services;
 
 import com.miage.pouleAPI.adapters.CompetitionJpaAdapter;
 import com.miage.pouleAPI.dtos.competition.CompetitionDTO;
+import com.miage.pouleAPI.dtos.competition.CreateCompetitionRequestDTO;
 import com.miage.pouleAPI.entity.Championship;
 
 import org.junit.jupiter.api.BeforeEach;
@@ -114,12 +115,11 @@ class CompetitionServiceImplTest {
 
     @Test
     void save_ShouldReturnSavedCompetition() {
-        CompetitionDTO newCompetition = new CompetitionDTO(
-                championship.getId(),
-                "New Competition Description",
-                LocalDate.of(2025, 6, 30),
-                null,
+        CreateCompetitionRequestDTO newCompetition = new CreateCompetitionRequestDTO(
                 "New Competition",
+                "New Competition Description",
+                championship.getId(),
+                LocalDate.of(2025, 6, 30),
                 LocalDate.of(2025, 1, 1)
         );
 
@@ -132,7 +132,7 @@ class CompetitionServiceImplTest {
                 LocalDate.of(2025, 1, 1)
         );
 
-        when(competitionJpaAdapter.save(any(CompetitionDTO.class))).thenReturn(savedCompetition);
+        when(competitionJpaAdapter.save(any(CreateCompetitionRequestDTO.class))).thenReturn(savedCompetition);
 
         CompetitionDTO result = competitionService.save(newCompetition);
 
@@ -148,21 +148,29 @@ class CompetitionServiceImplTest {
 
     @Test
     void save_ShouldUpdateExistingCompetition() {
-        CompetitionDTO updatedCompetition = new CompetitionDTO(
+        CreateCompetitionRequestDTO updatedCompetition = new CreateCompetitionRequestDTO(
+                "Updated Competition",
+                "Updated Description",
+                championship.getId(),
+                LocalDate.of(2024, 6, 30),
+                LocalDate.of(2024, 1, 1)
+        );
+
+        CompetitionDTO updatedCompetitionModel = new CompetitionDTO(
                 championship.getId(),
                 "Updated Description",
                 LocalDate.of(2024, 6, 30),
-                1,
+                3,
                 "Updated Competition",
                 LocalDate.of(2024, 1, 1)
         );
 
-        when(competitionJpaAdapter.save(any(CompetitionDTO.class))).thenReturn(updatedCompetition);
+        when(competitionJpaAdapter.save(any(CreateCompetitionRequestDTO.class))).thenReturn(updatedCompetitionModel);
 
         CompetitionDTO result = competitionService.save(updatedCompetition);
 
         assertThat(result).isNotNull();
-        assertThat(result.getId()).isEqualTo(1);
+        assertThat(result.getId()).isEqualTo(3);
         assertThat(result.getName()).isEqualTo("Updated Competition");
         assertThat(result.getDescription()).isEqualTo("Updated Description");
         verify(competitionJpaAdapter, times(1)).save(updatedCompetition);

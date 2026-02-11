@@ -3,6 +3,7 @@ package com.miage.pouleAPI.services;
 import com.miage.pouleAPI.adapters.ChampionshipJpaAdapter;
 import com.miage.pouleAPI.dtos.championship.ChampionshipDTO;
 
+import com.miage.pouleAPI.dtos.championship.CreateChampionshipRequestDTO;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -101,11 +102,10 @@ class ChampionshipServiceImplTest {
 
     @Test
     void save_ShouldReturnSavedChampionship() {
-        ChampionshipDTO newChampionship = new ChampionshipDTO(
+        CreateChampionshipRequestDTO newChampionship = new CreateChampionshipRequestDTO(
                 "New Championship Description",
-                LocalDate.of(2025, 12, 31),
-                null,
                 "New Championship",
+                LocalDate.of(2025, 12, 31),
                 LocalDate.of(2025, 1, 1)
         );
 
@@ -117,7 +117,7 @@ class ChampionshipServiceImplTest {
                 LocalDate.of(2025, 1, 1)
         );
 
-        when(championshipJpaAdapter.save(any(ChampionshipDTO.class))).thenReturn(savedChampionship);
+        when(championshipJpaAdapter.save(any(CreateChampionshipRequestDTO.class))).thenReturn(savedChampionship);
 
         ChampionshipDTO result = championshipService.save(newChampionship);
 
@@ -140,15 +140,22 @@ class ChampionshipServiceImplTest {
                 LocalDate.of(2024, 1, 1)
         );
 
-        when(championshipJpaAdapter.save(any(ChampionshipDTO.class))).thenReturn(updatedChampionship);
+        CreateChampionshipRequestDTO updatedChampionshipRequest = new CreateChampionshipRequestDTO(
+                "Updated Description",
+                "Updated Championship",
+                LocalDate.of(2024, 12, 31),
+                LocalDate.of(2024, 1, 1)
+        );
 
-        ChampionshipDTO result = championshipService.save(updatedChampionship);
+        when(championshipJpaAdapter.save(any(CreateChampionshipRequestDTO.class))).thenReturn(updatedChampionship);
+
+        ChampionshipDTO result = championshipService.save(updatedChampionshipRequest);
 
         assertThat(result).isNotNull();
         assertThat(result.getId()).isEqualTo(1);
         assertThat(result.getName()).isEqualTo("Updated Championship");
         assertThat(result.getDescription()).isEqualTo("Updated Description");
-        verify(championshipJpaAdapter, times(1)).save(updatedChampionship);
+        verify(championshipJpaAdapter, times(1)).save(updatedChampionshipRequest);
     }
 
     @Test
