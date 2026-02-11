@@ -27,9 +27,10 @@ VALUES ('INFO', 'Information message'),
 -- Type of documents
 -- ======================
 INSERT INTO type_of_document (name_type_doc)
-VALUES ('PASSPORT'),
-       ('LICENSE'),
-       ('TICKET');
+VALUES ('TICKET'),
+       ('CEN_ACCREDITATION'),
+       ('PASSPORT'),
+       ('MEDICAL_CERTIFICATE');
 
 -- ======================
 -- Type of notification
