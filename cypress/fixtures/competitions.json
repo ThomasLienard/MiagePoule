@@ -1,0 +1,18 @@
+[
+  {
+    "id": 1,
+    "name": "100m Sprint",
+    "description": "Short distance run",
+    "id_championship": 1,
+    "start_date": "2025-01-01",
+    "end_date": "2025-01-02"
+  },
+  {
+    "id": 2,
+    "name": "Marathon",
+    "description": "Long distance run",
+    "id_championship": 1,
+    "start_date": "2025-01-01",
+    "end_date": "2025-01-02"
+  }
+]
