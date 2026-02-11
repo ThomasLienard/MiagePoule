@@ -8,8 +8,10 @@ import com.miage.pouleAPI.dtos.profile.UpdateProfileResponse;
 import com.miage.pouleAPI.dtos.profile.UserProfileResponseDTO;
 import com.miage.pouleAPI.entity.ApplicationUser;
 import com.miage.pouleAPI.repositories.ApplicationUserRepository;
+import com.miage.pouleAPI.services.interfaces.ProfileService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
 
@@ -20,6 +22,7 @@ public class ProfileController {
     private final AuthService authService;
     private final ApplicationUserRepository userRepo;
     private final UserAdapter userAdapter;
+    private final ProfileService profileService;
 
     @GetMapping
     public ResponseEntity<UserProfileResponseDTO> getProfile(Authentication auth) {
@@ -51,5 +54,13 @@ public class ProfileController {
         authService.changePassword(user.getId(), dto.getCurrentPassword(), dto.getNewPassword());
 
         return ResponseEntity.noContent().build(); // 204 pour un succès sans corps
+    }
+
+
+    @PostMapping("/sign-charter")
+    @PreAuthorize("hasRole('ATHLETE')")
+    public ResponseEntity<Void> signCharter() {
+        profileService.signCharter();
+        return ResponseEntity.ok().build();
     }
 }

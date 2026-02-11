@@ -89,4 +89,24 @@ class ProfileControllerIntegrationTest {
         ApplicationUser userInDb = userRepo.findByEmail(CURRENT_EMAIL).orElseThrow();
         assertEquals("NouveauNomSeulement", userInDb.getName());
     }
+
+    @Test
+    @WithMockUser(username = "athlete@test.com", roles = {"ATHLETE"})
+    void signCharter_Athlete_IntegrationTest() throws Exception {
+
+        mockMvc.perform(post("/account/sign-charter"))
+                .andExpect(status().isOk());
+
+        ApplicationUser user = userRepo.findByEmail("athlete@test.com").orElseThrow();
+        assertEquals(true, user.getHasSignedCharter());
+    }
+
+    @Test
+    @WithMockUser(username = CURRENT_EMAIL, roles = {"COMMISSAIRE"})
+    void signCharter_NonAthlete_ShouldBeForbidden_IntegrationTest() throws Exception {
+
+        mockMvc.perform(post("/account/sign-charter"))
+                .andDo(print())
+                .andExpect(status().isForbidden());
+    }
 }
