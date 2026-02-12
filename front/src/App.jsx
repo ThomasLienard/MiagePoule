@@ -22,6 +22,11 @@ import PrivacySettings from "./components/profile/PrivacySettings.jsx";
 import AdminEpreuves from './components/commissaire/AdminEpreuves.jsx';
 import ManageParticipants from './components/commissaire/ManageParticipants.jsx';
 
+//Admin
+import CreateEventPage from "./components/admin/CreateEventPage.jsx";
+import CreateChampionshipPage from "./components/admin/CreateChampionshipPage.jsx";
+import CreateCompetitionPage from "./components/admin/CreateCompetitionPage.jsx";
+
 function App() {
 
   return (
@@ -47,6 +52,21 @@ function App() {
                             <Route path="/admin/users" element={
                                 <ProtectedRoute allowedRoles={['ADMIN']}>
                                     <UserManagement />
+                                </ProtectedRoute>
+                            } />
+                            <Route path="/admin/create-event" element={
+                                <ProtectedRoute allowedRoles={['ADMIN']}>
+                                    <CreateEventPage />
+                                </ProtectedRoute>
+                            } />
+                            <Route path="/admin/create-champ" element={
+                                <ProtectedRoute allowedRoles={['ADMIN']}>
+                                    <CreateChampionshipPage />
+                                </ProtectedRoute>
+                            } />
+                            <Route path="/admin/create-comp" element={
+                                <ProtectedRoute allowedRoles={['ADMIN']}>
+                                    <CreateCompetitionPage />
                                 </ProtectedRoute>
                             } />
 

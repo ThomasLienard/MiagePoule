@@ -44,10 +44,12 @@ export default function Layout() {
                             )}
 
                             {user?.roles?.includes('ADMIN') && (
-                                <Nav.Link className="auth-button secondary me-2" as="span">
-                                    <Link to="/admin"
-                                          className="text-decoration-none text-body-secondary">Administration</Link>
-                                </Nav.Link>
+                                <>
+                                    <Nav.Link className="auth-button secondary me-2" as="span">
+                                        <Link to="/admin"
+                                              className="text-decoration-none text-body-secondary">Administration</Link>
+                                    </Nav.Link>
+                                </>
                             )}
 
                             {user?.roles?.includes('COMMISSAIRE') && (

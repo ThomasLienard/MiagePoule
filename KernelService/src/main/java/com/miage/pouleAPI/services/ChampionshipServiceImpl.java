@@ -2,6 +2,7 @@ package com.miage.pouleAPI.services;
 
 import com.miage.pouleAPI.adapters.ChampionshipJpaAdapter;
 import com.miage.pouleAPI.dtos.championship.ChampionshipDTO;
+import com.miage.pouleAPI.dtos.championship.CreateChampionshipRequestDTO;
 import com.miage.pouleAPI.services.interfaces.ChampionshipService;
 
 import org.springframework.stereotype.Service;
@@ -29,7 +30,7 @@ public class ChampionshipServiceImpl implements ChampionshipService {
     }
 
     @Override
-    public ChampionshipDTO save(ChampionshipDTO championshipDto) {
+    public ChampionshipDTO save(CreateChampionshipRequestDTO championshipDto) {
         return championshipJpaAdapter.save(championshipDto);
     }
 }
