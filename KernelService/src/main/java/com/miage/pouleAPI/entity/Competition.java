@@ -7,8 +7,8 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 import java.time.LocalDate;
+import java.util.Collection;
 import java.util.HashSet;
-import java.util.Set;
 
 @Getter
 @Setter
@@ -44,7 +44,7 @@ public class Competition implements Subject {
             joinColumns = @JoinColumn(name = "id_competition"),    // FK vers Competition
             inverseJoinColumns = @JoinColumn(name = "id_user")      // FK vers ApplicationUser
     )
-    private Set<ApplicationUser> observers = new HashSet<>();
+    private Collection<ApplicationUser> observers = new HashSet<>();
 
     public Competition(Integer id, String name, String description, Championship championship, LocalDate start, LocalDate end) {
         this.name = name;

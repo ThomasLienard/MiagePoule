@@ -1,12 +1,11 @@
 package com.miage.pouleAPI.services;
 
-// NOUVEAU fichier : src/main/java/com/miage/pouleAPI/services/EventScheduler.java
-
 import com.miage.pouleAPI.entity.Event;
 import com.miage.pouleAPI.repositories.EventRepository;
 import com.miage.pouleAPI.services.interfaces.EventService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.scheduling.annotation.EnableScheduling;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 
@@ -14,6 +13,7 @@ import java.time.LocalDateTime;
 import java.util.List;
 
 @Service
+@EnableScheduling
 public class SchedulerService {
 
     private static final Logger logger = LoggerFactory.getLogger(SchedulerService.class);
@@ -30,8 +30,8 @@ public class SchedulerService {
     @Scheduled(fixedRate = 10000) // 10 secondes
     public void checkEventsStartingNow() {
         LocalDateTime now = LocalDateTime.now();
-
-        // Évènements dont le début est passé mais la fin pas encore
+        logger.info("now : " + now.toString());
+        // Évènements dont le début est passé, mais la fin pas encore
         List<Event> startingEvents = eventRepository
                 .findOngoingEvents(now);
 
@@ -39,6 +39,7 @@ public class SchedulerService {
 
         for (Event event : startingEvents) {
             // On notifie automatiquement
+            logger.info("=== before startEvent ===");
             eventService.startEvent(event.getId());
             logger.info("Notified start of event: {}", event.getName());
         }

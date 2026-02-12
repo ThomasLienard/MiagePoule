@@ -44,7 +44,7 @@ public class SseNotificationService {
         if (emitter != null) {
             try {
                 emitter.send(SseEmitter.event()
-                        .name("newNotification")
+                        .name("message")
                         .data(notificationDto));
                 logger.info("SSE sent to user {}: {}", userId, notificationDto);
             } catch (IOException e) {

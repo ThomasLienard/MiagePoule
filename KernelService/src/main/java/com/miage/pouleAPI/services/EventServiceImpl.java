@@ -36,6 +36,7 @@ public class EventServiceImpl implements EventService {
 
         // logique métier pour démarrer l'épreuve...
 
+        System.out.println("=============== before notifyEventStart " + event.getName());
         notificationService.notifyEventStart(event);
     }
 

@@ -91,12 +91,12 @@ const Competition = () => {
             // Utiliser user.id qui est l'ID numérique depuis le JWT
             await subscribeToCompetition(idChampionship, idCompetition, user.id);
             setSubscribeSuccess(true);
-            setTimeout(() => setSubscribeSuccess(false), 3000);
         } catch (err) {
             console.error('Erreur lors de l\'abonnement:', err);
             alert("Erreur lors de l'abonnement à la compétition");
         } finally {
             setSubscribing(false);
+            console.log(`user ${user.id} subscribed to competition ${idCompetition}`);
         }
     };
 
@@ -125,7 +125,7 @@ const Competition = () => {
                     <TrialsAndEventsCard trials={futurTrials()} events={futurEvents()} title={"A venir"}/>
                 </div>
                 <div className="vr d-none d-md-inline"></div>
-                <div className="d-flex flex-column w-100 mx-md-3 p-3">
+                <div className="d-flex flex-column w-100 mx-md-3 p-3" id="sse">
                     <TrialsAndEventsCard trials={pastTrials()} events={pastEvents()} title={"Passés"}/>
                 </div>
             </div>

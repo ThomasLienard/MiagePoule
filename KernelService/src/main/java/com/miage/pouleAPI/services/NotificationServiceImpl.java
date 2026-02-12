@@ -1,21 +1,26 @@
 package com.miage.pouleAPI.services;
 
 import com.miage.pouleAPI.dtos.NotificationDTO;
-import com.miage.pouleAPI.entity.ApplicationUser;
-import com.miage.pouleAPI.entity.Event;
-import com.miage.pouleAPI.entity.Notification;
+import com.miage.pouleAPI.entity.*;
+import com.miage.pouleAPI.repositories.CompetitionObserverRepository;
 import com.miage.pouleAPI.repositories.NotificationRepository;
 import org.springframework.stereotype.Service;
+import java.time.LocalDateTime;
+import java.util.Collection;
 
 @Service
 public class NotificationServiceImpl implements com.miage.pouleAPI.services.interfaces.NotificationService {
 
     private final NotificationRepository notificationRepository;
     private final SseNotificationService sseNotificationService;
+    private final SeverityRepository severityRepository;
+    private final CompetitionObserverRepository competitionObserverRepository;
 
-    public NotificationServiceImpl(NotificationRepository notificationRepository, SseNotificationService sseNotificationService) {
+    public NotificationServiceImpl(NotificationRepository notificationRepository, SseNotificationService sseNotificationService, SeverityRepository severityRepository, CompetitionObserverRepository competitionObserverRepository) {
         this.notificationRepository = notificationRepository;
         this.sseNotificationService = sseNotificationService;
+        this.severityRepository = severityRepository;
+        this.competitionObserverRepository = competitionObserverRepository;
     }
 
     @Override
@@ -24,19 +29,37 @@ public class NotificationServiceImpl implements com.miage.pouleAPI.services.inte
         n.setDescription("L'épreuve " + event.getName() + " va commencer.");
         n.setType(TypeNotification.INFO);
         n.setEvent(event);
+        n.setEmissionDate(LocalDateTime.now());
 
+        Severity sev = new Severity("info", "start event");
+        severityRepository.save(sev);
+        n.setSeverity(sev);
+
+
+        System.out.println("=============== before save ");
         // on persiste la notif
         notificationRepository.save(n);
+        System.out.println("=============== after save ");
 
+        System.out.println("=============== before notifyObservers ");
         // on notifie les observateurs de l'event
-        event.getCompetition().notifyObservers(n);
+        //event.getCompetition().notifyObservers(n);
+        System.out.println("=============== after notifyObservers ");
 
+
+        System.out.println("=============== before dto ");
         // Ici : création du DTO + envoi SSE
         NotificationDTO dto = NotificationDTO.fromEntity(n);
+        System.out.println("=============== after dto ");
 
-        // À adapter : récupérer la liste des utilisateurs à notifier
-        for (ApplicationUser user : event.getCompetition().getObservers()) {
-            sseNotificationService.sendNotification(user.getId(), dto);
+        System.out.println("=============== before getObservers ");
+        Collection<CompetitionObserver> observers = competitionObserverRepository.findByCompetition(event.getCompetition());
+        System.out.println(observers.toString());
+        System.out.println("=============== after getObservers ");
+
+        for (CompetitionObserver observer : observers) {
+            System.out.println("=============== observer " + observer.getId().getUserId());
+            sseNotificationService.sendNotification(observer.getId().getUserId(), dto);
         }
     }
 

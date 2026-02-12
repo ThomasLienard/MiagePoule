@@ -24,9 +24,17 @@ export const useNotificationsSSE = (userId) => {
             eventSourceRef.current = eventSource;
 
             // 2️⃣ Écoute les nouvelles notifications
-            eventSource.addEventListener("newNotification", (event) => {
+            eventSource.addEventListener("message", (event) => {
                 const notification = JSON.parse(event.data);
                 console.log("New notification:", notification);
+
+                // Affiche le contenu brut de l'événement dans une alert
+                try {
+                    alert(JSON.stringify(notification, null, 2));
+                } catch (e) {
+                    // Fallback si JSON.stringify pose problème
+                    alert(event.data);
+                }
 
                 // Ajoute en début de liste (les plus récentes en haut)
                 setNotifications((prevNotifications) => [notification, ...prevNotifications]);
@@ -34,6 +42,11 @@ export const useNotificationsSSE = (userId) => {
                 // Incrémente le badge
                 setUnreadCount((prevCount) => prevCount + 1);
             });
+
+            eventSource.onmessage = event => {
+                console.log("==== onmessage ====");
+                console.log(event.data);
+            }
 
             // Handle open event
             eventSource.addEventListener("open", () => {
