@@ -179,11 +179,11 @@ const TrialsAndEventsDetails = () => {
                             </div>
                         </div>
                     )}
-                    {(eventData.rankings.length === 0 ) && (
+                    {(eventData.rankings.length === 0 && (eventData.soloParticipants || eventData.teamParticipants) ) && (
                         <div className="border rounded p-3 m-3">
                             <h5 className="text-center">🏆 Résultats</h5>
                             <div className="d-flex flex-row gap-2">
-                                {(eventData.teamParticipants.length >0) && (
+                                {(eventData.teamParticipants && eventData.teamParticipants.length >0) && (
                                     <div className="w-100">
                                         <div className="text-center fw-semibold">Équipes</div>
                                         <Accordion>
@@ -213,7 +213,7 @@ const TrialsAndEventsDetails = () => {
                                         </Accordion>
                                     </div>
                                 )}
-                                {(eventData.soloParticipants.length >0) && (
+                                {(eventData.soloParticipants && eventData.soloParticipants.length >0) && (
                                     <div className="w-100">
                                         <div className="text-center fw-semibold">Athlètes</div>
                                         <ListGroup as="ol">

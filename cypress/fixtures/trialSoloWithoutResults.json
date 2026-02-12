@@ -1,0 +1,39 @@
+{
+  "id": 1,
+  "name": "Marathon Final",
+  "description": "Final race",
+  "competitionName": "Marathon",
+  "timeSlot": {
+    "start": "2026-10-09T09:00:00",
+    "end": "2026-10-09T10:00:00"
+  },
+  "place": {
+    "id": 1,
+    "name": "Bercy Sports Palace",
+    "description": "Indoor sports complex",
+    "street": "Boulevard de Bercy",
+    "number": "8",
+    "city": "Paris",
+    "zip": "75012",
+    "parking": false,
+    "latitude": 48.8365,
+    "longitude": 2.3738
+  },
+  "rankings": [],
+  "soloParticipants": [
+    {
+      "id": 1,
+      "firstName": "Marie",
+      "lastName": "Athlete",
+      "fullName": "Marie Athlete"
+    },
+    {
+      "id": 2,
+      "firstName": "Elsa",
+      "lastName": "Collègue de la lumière",
+      "fullName": "Elsa Collègue de la lumière"
+    }
+  ],
+  "teamParticipants": [],
+  "teamEvent": false
+}
