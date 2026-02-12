@@ -30,7 +30,7 @@ public class SchedulerService {
     @Scheduled(fixedRate = 10000) // 10 secondes
     public void checkEventsStartingNow() {
         LocalDateTime now = LocalDateTime.now();
-        logger.info("now : " + now.toString());
+        logger.info("now : " + now);
         // Évènements dont le début est passé, mais la fin pas encore
         List<Event> startingEvents = eventRepository
                 .findOngoingEvents(now);

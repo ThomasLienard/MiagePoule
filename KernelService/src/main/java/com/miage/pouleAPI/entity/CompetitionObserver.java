@@ -1,7 +1,5 @@
 package com.miage.pouleAPI.entity;
 
-
-import com.miage.pouleAPI.users.Subject;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.NoArgsConstructor;

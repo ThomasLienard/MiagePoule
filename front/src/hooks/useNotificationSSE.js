@@ -34,6 +34,7 @@ export const useNotificationsSSE = (userId) => {
                 } catch (e) {
                     // Fallback si JSON.stringify pose problème
                     alert(event.data);
+                    console.error(e);
                 }
 
                 // Ajoute en début de liste (les plus récentes en haut)
