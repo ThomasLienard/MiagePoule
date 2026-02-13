@@ -14,10 +14,13 @@ import java.util.Optional;
 public interface ParticipateAtRepository extends JpaRepository<ParticipateAt, ParticipateAtId> {
     @Query("SELECT p FROM ParticipateAt p WHERE p.trial.id = :trialId ORDER BY p.result ASC")
     List<ParticipateAt> findByTrialIdOrderedByResult(@Param("trialId") Integer trialId);
-    
+
     @Query("SELECT p FROM ParticipateAt p WHERE p.trial.id = :trialId AND p.team.id = :teamId")
     Optional<ParticipateAt> findByTrialIdAndTeamId(@Param("trialId") Integer trialId, @Param("teamId") Integer teamId);
-    
+
     @Query("SELECT COUNT(p) > 0 FROM ParticipateAt p WHERE p.trial.id = :trialId")
     boolean hasTeamParticipation(@Param("trialId") Integer trialId);
+
+    @Query("SELECT p FROM ParticipateAt p WHERE p.trial.id = :trialId")
+    List<ParticipateAt> findByTrialId(@Param("trialId") Integer trialId);
 }
