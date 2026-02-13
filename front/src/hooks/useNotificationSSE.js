@@ -6,6 +6,7 @@ export const useNotificationsSSE = (userId) => {
     const [unreadCount, setUnreadCount] = useState(0);
     const [connected, setConnected] = useState(false);
     const eventSourceRef = useRef(null);
+    let isOpen = true
 
     useEffect(() => {
         // Si pas d'userId, on ne fait rien
@@ -28,14 +29,6 @@ export const useNotificationsSSE = (userId) => {
                 const notification = JSON.parse(event.data);
                 console.log("New notification:", notification);
 
-                // Affiche le contenu brut de l'événement dans une alert
-                try {
-                    alert(JSON.stringify(notification, null, 2));
-                } catch (e) {
-                    // Fallback si JSON.stringify pose problème
-                    alert(event.data);
-                    console.error(e);
-                }
 
                 // Ajoute en début de liste (les plus récentes en haut)
                 setNotifications((prevNotifications) => [notification, ...prevNotifications]);
@@ -43,11 +36,6 @@ export const useNotificationsSSE = (userId) => {
                 // Incrémente le badge
                 setUnreadCount((prevCount) => prevCount + 1);
             });
-
-            eventSource.onmessage = event => {
-                console.log("==== onmessage ====");
-                console.log(event.data);
-            }
 
             // Handle open event
             eventSource.addEventListener("open", () => {
@@ -91,9 +79,14 @@ export const useNotificationsSSE = (userId) => {
 
     // Fonction pour marquer tout comme lu
     const markAllAsRead = () => {
+        if(isOpen){
+            isOpen = !isOpen
+        }
+        else {
+            setNotifications([]); // vide la liste côté front
+            isOpen = !isOpen
+        }
         setUnreadCount(0);
-        setNotifications([]); // vide la liste côté front
-        // TODO : appel API pour marquer comme lues en base si besoin
     };
 
     return {

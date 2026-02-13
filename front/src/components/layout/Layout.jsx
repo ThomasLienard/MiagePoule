@@ -1,8 +1,8 @@
 import {Link, Outlet, useNavigate, useLocation, Navigate} from "react-router-dom";
-import React from "react";
 import {useAuth} from "../../contexts/AuthContext.jsx";
 import { useNotificationsSSE } from "../../hooks/useNotificationSSE.js"; // ← IMPORT
-import { Navbar, Container, Nav, Badge } from "react-bootstrap";
+import {Navbar, Container, Nav, Badge, Popover} from "react-bootstrap";
+import OverlayTrigger from 'react-bootstrap/OverlayTrigger';
 
 export default function Layout() {
     const { user, logout, isAuthenticated, mustChangePassword } = useAuth();
@@ -11,7 +11,28 @@ export default function Layout() {
 
     // ← NOUVEAU : Hook notifications SSE
     const userId = user?.id ?? null;
-    const { unreadCount, markAllAsRead } = useNotificationsSSE(userId);
+    const { unreadCount, markAllAsRead, notifications } = useNotificationsSSE(userId);
+
+    const popover = (
+        <Popover id="popover-basic">
+            <Popover.Header as="h4">Notifications</Popover.Header>
+            <Popover.Body>
+                <div>
+                    { notifications?.length > 0 ?
+                        notifications?.map(notif =>{
+                        return (
+                            <>
+                                <hr/>
+                                <span>{notif?.description}</span>
+                                <br/>
+                            </>
+                        )
+                    })
+                    : "Aucune notification pour le moment" }
+                </div>
+            </Popover.Body>
+        </Popover>
+    );
 
     // Rediriger vers la page de changement de mot de passe si nécessaire
     const allowedPaths = ['/change-password', '/login', '/logout'];
@@ -61,6 +82,7 @@ export default function Layout() {
                         {/* ← NOUVEAU : Badge notifications (UNIQUEMENT si connecté) */}
                         {isAuthenticated() && (
                             <Nav className="me-2">
+                                <OverlayTrigger trigger="click" placement="bottom" overlay={popover}>
                                 <div className="position-relative">
                                     <Nav.Link
                                         className="p-0 notification-bell"
@@ -68,7 +90,7 @@ export default function Layout() {
                                         style={{ cursor: 'pointer' }}
                                     >
                                         🔔
-                                        {unreadCount > 0 && (
+                                        {unreadCount > 0 &&
                                             <Badge
                                                 bg="danger"
                                                 pill
@@ -77,9 +99,10 @@ export default function Layout() {
                                             >
                                                 {unreadCount}
                                             </Badge>
-                                        )}
+                                        }
                                     </Nav.Link>
                                 </div>
+                                </OverlayTrigger>
                             </Nav>
                         )}
 

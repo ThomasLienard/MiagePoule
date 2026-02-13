@@ -111,7 +111,7 @@ const Competition = () => {
                 <div className="d-flex justify-content-center mb-3">
                     <Button 
                         onClick={handleSubscribe}
-                        disabled={subscribing}
+                        disabled={subscribeSuccess}
                         variant={subscribeSuccess ? "success" : "primary"}
                         className="m-2"
                     >
