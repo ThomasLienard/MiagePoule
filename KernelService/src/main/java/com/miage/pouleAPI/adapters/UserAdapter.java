@@ -11,6 +11,7 @@ public interface UserAdapter {
 
     // Conversion classique Entité -> DTO de réponse
     @Mapping(source = "country.code", target = "countryCode")
+    @Mapping(target = "role", source = "role.roleName")
     UserProfileResponseDTO toResponseDTO(ApplicationUser user);
 
     // Mise à jour de l'entité EXISTANTE à partir du DTO
