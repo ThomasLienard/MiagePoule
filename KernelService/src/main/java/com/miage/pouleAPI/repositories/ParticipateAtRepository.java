@@ -3,6 +3,7 @@ package com.miage.pouleAPI.repositories;
 import com.miage.pouleAPI.entity.ParticipateAt;
 import com.miage.pouleAPI.entity.ParticipateAtId;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
@@ -20,4 +21,8 @@ public interface ParticipateAtRepository extends JpaRepository<ParticipateAt, Pa
     
     @Query("SELECT COUNT(p) > 0 FROM ParticipateAt p WHERE p.trial.id = :trialId")
     boolean hasTeamParticipation(@Param("trialId") Integer trialId);
+    
+    @Modifying
+    @Query("DELETE FROM ParticipateAt p WHERE p.team.id = :teamId")
+    void deleteByTeamId(@Param("teamId") Integer teamId);
 }

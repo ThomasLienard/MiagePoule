@@ -8,6 +8,7 @@ import com.miage.pouleAPI.entity.Country;
 import com.miage.pouleAPI.entity.Team;
 import com.miage.pouleAPI.repositories.ApplicationUserRepository;
 import com.miage.pouleAPI.repositories.CountryRepository;
+import com.miage.pouleAPI.repositories.ParticipateAtRepository;
 import com.miage.pouleAPI.repositories.TeamRepository;
 
 import org.junit.jupiter.api.BeforeEach;
@@ -35,6 +36,9 @@ class TeamServiceImplTest {
 
     @Mock
     private ApplicationUserRepository userRepository;
+
+    @Mock
+    private ParticipateAtRepository participateAtRepository;
 
     @InjectMocks
     private TeamServiceImpl teamService;
@@ -290,10 +294,12 @@ class TeamServiceImplTest {
     @Test
     void delete_ShouldDeleteTeamSuccessfully() {
         when(teamRepository.findById(1)).thenReturn(Optional.of(team));
+        doNothing().when(participateAtRepository).deleteByTeamId(1);
 
         teamService.delete(1);
 
         verify(teamRepository, times(1)).findById(1);
+        verify(participateAtRepository, times(1)).deleteByTeamId(1);
         verify(userRepository, times(2)).save(any(ApplicationUser.class));
         verify(teamRepository, times(1)).delete(team);
     }

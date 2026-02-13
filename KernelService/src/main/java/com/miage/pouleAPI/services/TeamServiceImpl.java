@@ -9,6 +9,7 @@ import com.miage.pouleAPI.entity.Country;
 import com.miage.pouleAPI.entity.Team;
 import com.miage.pouleAPI.repositories.ApplicationUserRepository;
 import com.miage.pouleAPI.repositories.CountryRepository;
+import com.miage.pouleAPI.repositories.ParticipateAtRepository;
 import com.miage.pouleAPI.repositories.TeamRepository;
 import com.miage.pouleAPI.services.interfaces.TeamService;
 import lombok.RequiredArgsConstructor;
@@ -30,6 +31,7 @@ public class TeamServiceImpl implements TeamService {
     private final TeamRepository teamRepository;
     private final CountryRepository countryRepository;
     private final ApplicationUserRepository userRepository;
+    private final ParticipateAtRepository participateAtRepository;
 
     @Override
     public List<TeamDTO> findAll() {
@@ -134,6 +136,9 @@ public class TeamServiceImpl implements TeamService {
     public void delete(Integer id) {
         Team team = teamRepository.findById(id)
                 .orElseThrow(() -> new IllegalArgumentException("L'équipe avec l'ID " + id + DOES_NOT_EXIST));
+
+        // Supprimer toutes les participations de l'équipe aux épreuves
+        participateAtRepository.deleteByTeamId(id);
 
         // Retirer l'équipe de tous les utilisateurs
         for (ApplicationUser user : team.getUsers()) {
