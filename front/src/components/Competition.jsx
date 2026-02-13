@@ -1,6 +1,6 @@
 import React, {useEffect, useState} from "react";
 import {useNavigate, useParams} from "react-router-dom";
-import {getCompetitionById, subscribeToCompetition} from "../services/competitionService.jsx";
+import {getCompetitionById, subscribeToCompetition, getObservers} from "../services/competitionService.jsx";
 import {eventService} from "../services/eventService.jsx";
 import TrialsAndEventsCard from "./TrialsAndEventsCard.jsx";
 import {isPastEvent} from "../utils/dateFormatter.js";
@@ -19,10 +19,23 @@ const Competition = () => {
     const navigate = useNavigate();
     const { user, isAuthenticated } = useAuth();
 
+    const isSubscribed = async () =>  {
+        const observers = await getObservers(user.id);
+
+            if(observers.competitionId === competition.id) {
+                setSubscribeSuccess(true);
+            }
+        console.log("observers : " + JSON.stringify(observers))
+    }
+    isSubscribed().then(r => console.log("then : "+ r))
 
     useEffect(() => {
         fetchAllData();
     }, [idChampionship, idCompetition]);
+
+    // const isSubscribed = function () {
+    //
+    // }
 
     const fetchAllData = async () => {
         try {
@@ -106,10 +119,10 @@ const Competition = () => {
         <>
             <h2 className="text-center">{competition.name}</h2>
             <h5 className="text-center text-body-tertiary">{competition.description}</h5>
-            
+
             {isAuthenticated() && (
                 <div className="d-flex justify-content-center mb-3">
-                    <Button 
+                    <Button
                         onClick={handleSubscribe}
                         disabled={subscribeSuccess}
                         variant={subscribeSuccess ? "success" : "primary"}

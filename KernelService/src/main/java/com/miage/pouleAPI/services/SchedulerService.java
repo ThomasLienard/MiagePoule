@@ -10,6 +10,8 @@ import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
+import java.time.ZoneId;
+import java.time.ZonedDateTime;
 import java.util.List;
 
 @Service
@@ -26,14 +28,18 @@ public class SchedulerService {
         this.eventService = eventService;
     }
 
-    // Vérifie toutes les minutes les évènements qui commencent
-    @Scheduled(fixedRate = 10000) // 10 secondes
+
+    @Scheduled(fixedRate = 60000) // 60 secondes
     public void checkEventsStartingNow() {
-        LocalDateTime now = LocalDateTime.now();
+        ZoneId zone = ZoneId.of("Europe/Paris");
+        ZonedDateTime nowZoned = ZonedDateTime.now(zone);
+        LocalDateTime now = nowZoned.toLocalDateTime();
+        LocalDateTime nowAgo = now.minusSeconds(62);
         logger.info("now : " + now);
-        // Évènements dont le début est passé, mais la fin pas encore
+
+        // Évènements commencés depuis 5 min
         List<Event> startingEvents = eventRepository
-                .findOngoingEvents(now);
+                .findByTimeSlotStartBetween(nowAgo, now);
 
         logger.info("Checking events: {} starting now", startingEvents.size());
 
@@ -45,13 +51,13 @@ public class SchedulerService {
         }
     }
 
-    // Également pour les résultats (ex : 5 min après la fin)
+
     @Scheduled(fixedRate = 60000)
     public void checkEventsForResults() {
         LocalDateTime now = LocalDateTime.now();
         LocalDateTime fiveMinAgo = now.minusMinutes(5);
 
-        // Évènements finis depuis 5 min (à adapter selon tes besoins)
+        // Évènements finis depuis 5 min
         List<Event> finishedEvents = eventRepository
                 .findByTimeSlotEndBetween(fiveMinAgo, now);
 

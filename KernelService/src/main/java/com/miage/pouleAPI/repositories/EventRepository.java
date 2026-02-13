@@ -24,6 +24,9 @@ public interface EventRepository extends JpaRepository<Event, Integer> {
     @Query("SELECT e FROM Event e WHERE e.timeSlot.start < :now AND e.timeSlot.end > :now")
     List<Event> findOngoingEvents(@Param("now") LocalDateTime now);
 
+    @Query("SELECT e FROM Event e WHERE e.timeSlot.start between :start and :end")
+    List<Event> findByTimeSlotStartBetween(LocalDateTime start, LocalDateTime end);
+
     List<Event> findByTimeSlotEndBetween(LocalDateTime start, LocalDateTime end);
 
 }
