@@ -5,6 +5,7 @@ import { getAllCountries } from '../../services/countryService';
 import commissaireUserService from '../../services/commissaireUserService';
 import CreateTeamModal from './CreateTeamModal';
 import UpdateTeamModal from './UpdateTeamModal';
+import DeleteConfirmModal from './DeleteConfirmModal';
 
 const TeamManagement = () => {
     const [teams, setTeams] = useState([]);
@@ -13,7 +14,9 @@ const TeamManagement = () => {
     const [success, setSuccess] = useState(null);
     const [showCreateModal, setShowCreateModal] = useState(false);
     const [showUpdateModal, setShowUpdateModal] = useState(false);
+    const [showDeleteModal, setShowDeleteModal] = useState(false);
     const [selectedTeam, setSelectedTeam] = useState(null);
+    const [teamToDelete, setTeamToDelete] = useState(null);
     const [countries, setCountries] = useState([]);
     const [athletes, setAthletes] = useState([]);
 
@@ -67,19 +70,28 @@ const TeamManagement = () => {
         }
     };
 
-    const handleDeleteTeam = async (teamId) => {
-        // eslint-disable-next-line no-restricted-globals
-        if (confirm('Êtes-vous sûr de vouloir supprimer cette équipe ?')) {
-            try {
-                await deleteTeam(teamId);
-                setSuccess('Équipe supprimée avec succès');
-                loadData();
-                setTimeout(() => setSuccess(null), 3000);
-            } catch (err) {
-                setError(err.response?.data?.message || "Erreur lors de la suppression de l'équipe");
-                setTimeout(() => setError(null), 5000);
-            }
+    const handleDeleteTeam = (team) => {
+        setTeamToDelete(team);
+        setShowDeleteModal(true);
+    };
+
+    const confirmDeleteTeam = async () => {
+        try {
+            await deleteTeam(teamToDelete.id);
+            setSuccess('Équipe supprimée avec succès');
+            setShowDeleteModal(false);
+            setTeamToDelete(null);
+            loadData();
+            setTimeout(() => setSuccess(null), 3000);
+        } catch (err) {
+            setError(err.response?.data?.message || "Erreur lors de la suppression de l'équipe");
+            setTimeout(() => setError(null), 5000);
         }
+    };
+
+    const cancelDelete = () => {
+        setShowDeleteModal(false);
+        setTeamToDelete(null);
     };
 
     const handleEditTeam = (team) => {
@@ -164,7 +176,7 @@ const TeamManagement = () => {
                                             <Button 
                                                 variant="outline-danger" 
                                                 size="sm"
-                                                onClick={() => handleDeleteTeam(team.id)}
+                                                onClick={() => handleDeleteTeam(team)}
                                             >
                                                 Supprimer
                                             </Button>
@@ -198,6 +210,13 @@ const TeamManagement = () => {
                     athletes={athletes}
                 />
             )}
+
+            <DeleteConfirmModal
+                show={showDeleteModal}
+                onHide={cancelDelete}
+                onConfirm={confirmDeleteTeam}
+                itemName={teamToDelete ? `l'équipe "${teamToDelete.name}"` : 'cette équipe'}
+            />
         </Container>
     );
 };
