@@ -60,7 +60,7 @@ describe('Tests - Authentification CiblOrgaSport', () => {
         cy.wait(3000);
 
         // Connexion
-        cy.get('input[placeholder="Email"]').type('john@doe.com');
+        cy.get('input[placeholder="Email"]').type('john@example.com');
         cy.wait(3000);
         cy.get('input[placeholder="Mot de passe"]').type('test123');
         cy.wait(3000);
