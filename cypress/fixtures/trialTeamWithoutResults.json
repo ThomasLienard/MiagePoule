@@ -1,0 +1,46 @@
+{
+  "id": 1,
+  "name": "100m Trial Final",
+  "description": "Final race",
+  "competitionName": "100m Sprint",
+  "timeSlot": {
+    "start": "2026-10-09T09:00:00",
+    "end": "2026-10-09T10:00:00"
+  },
+  "place": {
+    "id": 1,
+    "name": "France Stadium",
+    "description": "Central stadium",
+    "street": "Main Street",
+    "number": "1",
+    "city": "Saint-Denis",
+    "zip": "93200",
+    "parking": true,
+    "latitude": 48.924459,
+    "longitude": 2.360164
+  },
+  "rankings": [],
+  "soloParticipants": [],
+  "teamParticipants": [
+    {
+      "id": 1,
+      "name": "Team B",
+      "country": "US",
+      "members": [
+        {
+          "id": 1,
+          "firstName": "Pierre",
+          "lastName": "Commissaire",
+          "fullName": "Pierre Commissaire"
+        },
+        {
+          "id": 2,
+          "firstName": "Arnaud",
+          "lastName": "Collegue-de-l-ombre",
+          "fullName": "Arnaud collegue de l'ombre"
+        }
+      ]
+    }
+  ],
+  "teamEvent": true
+}

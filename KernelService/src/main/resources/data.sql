@@ -162,8 +162,8 @@ INSERT INTO participate_at (id_team, id_trial, trial_result_team, is_forfeit)
 VALUES (1, 1, '11.2s', false),
        (2, 1, null, true),
        (1, 2, '11.8s', false),
-       (2,2, '10.9s', false);
-
+       (2,2, '10.9s', false),
+       (2,3, null, false);
 -- ======================
 -- Convened athletes
 -- ======================
