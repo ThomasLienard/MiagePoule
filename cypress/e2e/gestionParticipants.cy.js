@@ -13,7 +13,7 @@ describe('Tests - Gestion des Participants aux Épreuves', () => {
         cy.wait(2000);
         
         // Remplir le formulaire de connexion
-        cy.get('input[type="email"]').type('commissaire@test.com');
+        cy.get('input[type="email"]').type('commissaire@example.com');
         cy.wait(500);
         cy.get('input[type="password"]').type('test123');
         cy.wait(500);

@@ -1,0 +1,54 @@
+{
+  "id": 1,
+  "name": "Marathon Trial Warm-up",
+  "description": "Warm-up session",
+  "competitionName": "Marathon",
+  "timeSlot": {
+    "start": "2026-01-01T10:00:00",
+    "end": "2026-01-01T11:00:00"
+  },
+  "place": {
+    "id": 1,
+    "name": "Bercy Sports Palace",
+    "description": "Indoor sports complex",
+    "street": "Boulevard de Bercy",
+    "number": "8",
+    "city": "Paris",
+    "zip": "75012",
+    "parking": false,
+    "latitude": 48.8365,
+    "longitude": 2.3738
+  },
+  "rankings": [
+    {
+      "rank": 1,
+      "result": "2h05m",
+      "participantName": "Pierre Commissaire",
+      "participantType": "ATHLETE",
+      "participantId": 2
+    },
+    {
+      "rank": 2,
+      "result": "2h15m",
+      "participantName": "Anna Smith",
+      "participantType": "ATHLETE",
+      "participantId": 1
+    }
+  ],
+  "soloParticipants": [
+    {
+      "id": 1,
+      "firstName": "Anna",
+      "lastName": "Smith",
+      "fullName": "Anna Smith"
+    },
+    {
+      "id": 2,
+      "firstName": "Pierre",
+      "lastName": "Commissaire",
+      "fullName": "Pierre Commissaire"
+    }
+  ],
+  "teamParticipants": [],
+  "teamEvent": false
+}

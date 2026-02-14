@@ -2,7 +2,7 @@ describe('Page de Création de Compétition', () => {
     beforeEach(() => {
         // Étape de connexion préalable
         cy.visit('/login');
-        cy.get('input[placeholder="Email"]').type('anna@smith.com');
+        cy.get('input[placeholder="Email"]').type('anna@example.com');
         cy.get('input[placeholder="Mot de passe"]').type('test123');
         cy.get('button[type="submit"]').click();
         cy.wait(2000);

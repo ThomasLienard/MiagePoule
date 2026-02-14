@@ -14,10 +14,13 @@ import java.util.Optional;
 public interface IsConvenedToRepository extends JpaRepository<IsConvenedTo, IsConvenedToId> {
     @Query("SELECT i FROM IsConvenedTo i WHERE i.trial.id = :trialId ORDER BY i.result ASC")
     List<IsConvenedTo> findByTrialIdOrderedByResult(@Param("trialId") Integer trialId);
-    
+
+    @Query("SELECT i FROM IsConvenedTo i WHERE i.trial.id = :trialId")
+    List<IsConvenedTo> findByTrialId(@Param("trialId") Integer trialId);
+
     @Query("SELECT i FROM IsConvenedTo i WHERE i.trial.id = :trialId AND i.user.id = :userId")
     Optional<IsConvenedTo> findByTrialIdAndUserId(@Param("trialId") Integer trialId, @Param("userId") Integer userId);
-    
+
     @Query("SELECT COUNT(i) > 0 FROM IsConvenedTo i WHERE i.trial.id = :trialId")
     boolean hasAthleteParticipation(@Param("trialId") Integer trialId);
 }

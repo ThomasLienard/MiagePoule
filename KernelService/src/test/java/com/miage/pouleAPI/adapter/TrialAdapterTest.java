@@ -10,6 +10,10 @@ import com.miage.pouleAPI.entity.Event;
 import com.miage.pouleAPI.entity.Place;
 import com.miage.pouleAPI.entity.TimeSlot;
 import com.miage.pouleAPI.entity.Trial;
+import com.miage.pouleAPI.entity.ApplicationUser;
+import com.miage.pouleAPI.entity.Team;
+import com.miage.pouleAPI.entity.ParticipateAt;
+import com.miage.pouleAPI.entity.IsConvenedTo;
 import com.miage.pouleAPI.repositories.IsConvenedToRepository;
 import com.miage.pouleAPI.repositories.ParticipateAtRepository;
 import org.junit.jupiter.api.BeforeEach;
@@ -424,4 +428,267 @@ class TrialAdapterTest {
         assertEquals(placeDTO.getLatitude(), result.getPlace().getLatitude());
         assertEquals(placeDTO.getLongitude(), result.getPlace().getLongitude());
     }
+
+    @Test
+    @DisplayName("entityToDetailDto() - Devrait construire les participants solo correctement")
+    void testEntityToDetailDto_SoloParticipants() {
+        // Given
+        ApplicationUser user1 = new ApplicationUser();
+        user1.setId(1);
+        user1.setName("John");
+        user1.setLastname("Doe");
+
+        ApplicationUser user2 = new ApplicationUser();
+        user2.setId(2);
+        user2.setName("Jane");
+        user2.setLastname("Smith");
+
+        IsConvenedTo participation1 = new IsConvenedTo();
+        participation1.setUser(user1);
+
+        IsConvenedTo participation2 = new IsConvenedTo();
+        participation2.setUser(user2);
+
+        List<IsConvenedTo> soloParticipations = Arrays.asList(participation1, participation2);
+
+        when(isConvenedToRepository.findByTrialId(trial.getId())).thenReturn(soloParticipations);
+
+        // When
+        TrialDetailDTO dto = trialAdapter.entityToDetailDto(trial);
+
+        // Then
+        assertNotNull(dto);
+        assertFalse(dto.isTeamEvent());
+        assertEquals(2, dto.getSoloParticipants().size());
+        assertEquals("John", dto.getSoloParticipants().get(0).getFirstName());
+        assertEquals("Doe", dto.getSoloParticipants().get(0).getLastName());
+        assertEquals("John Doe", dto.getSoloParticipants().get(0).getFullName());
+        assertEquals("Jane", dto.getSoloParticipants().get(1).getFirstName());
+        assertEquals("Smith", dto.getSoloParticipants().get(1).getLastName());
+    }
+
+    @Test
+    @DisplayName("entityToDetailDto() - Devrait ignorer les participants solo avec user null")
+    void testEntityToDetailDto_SoloParticipants_WithNullUser() {
+        // Given
+        ApplicationUser user1 = new ApplicationUser();
+        user1.setId(1);
+        user1.setName("John");
+        user1.setLastname("Doe");
+
+        IsConvenedTo participation1 = new IsConvenedTo();
+        participation1.setUser(user1);
+
+        IsConvenedTo participation2 = new IsConvenedTo();
+        participation2.setUser(null);  // Null user should be filtered out
+
+        List<IsConvenedTo> soloParticipations = Arrays.asList(participation1, participation2);
+
+        when(isConvenedToRepository.findByTrialId(trial.getId())).thenReturn(soloParticipations);
+
+        // When
+        TrialDetailDTO dto = trialAdapter.entityToDetailDto(trial);
+
+        // Then
+        assertNotNull(dto);
+        assertEquals(1, dto.getSoloParticipants().size());
+        assertEquals("John", dto.getSoloParticipants().get(0).getFirstName());
+    }
+
+    @Test
+    @DisplayName("entityToDetailDto() - Devrait construire les participants équipe correctement")
+    void testEntityToDetailDto_TeamParticipants() {
+        // Given
+        Team team1 = new Team();
+        team1.setId(1);
+        team1.setName("Team Alpha");
+
+        Team team2 = new Team();
+        team2.setId(2);
+        team2.setName("Team Beta");
+
+        ParticipateAt participation1 = new ParticipateAt();
+        participation1.setTeam(team1);
+
+        ParticipateAt participation2 = new ParticipateAt();
+        participation2.setTeam(team2);
+
+        List<ParticipateAt> teamParticipations = Arrays.asList(participation1, participation2);
+
+        when(participateAtRepository.findByTrialId(trial.getId())).thenReturn(teamParticipations);
+
+        // When
+        TrialDetailDTO dto = trialAdapter.entityToDetailDto(trial);
+
+        // Then
+        assertNotNull(dto);
+        assertTrue(dto.isTeamEvent());
+        assertEquals(2, dto.getTeamParticipants().size());
+        assertEquals("Team Alpha", dto.getTeamParticipants().get(0).getName());
+        assertEquals("Team Beta", dto.getTeamParticipants().get(1).getName());
+    }
+
+    @Test
+    @DisplayName("entityToDetailDto() - Devrait ignorer les participants équipe avec team null")
+    void testEntityToDetailDto_TeamParticipants_WithNullTeam() {
+        // Given
+        Team team1 = new Team();
+        team1.setId(1);
+        team1.setName("Team Alpha");
+
+        ParticipateAt participation1 = new ParticipateAt();
+        participation1.setTeam(team1);
+
+        ParticipateAt participation2 = new ParticipateAt();
+        participation2.setTeam(null);  // Null team should be filtered out
+
+        List<ParticipateAt> teamParticipations = Arrays.asList(participation1, participation2);
+
+        when(participateAtRepository.findByTrialId(trial.getId())).thenReturn(teamParticipations);
+
+        // When
+        TrialDetailDTO dto = trialAdapter.entityToDetailDto(trial);
+
+        // Then
+        assertNotNull(dto);
+        assertEquals(1, dto.getTeamParticipants().size());
+        assertEquals("Team Alpha", dto.getTeamParticipants().get(0).getName());
+    }
+
+    @Test
+    @DisplayName("buildRankings() - Devrait construire les classements pour les équipes")
+    void testBuildRankings_Teams() {
+        // Given
+        Team team1 = new Team();
+        team1.setId(1);
+        team1.setName("Team Alpha");
+
+        Team team2 = new Team();
+        team2.setId(2);
+        team2.setName("Team Beta");
+
+        ParticipateAt participation1 = new ParticipateAt();
+        participation1.setTeam(team1);
+        participation1.setResult("45");
+
+        ParticipateAt participation2 = new ParticipateAt();
+        participation2.setTeam(team2);
+        participation2.setResult("52");
+
+        when(participateAtRepository.findByTrialIdOrderedByResult(trial.getId()))
+            .thenReturn(Arrays.asList(participation1, participation2));
+
+        // When
+        TrialDetailDTO dto = trialAdapter.entityToDetailDto(trial);
+
+        // Then
+        assertNotNull(dto);
+        assertEquals(2, dto.getRankings().size());
+        assertEquals(1, dto.getRankings().get(0).getRank());
+        assertEquals("45", dto.getRankings().get(0).getResult());
+        assertEquals("Team Alpha", dto.getRankings().get(0).getParticipantName());
+        assertEquals("TEAM", dto.getRankings().get(0).getParticipantType());
+        
+        assertEquals(2, dto.getRankings().get(1).getRank());
+        assertEquals("52", dto.getRankings().get(1).getResult());
+        assertEquals("Team Beta", dto.getRankings().get(1).getParticipantName());
+    }
+
+    @Test
+    @DisplayName("buildRankings() - Devrait construire les classements pour les athlètes")
+    void testBuildRankings_Athletes() {
+        // Given
+        ApplicationUser user1 = new ApplicationUser();
+        user1.setId(1);
+        user1.setName("John");
+        user1.setLastname("Doe");
+
+        ApplicationUser user2 = new ApplicationUser();
+        user2.setId(2);
+        user2.setName("Jane");
+        user2.setLastname("Smith");
+
+        IsConvenedTo convening1 = new IsConvenedTo();
+        convening1.setUser(user1);
+        convening1.setResult("100");
+
+        IsConvenedTo convening2 = new IsConvenedTo();
+        convening2.setUser(user2);
+        convening2.setResult("95");
+
+        when(isConvenedToRepository.findByTrialIdOrderedByResult(trial.getId()))
+            .thenReturn(Arrays.asList(convening1, convening2));
+
+        // When
+        TrialDetailDTO dto = trialAdapter.entityToDetailDto(trial);
+
+        // Then
+        assertNotNull(dto);
+        assertEquals(2, dto.getRankings().size());
+        assertEquals(1, dto.getRankings().get(0).getRank());
+        assertEquals("100", dto.getRankings().get(0).getResult());
+        assertEquals("John Doe", dto.getRankings().get(0).getParticipantName());
+        assertEquals("ATHLETE", dto.getRankings().get(0).getParticipantType());
+        
+        assertEquals(2, dto.getRankings().get(1).getRank());
+        assertEquals("95", dto.getRankings().get(1).getResult());
+        assertEquals("Jane Smith", dto.getRankings().get(1).getParticipantName());
+    }
+
+    @Test
+    @DisplayName("buildRankings() - Devrait ignorer les résultats avec team/user null")
+    void testBuildRankings_WithNullParticipants() {
+        // Given
+        Team team1 = new Team();
+        team1.setId(1);
+        team1.setName("Team Alpha");
+
+        ParticipateAt participation1 = new ParticipateAt();
+        participation1.setTeam(team1);
+        participation1.setResult("45");
+
+        ParticipateAt participation2 = new ParticipateAt();
+        participation2.setTeam(null);
+        participation2.setResult("52");
+
+        when(participateAtRepository.findByTrialIdOrderedByResult(trial.getId()))
+            .thenReturn(Arrays.asList(participation1, participation2));
+
+        // When
+        TrialDetailDTO dto = trialAdapter.entityToDetailDto(trial);
+
+        // Then
+        assertNotNull(dto);
+        assertEquals(1, dto.getRankings().size());
+        assertEquals("Team Alpha", dto.getRankings().get(0).getParticipantName());
+    }
+
+    @Test
+    @DisplayName("buildRankings() - Devrait ignorer les résultats null")
+    void testBuildRankings_WithNullResults() {
+        // Given
+        Team team1 = new Team();
+        team1.setId(1);
+        team1.setName("Team Alpha");
+
+        ParticipateAt participation1 = new ParticipateAt();
+        participation1.setTeam(team1);
+        participation1.setResult("45");
+
+        ParticipateAt participation2 = new ParticipateAt();
+        participation2.setTeam(team1);
+        participation2.setResult(null);  // Null result should be filtered
+
+        when(participateAtRepository.findByTrialIdOrderedByResult(trial.getId()))
+            .thenReturn(Arrays.asList(participation1, participation2));
+
+        // When
+        TrialDetailDTO dto = trialAdapter.entityToDetailDto(trial);
+
+        // Then
+        assertNotNull(dto);
+        assertEquals(1, dto.getRankings().size());
+        assertEquals("45", dto.getRankings().get(0).getResult());
+    }
 }
+
