@@ -52,7 +52,7 @@ const UserManagement = () => {
     const handleCreateUser = async (userData) => {
         try {
             const response = await adminUserService.createUser(userData);
-            setSuccess(`Compte créé avec succès ! Mot de passe temporaire: ${response.temporaryPassword}`);
+            setSuccess(`✓ Compte créé avec succès ! Un email d'activation avec le mot de passe temporaire (${response.temporaryPassword}) a été envoyé à l'utilisateur.`);
             setShowCreateModal(false);
             loadUsers();
         } catch (err) {
@@ -111,7 +111,7 @@ const UserManagement = () => {
     const handleResetPassword = async (id) => {
         try {
             const response = await adminUserService.resetPassword(id);
-            setSuccess(`Mot de passe réinitialisé ! Nouveau mot de passe: ${response.temporaryPassword}`);
+            setSuccess(`✓ Mot de passe réinitialisé ! Un email de notification avec le nouveau mot de passe temporaire (${response.temporaryPassword}) a été envoyé à l'utilisateur.`);
             loadUsers();
         } catch (err) {
             setError(err.message);
