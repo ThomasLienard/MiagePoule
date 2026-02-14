@@ -1,11 +1,11 @@
 package com.miage.pouleAPI.controllers;
 
+import com.miage.pouleAPI.entity.ApplicationUser;
 import com.miage.pouleAPI.dtos.place.PlaceDTO;
 import com.miage.pouleAPI.dtos.timeslot.TimeSlotDTO;
 import com.miage.pouleAPI.dtos.trial.TrialDetailDTO;
 import com.miage.pouleAPI.dtos.trial.TrialSummaryDTO;
 import com.miage.pouleAPI.dtos.trial.AssignedTrialsResponseDTO;
-import com.miage.pouleAPI.entity.ApplicationUser;
 import com.miage.pouleAPI.services.interfaces.TrialService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
@@ -79,6 +79,9 @@ class TrialControllerTest {
             "Championnats de France",
             timeSlot,
             place,
+            new ArrayList<>(),
+            false,
+            new ArrayList<>(),
             new ArrayList<>()
         );
 
@@ -254,7 +257,8 @@ class TrialControllerTest {
     void testGetTrialById_WithoutOptionalFields() {
         // Given
         TrialDetailDTO minimalTrial = new TrialDetailDTO(
-            1, "Minimal Trial", "Description", null, null, null, new ArrayList<>()
+            1, "Minimal Trial", "Description", null, null, null, new ArrayList<>(),
+            false, new ArrayList<>(), new ArrayList<>()
         );
         when(trialService.getTrialById(1)).thenReturn(Optional.of(minimalTrial));
 

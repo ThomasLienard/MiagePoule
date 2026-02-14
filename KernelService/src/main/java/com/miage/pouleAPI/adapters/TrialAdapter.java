@@ -4,6 +4,8 @@ package com.miage.pouleAPI.adapters;
 import com.miage.pouleAPI.dtos.place.PlaceDTO;
 import com.miage.pouleAPI.dtos.ranking.RankingDTO;
 import com.miage.pouleAPI.dtos.timeslot.TimeSlotDTO;
+import com.miage.pouleAPI.dtos.trial.SoloParticipantDTO;
+import com.miage.pouleAPI.dtos.trial.TeamParticipantDTO;
 import com.miage.pouleAPI.dtos.trial.TrialDetailDTO;
 import com.miage.pouleAPI.dtos.trial.TrialSummaryDTO;
 import com.miage.pouleAPI.entity.*;
@@ -75,6 +77,20 @@ public class TrialAdapter {
         
         // Rankings from ParticipateAt and IsConvenedTo
         dto.setRankings(buildRankings(trial.getId()));
+        
+        // Participants (solo or teams)
+        List<ParticipateAt> teamParticipations = participateAtRepository.findByTrialId(trial.getId());
+        List<IsConvenedTo> soloParticipations = isConvenedToRepository.findByTrialId(trial.getId());
+        
+        if (!teamParticipations.isEmpty()) {
+            dto.setTeamEvent(true);
+            dto.setTeamParticipants(buildTeamParticipants(teamParticipations));
+            dto.setSoloParticipants(new ArrayList<>());
+        } else {
+            dto.setTeamEvent(false);
+            dto.setSoloParticipants(buildSoloParticipants(soloParticipations));
+            dto.setTeamParticipants(new ArrayList<>());
+        }
         
         return dto;
     }
@@ -206,5 +222,53 @@ public class TrialAdapter {
         }
         
         return rankings;
+    }
+
+    
+    private List<SoloParticipantDTO> buildSoloParticipants(List<IsConvenedTo> soloParticipations) {
+        return soloParticipations.stream()
+                .map(convening -> {
+                    if (convening.getUser() != null) {
+                        SoloParticipantDTO participant = new SoloParticipantDTO();
+                        participant.setId(convening.getUser().getId());
+                        participant.setFirstName(convening.getUser().getName());
+                        participant.setLastName(convening.getUser().getLastname());
+                        participant.setFullName(convening.getUser().getName() + " " + convening.getUser().getLastname());
+                        return participant;
+                    }
+                    return null;
+                })
+                .filter(Objects::nonNull)
+                .toList();
+    }
+    
+    private List<TeamParticipantDTO> buildTeamParticipants(List<ParticipateAt> teamParticipations) {
+        return teamParticipations.stream()
+                .map(participation -> {
+                    if (participation.getTeam() != null) {
+                        TeamParticipantDTO teamDto = new TeamParticipantDTO();
+                        teamDto.setId(participation.getTeam().getId());
+                        teamDto.setName(participation.getTeam().getName());
+                        if (participation.getTeam().getCountry() != null) {
+                            teamDto.setCountry(participation.getTeam().getCountry().getCode());
+                        }
+                        // Build team members list
+                        List<SoloParticipantDTO> members = participation.getTeam().getUsers().stream()
+                                .map(user -> {
+                                    SoloParticipantDTO member = new SoloParticipantDTO();
+                                    member.setId(user.getId());
+                                    member.setFirstName(user.getName());
+                                    member.setLastName(user.getLastname());
+                                    member.setFullName(user.getName() + " " + user.getLastname());
+                                    return member;
+                                })
+                                .toList();
+                        teamDto.setMembers(members);
+                        return teamDto;
+                    }
+                    return null;
+                })
+                .filter(Objects::nonNull)
+                .toList();
     }
 }

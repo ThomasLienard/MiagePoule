@@ -7,6 +7,7 @@ import com.miage.pouleAPI.entity.Role;
 import com.miage.pouleAPI.repositories.ApplicationUserRepository;
 import com.miage.pouleAPI.repositories.CountryRepository;
 import com.miage.pouleAPI.repositories.RoleRepository;
+import com.miage.pouleAPI.services.interfaces.MaillingService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
@@ -44,6 +45,9 @@ class AdminUserServiceTest {
 
     @Mock
     private PasswordEncoder passwordEncoder;
+
+    @Mock
+    private MaillingService maillingService;
 
     @InjectMocks
     private AdminUserService adminUserService;
