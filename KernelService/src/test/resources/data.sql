@@ -143,9 +143,11 @@ CREATE TABLE IF NOT EXISTS privacy_settings (
 -- ======================
 -- Teams
 -- ======================
-INSERT INTO team (id_team, name_team, country_code)
-VALUES (1, 'Team A', 'FR'),
-       (2, 'Team B', 'US');
+INSERT INTO team (name_team, country_code)
+VALUES ('Team A', 'FR'),
+       ('Team B', 'US'),
+       ('Team C', 'DE'),
+       ('Team D', 'ES');
 
 -- ======================
 -- Membership

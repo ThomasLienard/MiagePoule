@@ -5,7 +5,7 @@ describe('Tests - Profil et Confidentialité', () => {
         
         // Étape de connexion préalable
         cy.visit('/login');
-        cy.get('input[placeholder="Email"]').type('john@doe.com');
+        cy.get('input[placeholder="Email"]').type('john@example.com');
         cy.get('input[placeholder="Mot de passe"]').type('test123');
         cy.get('button[type="submit"]').click();
         cy.wait(3000);
