@@ -201,7 +201,6 @@ public class DocumentServiceImpl implements DocumentService {
     private Document createDocument(MultipartFile file, EncryptionService.EncryptedData encryptedData,
                                     TypeOfDocument type, ApplicationUser user, String description) {
         Document document = new Document();
-        document.setId(generateDocumentId());
         document.setFileName(generateUniqueFileName(file.getOriginalFilename()));
         document.setOriginalFileName(file.getOriginalFilename());
         document.setContentType(file.getContentType());
@@ -216,10 +215,6 @@ public class DocumentServiceImpl implements DocumentService {
         document.setUser(user);
 
         return document;
-    }
-
-    private Integer generateDocumentId() {
-        return Math.abs(UUID.randomUUID().hashCode());
     }
 
     private String generateUniqueFileName(String originalFileName) {
