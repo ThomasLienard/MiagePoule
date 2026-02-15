@@ -93,7 +93,37 @@ const Profile = () => {
                                 </>
                             ) : (
                                 <Form onSubmit={handleUpdate}>
-                                    {/* ... tes champs de formulaire ... */}
+                                    <Form.Group className="mb-2">
+                                        <Form.Label>Email</Form.Label>
+                                        <Form.Control
+                                            type="email"
+                                            value={formData.email || ""}
+                                            onChange={e => setFormData({...formData, email: e.target.value})}
+                                        />
+                                        <Form.Text className="text-muted">
+                                            Attention : changer votre email modifiera vos identifiants de connexion.
+                                        </Form.Text>
+                                    </Form.Group>
+                                    <Form.Group className="mb-2">
+                                        <Form.Label>Prénom</Form.Label>
+                                        <Form.Control value={formData.name || ""}
+                                                    onChange={e => setFormData({...formData, name: e.target.value})}/>
+                                    </Form.Group>
+                                    <Form.Group className="mb-2">
+                                        <Form.Label>Nom</Form.Label>
+                                        <Form.Control value={formData.lastname || ""}
+                                                    onChange={e => setFormData({...formData, lastname: e.target.value})}/>
+                                    </Form.Group>
+                                    <Form.Group className="mb-3">
+                                        <Form.Label>Pays</Form.Label>
+                                        <Form.Select
+                                            value={formData.countryCode || ""}
+                                            onChange={e => setFormData({...formData, countryCode: e.target.value})}
+                                        >
+                                            <option value="">Sélectionner...</option>
+                                            {countries.map(code => <option key={code} value={code}>{code}</option>)}
+                                        </Form.Select>
+                                    </Form.Group>
                                     <div className="d-flex gap-2">
                                         <Button variant="success" type="submit" className="flex-grow-1">Sauvegarder</Button>
                                         <Button variant="link" onClick={() => setIsEditing(false)}>Annuler</Button>
