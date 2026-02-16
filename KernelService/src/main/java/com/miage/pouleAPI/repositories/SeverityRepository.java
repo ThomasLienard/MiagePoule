@@ -1,4 +1,4 @@
-package com.miage.pouleAPI.services;
+package com.miage.pouleAPI.repositories;
 
 import com.miage.pouleAPI.entity.Severity;
 import org.springframework.data.jpa.repository.JpaRepository;

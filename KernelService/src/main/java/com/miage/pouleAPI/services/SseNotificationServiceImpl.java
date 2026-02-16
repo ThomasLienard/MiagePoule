@@ -1,6 +1,7 @@
 package com.miage.pouleAPI.services;
 
 import com.miage.pouleAPI.dtos.NotificationDTO;
+import com.miage.pouleAPI.services.interfaces.SseNotificationService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
@@ -11,9 +12,9 @@ import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
 @Service
-public class SseNotificationService {
+public class SseNotificationServiceImpl implements SseNotificationService {
 
-    private static final Logger logger = LoggerFactory.getLogger(SseNotificationService.class);
+    private static final Logger logger = LoggerFactory.getLogger(SseNotificationServiceImpl.class);
     private final Map<Integer, SseEmitter> emitters = new ConcurrentHashMap<>();
 
     public SseEmitter subscribe(Integer userId) {

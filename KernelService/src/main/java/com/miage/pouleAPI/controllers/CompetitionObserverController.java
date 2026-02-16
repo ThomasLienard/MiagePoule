@@ -2,7 +2,7 @@ package com.miage.pouleAPI.controllers;
 
 import com.miage.pouleAPI.dtos.competition.CompetitionObserverDTO;
 import com.miage.pouleAPI.entity.CompetitionObserver;
-import com.miage.pouleAPI.services.CompetitionObserverService;
+import com.miage.pouleAPI.services.interfaces.CompetitionObserverService;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.GetMapping;

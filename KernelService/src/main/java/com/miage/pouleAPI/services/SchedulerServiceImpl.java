@@ -3,6 +3,7 @@ package com.miage.pouleAPI.services;
 import com.miage.pouleAPI.entity.Event;
 import com.miage.pouleAPI.repositories.EventRepository;
 import com.miage.pouleAPI.services.interfaces.EventService;
+import com.miage.pouleAPI.services.interfaces.SchedulerService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.scheduling.annotation.EnableScheduling;
@@ -16,14 +17,14 @@ import java.util.List;
 
 @Service
 @EnableScheduling
-public class SchedulerService {
+public class SchedulerServiceImpl implements SchedulerService {
 
-    private static final Logger logger = LoggerFactory.getLogger(SchedulerService.class);
+    private static final Logger logger = LoggerFactory.getLogger(SchedulerServiceImpl.class);
 
     private final EventRepository eventRepository;
     private final EventService eventService;
 
-    public SchedulerService(EventRepository eventRepository, EventService eventService) {
+    public SchedulerServiceImpl(EventRepository eventRepository, EventService eventService) {
         this.eventRepository = eventRepository;
         this.eventService = eventService;
     }

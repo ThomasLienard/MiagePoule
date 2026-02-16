@@ -5,17 +5,18 @@ import com.miage.pouleAPI.entity.ApplicationUser;
 import com.miage.pouleAPI.entity.CompetitionObserver;
 import com.miage.pouleAPI.repositories.ApplicationUserRepository;
 import com.miage.pouleAPI.repositories.CompetitionObserverRepository;
+import com.miage.pouleAPI.services.interfaces.CompetitionObserverService;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
 
 @Service
-public class CompetitionObserverService {
+public class CompetitionObserverServiceImpl implements CompetitionObserverService {
 
     private final CompetitionObserverRepository competitionObserverRepository;
     private final ApplicationUserRepository applicationUserRepository;
 
-    public CompetitionObserverService(CompetitionObserverRepository competitionObserverRepository, ApplicationUserRepository applicationUserRepository) {
+    public CompetitionObserverServiceImpl(CompetitionObserverRepository competitionObserverRepository, ApplicationUserRepository applicationUserRepository) {
         this.competitionObserverRepository = competitionObserverRepository;
         this.applicationUserRepository = applicationUserRepository;
     }

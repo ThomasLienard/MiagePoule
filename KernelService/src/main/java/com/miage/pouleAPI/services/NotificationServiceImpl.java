@@ -4,6 +4,8 @@ import com.miage.pouleAPI.dtos.NotificationDTO;
 import com.miage.pouleAPI.entity.*;
 import com.miage.pouleAPI.repositories.CompetitionObserverRepository;
 import com.miage.pouleAPI.repositories.NotificationRepository;
+import com.miage.pouleAPI.repositories.SeverityRepository;
+import com.miage.pouleAPI.services.interfaces.SseNotificationService;
 import org.springframework.stereotype.Service;
 import java.time.LocalDateTime;
 import java.util.Collection;

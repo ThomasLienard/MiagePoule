@@ -1,6 +1,6 @@
 package com.miage.pouleAPI.controllers;
 
-import com.miage.pouleAPI.services.SseNotificationService;
+import com.miage.pouleAPI.services.interfaces.SseNotificationService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.MediaType;
