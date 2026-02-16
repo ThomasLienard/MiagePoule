@@ -212,6 +212,22 @@ const participantService = {
         } catch (error) {
             throw new Error(error.response?.data?.message || 'Erreur lors du retrait de l\'équipe');
         }
+    },
+
+    /**
+     * Permet à un sportif de déclarer forfait pour une épreuve
+     */
+    athleteDeclareWithdrawal: async (trialId) => {
+        try {
+            const response = await axios.post(
+                `${API_BASE_URL}/athlete/trials/${trialId}/forfeit`,
+                {},
+                { headers: getAuthHeaders() }
+            );
+            return response.data;
+        } catch (error) {
+            throw new Error(error.response?.data?.message || 'Erreur lors de la déclaration de forfait');
+        }
     }
 };
 
