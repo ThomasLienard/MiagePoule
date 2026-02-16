@@ -54,6 +54,11 @@ public class TrialServiceImpl implements TrialService {
                 .map(user -> buildAssignedTrialsResponse(user.getId()));
     }
 
+    @Override
+    public Optional<AssignedTrialsResponseDTO> getAssignedTrialsForAthleteId(Integer athleteId) {
+        return userRepository.findById(athleteId)
+                        .map(user -> buildAssignedTrialsResponse(user.getId()));
+    }
 
     private AssignedTrialsResponseDTO buildAssignedTrialsResponse(Integer userId) {
         List<TrialSummaryDTO> soloTrials = trialAdapter.entityListToSummaryDtoList(
