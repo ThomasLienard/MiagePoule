@@ -4,10 +4,11 @@ describe('Page Profil - Signer la Charte', () => {
         cy.on('uncaught:exception', () => false);
     });
 
+    //remettre à faux dans la base pour l'athlète concerné sinon le test plante car on ne peut pas redo cette action
     it('doit permettre à un athlète réel de se connecter et signer la charte', () => {
         cy.visit('/login');
 
-        cy.get('input[placeholder="Email"]').type('athlete@test.com');
+        cy.get('input[placeholder="Email"]').type('athlete@example.com');
         cy.get('input[placeholder="Mot de passe"]').type('test123');
         cy.get('button[type="submit"]').click();
 
@@ -37,7 +38,7 @@ describe('Page Profil - Signer la Charte', () => {
 
     it('ne doit pas afficher la charte pour un commissaire réel', () => {
         cy.visit('/login');
-        cy.get('input[placeholder="Email"]').type('commissaire@test.com');
+        cy.get('input[placeholder="Email"]').type('commissaire@example.com');
         cy.get('input[placeholder="Mot de passe"]').type('test123');
         cy.get('button[type="submit"]').click();
 
