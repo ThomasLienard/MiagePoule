@@ -42,20 +42,6 @@ const participantService = {
     },
 
     /**
-     * Récupère les épreuves spécifique d'un participant
-     */
-    getTrialsByAthleteId: async (athleteId) => {
-        try {
-            const response = await axios.get(
-                `${API_BASE_URL}/public/trials/assigned/${athleteId}`
-            );
-            return response.data;
-        } catch (error) {
-            throw new Error(error.response?.data?.message || 'Erreur lors de la récupération des épreuves');
-        }
-    },
-
-    /**
      * Récupère les participants avec tous les potentiels (athlètes ET équipes)
      */
     getTrialParticipantsFull: async (trialId) => {
