@@ -49,13 +49,13 @@ ou
 ## Accès pour tester les différents rôles 
 
 - Commissaire :
-  - Mail : commissaire@test.com
+  - Mail : commissaire@example.com
   - Mot de passe : test123
 - Responsable déploiement :
-  - Mail : anna@smith.com
+  - Mail : anna@example.com
   - Mot de passe : test123
 - Sportif
-  - Mail : athlete@test.com
+  - Mail : athlete@example.com
   - Mot de passe : test123
 
 
