@@ -67,7 +67,7 @@ const CreateEventPage = () => {
     const handleSubmit = async (e) => {
         const form = e.currentTarget;
         e.preventDefault();
-
+        setValidated(false);
         setStatus({ type: '', message: '' });
 
         if (form.checkValidity() === false) {
@@ -76,8 +76,21 @@ const CreateEventPage = () => {
             return;
         }
 
+        const selectedComp = competitions.find(c => c.id === parseInt(formData.competitionId));
+        const compStart = new Date(selectedComp.start);
+        const compEnd = new Date(selectedComp.end);
+
         if (new Date(formData.startTime) >= new Date(formData.endTime)) {
             setStatus({ type: 'danger', message: 'La date de fin doit être strictement après la date de début.' });
+            setValidated(true);
+            return;
+        }
+
+        if (new Date(formData.startTime) < compStart || new Date(formData.endTime) > compEnd) {
+            setStatus({
+                type: 'danger',
+                message: `Les dates doivent être comprises entre le ${selectedComp.start} et le ${selectedComp.end}.`
+            });
             setValidated(true);
             return;
         }
@@ -182,6 +195,8 @@ const CreateEventPage = () => {
                                     name="startTime"
                                     value={formData.startTime}
                                     onChange={handleChange}
+                                    min={competitions.find(c => c.id === parseInt(formData.competitionId))?.start}
+                                    max={competitions.find(c => c.id === parseInt(formData.competitionId))?.end}
                                     required
                                 />
                                 <Form.Control.Feedback type="invalid">Date de début requise.</Form.Control.Feedback>
@@ -193,6 +208,8 @@ const CreateEventPage = () => {
                                     name="endTime"
                                     value={formData.endTime}
                                     onChange={handleChange}
+                                    min={formData.start || competitions.find(c => c.id === parseInt(formData.competitionId))?.start}
+                                    max={competitions.find(c => c.id === parseInt(formData.competitionId))?.end}
                                     required
                                 />
                                 <Form.Control.Feedback type="invalid">Date de fin requise.</Form.Control.Feedback>
