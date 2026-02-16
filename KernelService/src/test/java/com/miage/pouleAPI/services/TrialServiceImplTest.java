@@ -430,4 +430,81 @@ class TrialServiceImplTest {
 
         verify(userRepository, times(1)).findByEmail(email);
     }
+
+    @Test
+    @DisplayName("getAssignedTrialsForAthleteId - Devrait retourner les épreuves solo et équipe")
+    void testGetAssignedTrialsForAthleteId_Success() {
+        // Given
+        Integer id = 1;
+        ApplicationUser user = new ApplicationUser();
+        user.setId(id);
+
+        List<Trial> soloTrials = Arrays.asList(trial1);
+        List<Trial> teamTrials = Arrays.asList(trial2);
+
+        when(userRepository.findById(id)).thenReturn(Optional.of(user));
+        when(trialRepository.findSoloTrialsByUserId(id)).thenReturn(soloTrials);
+        when(trialRepository.findTeamTrialsByUserId(id)).thenReturn(teamTrials);
+        when(trialAdapter.entityListToSummaryDtoList(soloTrials))
+                .thenReturn(Arrays.asList(summary1));
+        when(trialAdapter.entityListToSummaryDtoList(teamTrials))
+                .thenReturn(Arrays.asList(summary2));
+
+        // When
+        Optional<AssignedTrialsResponseDTO> result = trialService.getAssignedTrialsForAthleteId(id);
+
+        // Then
+        assertTrue(result.isPresent());
+        assertEquals(1, result.get().getSoloTrials().size());
+        assertEquals(1, result.get().getTeamTrials().size());
+
+        verify(userRepository, times(1)).findById(id);
+        verify(trialRepository, times(1)).findSoloTrialsByUserId(id);
+        verify(trialRepository, times(1)).findTeamTrialsByUserId(id);
+    }
+
+    @Test
+    @DisplayName("getAssignedTrialsForAthleteId - Devrait retourner empty si athlete non trouvé")
+    void testGetAssignedTrialsForAthleteId_UserNotFound() {
+        // Given
+        Integer id = 1;
+
+        when(userRepository.findById(id)).thenReturn(Optional.empty());
+
+        // When
+        Optional<AssignedTrialsResponseDTO> result = trialService.getAssignedTrialsForAthleteId(id);
+
+        // Then
+        assertTrue(result.isEmpty());
+
+        verify(userRepository, times(1)).findById(id);
+        verify(trialRepository, never()).findSoloTrialsByUserId(any());
+        verify(trialRepository, never()).findTeamTrialsByUserId(any());
+    }
+
+    @Test
+    @DisplayName("getAssignedTrialsForAthleteId - Devrait retourner des listes vides si pas d'épreuves")
+    void testGetAssignedTrialsForAthleteId_EmptyLists() {
+        // Given
+        Integer id = 1;
+        ApplicationUser user = new ApplicationUser();
+        user.setId(id);
+
+        when(userRepository.findById(id)).thenReturn(Optional.of(user));
+        when(trialRepository.findSoloTrialsByUserId(1)).thenReturn(Collections.emptyList());
+        when(trialRepository.findTeamTrialsByUserId(1)).thenReturn(Collections.emptyList());
+        when(trialAdapter.entityListToSummaryDtoList(Collections.emptyList()))
+                .thenReturn(Collections.emptyList());
+
+        // When
+        Optional<AssignedTrialsResponseDTO> result = trialService.getAssignedTrialsForAthleteId(id);
+
+        // Then
+        assertTrue(result.isPresent());
+        assertTrue(result.get().getSoloTrials().isEmpty());
+        assertTrue(result.get().getTeamTrials().isEmpty());
+
+        verify(userRepository, times(1)).findById(id);
+
+    }
 }

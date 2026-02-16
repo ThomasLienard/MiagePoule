@@ -4,7 +4,6 @@ import com.miage.pouleAPI.dtos.trial.AssignedTrialsResponseDTO;
 import com.miage.pouleAPI.dtos.trial.TrialDetailDTO;
 import com.miage.pouleAPI.dtos.trial.TrialSummaryDTO;
 import com.miage.pouleAPI.services.interfaces.TrialService;
-import com.miage.pouleAPI.repositories.ApplicationUserRepository;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
@@ -17,12 +16,10 @@ import java.util.List;
 public class TrialController {
     
     private TrialService trialService;
-    private ApplicationUserRepository userRepository;
 
     @Autowired
-    public TrialController(TrialService trialService, ApplicationUserRepository userRepository) {
+    public TrialController(TrialService trialService) {
         this.trialService = trialService;
-        this.userRepository = userRepository;
     }
     
     @GetMapping("/public/trials")
@@ -47,6 +44,13 @@ public class TrialController {
     @GetMapping("/trials/assigned")
     public ResponseEntity<AssignedTrialsResponseDTO> getAssignedTrials(Authentication auth) {
         return trialService.getAssignedTrialsForUserEmail(auth.getName())
+                .map(ResponseEntity::ok)
+                .orElse(ResponseEntity.notFound().build());
+    }
+
+    @GetMapping("/public/trials/assigned/{athleteId}")
+    public ResponseEntity<AssignedTrialsResponseDTO> getAssignedTrialsByAthleteId(@PathVariable Integer athleteId) {
+        return trialService.getAssignedTrialsForAthleteId(athleteId)
                 .map(ResponseEntity::ok)
                 .orElse(ResponseEntity.notFound().build());
     }

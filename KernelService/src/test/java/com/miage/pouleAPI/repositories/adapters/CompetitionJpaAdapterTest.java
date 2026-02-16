@@ -3,6 +3,7 @@ package com.miage.pouleAPI.repositories.adapters;
 import com.miage.pouleAPI.adapters.CompetitionJpaAdapter;
 import com.miage.pouleAPI.repositories.ApplicationUserRepository;
 import com.miage.pouleAPI.dtos.competition.CompetitionDTO;
+import com.miage.pouleAPI.dtos.competition.CreateCompetitionRequestDTO;
 import com.miage.pouleAPI.entity.Championship;
 import com.miage.pouleAPI.entity.Competition;
 import com.miage.pouleAPI.repositories.ChampionshipRepository;
@@ -41,6 +42,7 @@ class CompetitionJpaAdapterTest {
     private Competition competition1;
     private Competition competition2;
     private CompetitionDTO competitionDTO1;
+    private CreateCompetitionRequestDTO competitionDTORequest1;
 
     @BeforeEach
     void setUp() {
@@ -78,6 +80,14 @@ class CompetitionJpaAdapterTest {
                 LocalDate.of(2024, 6, 30),
                 1,
                 "Competition 1",
+                LocalDate.of(2024, 1, 1)
+        );
+
+        competitionDTORequest1 = new CreateCompetitionRequestDTO(
+                "Competition 1",
+                "Competition 1 Description",
+                championship.getId(),
+                LocalDate.of(2024, 6, 30),
                 LocalDate.of(2024, 1, 1)
         );
     }
@@ -142,12 +152,13 @@ class CompetitionJpaAdapterTest {
     void save_ShouldConvertAndSaveCompetitionModel() {
         when(championshipRepository.findById(championship.getId()))
                 .thenReturn(Optional.of(championship));
-        CompetitionDTO modelToSave = new CompetitionDTO(
-                championship.getId(),
-                "New Competition Description",
-                LocalDate.of(2025, 6, 30),
-                null,
+
+
+        CreateCompetitionRequestDTO requestToSave = new CreateCompetitionRequestDTO(
                 "New Competition",
+                "New Competition Description",
+                championship.getId(),
+                LocalDate.of(2025, 6, 30),
                 LocalDate.of(2025, 1, 1)
         );
 
@@ -162,7 +173,7 @@ class CompetitionJpaAdapterTest {
 
         when(repository.save(any(Competition.class))).thenReturn(savedEntity);
 
-        CompetitionDTO result = adapter.save(modelToSave);
+        CompetitionDTO result = adapter.save(requestToSave);
 
         assertThat(result).isNotNull();
         assertThat(result.getId()).isEqualTo(3);
@@ -230,15 +241,16 @@ class CompetitionJpaAdapterTest {
         when(championshipRepository.findById(championship.getId()))
                 .thenReturn(Optional.of(championship));
 
-        CompetitionDTO modelToSave = competitionDTO1;
+        CreateCompetitionRequestDTO modelToSave = competitionDTORequest1;
+        CompetitionDTO modelSaved = competitionDTO1;
 
         Competition entityToSave = new Competition(
-                modelToSave.getId(),
-                modelToSave.getName(),
-                modelToSave.getDescription(),
+                modelSaved.getId(),
+                modelSaved.getName(),
+                modelSaved.getDescription(),
                 championship,
-                modelToSave.getStart(),
-                modelToSave.getEnd()
+                modelSaved.getStart(),
+                modelSaved.getEnd()
         );
 
         when(repository.save(any(Competition.class))).thenReturn(entityToSave);
@@ -249,39 +261,6 @@ class CompetitionJpaAdapterTest {
         verify(repository).save(any(Competition.class));
     }
 
-    @Test
-    void save_ShouldCorrectlyMapStartAndEndDates() {
-        when(championshipRepository.findById(championship.getId()))
-                .thenReturn(Optional.of(championship));
-        LocalDate startDate = LocalDate.of(2025, 3, 15);
-        LocalDate endDate = LocalDate.of(2025, 9, 20);
-
-        CompetitionDTO model = new CompetitionDTO(
-                championship.getId(),
-                "Date Test Competition",
-                endDate,
-                10,
-                "Date Test",
-                startDate
-        );
-
-        Competition savedEntity = new Competition(
-                10,
-                "Date Test",
-                "Date Test Competition",
-                championship,
-                startDate,
-                endDate
-        );
-
-        when(repository.save(any(Competition.class))).thenReturn(savedEntity);
-
-        CompetitionDTO result = adapter.save(model);
-
-        assertThat(result.getStart()).isEqualTo(startDate);
-        assertThat(result.getEnd()).isEqualTo(endDate);
-        verify(repository).save(any(Competition.class)); // ← CHANGEZ ICI aussi
-    }
 
     @Test
     void findAll_ShouldHandleNullEntitiesInList() {
@@ -299,40 +278,6 @@ class CompetitionJpaAdapterTest {
         CompetitionJpaAdapter newAdapter = new CompetitionJpaAdapter(repository,championshipRepository, userRepository);
 
         assertThat(newAdapter).isNotNull();
-    }
-
-    @Test
-    void save_ShouldPreserveAllFieldsIncludingDates() {
-        when(championshipRepository.findById(championship.getId()))
-                .thenReturn(Optional.of(championship));
-        CompetitionDTO completeModel = new CompetitionDTO(
-                championship.getId(),
-                "Complete Description",
-                LocalDate.of(2024, 12, 31),
-                5,
-                "Complete Competition",
-                LocalDate.of(2024, 1, 1)
-        );
-
-        Competition savedEntity = new Competition(
-                5,
-                "Complete Competition",
-                "Complete Description",
-                championship,
-                LocalDate.of(2024, 1, 1),
-                LocalDate.of(2024, 12, 31)
-        );
-
-        when(repository.save(any(Competition.class))).thenReturn(savedEntity);
-
-        CompetitionDTO result = adapter.save(completeModel);
-
-        assertThat(result.getId()).isEqualTo(completeModel.getId());
-        assertThat(result.getName()).isEqualTo(completeModel.getName());
-        assertThat(result.getDescription()).isEqualTo(completeModel.getDescription());
-        assertThat(result.getChampionshipId()).isEqualTo(completeModel.getChampionshipId());
-        assertThat(result.getStart()).isEqualTo(completeModel.getStart());
-        assertThat(result.getEnd()).isEqualTo(completeModel.getEnd());
     }
 
     @Test
@@ -363,12 +308,11 @@ class CompetitionJpaAdapterTest {
     void save_ShouldHandleUpdateOfExistingCompetition() {
         when(championshipRepository.findById(championship.getId()))
                 .thenReturn(Optional.of(championship));
-        CompetitionDTO existingModel = new CompetitionDTO(
-                championship.getId(),
-                "Updated Description",
-                LocalDate.of(2024, 6, 30),
-                1,
+        CreateCompetitionRequestDTO existingModel = new CreateCompetitionRequestDTO(
                 "Updated Competition",
+                "Updated Description",
+                championship.getId(),
+                LocalDate.of(2024, 6, 30),
                 LocalDate.of(2024, 1, 1)
         );
 

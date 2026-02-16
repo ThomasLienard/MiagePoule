@@ -2,6 +2,7 @@ package com.miage.pouleAPI.services;
 
 import com.miage.pouleAPI.adapters.CompetitionJpaAdapter;
 import com.miage.pouleAPI.dtos.competition.CompetitionDTO;
+import com.miage.pouleAPI.dtos.competition.CreateCompetitionRequestDTO;
 import com.miage.pouleAPI.services.interfaces.CompetitionService;
 
 import org.springframework.stereotype.Service;
@@ -29,7 +30,7 @@ public class CompetitionServiceImpl implements CompetitionService {
     }
 
     @Override
-    public CompetitionDTO save(CompetitionDTO competition) {
+    public CompetitionDTO save(CreateCompetitionRequestDTO competition) {
         return competitionJpaAdapter.save(competition);
     }
 

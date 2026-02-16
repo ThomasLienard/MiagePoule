@@ -18,6 +18,17 @@ import TicketsPage from './components/tickets/TicketsPage.jsx';
 import Profile from "./components/profile/Profile.jsx";
 import PrivacySettings from "./components/profile/PrivacySettings.jsx";
 
+// Commissaire components
+import AdminEpreuves from './components/commissaire/AdminEpreuves.jsx';
+import ManageParticipants from './components/commissaire/ManageParticipants.jsx';
+import TeamManagement from './components/commissaire/TeamManagement.jsx';
+
+//Admin
+import CreateEventPage from "./components/admin/CreateEventPage.jsx";
+import CreateChampionshipPage from "./components/admin/CreateChampionshipPage.jsx";
+import CreateCompetitionPage from "./components/admin/CreateCompetitionPage.jsx";
+import TrialsByAthlete from "./components/TrialsByAthlete.jsx";
+
 function App() {
 
   return (
@@ -33,6 +44,7 @@ function App() {
                             <Route path="/change-password" element={<ChangePasswordPage />} />
                             <Route path="/public/events/:id" element={<TrialsAndEventsDetails />} />
                             <Route path="/public/trials/:id" element={<TrialsAndEventsDetails />} />
+                            <Route path="/public/athlete-trials/:athleteId" element={<TrialsByAthlete />} />
 
                             {/* Routes protégées Admin */}
                             <Route path="/admin" element={
@@ -43,6 +55,38 @@ function App() {
                             <Route path="/admin/users" element={
                                 <ProtectedRoute allowedRoles={['ADMIN']}>
                                     <UserManagement />
+                                </ProtectedRoute>
+                            } />
+                            <Route path="/admin/create-event" element={
+                                <ProtectedRoute allowedRoles={['ADMIN']}>
+                                    <CreateEventPage />
+                                </ProtectedRoute>
+                            } />
+                            <Route path="/admin/create-champ" element={
+                                <ProtectedRoute allowedRoles={['ADMIN']}>
+                                    <CreateChampionshipPage />
+                                </ProtectedRoute>
+                            } />
+                            <Route path="/admin/create-comp" element={
+                                <ProtectedRoute allowedRoles={['ADMIN']}>
+                                    <CreateCompetitionPage />
+                                </ProtectedRoute>
+                            } />
+
+                            {/* Routes protégées Commissaire */}
+                            <Route path="/commissaire/trials" element={
+                                <ProtectedRoute allowedRoles={['COMMISSAIRE']}>
+                                    <AdminEpreuves />
+                                </ProtectedRoute>
+                            } />
+                            <Route path="/commissaire/trials/:trialId/participants" element={
+                                <ProtectedRoute allowedRoles={['COMMISSAIRE']}>
+                                    <ManageParticipants />
+                                </ProtectedRoute>
+                            } />
+                            <Route path="/commissaire/teams" element={
+                                <ProtectedRoute allowedRoles={['COMMISSAIRE']}>
+                                    <TeamManagement />
                                 </ProtectedRoute>
                             } />
 

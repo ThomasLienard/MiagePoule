@@ -64,6 +64,14 @@ export default function Layout() {
                                 <Link to="/public/championship"
                                       className="text-decoration-none text-body-secondary">Championnats</Link>
                             </Nav.Link>
+
+                            {user?.roles?.includes('ATHLETE') && (
+                                <Nav.Link className="auth-button secondary me-2" as="span">
+                                    <Link to={`/public/athlete-trials/${user.id}`}
+                                          className="text-decoration-none text-body-secondary">Mes épreuves</Link>
+                                </Nav.Link>
+                            )}
+
                             {isAuthenticated() && (
                                 <Nav.Link className="auth-button secondary me-2" as="span">
                                     <Link to="/tickets"
@@ -72,9 +80,25 @@ export default function Layout() {
                             )}
 
                             {user?.roles?.includes('ADMIN') && (
-                                <Nav.Link className="auth-button secondary me-2" as="span">
-                                    <Link to="/admin" className="text-decoration-none text-body-secondary">Administration</Link>
-                                </Nav.Link>
+                                <>
+                                    <Nav.Link className="auth-button secondary me-2" as="span">
+                                        <Link to="/admin"
+                                              className="text-decoration-none text-body-secondary">Administration</Link>
+                                    </Nav.Link>
+                                </>
+                            )}
+
+                            {user?.roles?.includes('COMMISSAIRE') && (
+                                <>
+                                    <Nav.Link className="auth-button secondary me-2" as="span">
+                                        <Link to="/commissaire/trials"
+                                              className="text-decoration-none text-body-secondary">Gestion épreuves</Link>
+                                    </Nav.Link>
+                                    <Nav.Link className="auth-button secondary me-2" as="span">
+                                        <Link to="/commissaire/teams"
+                                              className="text-decoration-none text-body-secondary">Gestion équipes</Link>
+                                    </Nav.Link>
+                                </>
                             )}
 
                         </Nav>

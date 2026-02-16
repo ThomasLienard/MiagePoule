@@ -60,6 +60,13 @@ public class ApplicationUser implements Observer {
     @Column(name = "deactivation_reason")
     private String deactivationReason;
 
+    @Column(name = "last_login_at")
+    private LocalDateTime lastLoginAt;
+
+    //pour les sportifs
+    @Column(name = "has_signed_charter")
+    private Boolean hasSignedCharter = false;
+
     @ManyToOne
     @JoinColumn(name = "Country_code")
     @JsonIgnoreProperties({"hibernateLazyInitializer", "handler"})

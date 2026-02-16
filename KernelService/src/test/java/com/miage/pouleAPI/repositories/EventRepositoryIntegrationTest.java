@@ -22,15 +22,15 @@ class EventRepositoryIntegrationTest {
     private EventRepository eventRepository;
 
     @Test
-    @DisplayName("findAll() doit retourner les 2 events de data.sql")
+    @DisplayName("findAll() doit retourner les 5 events de data.sql")
     void findAll_returnsDataSqlEvents() {
         List<Event> events = eventRepository.findAll();
 
 
-        assertThat(events).isNotEmpty().hasSize(2);
+        assertThat(events).isNotEmpty().hasSize(5);
         assertThat(events)
             .extracting(Event::getId)
-            .containsExactlyInAnyOrder(1, 2);
+            .containsExactlyInAnyOrder(1, 2, 3, 4, 5);
     }
 
     @Test

@@ -1,10 +1,10 @@
 package com.miage.pouleAPI.services;
 
 import com.miage.pouleAPI.adapters.TrialAdapter;
-import com.miage.pouleAPI.repositories.ApplicationUserRepository;
 import com.miage.pouleAPI.dtos.trial.AssignedTrialsResponseDTO;
 import com.miage.pouleAPI.dtos.trial.TrialDetailDTO;
 import com.miage.pouleAPI.dtos.trial.TrialSummaryDTO;
+import com.miage.pouleAPI.repositories.ApplicationUserRepository;
 import com.miage.pouleAPI.repositories.TrialRepository;
 import com.miage.pouleAPI.services.interfaces.TrialService;
 
@@ -52,6 +52,12 @@ public class TrialServiceImpl implements TrialService {
     public Optional<AssignedTrialsResponseDTO> getAssignedTrialsForUserEmail(String email) {
         return userRepository.findByEmail(email)
                 .map(user -> buildAssignedTrialsResponse(user.getId()));
+    }
+
+    @Override
+    public Optional<AssignedTrialsResponseDTO> getAssignedTrialsForAthleteId(Integer athleteId) {
+        return userRepository.findById(athleteId)
+                        .map(user -> buildAssignedTrialsResponse(user.getId()));
     }
 
     private AssignedTrialsResponseDTO buildAssignedTrialsResponse(Integer userId) {

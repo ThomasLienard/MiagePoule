@@ -5,6 +5,19 @@ spring:
     password: miagepassword
     driver-class-name: org.postgresql.Driver
 
+  # properties for email configuration
+  mail:
+    host: smtp.gmail.com
+    port: 587
+    username: no.reply.miagepoule@gmail.com
+    password: wavk ztdd ssoi jwvq
+    properties:
+      mail:
+        smtp:
+          auth: true
+          starttls:
+            enable: true
+
   jpa:
     hibernate:
       ddl-auto: update
@@ -48,3 +61,4 @@ app:
     max-file-size: 10485760 # 10MB
     allowed-content-types: application/pdf
     max-documents-per-user: 50
+

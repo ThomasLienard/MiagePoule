@@ -1,6 +1,7 @@
 import React, {useState, useEffect} from 'react';
-import {useNavigate, useParams} from 'react-router-dom';
-import {Badge, Button, ListGroup} from "react-bootstrap";
+import {Link, useNavigate, useParams} from 'react-router-dom';
+import {Accordion, Badge, Button, ListGroup, ListGroupItem} from "react-bootstrap";
+import {Vr} from "react-bootstrap-icons";
 
 const TrialsAndEventsDetails = () => {
     const {id} = useParams();
@@ -115,12 +116,53 @@ const TrialsAndEventsDetails = () => {
                                 {eventData.rankings.some(r => r.participantType === 'TEAM') && (
                                     <div className="w-100">
                                         <div className="text-center fw-semibold">Équipes</div>
-                                        <ListGroup as="ol">
+                                        <Accordion>
                                             {eventData.rankings
                                                 .filter(r => r.participantType === 'TEAM')
                                                 .map((ranking, index) => (
-                                                    <ListGroup.Item as="li"
+                                                    <Accordion.Item eventKey={index}
                                                                     key={`team-${ranking.participantId}-${index}`}>
+                                                        <Accordion.Header>
+                                                            <div className="w-100 d-flex justify-content-between me-4">
+                                                                <span>{ranking.rank === 1 && '🥇'}
+                                                                    {ranking.rank === 2 && '🥈'}
+                                                                    {ranking.rank === 3 && '🥉'}
+                                                                    {ranking.rank > 3 && <Badge bg={"warning"}>{ranking.rank}</Badge>}
+                                                                </span>
+                                                                <span>{ranking.participantName}</span>
+                                                                <span>{ranking.result}</span>
+                                                            </div>
+                                                        </Accordion.Header>
+                                                        <Accordion.Body className="p-0">
+                                                            <ListGroup variant={"flush"}>
+                                                                {eventData.teamParticipants
+                                                                    .find((team) => team.name === ranking.participantName)
+                                                                    .members.map((athelete, index) => (
+                                                                        <ListGroupItem onClick={() => navigate(`/public/athlete-trials/${athelete.id}`)}
+                                                                            key={`team-${ranking.participantId}-${index}-${athelete.id}`}
+                                                                            style={{"cursor": "pointer"}}>
+                                                                            {athelete.fullName}
+                                                                        </ListGroupItem>
+                                                                    ))
+                                                                }
+                                                            </ListGroup>
+                                                        </Accordion.Body>
+                                                    </Accordion.Item>
+                                                ))}
+                                        </Accordion>
+                                    </div>
+                                )}
+                                {eventData.rankings.some(r => r.participantType === 'ATHLETE') && (
+                                    <div className="w-100">
+                                        <div className="text-center fw-semibold">Athlètes</div>
+                                        <ListGroup as="ol">
+                                            {eventData.rankings
+                                                .filter(r => r.participantType === 'ATHLETE')
+                                                .map((ranking, index) => (
+                                                    <ListGroup.Item as="li"
+                                                                    key={`athlete-${ranking.participantId}-${index}`}
+                                                                    onClick={() => navigate(`/public/athlete-trials/${ranking.participantId}`)}
+                                                                    style={{"cursor": "pointer"}} >
                                                         <div className="d-flex justify-content-between">
                                                         <span>
                                                             {ranking.rank === 1 && '🥇'}
@@ -136,24 +178,58 @@ const TrialsAndEventsDetails = () => {
                                         </ListGroup>
                                     </div>
                                 )}
-                                {eventData.rankings.some(r => r.participantType === 'ATHLETE') && (
+                            </div>
+                        </div>
+                    )}
+                    {(eventData.rankings.length === 0 && (eventData.soloParticipants || eventData.teamParticipants) ) && (
+                        <div className="border rounded p-3 m-3">
+                            <h5 className="text-center">🏆 Résultats</h5>
+                            <div className="d-flex flex-row gap-2">
+                                {(eventData.teamParticipants && eventData.teamParticipants.length >0) && (
+                                    <div className="w-100">
+                                        <div className="text-center fw-semibold">Équipes</div>
+                                        <Accordion>
+                                            {eventData.teamParticipants
+                                                .map((team, index) => (
+                                                    <Accordion.Item eventKey={index}
+                                                                    key={`team-${team.id}-${index}`}>
+                                                        <Accordion.Header>
+                                                            <div className="w-100 d-flex justify-content-between me-4">
+                                                                <span>{team.name}</span>
+                                                            </div>
+                                                        </Accordion.Header>
+                                                        <Accordion.Body className="p-0">
+                                                            <ListGroup variant={"flush"}>
+                                                                {team.members
+                                                                    .map((athelete, index) => (
+                                                                        <ListGroupItem
+                                                                            key={`team-${team.id}-${index}-${athelete.id}`}
+                                                                            onClick={() => navigate(`/public/athlete-trials/${athelete.id}`)}
+                                                                            style={{"cursor": "pointer"}}
+                                                                        >
+                                                                            {athelete.fullName}
+                                                                        </ListGroupItem>
+                                                                    ))
+                                                                }
+                                                            </ListGroup>
+                                                        </Accordion.Body>
+                                                    </Accordion.Item>
+                                                ))}
+                                        </Accordion>
+                                    </div>
+                                )}
+                                {(eventData.soloParticipants && eventData.soloParticipants.length >0) && (
                                     <div className="w-100">
                                         <div className="text-center fw-semibold">Athlètes</div>
                                         <ListGroup as="ol">
-                                            {eventData.rankings
-                                                .filter(r => r.participantType === 'ATHLETE')
-                                                .map((ranking, index) => (
+                                            {eventData.soloParticipants
+                                                .map((participant, index) => (
                                                     <ListGroup.Item as="li"
-                                                                    key={`athlete-${ranking.participantId}-${index}`}>
+                                                                    key={`athlete-${participant.id}-${index}`}
+                                                                    onClick={() => navigate(`/public/athlete-trials/${participant.id}`)}
+                                                                    style={{"cursor": "pointer"}}>
                                                         <div className="d-flex justify-content-between">
-                                                        <span>
-                                                            {ranking.rank === 1 && '🥇'}
-                                                            {ranking.rank === 2 && '🥈'}
-                                                            {ranking.rank === 3 && '🥉'}
-                                                            {ranking.rank > 3 && ranking.rank}
-                                                        </span>
-                                                            <span>{ranking.participantName}</span>
-                                                            <span>{ranking.result}</span>
+                                                            <span>{participant.fullName}</span>
                                                         </div>
                                                     </ListGroup.Item>
                                                 ))}

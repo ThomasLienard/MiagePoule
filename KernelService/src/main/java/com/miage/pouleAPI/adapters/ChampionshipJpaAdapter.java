@@ -1,6 +1,7 @@
 package com.miage.pouleAPI.adapters;
 
 import com.miage.pouleAPI.dtos.championship.ChampionshipDTO;
+import com.miage.pouleAPI.dtos.championship.CreateChampionshipRequestDTO;
 import com.miage.pouleAPI.entity.Championship;
 import com.miage.pouleAPI.repositories.ChampionshipRepository;
 
@@ -27,8 +28,8 @@ public class ChampionshipJpaAdapter{
         return repository.findById(id).map(this::toDomain);
     }
 
-    public ChampionshipDTO save(ChampionshipDTO championshipDto) {
-        Championship entity = toEntity(championshipDto);
+    public ChampionshipDTO save(CreateChampionshipRequestDTO championshipDto) {
+        Championship entity = toEntityRequest(championshipDto);
         Championship saved = repository.save(entity);
         return toDomain(saved);
     }
@@ -55,5 +56,17 @@ public class ChampionshipJpaAdapter{
                 championship.getName(),
                 championship.getStart(),
                 championship.getEnd());
+    }
+
+    private Championship toEntityRequest(CreateChampionshipRequestDTO dto){
+        if (dto == null){
+            return null;
+        }
+        Championship entity = new Championship();
+        entity.setName(dto.getName());
+        entity.setDescription(dto.getDescription());
+        entity.setStart(dto.getStart());
+        entity.setEnd(dto.getEnd());
+        return entity;
     }
 }

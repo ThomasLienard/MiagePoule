@@ -1,9 +1,11 @@
 import React, { useState, useEffect } from 'react';
-import { Container, Row, Col, Card, Button, Form, Alert, Spinner, Badge, ButtonGroup } from 'react-bootstrap';
+import { Container, Row, Col, Card, Button, Form, Alert, Spinner } from 'react-bootstrap';
 import adminUserService from '../../services/adminUserService';
 import UserList from './UserList';
 import CreateUserModal from './CreateUserModal';
 import UserDetailsModal from './UserDetailsModal';
+import BulkCreateUsersModal from './BulkCreateUsersModal';
+import BulkCreateResultsModal from './BulkCreateResultsModal';
 import Plus from '../../assets/ajouter.png'
 
 const UserManagement = () => {
@@ -13,8 +15,11 @@ const UserManagement = () => {
     const [success, setSuccess] = useState(null);
     const [selectedRole, setSelectedRole] = useState('');
     const [showCreateModal, setShowCreateModal] = useState(false);
+    const [showBulkCreateModal, setShowBulkCreateModal] = useState(false);
+    const [bulkCreateResults, setBulkCreateResults] = useState(null);
     const [selectedUser, setSelectedUser] = useState(null);
     const [searchTerm, setSearchTerm] = useState('');
+    const [hideSpectators, setHideSpectators] = useState(true);
 
     const roles = [
         { value: '', label: 'Tous les rôles' },
@@ -47,11 +52,26 @@ const UserManagement = () => {
     const handleCreateUser = async (userData) => {
         try {
             const response = await adminUserService.createUser(userData);
-            setSuccess(`Compte créé avec succès ! Mot de passe temporaire: ${response.temporaryPassword}`);
+            setSuccess(`✓ Compte créé avec succès ! Un email d'activation avec le mot de passe temporaire (${response.temporaryPassword}) a été envoyé à l'utilisateur.`);
             setShowCreateModal(false);
             loadUsers();
         } catch (err) {
-            throw err;
+            setError(err.message);
+        }
+    };
+
+    const handleBulkCreateUsers = async (usersData) => {
+        try {
+            const response = await adminUserService.bulkCreateUsers(usersData);
+            
+            // Afficher les résultats dans une modal dédiée
+            setBulkCreateResults(response);
+            setShowBulkCreateModal(false);
+            
+            // Recharger la liste des utilisateurs
+            loadUsers();
+        } catch (err) {
+            setError(err.message);
         }
     };
 
@@ -91,7 +111,7 @@ const UserManagement = () => {
     const handleResetPassword = async (id) => {
         try {
             const response = await adminUserService.resetPassword(id);
-            setSuccess(`Mot de passe réinitialisé ! Nouveau mot de passe: ${response.temporaryPassword}`);
+            setSuccess(`✓ Mot de passe réinitialisé ! Un email de notification avec le nouveau mot de passe temporaire (${response.temporaryPassword}) a été envoyé à l'utilisateur.`);
             loadUsers();
         } catch (err) {
             setError(err.message);
@@ -99,6 +119,11 @@ const UserManagement = () => {
     };
 
     const filteredUsers = users.filter(user => {
+        // Filtrer les spectateurs si l'option est activée
+        if (hideSpectators && user.roleName === 'SPECTATEUR') {
+            return false;
+        }
+        
         if (!searchTerm) return true;
         const search = searchTerm.toLowerCase();
         return (
@@ -121,11 +146,20 @@ const UserManagement = () => {
                     <h1>👥 Gestion des comptes</h1>
                     <p className="text-muted">Créer et gérer les comptes utilisateurs</p>
                 </div>
-                <Button variant="secondary" onClick={() => setShowCreateModal(true)}>
-                    <img src={Plus} alt="Nouveau compte" style={{height: '20px', marginRight: '8px', marginBottom: '3px'}} />
-                    {' '}
-                    Nouveau compte
-                </Button>
+                <div>
+                    <Button 
+                        variant="outline-secondary" 
+                        onClick={() => setShowBulkCreateModal(true)}
+                        className="me-2"
+                    >
+                        Import en masse
+                    </Button>
+                    <Button variant="secondary" onClick={() => setShowCreateModal(true)}>
+                        <img src={Plus} alt="Nouveau compte" style={{height: '20px', marginRight: '8px', marginBottom: '3px'}} />
+                        {' '}
+                        Nouveau compte
+                    </Button>
+                </div>
             </div>
 
             {error && (
@@ -172,7 +206,7 @@ const UserManagement = () => {
             <Card className="mb-4">
                 <Card.Body>
                     <Row>
-                        <Col md={6}>
+                        <Col md={5}>
                             <Form.Group>
                                 <Form.Label>Filtrer par rôle</Form.Label>
                                 <Form.Select
@@ -187,7 +221,7 @@ const UserManagement = () => {
                                 </Form.Select>
                             </Form.Group>
                         </Col>
-                        <Col md={6}>
+                        <Col md={5}>
                             <Form.Group>
                                 <Form.Label>Rechercher</Form.Label>
                                 <Form.Control
@@ -198,6 +232,16 @@ const UserManagement = () => {
                                 />
                             </Form.Group>
                         </Col>
+                        <Col md={2} className="d-flex align-items-end">
+                            <Form.Group>
+                                <Form.Check
+                                    type="checkbox"
+                                    label="Masquer spectateurs"
+                                    checked={hideSpectators}
+                                    onChange={(e) => setHideSpectators(e.target.checked)}
+                                />
+                            </Form.Group>
+                        </Col>
                     </Row>
                 </Card.Body>
             </Card>
@@ -205,7 +249,7 @@ const UserManagement = () => {
             {/* User list */}
             {loading ? (
                 <div className="text-center py-5">
-                    <Spinner animation="border" variant="primary" />
+                    <Spinner animation="border" variant="secondary" />
                     <p className="mt-3">Chargement des utilisateurs...</p>
                 </div>
             ) : (
@@ -222,6 +266,20 @@ const UserManagement = () => {
                     onClose={() => setShowCreateModal(false)}
                     onCreate={handleCreateUser}
                     roles={roles.filter(r => r.value && r.value !== 'ADMIN')}
+                />
+            )}
+
+            {showBulkCreateModal && (
+                <BulkCreateUsersModal
+                    onClose={() => setShowBulkCreateModal(false)}
+                    onBulkCreate={handleBulkCreateUsers}
+                />
+            )}
+
+            {bulkCreateResults && (
+                <BulkCreateResultsModal
+                    results={bulkCreateResults}
+                    onClose={() => setBulkCreateResults(null)}
                 />
             )}
 

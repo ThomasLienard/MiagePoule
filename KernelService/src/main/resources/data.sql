@@ -98,20 +98,21 @@ VALUES ('100m Trial Heat 1', 'First qualification heat', 'TRIAL', 1, 1, 1),
        ('Marathon final', 'Main heat', 'TRIAL', 2, 4, 2), --new
        ('Training Session A', 'Regular training', 'TRAINING', 3, 1, 1),
        ('Training Session B', 'Regular training', 'TRAINING', 3, 2, 1),
-       ('Championship Meeting', 'Official gathering', 'MEETING', 3, 3, 2);
+       ('Championship Meeting', 'Official gathering', 'MEETING', 3, 3, 2),
+        ('Marathon Final', 'Final race', 'TRIAL', 2, 3, 2);
 
 -- ======================
 -- Trials
 -- ======================
 -- With JOINED inheritance, Trial shares the same primary key with Event
--- Only events with type 'TRIAL' become trials (id 1-5)
+-- Only events with type 'TRIAL' become trials (id 1-5 & 9)
 INSERT INTO trial (id_event)
 VALUES (1),
        (2),
        (3),
        (4),
        (5),
-       (6);
+       (9);
 
 -- ======================
 -- Users (MODIFIÉ avec BCrypt)
@@ -119,18 +120,18 @@ VALUES (1),
 -- mdp : "test123"
 
 
-INSERT INTO application_user (name, lastname, password, email, country_code, role_name, is_active, is_account_activated, must_change_password, created_at, created_by)
+INSERT INTO application_user (name, lastname, password, email, country_code, role_name, is_active, is_account_activated, must_change_password, created_at, created_by, has_signed_charter)
 VALUES
     -- Admin existant - email: anna@smith.com
-    ('Anna', 'Smith', '$2a$10$vycWMvbko2wycSl3u6bIL.vCeHgNBQfNq7jpVc7pCEnfER6A2vTLi', 'anna@smith.com', 'US', 'ADMIN', true, true, false, NOW(), 'system'),
+    ('Anna', 'Smith', '$2a$10$vycWMvbko2wycSl3u6bIL.vCeHgNBQfNq7jpVc7pCEnfER6A2vTLi', 'anna@example.com', 'US', 'ADMIN', true, true, false, NOW(), 'system', true),
     -- Nouveaux utilisateurs pour chaque rôle
-    ('Pierre', 'Commissaire', '$2a$10$vycWMvbko2wycSl3u6bIL.vCeHgNBQfNq7jpVc7pCEnfER6A2vTLi', 'commissaire@test.com', 'FR', 'COMMISSAIRE', true, true, false, NOW(), 'system'),
-    ('Marie', 'Athlete', '$2a$10$vycWMvbko2wycSl3u6bIL.vCeHgNBQfNq7jpVc7pCEnfER6A2vTLi', 'athlete@test.com', 'FR', 'ATHLETE', true, true, false, NOW(), 'system'),
-    ('Jean', 'Volontaire', '$2a$10$vycWMvbko2wycSl3u6bIL.vCeHgNBQfNq7jpVc7pCEnfER6A2vTLi', 'volontaire@test.com', 'FR', 'VOLONTAIRE', true, true, false, NOW(), 'system'),
-    ('John', 'Doe', '$2a$10$vycWMvbko2wycSl3u6bIL.vCeHgNBQfNq7jpVc7pCEnfER6A2vTLi', 'john@doe.com', 'US', 'ATHLETE', true, true, false, NOW(), 'system'),
-    ('Jane', 'Smith', '$2a$10$vycWMvbko2wycSl3u6bIL.vCeHgNBQfNq7jpVc7pCEnfER6A2vTLi', 'jane@smith.com', 'US', 'COMMISSAIRE', true, true, false, NOW(), 'system'),
-    ('Spec', 'tateur', '$2a$10$vycWMvbko2wycSl3u6bIL.vCeHgNBQfNq7jpVc7pCEnfER6A2vTLi', 'spec@tateur.com', 'US', 'SPECTATEUR', true, true, false, NOW(), 'system');
-    
+    ('Pierre', 'Commissaire', '$2a$10$vycWMvbko2wycSl3u6bIL.vCeHgNBQfNq7jpVc7pCEnfER6A2vTLi', 'commissaire@example.com', 'FR', 'COMMISSAIRE', true, true, false, NOW(), 'system',true),
+    ('Marie', 'Athlete', '$2a$10$vycWMvbko2wycSl3u6bIL.vCeHgNBQfNq7jpVc7pCEnfER6A2vTLi', 'athlete@example.com', 'FR', 'ATHLETE', true, true, false, NOW(), 'system', false),
+    ('Jean', 'Volontaire', '$2a$10$vycWMvbko2wycSl3u6bIL.vCeHgNBQfNq7jpVc7pCEnfER6A2vTLi', 'volontaire@example.com', 'FR', 'VOLONTAIRE', true, true, false, NOW(), 'system', true),
+    ('John', 'Doe', '$2a$10$vycWMvbko2wycSl3u6bIL.vCeHgNBQfNq7jpVc7pCEnfER6A2vTLi', 'john@example.com', 'US', 'ATHLETE', true, true, false, NOW(), 'system',true),
+    ('Jane', 'Smith', '$2a$10$vycWMvbko2wycSl3u6bIL.vCeHgNBQfNq7jpVc7pCEnfER6A2vTLi', 'jane@example.com', 'US', 'COMMISSAIRE', true, true, false, NOW(), 'system', true);
+    ('Spec', 'tateur', '$2a$10$vycWMvbko2wycSl3u6bIL.vCeHgNBQfNq7jpVc7pCEnfER6A2vTLi', 'spec@example.com', 'US', 'SPECTATEUR', true, true, false, NOW(), 'system', true);
+
 -- ======================
 -- Documents
 -- ======================
@@ -144,7 +145,9 @@ VALUES
 -- ======================
 INSERT INTO team (name_team, country_code)
 VALUES ('Team A', 'FR'),
-       ('Team B', 'US');
+       ('Team B', 'US'),
+       ('Team C', 'DE'),
+       ('Team D', 'ES');
 
 -- ======================
 -- Membership
@@ -157,21 +160,23 @@ VALUES (1, 1),
 -- Participation
 -- ======================
 -- Team participation: Trial 1 and Trial 2 have team participation
-INSERT INTO participate_at (id_team, id_trial, trial_result_team)
-VALUES (1, 1, '11.2s'),
-       (2, 1, '11.5s'),
-       (1, 2, '11.8s'),
-       (2, 3, '10.9s');
-
+-- Team B est en forfait sur Trial 1 pour les tests
+INSERT INTO participate_at (id_team, id_trial, trial_result_team, is_forfeit)
+VALUES (1, 1, '11.2s', false),
+       (2, 1, null, true),
+       (1, 2, '11.8s', false),
+       (2,2, '10.9s', false),
+       (2,3, null, false);
 -- ======================
 -- Convened athletes
 -- ======================
 -- Athletes participation: Trial 4 and Trial 5 have athlete convocation (no participate_at)
-INSERT INTO is_convened_to (id, id_trial, trial_result_athlete)
-VALUES (1, 4, '2h15m'),
-       (2, 4, '2h05m'),
-       (3, 5, '11.6s'),
-       (4, 5, '11.1s');
+INSERT INTO is_convened_to (id, id_trial, trial_result_athlete, is_forfeit)
+VALUES (1, 4, '2h15m', false),
+       (2, 4, '2h05m', false),
+       (3, 5, '11.6s', false),
+       (4, 5, '11.1s', false),
+       (3, 9, null, false);
 
 -- ======================
 -- Notifications
@@ -204,13 +209,20 @@ VALUES (1, 1);
 -- ======================
 -- User event schedule
 -- ======================
+-- Commissaire (id=2) est assigné aux épreuves 1, 2 et 3
+-- Jane Smith commissaire (id=6) est assignée aux épreuves 4 et 5
 INSERT INTO have_a_time_schedule (id, id_event)
 VALUES (1, 1),
+       (2, 1),
        (2, 2),
+       (2, 3),
        (3, 3),
        (4, 4),
        (5, 5),
-       (6, 6);
+       (6, 4),
+       (6, 5),
+       (6, 6),
+       (6, 9);
 
 -- ======================
 -- Tasks
