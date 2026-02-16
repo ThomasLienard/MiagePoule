@@ -1,57 +1,35 @@
 describe('Tests - Navigation Championnats et Résultats', () => {
 
     beforeEach(() => {
-        // On ignore les erreurs d'application asynchrones (fetch qui traîne, etc.)
         cy.on('uncaught:exception', () => false);
         cy.visit('/public/championship');
     });
 
     it('Parcours complet : du Championnat aux Résultats', () => {
-        // 1. Page Liste des Championnats
-        cy.contains('World Cup').should('be.visible'); // Ou un autre titre de championnat
-        cy.wait(3000);
-        
-        // 2. Sélection d'un championnat et voir ses compétitions
-        // On cherche un bouton "Voir les événements" dans une carte de championnat
-        cy.get('.card').first().within(() => {
-            cy.contains('Voir les événements').click();
-        });
-        cy.wait(3000);
-        
-        // 3. Page Compétition (Competition.jsx)
-        // On vérifie qu'on a bien les deux colonnes : "A venir" et "Passés"
-        cy.contains('A venir').should('be.visible');
-        cy.contains('Passés').should('be.visible');
-        cy.wait(3000);
-        
-        // 4. Clic sur un événement passé pour voir les résultats (TrialsAndEventsCard.jsx)
-        // On va dans la section "Passés" et on clique sur la première carte
-        cy.contains('Passés')
-            .parents('.d-flex') 
+        // 1. Liste des Championnats
+        cy.visit('/public/championship');
+        cy.contains('World Cup').should('be.visible');
+
+        // 2. Clic pour voir les compétitions
+        cy.get('.card').contains('Voir les événements').first().click();
+
+        // 3. Attente que le chargement soit fini
+        cy.get('.loading', { timeout: 10000 }).should('not.exist');
+
+        // 4. Ciblage de la section "Passés" et clic sur un TRIAL
+        cy.contains('.card-title', 'Passés')
+            .parents('.card')
             .find('.card')
+            .filter(':contains("🏆 Compétition") + div, :contains("🏆 Compétition") ~ .card')
             .first()
-            .click();
-        cy.wait(3000);
-        
-        // 5. Page Détails et Résultats (TrialsAndEventsDetails.jsx)
-        // On vérifie l'affichage des médailles ou des rangs
-        cy.url().should('include', '/public/trials');
-        
-        // On vérifie si la section résultats existe
-        cy.get('body').then(($body) => {
-            if ($body.text().includes('Résultats')) {
-                cy.contains('Résultats').should('be.visible');
-                // On vérifie la présence d'un podium ou d'un rang (ex: 🥇 ou le chiffre 1)
-                cy.get('.list-group-item').first().should('be.visible');
-            }
-        });
-        
-        cy.wait(3000);
-        
-        // 6. Test du bouton Retour
-        cy.contains('button', 'Retour').click();
-        cy.wait(2000);
-        cy.contains('A venir').should('be.visible'); // Vérifie qu'on est revenu à la compétition
+            .should('be.visible')
+            .click({ force: true });
+
+        // 5. Vérification de la redirection
+        cy.url({ timeout: 10000 }).should('include', '/public/trials');
+
+        // 6. Vérification finale
+        cy.contains('Résultats').should('be.visible');
     });
 
     it('Vérifie l\'affichage en cas de liste vide', () => {

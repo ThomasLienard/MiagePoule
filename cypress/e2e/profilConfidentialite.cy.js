@@ -43,41 +43,35 @@ describe('Tests - Profil et Confidentialité', () => {
 
     it('Scénario : Changement de mot de passe via la modale', () => {
         cy.visit('/account');
-        cy.wait(3000);
 
-        // 1. Ouvrir la modale (ChangePassword.jsx)
-        cy.contains('mot de passe').click();
-        cy.wait(3000);
+        // 1. Ouvrir la modale
+        cy.contains('button', 'mot de passe').click();
 
-        // 2. Remplir les champs de la modale
-        cy.get('input').eq(0).type('test123'); // Mot de passe actuel
-        cy.wait(3000);
-        cy.get('input').eq(1).type('newPassword456!'); // Nouveau mot de passe
-        cy.wait(3000);
+        // On s'assure que la modale est bien visible avant de taper
+        cy.get('.modal-dialog').should('be.visible');
+
+        cy.contains('label', 'Mot de passe actuel').next('input').type('test123');
+        cy.contains('label', 'Nouveau mot de passe').next('input').type('newPassword456!');
 
         // 3. Valider
         cy.get('.modal-footer').contains('Mettre à jour').click();
-        
-        // On attend de voir l'alerte de succès dans la modale
+
+        // Vérifier le succès
+        cy.get('.modal-body .alert-success', { timeout: 10000 })
+            .should('be.visible')
+            .and('contain', 'Mot de passe modifié avec succès');
+
+        cy.get('.modal-dialog').should('not.exist');
+
+        // --- REMETTRE LE MOT DE PASSE INITIAL ---
+        cy.contains('button', 'mot de passe').click();
+        cy.get('.modal-dialog').should('be.visible');
+
+        cy.contains('label', 'Mot de passe actuel').next('input').type('newPassword456!');
+        cy.contains('label', 'Nouveau mot de passe').next('input').type('test123');
+
+        cy.get('.modal-footer').contains('Mettre à jour').click();
         cy.get('.modal-body .alert-success').should('be.visible');
-        cy.wait(3000);
-
-        //remettre le mdp initial
-        cy.visit('/account');
-        cy.wait(3000);
-
-        // 1. Ouvrir la modale (ChangePassword.jsx)
-        cy.contains('mot de passe').click();
-        cy.wait(3000);
-
-        // 2. Remplir les champs de la modale
-        cy.get('input').eq(0).type('newPassword456!'); // Mot de passe actuel
-        cy.wait(3000);
-        cy.get('input').eq(1).type('test123'); // Nouveau mot de passe
-        cy.wait(3000);
-
-        // 3. Valider
-        cy.get('.modal-footer').contains('Mettre à jour').click();
     });
 
     it('Scénario : Gestion de la confidentialité', () => {
