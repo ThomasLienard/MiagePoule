@@ -8,9 +8,11 @@ import com.miage.pouleAPI.dtos.trial.AssignedTrialsResponseDTO;
 import com.miage.pouleAPI.entity.ApplicationUser;
 import com.miage.pouleAPI.entity.Competition;
 import com.miage.pouleAPI.entity.Event;
+import com.miage.pouleAPI.entity.IsConvenedTo;
 import com.miage.pouleAPI.entity.Place;
 import com.miage.pouleAPI.entity.TimeSlot;
 import com.miage.pouleAPI.entity.Trial;
+import com.miage.pouleAPI.repositories.IsConvenedToRepository;
 import com.miage.pouleAPI.repositories.TrialRepository;
 
 import org.junit.jupiter.api.BeforeEach;
@@ -43,6 +45,9 @@ class TrialServiceImplTest {
 
     @Mock
     private TrialAdapter trialAdapter;
+
+    @Mock
+    private IsConvenedToRepository isConvenedToRepository;
 
     @InjectMocks
     private TrialServiceImpl trialService;
@@ -98,8 +103,8 @@ class TrialServiceImplTest {
         trial2.setTimeSlot(event2.getTimeSlot());
         trial2.setPlace(event2.getPlace());
 
-        summary1 = new TrialSummaryDTO(1, 10, "Marathon de Paris", "42km course");
-        summary2 = new TrialSummaryDTO(2, 20, "100m Sprint", "Sprint rapide");
+        summary1 = new TrialSummaryDTO(1, 10, "Marathon de Paris", "42km course", false);
+        summary2 = new TrialSummaryDTO(2, 20, "100m Sprint", "Sprint rapide", false);
 
         detailDTO = new TrialDetailDTO();
         detailDTO.setId(1);
@@ -365,13 +370,13 @@ class TrialServiceImplTest {
         List<Trial> soloTrials = Arrays.asList(trial1);
         List<Trial> teamTrials = Arrays.asList(trial2);
 
+        IsConvenedTo isConvenedTo = new IsConvenedTo();
+        isConvenedTo.setIsForfeit(false);
+
         when(userRepository.findByEmail(email)).thenReturn(Optional.of(user));
         when(trialRepository.findSoloTrialsByUserId(1)).thenReturn(soloTrials);
         when(trialRepository.findTeamTrialsByUserId(1)).thenReturn(teamTrials);
-        when(trialAdapter.entityListToSummaryDtoList(soloTrials))
-            .thenReturn(Arrays.asList(summary1));
-        when(trialAdapter.entityListToSummaryDtoList(teamTrials))
-            .thenReturn(Arrays.asList(summary2));
+        when(isConvenedToRepository.findByTrialIdAndUserId(1, 1)).thenReturn(Optional.of(isConvenedTo));
 
         // When
         Optional<AssignedTrialsResponseDTO> result = trialService.getAssignedTrialsForUserEmail(email);
@@ -380,10 +385,12 @@ class TrialServiceImplTest {
         assertTrue(result.isPresent());
         assertEquals(1, result.get().getSoloTrials().size());
         assertEquals(1, result.get().getTeamTrials().size());
+        assertEquals(false, result.get().getSoloTrials().get(0).getIsForfeit());
 
         verify(userRepository, times(1)).findByEmail(email);
         verify(trialRepository, times(1)).findSoloTrialsByUserId(1);
         verify(trialRepository, times(1)).findTeamTrialsByUserId(1);
+        verify(isConvenedToRepository, times(1)).findByTrialIdAndUserId(1, 1);
     }
 
     @Test
@@ -417,8 +424,6 @@ class TrialServiceImplTest {
         when(userRepository.findByEmail(email)).thenReturn(Optional.of(user));
         when(trialRepository.findSoloTrialsByUserId(1)).thenReturn(Collections.emptyList());
         when(trialRepository.findTeamTrialsByUserId(1)).thenReturn(Collections.emptyList());
-        when(trialAdapter.entityListToSummaryDtoList(Collections.emptyList()))
-            .thenReturn(Collections.emptyList());
 
         // When
         Optional<AssignedTrialsResponseDTO> result = trialService.getAssignedTrialsForUserEmail(email);
@@ -442,13 +447,13 @@ class TrialServiceImplTest {
         List<Trial> soloTrials = Arrays.asList(trial1);
         List<Trial> teamTrials = Arrays.asList(trial2);
 
+        IsConvenedTo isConvenedTo = new IsConvenedTo();
+        isConvenedTo.setIsForfeit(false);
+
         when(userRepository.findById(id)).thenReturn(Optional.of(user));
         when(trialRepository.findSoloTrialsByUserId(id)).thenReturn(soloTrials);
         when(trialRepository.findTeamTrialsByUserId(id)).thenReturn(teamTrials);
-        when(trialAdapter.entityListToSummaryDtoList(soloTrials))
-                .thenReturn(Arrays.asList(summary1));
-        when(trialAdapter.entityListToSummaryDtoList(teamTrials))
-                .thenReturn(Arrays.asList(summary2));
+        when(isConvenedToRepository.findByTrialIdAndUserId(1, id)).thenReturn(Optional.of(isConvenedTo));
 
         // When
         Optional<AssignedTrialsResponseDTO> result = trialService.getAssignedTrialsForAthleteId(id);
@@ -457,10 +462,12 @@ class TrialServiceImplTest {
         assertTrue(result.isPresent());
         assertEquals(1, result.get().getSoloTrials().size());
         assertEquals(1, result.get().getTeamTrials().size());
+        assertEquals(false, result.get().getSoloTrials().get(0).getIsForfeit());
 
         verify(userRepository, times(1)).findById(id);
         verify(trialRepository, times(1)).findSoloTrialsByUserId(id);
         verify(trialRepository, times(1)).findTeamTrialsByUserId(id);
+        verify(isConvenedToRepository, times(1)).findByTrialIdAndUserId(1, id);
     }
 
     @Test
@@ -493,8 +500,6 @@ class TrialServiceImplTest {
         when(userRepository.findById(id)).thenReturn(Optional.of(user));
         when(trialRepository.findSoloTrialsByUserId(1)).thenReturn(Collections.emptyList());
         when(trialRepository.findTeamTrialsByUserId(1)).thenReturn(Collections.emptyList());
-        when(trialAdapter.entityListToSummaryDtoList(Collections.emptyList()))
-                .thenReturn(Collections.emptyList());
 
         // When
         Optional<AssignedTrialsResponseDTO> result = trialService.getAssignedTrialsForAthleteId(id);
