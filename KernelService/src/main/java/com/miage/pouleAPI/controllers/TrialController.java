@@ -47,12 +47,5 @@ public class TrialController {
                 .map(ResponseEntity::ok)
                 .orElse(ResponseEntity.notFound().build());
     }
-
-    @GetMapping("/public/trials/assigned/{athleteId}")
-    public ResponseEntity<AssignedTrialsResponseDTO> getAssignedTrialsByAthleteId(@PathVariable Integer athleteId) {
-        return trialService.getAssignedTrialsForAthleteId(athleteId)
-                .map(ResponseEntity::ok)
-                .orElse(ResponseEntity.notFound().build());
-    }
 }
     
