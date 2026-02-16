@@ -7,6 +7,7 @@ import com.miage.pouleAPI.entity.Role;
 import com.miage.pouleAPI.repositories.ApplicationUserRepository;
 import com.miage.pouleAPI.repositories.CountryRepository;
 import com.miage.pouleAPI.repositories.RoleRepository;
+import com.miage.pouleAPI.services.interfaces.MaillingService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -28,6 +29,7 @@ public class AdminUserService {
     private final RoleRepository roleRepository;
     private final CountryRepository countryRepository;
     private final PasswordEncoder passwordEncoder;
+    private final MaillingService maillingService;
 
     /**
      * Crée un nouveau compte utilisateur avec mot de passe temporaire
@@ -78,6 +80,31 @@ public class AdminUserService {
 
         userRepository.save(user);
         log.info("Utilisateur créé avec succès: {} (ID: {})", user.getEmail(), user.getId());
+
+        // Envoi de l'email d'activation avec mot de passe provisoire
+        try {
+            String subject = "Activation de votre compte MiagePoule";
+            String body = String.format(
+                "Bonjour %s %s,\n\n" +
+                "Votre compte MiagePoule a été créé avec succès par %s.\n\n" +
+                "Voici vos identifiants de connexion :\n" +
+                "Email : %s\n" +
+                "Mot de passe provisoire : %s\n\n" +
+                "Pour des raisons de sécurité, vous devrez changer ce mot de passe lors de votre première connexion.\n\n" +
+                "Cordialement,\n" +
+                "L'équipe MiagePoule",
+                user.getName(),
+                user.getLastname(),
+                createdBy,
+                user.getEmail(),
+                tempPassword
+            );
+            maillingService.sendEmail(user.getEmail(), subject, body);
+            log.info("Email d'activation envoyé à: {}", user.getEmail());
+        } catch (Exception e) {
+            log.error("Erreur lors de l'envoi de l'email d'activation à {}: {}", user.getEmail(), e.getMessage());
+            // On ne bloque pas la création si l'email échoue
+        }
 
         return new CreateUserResponse(
             user.getId(),
@@ -153,6 +180,32 @@ public class AdminUserService {
 
                     userRepository.save(user);
                     log.info("Utilisateur créé avec succès: {} (ID: {})", user.getEmail(), user.getId());
+
+                    // Envoi de l'email d'activation
+                    try {
+                        String subject = "Activation de votre compte MiagePoule";
+                        String body = String.format(
+                            "Bonjour %s %s,\n\n" +
+                            "Votre compte MiagePoule a été créé avec succès par %s.\n\n" +
+                            "Voici vos identifiants de connexion :\n" +
+                            "Email : %s\n" +
+                            "Mot de passe provisoire : %s\n\n" +
+                            "Pour des raisons de sécurité, vous devrez changer ce mot de passe lors de votre première connexion.\n\n" +
+                            "Cordialement,\n" +
+                            "L'équipe MiagePoule",
+                            user.getName(),
+                            user.getLastname(),
+                            createdBy,
+                            user.getEmail(),
+                            tempPassword
+                        );
+                        maillingService.sendEmail(user.getEmail(), subject, body);
+                        log.info("Email d'activation envoyé à: {}", user.getEmail());
+                    } catch (Exception emailException) {
+                        log.error("Erreur lors de l'envoi de l'email à {}: {}", 
+                            user.getEmail(), emailException.getMessage());
+                        // On ne bloque pas la création si l'email échoue
+                    }
 
                     return new BulkCreateUsersResponse.UserCreationResult(
                         userRequest.email(),
@@ -327,6 +380,31 @@ public class AdminUserService {
 
         userRepository.save(user);
         log.info("Mot de passe réinitialisé pour: {}", user.getEmail());
+        
+        // Envoi de l'email de notification de réinitialisation
+        try {
+            String subject = "Réinitialisation de votre mot de passe MiagePoule";
+            String body = String.format(
+                "Bonjour %s %s,\n\n" +
+                "Votre mot de passe a été réinitialisé.\n\n" +
+                "Voici votre nouveau mot de passe temporaire :\n" +
+                "Mot de passe : %s\n\n" +
+                "Pour des raisons de sécurité, vous devrez changer ce mot de passe lors de votre prochaine connexion.\n\n" +
+                "Si vous n'êtes pas à l'origine de cette demande, veuillez contacter un administrateur immédiatement.\n\n" +
+                "Cordialement,\n" +
+                "L'équipe MiagePoule",
+                user.getName(),
+                user.getLastname(),
+                tempPassword
+            );
+            maillingService.sendEmail(user.getEmail(), subject, body);
+            log.info("Email de réinitialisation envoyé à: {}", user.getEmail());
+        } catch (Exception e) {
+            log.error("Erreur lors de l'envoi de l'email de réinitialisation à {}: {}", 
+                user.getEmail(), e.getMessage());
+            // On ne bloque pas la réinitialisation si l'email échoue
+        }
+        
         return tempPassword;
     }
 

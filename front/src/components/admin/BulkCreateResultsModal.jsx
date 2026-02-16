@@ -69,8 +69,15 @@ const BulkCreateResultsModal = ({ results, onClose }) => {
                                     </tbody>
                                 </Table>
                             </div>
+                            <div className="mt-3">
+                                <Alert variant="info" className="mb-0 py-2">
+                                    <small>
+                                        ✉️ <strong>Emails envoyés :</strong> Tous les utilisateurs créés avec succès ont reçu un email d'activation contenant leur mot de passe provisoire.
+                                    </small>
+                                </Alert>
+                            </div>
                             <div className="mt-2 small text-muted">
-                                💡 Conservez ces mots de passe temporaires pour les communiquer aux utilisateurs
+                                💡 Conservez ces mots de passe temporaires en backup
                             </div>
                         </Alert>
                     </div>
