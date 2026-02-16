@@ -6,10 +6,11 @@ import com.miage.pouleAPI.entity.CompetitionObserver;
 import org.springframework.data.jpa.repository.JpaRepository;
 
 import java.util.Collection;
+import java.util.List;
 
 public interface CompetitionObserverRepository extends JpaRepository<CompetitionObserver, Integer> {
 
     Collection<CompetitionObserver> findByCompetition(Competition competition);
 
-    CompetitionObserver findByUser(ApplicationUser user);
+    List<CompetitionObserver> findByUser(ApplicationUser user);
 }

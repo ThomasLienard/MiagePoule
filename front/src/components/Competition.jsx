@@ -22,20 +22,19 @@ const Competition = () => {
     const isSubscribed = async () =>  {
         const observers = await getObservers(user.id);
 
-            if(observers.competitionId === competition.id) {
-                setSubscribeSuccess(true);
+        if(observers.length > 0) {
+            for (const observer of observers) {
+                if(observer.competitionId === competition.id) {
+                    setSubscribeSuccess(true);
+                }
             }
-        console.log("observers : " + JSON.stringify(observers))
+        }
     }
-    isSubscribed().then(r => console.log("then : "+ r))
+    isSubscribed()
 
     useEffect(() => {
         fetchAllData();
     }, [idChampionship, idCompetition]);
-
-    // const isSubscribed = function () {
-    //
-    // }
 
     const fetchAllData = async () => {
         try {
@@ -125,7 +124,7 @@ const Competition = () => {
                     <Button
                         onClick={handleSubscribe}
                         disabled={subscribeSuccess}
-                        variant={subscribeSuccess ? "success" : "primary"}
+                        variant={subscribeSuccess ? "success" : "secondary"}
                         className="m-2"
                     >
                         {subscribing ? "Abonnement en cours..." : subscribeSuccess ? "✓ Abonné!" : "📌 S'abonner à cette compétition"}

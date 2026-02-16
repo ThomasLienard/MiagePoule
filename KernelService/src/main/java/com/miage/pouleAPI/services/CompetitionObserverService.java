@@ -7,6 +7,8 @@ import com.miage.pouleAPI.repositories.ApplicationUserRepository;
 import com.miage.pouleAPI.repositories.CompetitionObserverRepository;
 import org.springframework.stereotype.Service;
 
+import java.util.List;
+
 @Service
 public class CompetitionObserverService {
 
@@ -18,7 +20,7 @@ public class CompetitionObserverService {
         this.applicationUserRepository = applicationUserRepository;
     }
 
-    public CompetitionObserver getCompetitionObserversByUserId(Integer userId) {
+    public List<CompetitionObserver> getCompetitionObserversByUserId(Integer userId) {
         ApplicationUser user = applicationUserRepository.findById(userId).orElseThrow();
 
         return this.competitionObserverRepository.findByUser(user);
