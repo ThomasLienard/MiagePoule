@@ -5,7 +5,6 @@ import axios from 'axios';
 
 const CreateCompetitionPage = () => {
     const navigate = useNavigate();
-
     const [loading, setLoading] = useState(false);
     const [status, setStatus] = useState({ type: '', message: '' });
     const [validated, setValidated] = useState(false);
@@ -37,6 +36,7 @@ const CreateCompetitionPage = () => {
         const form = e.currentTarget;
         e.preventDefault();
 
+        setValidated(false);
         setStatus({ type: '', message: '' });
 
         if (form.checkValidity() === false) {
@@ -45,8 +45,29 @@ const CreateCompetitionPage = () => {
             return;
         }
 
-        if (new Date(formData.start) >= new Date(formData.end)) {
+        const selectedChamp = championships.find(c => c.id === parseInt(formData.championshipId));
+
+        if (!selectedChamp) {
+            setStatus({ type: 'danger', message: 'Veuillez sélectionner un championnat valide.' });
+            return;
+        }
+
+        const compStart = new Date(formData.start);
+        const compEnd = new Date(formData.end);
+        const champStart = new Date(selectedChamp.start);
+        const champEnd = new Date(selectedChamp.end);
+
+        if (compStart >= compEnd) {
             setStatus({ type: 'danger', message: 'La date de fin doit être strictement après la date de début.' });
+            setValidated(true);
+            return;
+        }
+
+        if (compStart < champStart || compEnd > champEnd) {
+            setStatus({
+                type: 'danger',
+                message: `Les dates doivent être comprises entre le ${selectedChamp.start} et le ${selectedChamp.end}.`
+            });
             setValidated(true);
             return;
         }
@@ -134,6 +155,9 @@ const CreateCompetitionPage = () => {
                                     name="start"
                                     value={formData.start}
                                     onChange={handleChange}
+                                    onKeyDown={(e) => e.preventDefault()}
+                                    min={championships.find(c => c.id === parseInt(formData.championshipId))?.start}
+                                    max={championships.find(c => c.id === parseInt(formData.championshipId))?.end}
                                     required
                                 />
                                 <Form.Control.Feedback type="invalid">La date de début est requise.</Form.Control.Feedback>
@@ -145,6 +169,9 @@ const CreateCompetitionPage = () => {
                                     name="end"
                                     value={formData.end}
                                     onChange={handleChange}
+                                    onKeyDown={(e) => e.preventDefault()}
+                                    min={formData.start || championships.find(c => c.id === parseInt(formData.championshipId))?.start}
+                                    max={championships.find(c => c.id === parseInt(formData.championshipId))?.end}
                                     required
                                 />
                                 <Form.Control.Feedback type="invalid">La date de fin est requise.</Form.Control.Feedback>
