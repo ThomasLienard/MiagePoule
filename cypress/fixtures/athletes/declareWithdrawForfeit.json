@@ -1,0 +1,21 @@
+{
+    "soloTrials": [
+        {
+            "id":5,
+            "idEvent":5,
+            "name":"Marathon Qualification",
+            "description":"Main qualification heat",
+            "isForfeit":false
+        },
+        {
+            "id":9,
+            "idEvent":9,
+            "name":"Marathon Final",
+            "description":"Final race",
+            "isForfeit":true
+        }
+    ],
+
+    "teamTrials":[]
+}
+
