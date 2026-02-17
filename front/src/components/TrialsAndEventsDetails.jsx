@@ -111,8 +111,8 @@ const TrialsAndEventsDetails = () => {
                     </span>
                     {eventData.rankings && eventData.rankings.length > 0 && (
                         <div className="border rounded p-3 m-3">
-                            <h5 className="text-center">🏆 Résultats</h5>
-                            <div className="d-flex flex-row gap-2">
+                            <h5 className="text-center">🏊‍♀️ Participants</h5>
+                            <div className="d-flex flexrow gap-2">
                                 {eventData.rankings.some(r => r.participantType === 'TEAM') && (
                                     <div className="w-100">
                                         <div className="text-center fw-semibold">Équipes</div>
@@ -183,7 +183,7 @@ const TrialsAndEventsDetails = () => {
                     )}
                     {(eventData.rankings.length === 0 && (eventData.soloParticipants || eventData.teamParticipants) ) && (
                         <div className="border rounded p-3 m-3">
-                            <h5 className="text-center">🏆 Résultats</h5>
+                            <h5 className="text-center">‍🏊‍♀️ Participants</h5>
                             <div className="d-flex flex-row gap-2">
                                 {(eventData.teamParticipants && eventData.teamParticipants.length >0) && (
                                     <div className="w-100">
