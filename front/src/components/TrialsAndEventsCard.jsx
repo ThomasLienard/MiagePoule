@@ -1,9 +1,9 @@
-import {Card} from "react-bootstrap";
+import {Card, Button} from "react-bootstrap";
 import {useNavigate} from "react-router-dom";
 import {formatDate} from "../utils/dateFormatter.js";
 import React from "react";
 
-const TrialsAndEventsCard = ({trials, events, title}) => {
+const TrialsAndEventsCard = ({trials, events, title, showForfeitButton, onForfeitClick}) => {
     const navigate = useNavigate();
 
     const handleEventClick = (id) => {
@@ -12,6 +12,13 @@ const TrialsAndEventsCard = ({trials, events, title}) => {
 
     const handleTrialClick = (id) => {
         navigate(`/public/trials/${id}`);
+    };
+
+    const handleForfeitClick = (e, trial) => {
+        e.stopPropagation(); // Empêcher la navigation vers les détails
+        if (onForfeitClick) {
+            onForfeitClick(trial);
+        }
     };
 
     return (
@@ -45,6 +52,21 @@ const TrialsAndEventsCard = ({trials, events, title}) => {
                                             {trial.rankings?.length > 0 && (
                                                 <div
                                                     className="text-success text-end">Résultats disponibles !</div>
+                                            )}
+                                            {showForfeitButton && (
+                                                <div className="mt-2">
+                                                    {trial.isForfeit ? (
+                                                        <span className="badge bg-warning text-dark">Forfait déclaré</span>
+                                                    ) : (
+                                                        <Button 
+                                                            variant="outline-danger" 
+                                                            size="sm"
+                                                            onClick={(e) => handleForfeitClick(e, trial)}
+                                                        >
+                                                            Déclarer forfait
+                                                        </Button>
+                                                    )}
+                                                </div>
                                             )}
                                         </div>
                                     </Card.Body>

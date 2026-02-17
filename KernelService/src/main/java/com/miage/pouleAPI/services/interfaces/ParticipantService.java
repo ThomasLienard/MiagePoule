@@ -63,4 +63,10 @@ public interface ParticipantService {
      * Récupère les épreuves pour lesquelles le commissaire peut gérer les participants
      */
     List<TrialParticipantsDTO> getTrialsForCommissaire();
+    
+    /**
+     * Permet à un sportif de déclarer forfait pour une épreuve
+     * Vérifie que l'épreuve n'est pas encore terminée
+     */
+    ParticipantDTO athleteDeclareWithdrawal(Integer trialId, String athleteEmail);
 }
