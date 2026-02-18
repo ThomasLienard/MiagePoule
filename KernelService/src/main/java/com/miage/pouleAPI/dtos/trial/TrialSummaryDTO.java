@@ -12,4 +12,5 @@ public class TrialSummaryDTO {
     private Integer idEvent;
     private String name;
     private String description;
+    private Boolean isForfeit;
 }

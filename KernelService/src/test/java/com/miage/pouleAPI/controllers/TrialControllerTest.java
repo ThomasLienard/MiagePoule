@@ -56,8 +56,8 @@ class TrialControllerTest {
         mockMvc = MockMvcBuilders.standaloneSetup(trialController).build();
         
         // Mise à jour avec idEvent
-        trialSummary1 = new TrialSummaryDTO(1, 10, "Marathon de Paris", "42km course");
-        trialSummary2 = new TrialSummaryDTO(2, 20, "100m Sprint", "Sprint rapide");
+        trialSummary1 = new TrialSummaryDTO(1, 10, "Marathon de Paris", "42km course", false);
+        trialSummary2 = new TrialSummaryDTO(2, 20, "100m Sprint", "Sprint rapide", false);
         
         TimeSlotDTO timeSlot = new TimeSlotDTO(
             LocalDateTime.of(2025, 6, 20, 8, 0),
@@ -403,9 +403,9 @@ class TrialControllerTest {
     @DisplayName("GET /public/trials/assigned - Devrait retourner les deux types d'épreuves")
     void testGetAssignedTrials_BothTypes() {
         // Given
-        TrialSummaryDTO soloTrial = new TrialSummaryDTO(1, 10, "Solo Trial", "Solo description");
-        TrialSummaryDTO teamTrial1 = new TrialSummaryDTO(2, 20, "Team Trial 1", "Team description 1");
-        TrialSummaryDTO teamTrial2 = new TrialSummaryDTO(3, 30, "Team Trial 2", "Team description 2");
+        TrialSummaryDTO soloTrial = new TrialSummaryDTO(1, 10, "Solo Trial", "Solo description", false);
+        TrialSummaryDTO teamTrial1 = new TrialSummaryDTO(2, 20, "Team Trial 1", "Team description 1", false);
+        TrialSummaryDTO teamTrial2 = new TrialSummaryDTO(3, 30, "Team Trial 2", "Team description 2", false);
 
         List<TrialSummaryDTO> soloTrials = Arrays.asList(soloTrial);
         List<TrialSummaryDTO> teamTrials = Arrays.asList(teamTrial1, teamTrial2);
@@ -500,9 +500,9 @@ class TrialControllerTest {
     void testGetAssignedTrialsByAthleteId_BothTypes() {
         // Given
         Integer id = 1;
-        TrialSummaryDTO soloTrial = new TrialSummaryDTO(1, 10, "Solo Trial", "Solo description");
-        TrialSummaryDTO teamTrial1 = new TrialSummaryDTO(2, 20, "Team Trial 1", "Team description 1");
-        TrialSummaryDTO teamTrial2 = new TrialSummaryDTO(3, 30, "Team Trial 2", "Team description 2");
+        TrialSummaryDTO soloTrial = new TrialSummaryDTO(1, 10, "Solo Trial", "Solo description", false);
+        TrialSummaryDTO teamTrial1 = new TrialSummaryDTO(2, 20, "Team Trial 1", "Team description 1", false);
+        TrialSummaryDTO teamTrial2 = new TrialSummaryDTO(3, 30, "Team Trial 2", "Team description 2", false);
 
         List<TrialSummaryDTO> soloTrials = Arrays.asList(soloTrial);
         List<TrialSummaryDTO> teamTrials = Arrays.asList(teamTrial1, teamTrial2);

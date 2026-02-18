@@ -23,6 +23,7 @@ public class ParticipantServiceImpl implements ParticipantService {
 
     private static final String ATHLETE_TYPE = "ATHLETE";
     private static final String TEAM_TYPE = "TEAM";
+    private static final String TRIAL_NOT_FOUND = "Épreuve non trouvée";
     private static final String ATHLETE_NOT_REGISTERED = "L'athlète n'est pas inscrit à cette épreuve";
     private static final String TEAM_NOT_REGISTERED = "L'équipe n'est pas inscrite à cette épreuve";
 
@@ -93,7 +94,7 @@ public class ParticipantServiceImpl implements ParticipantService {
     @Transactional
     public ParticipantDTO addAthleteToTrial(Integer trialId, Integer athleteId) {
         Trial trial = trialRepository.findById(trialId)
-                .orElseThrow(() -> new IllegalArgumentException("Épreuve non trouvée"));
+                .orElseThrow(() -> new IllegalArgumentException(TRIAL_NOT_FOUND));
         
         ApplicationUser athlete = userRepository.findById(athleteId)
                 .orElseThrow(() -> new IllegalArgumentException("Athlète non trouvé"));
@@ -130,7 +131,7 @@ public class ParticipantServiceImpl implements ParticipantService {
     @Transactional
     public ParticipantDTO addTeamToTrial(Integer trialId, Integer teamId) {
         Trial trial = trialRepository.findById(trialId)
-                .orElseThrow(() -> new IllegalArgumentException("Épreuve non trouvée"));
+                .orElseThrow(() -> new IllegalArgumentException(TRIAL_NOT_FOUND));
         
         Team team = teamRepository.findById(teamId)
                 .orElseThrow(() -> new IllegalArgumentException("Équipe non trouvée"));
@@ -238,6 +239,38 @@ public class ParticipantServiceImpl implements ParticipantService {
                 .map(trial -> getTrialParticipants(trial.getId()).orElse(null))
                 .filter(Objects::nonNull)
                 .toList();
+    }
+
+    @Override
+    @Transactional
+    public ParticipantDTO athleteDeclareWithdrawal(Integer trialId, String athleteEmail) {
+        // Récupérer l'athlète authentifié
+        ApplicationUser athlete = userRepository.findByEmail(athleteEmail)
+                .orElseThrow(() -> new IllegalArgumentException("Athlète non trouvé"));
+        
+        // Récupérer l'épreuve
+        Trial trial = trialRepository.findById(trialId)
+                .orElseThrow(() -> new IllegalArgumentException(TRIAL_NOT_FOUND));
+        
+        // Vérifier que l'épreuve n'est pas déjà terminée
+        if (trial.getTimeSlot().getEnd().isBefore(LocalDateTime.now())) {
+            throw new IllegalStateException("Impossible de déclarer forfait : l'épreuve est déjà terminée");
+        }
+        
+        // Vérifier que l'athlète est inscrit à cette épreuve
+        IsConvenedTo inscription = isConvenedToRepository.findByTrialIdAndUserId(trialId, athlete.getId())
+                .orElseThrow(() -> new IllegalArgumentException("Vous n'êtes pas inscrit à cette épreuve"));
+        
+        // Vérifier qu'il n'est pas déjà forfait
+        if (inscription.getIsForfeit() != null && inscription.getIsForfeit()) {
+            throw new IllegalStateException("Vous êtes déjà déclaré forfait pour cette épreuve");
+        }
+        
+        // Déclarer forfait
+        inscription.setIsForfeit(true);
+        isConvenedToRepository.save(inscription);
+        
+        return createAthleteParticipantDTO(athlete, true);
     }
 
     // ===== Méthodes privées =====
