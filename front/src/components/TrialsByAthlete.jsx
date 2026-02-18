@@ -4,12 +4,13 @@ import participantService from "../services/participantService.jsx";
 import {isPastEvent} from "../utils/dateFormatter.js";
 import TrialsAndEventsCard from "./TrialsAndEventsCard.jsx";
 import {eventService} from "../services/eventService.jsx";
-import {Modal, Button, Spinner, Alert} from "react-bootstrap";
+import {Modal, Button, Spinner, Alert, Badge} from "react-bootstrap";
 import {useAuth} from "../contexts/AuthContext.jsx";
 
 const TrialsByAthlete = () => {
     const {athleteId} = useParams();
     const {user} = useAuth();
+    const [athlete, setAthlete] = useState(null);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
     const [trials, setTrials] = useState([]);
@@ -46,7 +47,10 @@ const TrialsByAthlete = () => {
                 })
             );
 
+            const athleteData = await participantService.getAthleteById(athleteId);
+
             setTrials(detailedTrials);
+            setAthlete(athleteData);
         } catch (err) {
             setError(err.message);
         } finally {
@@ -100,6 +104,12 @@ const TrialsByAthlete = () => {
 
     return (
         <>
+            <h2 className="text-center mt-3">
+                {athlete.fullName}
+            </h2>
+            <h4 className="text-center mb-3">
+                <Badge bg={"secondary"}>{athlete.country}</Badge>
+            </h4>
             {successMessage && (
                 <Alert 
                     variant="success" 
