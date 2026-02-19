@@ -19,6 +19,7 @@ const Competition = () => {
     const navigate = useNavigate();
     const { user, isAuthenticated } = useAuth();
 
+
     const isSubscribed = async () =>  {
         const observers = await getObservers(user.id);
 
@@ -94,10 +95,7 @@ const Competition = () => {
     const futurEvents = () => events.filter(event => !isPastEvent(event))
 
     const handleSubscribe = async () => {
-        if (!isAuthenticated() || !user?.id) {
-            alert("Vous devez être connecté pour vous abonner");
-            return;
-        }
+
         try {
             setSubscribing(true);
             // Utiliser user.id qui est l'ID numérique depuis le JWT
