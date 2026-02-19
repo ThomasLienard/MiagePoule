@@ -40,14 +40,12 @@ export const getRelativeTime = (dateString) => {
 };
 
 export const isPastEvent = (item) => {
-    const eventDate = item.timeSlot?.start || item.date || item.startDate;
+    const eventDate = item.timeSlot?.end || item.date || item.endDate;
     if (!eventDate) return false;
 
     const today = new Date();
-    today.setHours(0, 0, 0, 0);
 
     const itemDate = new Date(eventDate);
-    itemDate.setHours(0, 0, 0, 0);
 
     return itemDate < today;
 };

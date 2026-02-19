@@ -1,0 +1,42 @@
+[
+  {
+    "id": 1,
+    "description": "Championship created successfully",
+    "emissionDate": "2026-02-16T10:30:00Z",
+    "type": "INFO",
+    "eventId": null,
+    "severity": "NORMAL"
+  },
+  {
+    "id": 2,
+    "description": "New competition added to championship",
+    "emissionDate": "2026-02-16T11:15:00Z",
+    "type": "INFO",
+    "eventId": 1,
+    "severity": "NORMAL"
+  },
+  {
+    "id": 3,
+    "description": "Event scheduled for today",
+    "emissionDate": "2026-02-16T12:00:00Z",
+    "type": "WARNING",
+    "eventId": 2,
+    "severity": "HIGH"
+  },
+  {
+    "id": 4,
+    "description": "Critical: System update pending",
+    "emissionDate": "2026-02-16T13:30:00Z",
+    "type": "ERROR",
+    "eventId": null,
+    "severity": "CRITICAL"
+  },
+  {
+    "id": 5,
+    "description": "Score update for your trial",
+    "emissionDate": "2026-02-16T14:45:00Z",
+    "type": "INFO",
+    "eventId": 3,
+    "severity": "NORMAL"
+  }
+]
