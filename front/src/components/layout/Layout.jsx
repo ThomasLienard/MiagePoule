@@ -1,6 +1,6 @@
 import {Link, Outlet, useNavigate, useLocation, Navigate} from "react-router-dom";
 import {useAuth} from "../../contexts/AuthContext.jsx";
-import { useNotificationsSSE } from "../../hooks/useNotificationSSE.js"; // ← IMPORT
+import { useNotificationsSSE } from "../../hooks/useNotificationSSE.js";
 import {Navbar, Container, Nav, Badge, Popover} from "react-bootstrap";
 import OverlayTrigger from 'react-bootstrap/OverlayTrigger';
 
@@ -9,7 +9,7 @@ export default function Layout() {
     const navigate = useNavigate();
     const location = useLocation();
 
-    // ← NOUVEAU : Hook notifications SSE
+    // Hook notifications SSE
     const userId = user?.id ?? null;
     const { unreadCount, markAllAsRead, notifications } = useNotificationsSSE(userId);
 
@@ -103,7 +103,7 @@ export default function Layout() {
 
                         </Nav>
 
-                        {/* ← NOUVEAU : Badge notifications (UNIQUEMENT si connecté) */}
+                        {/* Badge notifications (UNIQUEMENT si connecté) */}
                         {isAuthenticated() && (
                             <Nav className="me-2">
                                 <OverlayTrigger trigger="click" placement="bottom" overlay={popover}>

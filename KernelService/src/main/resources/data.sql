@@ -95,7 +95,7 @@ VALUES ('100m Trial Heat 1', 'First qualification heat', 'TRIAL', 1, 1, 1),
        ('100m Trial Final', 'Final race', 'TRIAL', 1, 3, 1),
        ('Marathon Trial Warm-up', 'Warm-up session', 'TRIAL', 2, 2, 2),
        ('Marathon Qualification', 'Main qualification heat', 'TRIAL', 2, 1, 2),
-       ('Marathon final', 'Main heat', 'TRIAL', 2, 4, 2), --new
+       ('Marathon final', 'Main heat', 'TRIAL', 2, 4, 2),
        ('Training Session A', 'Regular training', 'TRAINING', 3, 1, 1),
        ('Training Session B', 'Regular training', 'TRAINING', 3, 2, 1),
        ('Championship Meeting', 'Official gathering', 'MEETING', 3, 3, 2),
