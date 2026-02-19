@@ -7,6 +7,7 @@ import com.miage.pouleAPI.entity.Role;
 import com.miage.pouleAPI.repositories.ApplicationUserRepository;
 import com.miage.pouleAPI.repositories.CountryRepository;
 import com.miage.pouleAPI.repositories.RoleRepository;
+import com.miage.pouleAPI.services.interfaces.AdminUserServiceInterface;
 import com.miage.pouleAPI.services.interfaces.MaillingService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -20,7 +21,7 @@ import java.util.List;
 @Service
 @RequiredArgsConstructor
 @Slf4j
-public class AdminUserService {
+public class AdminUserService implements AdminUserServiceInterface {
 
     private static final String USER_NOT_FOUND = "Utilisateur non trouvé: ";
     private static final String ROLE_NOT_FOUND = "Rôle non trouvé: ";
@@ -322,6 +323,29 @@ public class AdminUserService {
 
         userRepository.save(user);
         log.info("Utilisateur désactivé: {} - Raison: {}", user.getEmail(), reason);
+        
+        // Envoi de l'email de désactivation
+        try {
+            String subject = "Désactivation de votre compte MiagePoule";
+            String body = String.format(
+                "Bonjour %s %s,\n\n" +
+                "Votre compte MiagePoule a été désactivé par un administrateur.\n\n" +
+                "Raison de la désactivation :\n%s\n\n" +
+                "Si vous pensez qu'il s'agit d'une erreur, veuillez contacter l'équipe d'administration.\n\n" +
+                "Cordialement,\n" +
+                "L'équipe MiagePoule",
+                user.getName(),
+                user.getLastname(),
+                reason
+            );
+            maillingService.sendEmail(user.getEmail(), subject, body);
+            log.info("Email de désactivation envoyé à: {}", user.getEmail());
+        } catch (Exception e) {
+            log.error("Erreur lors de l'envoi de l'email de désactivation à {}: {}", 
+                user.getEmail(), e.getMessage());
+            // On ne bloque pas la désactivation si l'email échoue
+        }
+        
         return toUserDto(user);
     }
 
@@ -339,6 +363,27 @@ public class AdminUserService {
 
         userRepository.save(user);
         log.info("Utilisateur réactivé: {}", user.getEmail());
+        
+        // Envoi de l'email de réactivation
+        try {
+            String subject = "Réactivation de votre compte MiagePoule";
+            String body = String.format(
+                "Bonjour %s %s,\n\n" +
+                "Bonne nouvelle ! Votre compte MiagePoule a été réactivé par un administrateur.\n\n" +
+                "Vous pouvez désormais vous reconnecter et utiliser normalement tous les services de la plateforme.\n\n" +
+                "Cordialement,\n" +
+                "L'équipe MiagePoule",
+                user.getName(),
+                user.getLastname()
+            );
+            maillingService.sendEmail(user.getEmail(), subject, body);
+            log.info("Email de réactivation envoyé à: {}", user.getEmail());
+        } catch (Exception e) {
+            log.error("Erreur lors de l'envoi de l'email de réactivation à {}: {}", 
+                user.getEmail(), e.getMessage());
+            // On ne bloque pas la réactivation si l'email échoue
+        }
+        
         return toUserDto(user);
     }
 

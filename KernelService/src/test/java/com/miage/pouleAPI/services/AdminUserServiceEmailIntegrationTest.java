@@ -450,6 +450,176 @@ class AdminUserServiceEmailIntegrationTest {
     }
 
     @Nested
+    @DisplayName("Tests envoi d'email lors de deactivateUser")
+    class DeactivateUserEmailTests {
+
+        @Test
+        @DisplayName("Devrait envoyer un email de désactivation avec la raison")
+        void deactivateUser_shouldSendDeactivationEmailWithReason() {
+            // Given
+            ApplicationUser user = createTestUser(3, "Alice", "Martin", "alice.martin@test.com");
+            user.setIsActive(true);
+            
+            when(userRepository.findById(3)).thenReturn(Optional.of(user));
+            when(userRepository.save(any())).thenAnswer(i -> i.getArgument(0));
+
+            // When
+            adminUserService.deactivateUser(3, "Violation des règles");
+
+            // Then
+            ArgumentCaptor<String> toCaptor = ArgumentCaptor.forClass(String.class);
+            ArgumentCaptor<String> subjectCaptor = ArgumentCaptor.forClass(String.class);
+            ArgumentCaptor<String> bodyCaptor = ArgumentCaptor.forClass(String.class);
+
+            verify(maillingService).sendEmail(
+                toCaptor.capture(),
+                subjectCaptor.capture(),
+                bodyCaptor.capture()
+            );
+
+            assertThat(toCaptor.getValue()).isEqualTo("alice.martin@test.com");
+            assertThat(subjectCaptor.getValue()).contains("Désactivation");
+            assertThat(bodyCaptor.getValue()).contains("Alice Martin");
+            assertThat(bodyCaptor.getValue()).contains("Violation des règles");
+            assertThat(bodyCaptor.getValue()).contains("L'équipe MiagePoule");
+        }
+
+        @Test
+        @DisplayName("Ne devrait pas bloquer la désactivation si l'envoi d'email échoue")
+        void deactivateUser_shouldNotBlockIfEmailFails() {
+            // Given
+            ApplicationUser user = createTestUser(4, "Bob", "Dupont", "bob.dupont@test.com");
+            user.setIsActive(true);
+            
+            when(userRepository.findById(4)).thenReturn(Optional.of(user));
+            when(userRepository.save(any())).thenAnswer(i -> i.getArgument(0));
+            doThrow(new RuntimeException("Email service unavailable"))
+                .when(maillingService).sendEmail(anyString(), anyString(), anyString());
+
+            // When
+            adminUserService.deactivateUser(4, "Test raison");
+
+            // Then - La désactivation doit quand même avoir eu lieu
+            verify(userRepository, times(1)).save(any(ApplicationUser.class));
+        }
+
+        @Test
+        @DisplayName("Devrait envoyer un email avec le bon format de contenu pour désactivation")
+        void deactivateUser_shouldSendEmailWithCorrectFormat() {
+            // Given
+            ApplicationUser user = createTestUser(5, "Claire", "Bernard", "claire.bernard@test.com");
+            user.setIsActive(true);
+            
+            when(userRepository.findById(5)).thenReturn(Optional.of(user));
+            when(userRepository.save(any())).thenAnswer(i -> i.getArgument(0));
+
+            // When
+            adminUserService.deactivateUser(5, "Compte inactif depuis trop longtemps");
+
+            // Then
+            ArgumentCaptor<String> bodyCaptor = ArgumentCaptor.forClass(String.class);
+            verify(maillingService).sendEmail(
+                eq("claire.bernard@test.com"),
+                contains("Désactivation"),
+                bodyCaptor.capture()
+            );
+
+            String body = bodyCaptor.getValue();
+            assertThat(body).contains("Bonjour Claire Bernard");
+            assertThat(body).contains("désactivé");
+            assertThat(body).contains("Raison de la désactivation");
+            assertThat(body).contains("Compte inactif depuis trop longtemps");
+            assertThat(body).contains("L'équipe MiagePoule");
+        }
+    }
+
+    @Nested
+    @DisplayName("Tests envoi d'email lors de reactivateUser")
+    class ReactivateUserEmailTests {
+
+        @Test
+        @DisplayName("Devrait envoyer un email de réactivation")
+        void reactivateUser_shouldSendReactivationEmail() {
+            // Given
+            ApplicationUser user = createTestUser(6, "David", "Petit", "david.petit@test.com");
+            user.setIsActive(false);
+            user.setDeactivationReason("Test raison");
+            
+            when(userRepository.findById(6)).thenReturn(Optional.of(user));
+            when(userRepository.save(any())).thenAnswer(i -> i.getArgument(0));
+
+            // When
+            adminUserService.reactivateUser(6);
+
+            // Then
+            ArgumentCaptor<String> toCaptor = ArgumentCaptor.forClass(String.class);
+            ArgumentCaptor<String> subjectCaptor = ArgumentCaptor.forClass(String.class);
+            ArgumentCaptor<String> bodyCaptor = ArgumentCaptor.forClass(String.class);
+
+            verify(maillingService).sendEmail(
+                toCaptor.capture(),
+                subjectCaptor.capture(),
+                bodyCaptor.capture()
+            );
+
+            assertThat(toCaptor.getValue()).isEqualTo("david.petit@test.com");
+            assertThat(subjectCaptor.getValue()).contains("Réactivation");
+            assertThat(bodyCaptor.getValue()).contains("David Petit");
+            assertThat(bodyCaptor.getValue()).contains("réactivé");
+            assertThat(bodyCaptor.getValue()).contains("L'équipe MiagePoule");
+        }
+
+        @Test
+        @DisplayName("Ne devrait pas bloquer la réactivation si l'envoi d'email échoue")
+        void reactivateUser_shouldNotBlockIfEmailFails() {
+            // Given
+            ApplicationUser user = createTestUser(7, "Emma", "Moreau", "emma.moreau@test.com");
+            user.setIsActive(false);
+            
+            when(userRepository.findById(7)).thenReturn(Optional.of(user));
+            when(userRepository.save(any())).thenAnswer(i -> i.getArgument(0));
+            doThrow(new RuntimeException("Email service unavailable"))
+                .when(maillingService).sendEmail(anyString(), anyString(), anyString());
+
+            // When
+            adminUserService.reactivateUser(7);
+
+            // Then - La réactivation doit quand même avoir eu lieu
+            verify(userRepository, times(1)).save(any(ApplicationUser.class));
+        }
+
+        @Test
+        @DisplayName("Devrait envoyer un email avec le bon format de contenu pour réactivation")
+        void reactivateUser_shouldSendEmailWithCorrectFormat() {
+            // Given
+            ApplicationUser user = createTestUser(8, "François", "Leroy", "francois.leroy@test.com");
+            user.setIsActive(false);
+            user.setDeactivationReason("Ancienne raison");
+            
+            when(userRepository.findById(8)).thenReturn(Optional.of(user));
+            when(userRepository.save(any())).thenAnswer(i -> i.getArgument(0));
+
+            // When
+            adminUserService.reactivateUser(8);
+
+            // Then
+            ArgumentCaptor<String> bodyCaptor = ArgumentCaptor.forClass(String.class);
+            verify(maillingService).sendEmail(
+                eq("francois.leroy@test.com"),
+                contains("Réactivation"),
+                bodyCaptor.capture()
+            );
+
+            String body = bodyCaptor.getValue();
+            assertThat(body).contains("Bonjour François Leroy");
+            assertThat(body).contains("Bonne nouvelle");
+            assertThat(body).contains("réactivé");
+            assertThat(body).contains("reconnecter");
+            assertThat(body).contains("L'équipe MiagePoule");
+        }
+    }
+
+    @Nested
     @DisplayName("Tests de l'envoi asynchrone")
     class AsyncEmailTests {
 
