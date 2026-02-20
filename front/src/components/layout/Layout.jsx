@@ -1,12 +1,38 @@
-import {Container, Nav, Navbar} from "react-bootstrap";
 import {Link, Outlet, useNavigate, useLocation, Navigate} from "react-router-dom";
-import React from "react";
 import {useAuth} from "../../contexts/AuthContext.jsx";
+import { useNotificationsSSE } from "../../hooks/useNotificationSSE.js";
+import {Navbar, Container, Nav, Badge, Popover} from "react-bootstrap";
+import OverlayTrigger from 'react-bootstrap/OverlayTrigger';
 
 export default function Layout() {
     const { user, logout, isAuthenticated, mustChangePassword } = useAuth();
     const navigate = useNavigate();
     const location = useLocation();
+
+    // Hook notifications SSE
+    const userId = user?.id ?? null;
+    const { unreadCount, markAllAsRead, notifications } = useNotificationsSSE(userId);
+
+    const popover = (
+        <Popover id="popover-basic">
+            <Popover.Header as="h4">Notifications</Popover.Header>
+            <Popover.Body>
+                <div>
+                    { notifications?.length > 0 ?
+                        notifications?.map(notif =>{
+                        return (
+                            <>
+                                <hr/>
+                                <span>{notif?.description}</span>
+                                <br/>
+                            </>
+                        )
+                    })
+                    : "Aucune notification pour le moment" }
+                </div>
+            </Popover.Body>
+        </Popover>
+    );
 
     // Rediriger vers la page de changement de mot de passe si nécessaire
     const allowedPaths = ['/change-password', '/login', '/logout'];
@@ -19,9 +45,11 @@ export default function Layout() {
         logout();
         navigate('/');
     };
+
     const handleProfile = () => {
         navigate('/account');
     };
+
     return (
         <>
             <Navbar expand="sm" className="bg-body-tertiary">
@@ -74,6 +102,34 @@ export default function Layout() {
                             )}
 
                         </Nav>
+
+                        {/* Badge notifications (UNIQUEMENT si connecté) */}
+                        {isAuthenticated() && (
+                            <Nav className="me-2">
+                                <OverlayTrigger trigger="click" placement="bottom" overlay={popover}>
+                                <div className="position-relative">
+                                    <Nav.Link
+                                        className="p-0 notification-bell"
+                                        onClick={markAllAsRead}
+                                        style={{ cursor: 'pointer' }}
+                                    >
+                                        🔔
+                                        {unreadCount > 0 &&
+                                            <Badge
+                                                bg="danger"
+                                                pill
+                                                className="position-absolute top-0 start-100 translate-middle"
+                                                style={{ fontSize: '0.65em' }}
+                                            >
+                                                {unreadCount}
+                                            </Badge>
+                                        }
+                                    </Nav.Link>
+                                </div>
+                                </OverlayTrigger>
+                            </Nav>
+                        )}
+
                         {isAuthenticated() ? (
                             <Nav>
                                 <Nav.Link className="auth-button secondary me-2" as="span">
@@ -108,7 +164,7 @@ export default function Layout() {
                     </Navbar.Collapse>
                 </Container>
             </Navbar>
-            <Outlet/>
+            <Outlet />
         </>
     );
 }
