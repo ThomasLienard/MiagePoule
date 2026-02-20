@@ -2,6 +2,8 @@ import React, {useState, useEffect} from 'react';
 import {Link, useNavigate, useParams} from 'react-router-dom';
 import {Accordion, Badge, Button, ListGroup, ListGroupItem} from "react-bootstrap";
 import {Vr} from "react-bootstrap-icons";
+import {eventService} from "../services/eventService.jsx";
+import RankingFormat from "./common/RankingFormat.jsx";
 
 const TrialsAndEventsDetails = () => {
     const {id} = useParams();
@@ -24,13 +26,12 @@ const TrialsAndEventsDetails = () => {
             const isTrialPath = currentPath.includes('/trials/');
             setIsTrial(isTrialPath);
 
-            const endpoint = isTrialPath
-                ? `http://localhost:8084/public/trials/${id}`
-                : `http://localhost:8084/public/events/${id}`;
-
-            const response = await fetch(endpoint);
-            if (!response.ok) throw new Error('Événement non trouvé');
-            const data = await response.json();
+            let data;
+            if (isTrialPath) {
+                data = await eventService.getTrialById(id);
+            } else {
+                data = await eventService.getEventById(id);
+            }
 
             setEventData(data);
         } catch (err) {
@@ -124,11 +125,7 @@ const TrialsAndEventsDetails = () => {
                                                                     key={`team-${ranking.participantId}-${index}`}>
                                                         <Accordion.Header>
                                                             <div className="w-100 d-flex justify-content-between me-4">
-                                                                <span>{ranking.rank === 1 && '🥇'}
-                                                                    {ranking.rank === 2 && '🥈'}
-                                                                    {ranking.rank === 3 && '🥉'}
-                                                                    {ranking.rank > 3 && <Badge bg={"warning"}>{ranking.rank}</Badge>}
-                                                                </span>
+                                                                <RankingFormat rank={ranking.rank}/>
                                                                 <span>{ranking.participantName}</span>
                                                                 <span>{ranking.result}</span>
                                                             </div>
@@ -164,12 +161,7 @@ const TrialsAndEventsDetails = () => {
                                                                     onClick={() => navigate(`/public/athlete-trials/${ranking.participantId}`)}
                                                                     style={{"cursor": "pointer"}} >
                                                         <div className="d-flex justify-content-between">
-                                                        <span>
-                                                            {ranking.rank === 1 && '🥇'}
-                                                            {ranking.rank === 2 && '🥈'}
-                                                            {ranking.rank === 3 && '🥉'}
-                                                            {ranking.rank > 3 && ranking.rank}
-                                                        </span>
+                                                            <RankingFormat rank={ranking.rank}/>
                                                             <span>{ranking.participantName}</span>
                                                             <span>{ranking.result}</span>
                                                         </div>

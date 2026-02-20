@@ -61,7 +61,7 @@ export const useEventDetails = () => {
 
         try {
             setLoadingDetails(true);
-            const details = await eventService.getById(eventId);
+            const details = await eventService.getEventById(eventId);
             return details;
         } catch (error) {
             console.error('Error fetching event details:', error);

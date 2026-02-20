@@ -18,6 +18,7 @@ const TrialsByAthlete = () => {
     const [selectedTrial, setSelectedTrial] = useState(null);
     const [actionLoading, setActionLoading] = useState(false);
     const [successMessage, setSuccessMessage] = useState(null);
+    const [rankingMap, setRankingMap] = useState(null)
 
     // Vérifier si l'utilisateur connecté est celui dont on affiche les épreuves
     const isOwnProfile = user?.id === athleteId;
@@ -35,7 +36,7 @@ const TrialsByAthlete = () => {
             const detailedTrials = await Promise.all(
                 trialsTmp.map(async (trialSummary) => {
                     try {
-                        const eventDetails = await eventService.getById(trialSummary.id);
+                        const eventDetails = await eventService.getTrialById(trialSummary.id);
                         // Préserver le champ isForfeit du summary
                         return {
                             ...eventDetails,
@@ -49,14 +50,45 @@ const TrialsByAthlete = () => {
 
             const athleteData = await participantService.getAthleteById(athleteId);
 
+
             setTrials(detailedTrials);
             setAthlete(athleteData);
+
+            setRankingMap(createRankingMap(detailedTrials))
         } catch (err) {
             setError(err.message);
         } finally {
             setLoading(false);
         }
     };
+
+    const createRankingMap = (detailedTrials) => {
+        const map = new Map();
+        for (const trial of detailedTrials) {
+            const athleteRanking = trial.rankings.find((rank) => {
+                if (rank.participantType === "ATHLETE") {
+                    return rank.participantId == athleteId
+                } else if (rank.participantType === "TEAM") {
+                    const team = trial.teamParticipants.find((team) => {
+                        return team.id === rank.participantId;
+                    })
+                    return team.members.find((member) => {
+                        return member.id == athleteId
+                    })
+                }
+                return false;
+
+            })
+            if (!athleteRanking) {
+                continue
+            }
+            map.set(trial.id, {
+                rank: athleteRanking.rank,
+                result: athleteRanking.result
+            })
+        }
+        return map;
+    }
 
     const handleOpenForfeitModal = (trial) => {
         setSelectedTrial(trial);
@@ -137,14 +169,15 @@ const TrialsByAthlete = () => {
                     <TrialsAndEventsCard 
                         trials={futurTrials()} 
                         events={[]} 
-                        title={"A venir"} 
+                        title={"A venir"}
                         showForfeitButton={isOwnProfile}
                         onForfeitClick={handleOpenForfeitModal}
+                        rankingMap={rankingMap}
                     />
                 </div>
                 <div className="vr d-none d-md-inline"></div>
                 <div className="d-flex flex-column w-100 mx-md-3 p-3">
-                    <TrialsAndEventsCard trials={pastTrials()} events={[]} title={"Passés"}/>
+                    <TrialsAndEventsCard trials={pastTrials()} events={[]} title={"Passés"} rankingMap={rankingMap}/>
                 </div>
             </div>
 
