@@ -194,15 +194,18 @@ public class TrialAdapter {
         List<ParticipateAt> teamResults = participateAtRepository.findByTrialIdOrderedByResult(trialId);
         int teamRank = 1;
         for (ParticipateAt participation : teamResults) {
-            if (participation.getTeam() != null && participation.getResult() != null) {
+            if (participation.getTeam() != null && (participation.getResult() != null || participation.getIsForfeit())) {
                 RankingDTO ranking = new RankingDTO();
-                ranking.setRank(teamRank);
+                if (Boolean.FALSE.equals(participation.getIsForfeit())) {
+                    ranking.setRank(teamRank);
+                    teamRank++;
+                }
                 ranking.setResult(participation.getResult());
                 ranking.setParticipantName(participation.getTeam().getName());
                 ranking.setParticipantType("TEAM");
                 ranking.setParticipantId(participation.getTeam().getId());
+                ranking.setIsForfeit(participation.getIsForfeit());
                 rankings.add(ranking);
-                teamRank++;
             }
         }
         
@@ -210,15 +213,18 @@ public class TrialAdapter {
         List<IsConvenedTo> athleteResults = isConvenedToRepository.findByTrialIdOrderedByResult(trialId);
         int athleteRank = 1;
         for (IsConvenedTo convening : athleteResults) {
-            if (convening.getUser() != null && convening.getResult() != null) {
+            if (convening.getUser() != null && (convening.getResult() != null || convening.getIsForfeit())) {
                 RankingDTO ranking = new RankingDTO();
-                ranking.setRank(athleteRank);
+                if (Boolean.FALSE.equals(convening.getIsForfeit())) {
+                    ranking.setRank(athleteRank);
+                    athleteRank++;
+                }
                 ranking.setResult(convening.getResult());
                 ranking.setParticipantName(convening.getUser().getName() + " " + convening.getUser().getLastname());
                 ranking.setParticipantType("ATHLETE");
                 ranking.setParticipantId(convening.getUser().getId());
+                ranking.setIsForfeit(convening.getIsForfeit());
                 rankings.add(ranking);
-                athleteRank++;
             }
         }
         

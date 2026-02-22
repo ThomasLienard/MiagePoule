@@ -127,7 +127,9 @@ const TrialsAndEventsDetails = () => {
                                                             <div className="w-100 d-flex justify-content-between me-4">
                                                                 <RankingFormat rank={ranking.rank}/>
                                                                 <span>{ranking.participantName}</span>
-                                                                <span>{ranking.result}</span>
+                                                                {ranking.result
+                                                                    ? <span>{ranking.result}</span>
+                                                                    : <span>Forfait</span>}
                                                             </div>
                                                         </Accordion.Header>
                                                         <Accordion.Body className="p-0">
@@ -163,7 +165,9 @@ const TrialsAndEventsDetails = () => {
                                                         <div className="d-flex justify-content-between">
                                                             <RankingFormat rank={ranking.rank}/>
                                                             <span>{ranking.participantName}</span>
-                                                            <span>{ranking.result}</span>
+                                                            {ranking.result
+                                                                ? <span>{ranking.result}</span>
+                                                                : <span>Forfait</span>}
                                                         </div>
                                                     </ListGroup.Item>
                                                 ))}

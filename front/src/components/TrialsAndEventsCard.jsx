@@ -52,7 +52,10 @@ const TrialsAndEventsCard = ({trials, events, title, showForfeitButton, onForfei
                                             )}
                                             {rankingMap?.get(trial.id) && (
                                                 <span>
-                                                    <RankingFormat rank={rankingMap.get(trial.id).rank}/> {rankingMap.get(trial.id).result}
+                                                    <RankingFormat rank={rankingMap.get(trial.id).rank}/>
+                                                    {rankingMap.get(trial.id).result
+                                                        ? <span>{rankingMap.get(trial.id).result} </span>
+                                                        : <span>Forfait</span>}
                                                 </span>
                                             )}
                                             {(trial.rankings?.length > 0 && (!rankingMap || !rankingMap.get(trial.id))) && (

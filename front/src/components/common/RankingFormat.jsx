@@ -5,6 +5,7 @@ import React from "react";
 const RankingFormat = ({rank}) => {
     return(
         <span>
+            {!rank && '❌'}
             {rank === 1 && '🥇'}
             {rank === 2 && '🥈'}
             {rank === 3 && '🥉'}
