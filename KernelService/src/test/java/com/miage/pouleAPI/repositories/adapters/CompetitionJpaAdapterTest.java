@@ -1,6 +1,7 @@
 package com.miage.pouleAPI.repositories.adapters;
 
 import com.miage.pouleAPI.adapters.CompetitionJpaAdapter;
+import com.miage.pouleAPI.repositories.ApplicationUserRepository;
 import com.miage.pouleAPI.dtos.competition.CompetitionDTO;
 import com.miage.pouleAPI.dtos.competition.CreateCompetitionRequestDTO;
 import com.miage.pouleAPI.entity.Championship;
@@ -30,6 +31,9 @@ class CompetitionJpaAdapterTest {
     private CompetitionRepository repository;
 
     @Mock
+    private ApplicationUserRepository userRepository;
+
+    @Mock
     private ChampionshipRepository championshipRepository;
 
     private CompetitionJpaAdapter adapter;
@@ -42,7 +46,7 @@ class CompetitionJpaAdapterTest {
 
     @BeforeEach
     void setUp() {
-        adapter = new CompetitionJpaAdapter(repository,championshipRepository);
+        adapter = new CompetitionJpaAdapter(repository,championshipRepository, userRepository);
 
         championship = new Championship(
                 1,
@@ -97,8 +101,8 @@ class CompetitionJpaAdapterTest {
 
         assertThat(result).isNotNull();
         assertThat(result).hasSize(2);
-        assertThat(result.get(0).getId()).isEqualTo(1);
-        assertThat(result.get(0).getName()).isEqualTo("Competition 1");
+        assertThat(result.getFirst().getId()).isEqualTo(1);
+        assertThat(result.getFirst().getName()).isEqualTo("Competition 1");
         assertThat(result.get(0).getDescription()).isEqualTo("Competition 1 Description");
         assertThat(result.get(0).getChampionshipId()).isEqualTo(championship.getId());
         assertThat(result.get(1).getId()).isEqualTo(2);
@@ -271,7 +275,7 @@ class CompetitionJpaAdapterTest {
 
     @Test
     void constructor_ShouldInitializeRepository() {
-        CompetitionJpaAdapter newAdapter = new CompetitionJpaAdapter(repository,championshipRepository);
+        CompetitionJpaAdapter newAdapter = new CompetitionJpaAdapter(repository,championshipRepository, userRepository);
 
         assertThat(newAdapter).isNotNull();
     }

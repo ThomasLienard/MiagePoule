@@ -56,8 +56,8 @@ class TrialControllerTest {
         mockMvc = MockMvcBuilders.standaloneSetup(trialController).build();
         
         // Mise à jour avec idEvent
-        trialSummary1 = new TrialSummaryDTO(1, 10, "Marathon de Paris", "42km course");
-        trialSummary2 = new TrialSummaryDTO(2, 20, "100m Sprint", "Sprint rapide");
+        trialSummary1 = new TrialSummaryDTO(1, 10, "Marathon de Paris", "42km course", false);
+        trialSummary2 = new TrialSummaryDTO(2, 20, "100m Sprint", "Sprint rapide", false);
         
         TimeSlotDTO timeSlot = new TimeSlotDTO(
             LocalDateTime.of(2025, 6, 20, 8, 0),
@@ -403,9 +403,9 @@ class TrialControllerTest {
     @DisplayName("GET /public/trials/assigned - Devrait retourner les deux types d'épreuves")
     void testGetAssignedTrials_BothTypes() {
         // Given
-        TrialSummaryDTO soloTrial = new TrialSummaryDTO(1, 10, "Solo Trial", "Solo description");
-        TrialSummaryDTO teamTrial1 = new TrialSummaryDTO(2, 20, "Team Trial 1", "Team description 1");
-        TrialSummaryDTO teamTrial2 = new TrialSummaryDTO(3, 30, "Team Trial 2", "Team description 2");
+        TrialSummaryDTO soloTrial = new TrialSummaryDTO(1, 10, "Solo Trial", "Solo description", false);
+        TrialSummaryDTO teamTrial1 = new TrialSummaryDTO(2, 20, "Team Trial 1", "Team description 1", false);
+        TrialSummaryDTO teamTrial2 = new TrialSummaryDTO(3, 30, "Team Trial 2", "Team description 2", false);
 
         List<TrialSummaryDTO> soloTrials = Arrays.asList(soloTrial);
         List<TrialSummaryDTO> teamTrials = Arrays.asList(teamTrial1, teamTrial2);
@@ -427,5 +427,101 @@ class TrialControllerTest {
         assertEquals("Team Trial 2", result.getBody().getTeamTrials().get(1).getName());
 
         verify(trialService, times(1)).getAssignedTrialsForUserEmail("athlete@test.com");
+    }
+
+    @Test
+    @DisplayName("GET /public/trials/assigned/{athleteId} - Devrait retourner les épreuves assignées (solo et équipe)")
+    void testGetAssignedTrialsByAthleteId_Success() {
+        // Given
+        List<TrialSummaryDTO> soloTrials = Arrays.asList(trialSummary1);
+        List<TrialSummaryDTO> teamTrials = Arrays.asList(trialSummary2);
+        AssignedTrialsResponseDTO response = new AssignedTrialsResponseDTO(soloTrials, teamTrials);
+        Integer id = 1;
+
+        when(trialService.getAssignedTrialsForAthleteId(id)).thenReturn(Optional.of(response));
+
+        // When
+        ResponseEntity<AssignedTrialsResponseDTO> result = trialController.getAssignedTrialsByAthleteId(id);
+
+        // Then
+        assertEquals(HttpStatus.OK, result.getStatusCode());
+        assertNotNull(result.getBody());
+        assertEquals(1, result.getBody().getSoloTrials().size());
+        assertEquals(1, result.getBody().getTeamTrials().size());
+        assertEquals("Marathon de Paris", result.getBody().getSoloTrials().get(0).getName());
+        assertEquals("100m Sprint", result.getBody().getTeamTrials().get(0).getName());
+
+        verify(trialService, times(1)).getAssignedTrialsForAthleteId(id);
+    }
+
+    @Test
+    @DisplayName("GET /public/trials/assigned/{athleteId} - Devrait retourner des listes vides quand pas d'épreuves assignées")
+    void testGetAssignedTrialsByAthleteId_EmptyLists() {
+        // Given
+        AssignedTrialsResponseDTO response = new AssignedTrialsResponseDTO(
+                Collections.emptyList(),
+                Collections.emptyList()
+        );
+        Integer id = 1;
+
+        when(trialService.getAssignedTrialsForAthleteId(id)).thenReturn(Optional.of(response));
+
+        // When
+        ResponseEntity<AssignedTrialsResponseDTO> result = trialController.getAssignedTrialsByAthleteId(id);
+
+        // Then
+        assertEquals(HttpStatus.OK, result.getStatusCode());
+        assertNotNull(result.getBody());
+        assertTrue(result.getBody().getSoloTrials().isEmpty());
+        assertTrue(result.getBody().getTeamTrials().isEmpty());
+
+        verify(trialService, times(1)).getAssignedTrialsForAthleteId(id);
+    }
+
+    @Test
+    @DisplayName("GET /public/trials/assigned/{athleteId} - Devrait retourner 404 si utilisateur non trouvé")
+    void testGetAssignedTrialsByAthleteId_AthleteNotFound() {
+        // Given
+        Integer id = 1;
+        when(trialService.getAssignedTrialsForAthleteId(id)).thenReturn(Optional.empty());
+
+        // When
+        ResponseEntity<AssignedTrialsResponseDTO> result = trialController.getAssignedTrialsByAthleteId(id);
+
+        // Then
+        assertEquals(HttpStatus.NOT_FOUND, result.getStatusCode());
+        assertNull(result.getBody());
+
+        verify(trialService, times(1)).getAssignedTrialsForAthleteId(id);
+    }
+
+    @Test
+    @DisplayName("GET /public/trials/assigned/{athleteId} - Devrait retourner les deux types d'épreuves")
+    void testGetAssignedTrialsByAthleteId_BothTypes() {
+        // Given
+        Integer id = 1;
+        TrialSummaryDTO soloTrial = new TrialSummaryDTO(1, 10, "Solo Trial", "Solo description", false);
+        TrialSummaryDTO teamTrial1 = new TrialSummaryDTO(2, 20, "Team Trial 1", "Team description 1", false);
+        TrialSummaryDTO teamTrial2 = new TrialSummaryDTO(3, 30, "Team Trial 2", "Team description 2", false);
+
+        List<TrialSummaryDTO> soloTrials = Arrays.asList(soloTrial);
+        List<TrialSummaryDTO> teamTrials = Arrays.asList(teamTrial1, teamTrial2);
+        AssignedTrialsResponseDTO response = new AssignedTrialsResponseDTO(soloTrials, teamTrials);
+
+        when(trialService.getAssignedTrialsForAthleteId(id)).thenReturn(Optional.of(response));
+
+        // When
+        ResponseEntity<AssignedTrialsResponseDTO> result = trialController.getAssignedTrialsByAthleteId(id);
+
+        // Then
+        assertEquals(HttpStatus.OK, result.getStatusCode());
+        assertNotNull(result.getBody());
+        assertEquals(1, result.getBody().getSoloTrials().size());
+        assertEquals(2, result.getBody().getTeamTrials().size());
+        assertEquals("Solo Trial", result.getBody().getSoloTrials().get(0).getName());
+        assertEquals("Team Trial 1", result.getBody().getTeamTrials().get(0).getName());
+        assertEquals("Team Trial 2", result.getBody().getTeamTrials().get(1).getName());
+
+        verify(trialService, times(1)).getAssignedTrialsForAthleteId(id);
     }
 }

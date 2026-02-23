@@ -83,7 +83,8 @@ VALUES ('France Stadium', 'Saint-Denis', '93200', 'Main Street', TRUE, '1',
 INSERT INTO time_slot (start_time, end_time)
 VALUES ('2025-01-01 09:00:00', '2025-01-01 10:00:00'),
        ('2026-01-01 10:00:00', '2026-01-01 11:00:00'),
-       ('2026-10-09 09:00:00', '2026-10-09 10:00:00');
+       ('2026-10-09 09:00:00', '2026-10-09 10:00:00'),
+       ('2026-02-16 14:25:00', '2026-02-16 16:25:00');
 
 -- ======================
 -- Events
@@ -95,6 +96,7 @@ VALUES ('100m Trial Heat 1', 'First qualification heat', 'TRIAL', 1, 1, 1),
        ('100m Trial Final', 'Final race', 'TRIAL', 1, 3, 1),
        ('Marathon Trial Warm-up', 'Warm-up session', 'TRIAL', 2, 2, 2),
        ('Marathon Qualification', 'Main qualification heat', 'TRIAL', 2, 1, 2),
+       ('Marathon final', 'Main heat', 'TRIAL', 2, 4, 2),
        ('Training Session A', 'Regular training', 'TRAINING', 3, 1, 1),
        ('Training Session B', 'Regular training', 'TRAINING', 3, 2, 1),
        ('Championship Meeting', 'Official gathering', 'MEETING', 3, 3, 2),
@@ -111,6 +113,7 @@ VALUES (1),
        (3),
        (4),
        (5),
+       (6),
        (9);
 
 -- ======================
@@ -119,17 +122,18 @@ VALUES (1),
 -- mdp : "test123"
 
 
-INSERT INTO application_user (name, lastname, password, email, country_code, role_name, is_active, is_account_activated, must_change_password, created_at, created_by)
+INSERT INTO application_user (name, lastname, password, email, country_code, role_name, is_active, is_account_activated, must_change_password, created_at, created_by, has_signed_charter)
 VALUES
     -- Admin existant - email: anna@smith.com
-    ('Anna', 'Smith', '$2a$10$vycWMvbko2wycSl3u6bIL.vCeHgNBQfNq7jpVc7pCEnfER6A2vTLi', 'anna@example.com', 'US', 'ADMIN', true, true, false, NOW(), 'system'),
+    ('Anna', 'Smith', '$2a$10$vycWMvbko2wycSl3u6bIL.vCeHgNBQfNq7jpVc7pCEnfER6A2vTLi', 'anna@example.com', 'US', 'ADMIN', true, true, false, NOW(), 'system', true),
     -- Nouveaux utilisateurs pour chaque rôle
-    ('Pierre', 'Commissaire', '$2a$10$vycWMvbko2wycSl3u6bIL.vCeHgNBQfNq7jpVc7pCEnfER6A2vTLi', 'commissaire@example.com', 'FR', 'COMMISSAIRE', true, true, false, NOW(), 'system'),
-    ('Marie', 'Athlete', '$2a$10$vycWMvbko2wycSl3u6bIL.vCeHgNBQfNq7jpVc7pCEnfER6A2vTLi', 'athlete@example.com', 'FR', 'ATHLETE', false, true, false, NOW(), 'system'),
-    ('Jean', 'Volontaire', '$2a$10$vycWMvbko2wycSl3u6bIL.vCeHgNBQfNq7jpVc7pCEnfER6A2vTLi', 'volontaire@example.com', 'FR', 'VOLONTAIRE', true, true, false, NOW(), 'system'),
-    ('John', 'Doe', '$2a$10$vycWMvbko2wycSl3u6bIL.vCeHgNBQfNq7jpVc7pCEnfER6A2vTLi', 'john@example.com', 'US', 'ATHLETE', true, true, false, NOW(), 'system'),
-    ('Jane', 'Smith', '$2a$10$vycWMvbko2wycSl3u6bIL.vCeHgNBQfNq7jpVc7pCEnfER6A2vTLi', 'jane@example.com', 'US', 'COMMISSAIRE', true, true, false, NOW(), 'system');
-    
+    ('Pierre', 'Commissaire', '$2a$10$vycWMvbko2wycSl3u6bIL.vCeHgNBQfNq7jpVc7pCEnfER6A2vTLi', 'commissaire@example.com', 'FR', 'COMMISSAIRE', true, true, false, NOW(), 'system',true),
+    ('Marie', 'Athlete', '$2a$10$vycWMvbko2wycSl3u6bIL.vCeHgNBQfNq7jpVc7pCEnfER6A2vTLi', 'athlete@example.com', 'FR', 'ATHLETE', true, true, false, NOW(), 'system', false),
+    ('Jean', 'Volontaire', '$2a$10$vycWMvbko2wycSl3u6bIL.vCeHgNBQfNq7jpVc7pCEnfER6A2vTLi', 'volontaire@example.com', 'FR', 'VOLONTAIRE', true, true, false, NOW(), 'system', true),
+    ('John', 'Doe', '$2a$10$vycWMvbko2wycSl3u6bIL.vCeHgNBQfNq7jpVc7pCEnfER6A2vTLi', 'john@example.com', 'US', 'ATHLETE', true, true, false, NOW(), 'system',true),
+    ('Jane', 'Smith', '$2a$10$vycWMvbko2wycSl3u6bIL.vCeHgNBQfNq7jpVc7pCEnfER6A2vTLi', 'jane@example.com', 'US', 'COMMISSAIRE', true, true, false, NOW(), 'system', true);
+    ('Spec', 'tateur', '$2a$10$vycWMvbko2wycSl3u6bIL.vCeHgNBQfNq7jpVc7pCEnfER6A2vTLi', 'spec@example.com', 'US', 'SPECTATEUR', true, true, false, NOW(), 'system', true);
+
 -- ======================
 -- Documents
 -- ======================

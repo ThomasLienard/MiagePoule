@@ -9,4 +9,6 @@ public class UserProfileResponseDTO {
     private String lastname;
     private String email;
     private String countryCode;
+    private String role;
+    private boolean hasSignedCharter;
 }

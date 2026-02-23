@@ -92,17 +92,18 @@ export const AuthProvider = ({ children }) => {
       if (response.token) {
         localStorage.setItem("token", response.token);
 
-        const userInfo = {
-          id: response.email, // Utiliser l'email comme ID temporaire
-          email: response.email,
-          firstName: response.firstName,
-          lastName: response.lastName,
-          role: response.role,
-          roles: ["SPECTATOR"], // Tous les nouveaux utilisateurs sont spectateurs
-        };
-        localStorage.setItem("user", JSON.stringify(userInfo));
-        setUser(userInfo);
-      }
+                const decoded = authService.decodeToken(response.token);
+                const userInfo = {
+                    id: decoded.sub, // Utiliser l'ID numérique du token
+                    email: decoded.email,
+                    firstName: response.firstName,
+                    lastName: response.lastName,
+                    role: response.role,
+                    roles: decoded.roles || ['SPECTATOR'] // Tous les nouveaux utilisateurs sont spectateurs
+                };
+                localStorage.setItem('user', JSON.stringify(userInfo));
+                setUser(userInfo);
+            }
 
       return { success: true, message: "Inscription réussie" };
     } catch (error) {

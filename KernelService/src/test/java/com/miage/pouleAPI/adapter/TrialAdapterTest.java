@@ -305,7 +305,7 @@ class TrialAdapterTest {
     @DisplayName("summaryDtoToEntity() - Devrait convertir TrialSummaryDTO en Trial")
     void testSummaryDtoToEntity_Success() {
         // Given
-        TrialSummaryDTO dto = new TrialSummaryDTO(1, 10, "Test Trial", "Test Description");
+        TrialSummaryDTO dto = new TrialSummaryDTO(1, 10, "Test Trial", "Test Description", false);
 
         // When
         Trial result = trialAdapter.summaryDtoToEntity(dto);

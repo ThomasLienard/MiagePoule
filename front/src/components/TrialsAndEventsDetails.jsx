@@ -1,5 +1,5 @@
 import React, {useState, useEffect} from 'react';
-import {useNavigate, useParams} from 'react-router-dom';
+import {Link, useNavigate, useParams} from 'react-router-dom';
 import {Accordion, Badge, Button, ListGroup, ListGroupItem} from "react-bootstrap";
 import {Vr} from "react-bootstrap-icons";
 
@@ -32,7 +32,6 @@ const TrialsAndEventsDetails = () => {
             if (!response.ok) throw new Error('Événement non trouvé');
             const data = await response.json();
 
-            console.log(data)
             setEventData(data);
         } catch (err) {
             setError(err.message);
@@ -139,8 +138,9 @@ const TrialsAndEventsDetails = () => {
                                                                 {eventData.teamParticipants
                                                                     .find((team) => team.name === ranking.participantName)
                                                                     .members.map((athelete, index) => (
-                                                                        <ListGroupItem
-                                                                            key={`team-${ranking.participantId}-${index}-${athelete.id}`}>
+                                                                        <ListGroupItem onClick={() => navigate(`/public/athlete-trials/${athelete.id}`)}
+                                                                            key={`team-${ranking.participantId}-${index}-${athelete.id}`}
+                                                                            style={{"cursor": "pointer"}}>
                                                                             {athelete.fullName}
                                                                         </ListGroupItem>
                                                                     ))
@@ -160,7 +160,9 @@ const TrialsAndEventsDetails = () => {
                                                 .filter(r => r.participantType === 'ATHLETE')
                                                 .map((ranking, index) => (
                                                     <ListGroup.Item as="li"
-                                                                    key={`athlete-${ranking.participantId}-${index}`}>
+                                                                    key={`athlete-${ranking.participantId}-${index}`}
+                                                                    onClick={() => navigate(`/public/athlete-trials/${ranking.participantId}`)}
+                                                                    style={{"cursor": "pointer"}} >
                                                         <div className="d-flex justify-content-between">
                                                         <span>
                                                             {ranking.rank === 1 && '🥇'}
@@ -201,7 +203,10 @@ const TrialsAndEventsDetails = () => {
                                                                 {team.members
                                                                     .map((athelete, index) => (
                                                                         <ListGroupItem
-                                                                            key={`team-${team.id}-${index}-${athelete.id}`}>
+                                                                            key={`team-${team.id}-${index}-${athelete.id}`}
+                                                                            onClick={() => navigate(`/public/athlete-trials/${athelete.id}`)}
+                                                                            style={{"cursor": "pointer"}}
+                                                                        >
                                                                             {athelete.fullName}
                                                                         </ListGroupItem>
                                                                     ))
@@ -220,7 +225,9 @@ const TrialsAndEventsDetails = () => {
                                             {eventData.soloParticipants
                                                 .map((participant, index) => (
                                                     <ListGroup.Item as="li"
-                                                                    key={`athlete-${participant.id}-${index}`}>
+                                                                    key={`athlete-${participant.id}-${index}`}
+                                                                    onClick={() => navigate(`/public/athlete-trials/${participant.id}`)}
+                                                                    style={{"cursor": "pointer"}}>
                                                         <div className="d-flex justify-content-between">
                                                             <span>{participant.fullName}</span>
                                                         </div>

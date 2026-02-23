@@ -39,7 +39,8 @@ public class TrialAdapter {
             trial.getId(),
             trial.getId(),  // Trial's ID is also the Event's ID (JOINED inheritance)
             trial.getName(),
-            trial.getDescription()
+            trial.getDescription(),
+            false  // Par défaut, pas de forfait (cette méthode est utilisée pour les listes génériques)
         );
     }
     
