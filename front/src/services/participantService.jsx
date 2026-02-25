@@ -11,6 +11,21 @@ const getAuthHeaders = () => {
 };
 
 const participantService = {
+
+    /**
+     * Récupère un athlète grâce à son identifiant
+     */
+    getAthleteById: async (athleteId) => {
+        try {
+            const response = await axios.get(
+                `${API_BASE_URL}/public/athlete/${athleteId}`,
+            );
+            return response.data;
+        } catch (error) {
+            throw new Error(error.response?.data?.message || 'Erreur lors de la récupération de l\'athlète');
+        }
+    },
+
     /**
      * Récupère toutes les épreuves avec leurs participants
      */

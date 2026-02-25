@@ -39,8 +39,8 @@ describe('Tests - Navigation Championnats et Résultats', () => {
         
         // On vérifie si la section résultats existe
         cy.get('body').then(($body) => {
-            if ($body.text().includes('Résultats')) {
-                cy.contains('Résultats').should('be.visible');
+            if ($body.text().includes('Participants')) {
+                cy.contains('Participants').should('be.visible');
                 // On vérifie la présence d'un podium ou d'un rang (ex: 🥇 ou le chiffre 1)
                 cy.get('.list-group-item').first().should('be.visible');
             }
