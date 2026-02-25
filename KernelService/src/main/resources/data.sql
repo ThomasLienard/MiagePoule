@@ -83,7 +83,8 @@ INSERT INTO time_slot (start_time, end_time)
 VALUES ('2025-01-01 09:00:00', '2025-01-01 10:00:00'),
        ('2026-01-01 10:00:00', '2026-01-01 11:00:00'),
        ('2026-10-09 09:00:00', '2026-10-09 10:00:00'),
-       ('2026-02-16 14:25:00', '2026-02-16 16:25:00');
+       ('2026-02-25 14:25:00', '2026-02-25 16:25:00'),
+       ('2026-02-26 14:25:00', '2026-02-26 16:25:00');
 
 -- ======================
 -- Events
@@ -93,9 +94,9 @@ INSERT INTO event (name_event, description_event, type_event_name,
 VALUES ('100m Trial Heat 1', 'First qualification heat', 'TRIAL', 1, 1, 1),
        ('100m Trial Heat 2', 'Second qualification heat', 'TRIAL', 1, 2, 1),
        ('100m Trial Final', 'Final race', 'TRIAL', 1, 3, 1),
-       ('Marathon Trial Warm-up', 'Warm-up session', 'TRIAL', 2, 2, 2),
-       ('Marathon Qualification', 'Main qualification heat', 'TRIAL', 2, 1, 2),
-       ('Marathon final', 'Main heat', 'TRIAL', 2, 4, 2),
+       ('Marathon Trial Warm-up', 'Warm-up session', 'TRIAL', 2, 4, 2),
+       ('Marathon Qualification', 'Main qualification heat', 'TRIAL', 2, 5, 2),
+       ('Marathon final', 'Main heat', 'TRIAL', 2, 5, 2),
        ('Training Session A', 'Regular training', 'TRAINING', 3, 1, 1),
        ('Training Session B', 'Regular training', 'TRAINING', 3, 2, 1),
        ('Championship Meeting', 'Official gathering', 'MEETING', 3, 3, 2),
@@ -228,27 +229,20 @@ VALUES (1, 1),
 -- ======================
 -- Tasks
 -- ======================
-INSERT INTO task (task_name, task_description)
-VALUES ('Prepare track', 'Ensure the track surface is clean'),
-       ('Check timing system', 'Verify sensors and timing devices');
 
--- ======================
--- Event-task association
--- ======================
--- Associate tasks to trials and other events
-INSERT INTO is_associated_to (id, id_task)
-VALUES (1, 1),
-       (2, 1),
-       (3, 1),
-       (4, 2),
-       (5, 2),
-       (6, 1),
-       (7, 2);
+INSERT INTO task (task_name, task_description, id_event)
+VALUES ('Prepare track', 'Ensure the track surface is clean', 1),
+       ('Prepare track', 'Ensure the track surface is clean', 2),
+       ('Prepare track', 'Ensure the track surface is clean', 3),
+       ('Check timing system', 'Verify sensors and timing devices', 4),
+       ('Check timing system', 'Verify sensors and timing devices', 5),
+       ('Prepare track', 'Ensure the track surface is clean', 6),
+       ('Check timing system', 'Verify sensors and timing devices', 7);
 
 -- ======================
 -- User tasks
 -- ======================
 INSERT INTO must_do (id, id_task)
-VALUES (2, 2),
-       (3, 1),
-       (4, 2);
+VALUES (4, 4),
+       (4, 1),
+       (4, 5);

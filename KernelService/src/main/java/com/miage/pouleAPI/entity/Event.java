@@ -56,13 +56,8 @@ public class Event {
     @JsonIgnoreProperties({"events", "geolocs", "teams", "dailyTasks", "notifications", "metrics", "password"})
     private Set<ApplicationUser> users = new HashSet<>();
 
-    @ManyToMany
-    @JoinTable(
-        name = "is_associated_to",
-        joinColumns = @JoinColumn(name = "id"),
-        inverseJoinColumns = @JoinColumn(name = "id_task")
-    )
-    @JsonIgnoreProperties({"events", "hibernateLazyInitializer", "handler"})
+    @OneToMany(mappedBy = "event")
+    @JsonIgnoreProperties({"event", "hibernateLazyInitializer", "handler"})
     private Set<Task> tasks = new HashSet<>();
 
     @ManyToMany(mappedBy = "metricsEvents")

@@ -19,10 +19,10 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.server.ResponseStatusException;
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.Comparator;
 import java.util.List;
-import java.util.Objects;
 import java.util.Optional;
 
 @Service
@@ -38,8 +38,11 @@ public class VolunteerAgendaServiceImpl implements VolunteerAgendaService {
     @Transactional(readOnly = true)
     public List<VolunteerTaskDTO> getCurrentVolunteerAgenda() {
         ApplicationUser user = getCurrentVolunteer();
+        LocalDate today = LocalDate.now();
+        LocalDate tomorrow = today.plusDays(1);
 
         return taskRepository.findTasksForUser(user.getId()).stream()
+                .filter(task -> isTaskInAllowedPeriod(task, today, tomorrow))
                 .sorted(taskComparator())
                 .map(this::toTaskDto)
                 .toList();
@@ -73,39 +76,39 @@ public class VolunteerAgendaServiceImpl implements VolunteerAgendaService {
     }
 
     private LocalDateTime getTaskStart(Task task) {
-        if (task == null || task.getEvents() == null) {
+        if (task == null || task.getEvent() == null) {
             return null;
         }
 
-        return task.getEvents().stream()
-                .map(Event::getTimeSlot)
-                .filter(Objects::nonNull)
-                .map(TimeSlot::getStart)
-                .filter(Objects::nonNull)
-                .min(LocalDateTime::compareTo)
-                .orElse(null);
+        TimeSlot timeSlot = task.getEvent().getTimeSlot();
+        if (timeSlot == null) {
+            return null;
+        }
+
+        return timeSlot.getStart();
+    }
+
+    private boolean isTaskInAllowedPeriod(Task task, LocalDate today, LocalDate tomorrow) {
+        LocalDateTime taskStart = getTaskStart(task);
+        if (taskStart == null) {
+            return false;
+        }
+
+        LocalDate taskDate = taskStart.toLocalDate();
+        return taskDate.equals(today) || taskDate.equals(tomorrow);
     }
 
     private VolunteerTaskDTO toTaskDto(Task task) {
-        List<VolunteerTaskEventDTO> events = task.getEvents().stream()
-                .sorted(Comparator.comparing(this::getEventStart, Comparator.nullsLast(LocalDateTime::compareTo)))
-                .map(this::toEventDto)
-                .toList();
+        VolunteerTaskEventDTO event = task.getEvent() != null 
+                ? toEventDto(task.getEvent()) 
+                : null;
 
         return new VolunteerTaskDTO(
                 task.getId(),
                 task.getName(),
                 task.getDescription(),
-                events
+                event
         );
-    }
-
-    private LocalDateTime getEventStart(Event event) {
-        if (event == null || event.getTimeSlot() == null) {
-            return null;
-        }
-
-        return event.getTimeSlot().getStart();
     }
 
     private VolunteerTaskEventDTO toEventDto(Event event) {

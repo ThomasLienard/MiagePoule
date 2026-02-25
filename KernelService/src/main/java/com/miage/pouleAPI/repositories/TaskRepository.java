@@ -14,7 +14,7 @@ public interface TaskRepository extends JpaRepository<Task, Integer> {
 
     @Query("SELECT DISTINCT t FROM Task t " +
            "JOIN t.users u " +
-           "LEFT JOIN FETCH t.events e " +
+           "LEFT JOIN FETCH t.event e " +
            "LEFT JOIN FETCH e.timeSlot " +
            "LEFT JOIN FETCH e.place " +
            "WHERE u.id = :userId")
@@ -22,7 +22,7 @@ public interface TaskRepository extends JpaRepository<Task, Integer> {
 
     @Query("SELECT DISTINCT t FROM Task t " +
            "JOIN t.users u " +
-           "LEFT JOIN FETCH t.events e " +
+           "LEFT JOIN FETCH t.event e " +
            "LEFT JOIN FETCH e.timeSlot " +
            "LEFT JOIN FETCH e.place " +
            "WHERE u.id = :userId AND t.id = :taskId")
