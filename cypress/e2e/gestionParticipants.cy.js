@@ -10,32 +10,22 @@ describe('Tests - Gestion des Participants aux Épreuves', () => {
         
         // Connexion en tant que commissaire
         cy.contains('Connexion').click();
-        cy.wait(2000);
+        cy.wait(1000);
         
         // Remplir le formulaire de connexion
         cy.get('input[type="email"]').type('commissaire@example.com');
-        cy.wait(500);
         cy.get('input[type="password"]').type('test123');
-        cy.wait(500);
-        
+
         // Soumettre le formulaire
         cy.get('button[type="submit"]').click();
-        cy.wait(3000);
+        cy.wait(1000);
         
         // Naviguer vers la page de gestion des participants
         cy.visit('/commissaire/trials');
-        cy.wait(3000);
-        
-        // Attendre que le spinner de chargement disparaisse
-        cy.get('.spinner-border', { timeout: 10000 }).should('not.exist');
-        cy.wait(1000);
-        
+        cy.wait(500);
+
         // Cliquer sur le bouton pour gérer une épreuve
         cy.get('button').contains('Modifier participants').first().click();
-        cy.wait(3000);
-        
-        // Attendre que la page de gestion charge
-        cy.get('.spinner-border', { timeout: 10000 }).should('not.exist');
         cy.wait(1000);
     });
 
@@ -45,14 +35,12 @@ describe('Tests - Gestion des Participants aux Épreuves', () => {
         // Vérifier que la section potentiels existe (peut être "Participants" ou "Équipes")
         cy.contains(/(Participants potentiels|Équipes potentielles)/).should('be.visible');
         cy.contains('Participants inscrits').should('be.visible');
-        cy.wait(1000);
     });
 
     it('Scénario : Afficher les sections - Participants potentiels et inscrits', () => {
         // Vérifier que les deux colonnes s'affichent (texte varie selon mode solo/équipe)
         cy.contains(/(Participants potentiels|Équipes potentielles)/).should('be.visible');
         cy.contains('Participants inscrits').should('be.visible');
-        cy.wait(1000);
     });
 
     it('Scénario : Afficher le badge du mode d\'épreuve', () => {
@@ -136,14 +124,12 @@ describe('Tests - Gestion des Participants aux Épreuves', () => {
         
         // Vérifier que la modal se ferme
         cy.get('.modal').should('not.exist');
-        cy.wait(1000);
     });
 
     it('Scénario : Interaction du drag and drop - Zone d\'accueil active', () => {
         // Vérifier que l\'instruction de drag and drop est visible
         cy.contains('Glisser-déposer').should('be.visible');
         cy.contains('ou utilisez les boutons').should('be.visible');
-        cy.wait(1000);
     });
 
     it('Scénario : Afficher des détails du participant dans la modal', () => {
@@ -157,12 +143,11 @@ describe('Tests - Gestion des Participants aux Épreuves', () => {
         cy.contains('Nom :').should('be.visible');
         cy.contains('Type :').should('be.visible');
         cy.wait(1000);
-        
+
         // Fermer la modal
         cy.get('.modal').within(() => {
             cy.contains('button', 'Annuler').click();
         });
-        cy.wait(1000);
     });
 
     it('Scénario : Annuler l\'ajout d\'un participant via la modal', () => {

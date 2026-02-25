@@ -26,7 +26,6 @@ describe('Page de Création de Championnat', () => {
 
         cy.get('.invalid-feedback').should('be.visible');
         cy.get('form').should('have.class', 'was-validated');
-        cy.wait(1000);
     });
 
     it('devrait bloquer l\'envoi si la date de fin est avant la date de début', () => {
@@ -45,7 +44,6 @@ describe('Page de Création de Championnat', () => {
         cy.get('.alert')
             .should('be.visible')
             .and('contain', 'La date de fin doit être strictement après la date de début');
-        cy.wait(1000);
     });
 
     it('devrait créer un évènement avec succès et rediriger', () => {
@@ -62,7 +60,6 @@ describe('Page de Création de Championnat', () => {
         });
 
         cy.get('.alert-success').should('contain', 'Championnat planifié avec succès');
-        cy.wait(1000);
         cy.url().should('include', '/admin');
     });
 });

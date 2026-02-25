@@ -13,11 +13,11 @@ describe('Tests - CiblOrgaSport (Mode Ralenti)', () => {
     });
 
     it('Scénario complet : Recherche, Carte et Détails', () => {
-        // 1. Recherche
+        //FIXTURE TODO
         cy.get('input[placeholder*="Rechercher"]').type('100m');
         cy.wait(3000); // On observe les résultats filtrés dans la liste
         
-        // 2. Sélection
+
         cy.contains('.card-title', '100m Trial Final').click();
         cy.wait(3000); // On observe la carte se déplacer et la bulle s'ouvrir
 
