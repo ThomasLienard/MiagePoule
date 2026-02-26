@@ -32,5 +32,8 @@ public class ParticipateAt {
 
     @Column(name = "is_forfeit")
     private Boolean isForfeit = false;
+
+    @Column(name = "is_validated")
+    private Boolean isValidated = false;
 }
 

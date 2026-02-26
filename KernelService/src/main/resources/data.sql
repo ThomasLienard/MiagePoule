@@ -83,7 +83,8 @@ INSERT INTO time_slot (start_time, end_time)
 VALUES ('2025-01-01 09:00:00', '2025-01-01 10:00:00'),
        ('2026-01-01 10:00:00', '2026-01-01 11:00:00'),
        ('2026-10-09 09:00:00', '2026-10-09 10:00:00'),
-       ('2026-02-16 14:25:00', '2026-02-16 16:25:00');
+       ('2026-02-16 14:25:00', '2026-02-16 16:25:00'),
+       ('2026-02-26 14:25:00', '2026-02-26 16:25:00');
 
 -- ======================
 -- Events
@@ -99,7 +100,8 @@ VALUES ('100m Trial Heat 1', 'First qualification heat', 'TRIAL', 1, 1, 1),
        ('Training Session A', 'Regular training', 'TRAINING', 3, 1, 1),
        ('Training Session B', 'Regular training', 'TRAINING', 3, 2, 1),
        ('Championship Meeting', 'Official gathering', 'MEETING', 3, 3, 2),
-        ('Marathon Final', 'Final race', 'TRIAL', 2, 3, 2);
+        ('Marathon Final', 'Final race', 'TRIAL', 2, 3, 2),
+        ('200m Sprint Final', 'Finale du 200m sprint — épreuve de démonstration', 'TRIAL', 1, 5, 1);
 
 -- ======================
 -- Trials
@@ -113,7 +115,8 @@ VALUES (1),
        (4),
        (5),
        (6),
-       (9);
+       (10),
+       (11);
 
 -- ======================
 -- Users (MODIFIÉ avec BCrypt)
@@ -130,7 +133,7 @@ VALUES
     ('Marie', 'Athlete', '$2a$10$vycWMvbko2wycSl3u6bIL.vCeHgNBQfNq7jpVc7pCEnfER6A2vTLi', 'athlete@example.com', 'FR', 'ATHLETE', true, true, false, NOW(), 'system', false),
     ('Jean', 'Volontaire', '$2a$10$vycWMvbko2wycSl3u6bIL.vCeHgNBQfNq7jpVc7pCEnfER6A2vTLi', 'volontaire@example.com', 'FR', 'VOLONTAIRE', true, true, false, NOW(), 'system', true),
     ('John', 'Doe', '$2a$10$vycWMvbko2wycSl3u6bIL.vCeHgNBQfNq7jpVc7pCEnfER6A2vTLi', 'john@example.com', 'US', 'ATHLETE', true, true, false, NOW(), 'system',true),
-    ('Jane', 'Smith', '$2a$10$vycWMvbko2wycSl3u6bIL.vCeHgNBQfNq7jpVc7pCEnfER6A2vTLi', 'jane@example.com', 'US', 'COMMISSAIRE', true, true, false, NOW(), 'system', true);
+    ('Jane', 'Smith', '$2a$10$vycWMvbko2wycSl3u6bIL.vCeHgNBQfNq7jpVc7pCEnfER6A2vTLi', 'jane@example.com', 'US', 'COMMISSAIRE', true, true, false, NOW(), 'system', true),
     ('Spec', 'tateur', '$2a$10$vycWMvbko2wycSl3u6bIL.vCeHgNBQfNq7jpVc7pCEnfER6A2vTLi', 'spec@example.com', 'US', 'SPECTATEUR', true, true, false, NOW(), 'system', true);
 
 -- ======================
@@ -172,12 +175,14 @@ VALUES (1, 1, '11.2s', false),
 -- Convened athletes
 -- ======================
 -- Athletes participation: Trial 4 and Trial 5 have athlete convocation (no participate_at)
-INSERT INTO is_convened_to (id, id_trial, trial_result_athlete, is_forfeit)
-VALUES (1, 4, '2h15m', false),
-       (2, 4, '2h05m', false),
-       (3, 5, '11.6s', false),
-       (4, 5, '11.1s', false),
-       (3, 9, null, false);
+INSERT INTO is_convened_to (id, id_trial, trial_result_athlete, is_forfeit, is_validated)
+VALUES (1, 4, '2h15m', false, false),
+       (2, 4, '2h05m', false, false),
+       (3, 5, '11.6s', false, false),
+       (4, 5, '11.1s', false, false),
+       (3, 10, null, false, false),
+       (3, 11, '22.4s', false, true),  
+       (5, 11, '22.1s', false, false);   
 
 -- ======================
 -- Notifications
@@ -223,7 +228,8 @@ VALUES (1, 1),
        (6, 4),
        (6, 5),
        (6, 6),
-       (6, 9);
+       (6, 9),
+       (2, 11);
 
 -- ======================
 -- Tasks
