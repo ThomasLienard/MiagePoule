@@ -66,18 +66,6 @@ services:
       - miage-network
     restart: unless-stopped
 
-  cypress:
-    image: cypress/included:13.6.0
-    container_name: cypress_miagepoule
-    working_dir: /e2e
-    volumes:
-      - ./:/e2e
-    depends_on:
-      - frontend
-    networks:
-      - miage-network
-    command:  cypress open --project /e2e
-
 volumes:
   postgres_data:
   cerberus_mysql_data:
