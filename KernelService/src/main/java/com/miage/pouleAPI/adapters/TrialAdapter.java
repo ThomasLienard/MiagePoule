@@ -189,8 +189,13 @@ public class TrialAdapter {
     
     private List<RankingDTO> buildRankings(Integer trialId) {
         List<RankingDTO> rankings = new ArrayList<>();
-        
-        // Get team results (ParticipateAt)
+        rankings.addAll(buildTeamRankings(trialId));
+        rankings.addAll(buildAthleteRankings(trialId));
+        return rankings;
+    }
+
+    private List<RankingDTO> buildTeamRankings(Integer trialId) {
+        List<RankingDTO> rankings = new ArrayList<>();
         List<ParticipateAt> teamResults = participateAtRepository.findByTrialIdOrderedByResult(trialId);
         int teamRank = 1;
         for (ParticipateAt participation : teamResults) {
@@ -208,8 +213,11 @@ public class TrialAdapter {
                 rankings.add(ranking);
             }
         }
-        
-        // Get athlete results (IsConvenedTo)
+        return rankings;
+    }
+
+    private List<RankingDTO> buildAthleteRankings(Integer trialId) {
+        List<RankingDTO> rankings = new ArrayList<>();
         List<IsConvenedTo> athleteResults = isConvenedToRepository.findByTrialIdOrderedByResult(trialId);
         int athleteRank = 1;
         for (IsConvenedTo convening : athleteResults) {
@@ -227,7 +235,6 @@ public class TrialAdapter {
                 rankings.add(ranking);
             }
         }
-        
         return rankings;
     }
 
