@@ -102,13 +102,13 @@ const RegisteredParticipantCard = ({ participant, onDragStart, onDragEnd, action
                     </div>
                 </div>
                 <div className="d-flex gap-1">
-                    {!participant.forfeit ? (
+                    {participant.forfeit ?  (
+                        <Button variant="outline-success" size="sm" disabled={actionLoading} onClick={() => onUnforfeit(participant)}>Annuler forfait</Button>
+                    ): (
                         <>
                             <Button variant="outline-secondary" size="sm" disabled={actionLoading} onClick={() => onRemove(participant)} title="Retirer">✕</Button>
                             <Button variant="outline-danger" size="sm" disabled={actionLoading} onClick={() => onForfeit(participant)}>Forfait</Button>
                         </>
-                    ) : (
-                        <Button variant="outline-success" size="sm" disabled={actionLoading} onClick={() => onUnforfeit(participant)}>Annuler forfait</Button>
                     )}
                 </div>
             </div>
