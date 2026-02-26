@@ -15,7 +15,7 @@ jobs:
         uses: docker/setup-buildx-action@v3
 
       - name: Build and start containers
-        run: docker-compose up -d --build
+        run: docker compose up -d --build
 
       - name: Wait for gateway and frontend
         run: |
@@ -39,6 +39,5 @@ jobs:
           browser: chrome
 
       - name: Shutdown containers
-        if: always()
-        run: docker-compose down -v
+        run: docker compose down -v
 
