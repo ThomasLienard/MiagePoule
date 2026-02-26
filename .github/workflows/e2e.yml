@@ -37,7 +37,3 @@ jobs:
           wait-on: 'http://localhost:3001'
           wait-on-timeout: 120
           browser: chrome
-
-      - name: Shutdown containers
-        run: docker compose down -v
-
