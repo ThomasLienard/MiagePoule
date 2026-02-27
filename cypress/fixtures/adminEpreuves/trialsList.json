@@ -1,0 +1,30 @@
+[
+  {
+    "trialId": 1,
+    "trialName": "100m Solo Trial",
+    "teamTrial": false,
+    "participants": [
+      { "id": 1 },
+      { "id": 2 },
+      { "id": 3 }
+    ]
+  },
+  {
+    "trialId": 2,
+    "trialName": "4x100m Relais Équipe",
+    "teamTrial": true,
+    "participants": [
+      { "id": 1 },
+      { "id": 2 }
+    ]
+  },
+  {
+    "trialId": 3,
+    "trialName": "200m Solo Trial",
+    "teamTrial": false,
+    "participants": [
+      { "id": 4 },
+      { "id": 5 }
+    ]
+  }
+]
