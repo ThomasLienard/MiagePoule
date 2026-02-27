@@ -595,7 +595,7 @@ class TrialAdapterTest {
     }
 
     @Test
-    @DisplayName("buildRankings() - Devrait construire les classements pour les athlètes")
+    @DisplayName("buildRankings() - Devrait construire les classements pour les athlètes sans forfait")
     void testBuildRankings_Athletes() {
         // Given
         ApplicationUser user1 = new ApplicationUser();
@@ -611,10 +611,12 @@ class TrialAdapterTest {
         IsConvenedTo convening1 = new IsConvenedTo();
         convening1.setUser(user1);
         convening1.setResult("100");
+        convening1.setIsForfeit(false);
 
         IsConvenedTo convening2 = new IsConvenedTo();
         convening2.setUser(user2);
         convening2.setResult("95");
+        convening2.setIsForfeit(false);
 
         when(isConvenedToRepository.findByTrialIdOrderedByResult(trial.getId()))
             .thenReturn(Arrays.asList(convening1, convening2));
@@ -633,6 +635,53 @@ class TrialAdapterTest {
         assertEquals(2, dto.getRankings().get(1).getRank());
         assertEquals("95", dto.getRankings().get(1).getResult());
         assertEquals("Jane Smith", dto.getRankings().get(1).getParticipantName());
+    }
+
+    @Test
+    @DisplayName("buildRankings() - Devrait construire les classements pour les athlètes avec forfait")
+    void testBuildRankings_AthletesForfeit() {
+        // Given
+        ApplicationUser user1 = new ApplicationUser();
+        user1.setId(1);
+        user1.setName("John");
+        user1.setLastname("Doe");
+
+        ApplicationUser user2 = new ApplicationUser();
+        user2.setId(2);
+        user2.setName("Jane");
+        user2.setLastname("Smith");
+
+        IsConvenedTo convening1 = new IsConvenedTo();
+        convening1.setUser(user1);
+        convening1.setResult(null);
+        convening1.setIsForfeit(true);
+
+        IsConvenedTo convening2 = new IsConvenedTo();
+        convening2.setUser(user2);
+        convening2.setResult("100");
+        convening2.setIsForfeit(false);
+
+        when(isConvenedToRepository.findByTrialIdOrderedByResult(trial.getId()))
+                .thenReturn(Arrays.asList(convening1, convening2));
+
+        // When
+        TrialDetailDTO dto = trialAdapter.entityToDetailDto(trial);
+
+        // Then
+        assertNotNull(dto);
+        assertEquals(2, dto.getRankings().size());
+
+        assertEquals(null, dto.getRankings().get(0).getRank());
+        assertEquals(null, dto.getRankings().get(0).getResult());
+        assertEquals(true, dto.getRankings().get(0).getIsForfeit());
+        assertEquals("John Doe", dto.getRankings().get(0).getParticipantName());
+        assertEquals("ATHLETE", dto.getRankings().get(0).getParticipantType());
+
+        assertEquals(1, dto.getRankings().get(1).getRank());
+        assertEquals("100", dto.getRankings().get(1).getResult());
+        assertEquals(false, dto.getRankings().get(1).getIsForfeit());
+        assertEquals("Jane Smith", dto.getRankings().get(1).getParticipantName());
+        assertEquals("ATHLETE", dto.getRankings().get(1).getParticipantType());
     }
 
     @Test
@@ -664,7 +713,7 @@ class TrialAdapterTest {
     }
 
     @Test
-    @DisplayName("buildRankings() - Devrait ignorer les résultats null")
+    @DisplayName("buildRankings() - Devrait ignorer les résultats null et sans forfait")
     void testBuildRankings_WithNullResults() {
         // Given
         Team team1 = new Team();
@@ -674,10 +723,12 @@ class TrialAdapterTest {
         ParticipateAt participation1 = new ParticipateAt();
         participation1.setTeam(team1);
         participation1.setResult("45");
+        participation1.setIsForfeit(false);
 
         ParticipateAt participation2 = new ParticipateAt();
         participation2.setTeam(team1);
         participation2.setResult(null);  // Null result should be filtered
+        participation2.setIsForfeit(false);
 
         when(participateAtRepository.findByTrialIdOrderedByResult(trial.getId()))
             .thenReturn(Arrays.asList(participation1, participation2));
@@ -689,6 +740,41 @@ class TrialAdapterTest {
         assertNotNull(dto);
         assertEquals(1, dto.getRankings().size());
         assertEquals("45", dto.getRankings().get(0).getResult());
+    }
+
+    @Test
+    @DisplayName("buildRankings() - Gérer le forfait")
+    void testBuildRankings_WithForfeit() {
+        // Given
+        Team team1 = new Team();
+        team1.setId(1);
+        team1.setName("Team Alpha");
+
+        ParticipateAt participation1 = new ParticipateAt();
+        participation1.setTeam(team1);
+        participation1.setResult(null);
+        participation1.setIsForfeit(true);
+
+        ParticipateAt participation2 = new ParticipateAt();
+        participation2.setTeam(team1);
+        participation2.setResult("45");
+        participation2.setIsForfeit(false);
+
+        when(participateAtRepository.findByTrialIdOrderedByResult(trial.getId()))
+                .thenReturn(Arrays.asList(participation1, participation2));
+
+        // When
+        TrialDetailDTO dto = trialAdapter.entityToDetailDto(trial);
+
+        // Then
+        assertNotNull(dto);
+        assertEquals(2, dto.getRankings().size());
+        assertNull(dto.getRankings().get(0).getResult());
+        assertEquals("45", dto.getRankings().get(1).getResult());
+        assertEquals(true, dto.getRankings().get(0).getIsForfeit());
+        assertEquals(false, dto.getRankings().get(1).getIsForfeit());
+        assertNull(dto.getRankings().get(0).getRank());
+        assertEquals(1, dto.getRankings().get(1).getRank());
     }
 }
 

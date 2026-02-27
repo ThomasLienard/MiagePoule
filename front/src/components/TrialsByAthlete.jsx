@@ -4,12 +4,13 @@ import participantService from "../services/participantService.jsx";
 import {isPastEvent} from "../utils/dateFormatter.js";
 import TrialsAndEventsCard from "./TrialsAndEventsCard.jsx";
 import {eventService} from "../services/eventService.jsx";
-import {Modal, Button, Spinner, Alert} from "react-bootstrap";
+import {Modal, Button, Spinner, Alert, Badge} from "react-bootstrap";
 import {useAuth} from "../contexts/AuthContext.jsx";
 
 const TrialsByAthlete = () => {
     const {athleteId} = useParams();
     const {user} = useAuth();
+    const [athlete, setAthlete] = useState(null);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
     const [trials, setTrials] = useState([]);
@@ -17,6 +18,7 @@ const TrialsByAthlete = () => {
     const [selectedTrial, setSelectedTrial] = useState(null);
     const [actionLoading, setActionLoading] = useState(false);
     const [successMessage, setSuccessMessage] = useState(null);
+    const [rankingMap, setRankingMap] = useState(null)
 
     // Vérifier si l'utilisateur connecté est celui dont on affiche les épreuves
     const isOwnProfile = user?.id === athleteId;
@@ -34,7 +36,7 @@ const TrialsByAthlete = () => {
             const detailedTrials = await Promise.all(
                 trialsTmp.map(async (trialSummary) => {
                     try {
-                        const eventDetails = await eventService.getById(trialSummary.id);
+                        const eventDetails = await eventService.getTrialById(trialSummary.id);
                         // Préserver le champ isForfeit du summary
                         return {
                             ...eventDetails,
@@ -46,13 +48,47 @@ const TrialsByAthlete = () => {
                 })
             );
 
+            const athleteData = await participantService.getAthleteById(athleteId);
+
+
             setTrials(detailedTrials);
+            setAthlete(athleteData);
+
+            setRankingMap(createRankingMap(detailedTrials))
         } catch (err) {
             setError(err.message);
         } finally {
             setLoading(false);
         }
     };
+
+    const createRankingMap = (detailedTrials) => {
+        const map = new Map();
+        for (const trial of detailedTrials) {
+            const athleteRanking = trial.rankings.find((rank) => {
+                if (rank.participantType === "ATHLETE") {
+                    return rank.participantId == athleteId
+                } else if (rank.participantType === "TEAM") {
+                    const team = trial.teamParticipants.find((team) => {
+                        return team.id === rank.participantId;
+                    })
+                    return team.members.find((member) => {
+                        return member.id == athleteId
+                    })
+                }
+                return false;
+
+            })
+            if (!athleteRanking) {
+                continue
+            }
+            map.set(trial.id, {
+                rank: athleteRanking.rank,
+                result: athleteRanking.result
+            })
+        }
+        return map;
+    }
 
     const handleOpenForfeitModal = (trial) => {
         setSelectedTrial(trial);
@@ -100,6 +136,12 @@ const TrialsByAthlete = () => {
 
     return (
         <>
+            <h2 className="text-center mt-3">
+                {athlete.fullName}
+            </h2>
+            <h4 className="text-center mb-3">
+                <Badge bg={"secondary"}>{athlete.country}</Badge>
+            </h4>
             {successMessage && (
                 <Alert 
                     variant="success" 
@@ -127,14 +169,15 @@ const TrialsByAthlete = () => {
                     <TrialsAndEventsCard 
                         trials={futurTrials()} 
                         events={[]} 
-                        title={"A venir"} 
+                        title={"A venir"}
                         showForfeitButton={isOwnProfile}
                         onForfeitClick={handleOpenForfeitModal}
+                        rankingMap={rankingMap}
                     />
                 </div>
                 <div className="vr d-none d-md-inline"></div>
                 <div className="d-flex flex-column w-100 mx-md-3 p-3">
-                    <TrialsAndEventsCard trials={pastTrials()} events={[]} title={"Passés"}/>
+                    <TrialsAndEventsCard trials={pastTrials()} events={[]} title={"Passés"} rankingMap={rankingMap}/>
                 </div>
             </div>
 

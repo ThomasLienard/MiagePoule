@@ -1,6 +1,7 @@
 package com.miage.pouleAPI.controllers;
 
 
+import com.miage.pouleAPI.dtos.participant.AthleteDTO;
 import com.miage.pouleAPI.dtos.participant.ParticipantDTO;
 import com.miage.pouleAPI.services.interfaces.ParticipantService;
 import org.junit.jupiter.api.BeforeEach;
@@ -15,7 +16,10 @@ import org.springframework.security.core.Authentication;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 
+import java.util.Optional;
+
 import static org.mockito.Mockito.*;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
@@ -102,6 +106,41 @@ class AthleteControllerTest {
                             .principal(authentication))
                     .andExpect(status().isBadRequest())
                     .andExpect(jsonPath("$.message").value("Vous êtes déjà déclaré forfait pour cette épreuve"));
+        }
+    }
+
+    @Nested
+    @DisplayName("GET /public/athlete/{athleteId}")
+    class GetAthleteByIdTests {
+
+        @Test
+        @DisplayName("Devrait renvoyer un athlete existant")
+        void getAthleteById_shouldSucceed() throws Exception {
+            AthleteDTO result = new AthleteDTO();
+            result.setId(1);
+            result.setFullName("Jean Poule");
+            result.setCountry("FR");
+
+            when(participantService.getAthleteById(1)).thenReturn(Optional.of(result));
+
+            mockMvc.perform(get("/public/athlete/1"))
+                    .andExpect(status().isOk())
+                    .andExpect(jsonPath("$.id").value(result.getId()))
+                    .andExpect(jsonPath("$.fullName").value(result.getFullName()))
+                    .andExpect(jsonPath("$.country").value(result.getCountry()));
+
+            verify(participantService).getAthleteById(1);
+        }
+
+        @Test
+        @DisplayName("Devrait renvoyer une erreur 404 quand l'athlète n'existe pas")
+        void getAthleteById_shouldFail() throws Exception {
+            when(participantService.getAthleteById(999)).thenReturn(Optional.empty());
+
+            mockMvc.perform(get("/public/athlete/999"))
+                    .andExpect(status().isNotFound());
+
+            verify(participantService).getAthleteById(999);
         }
     }
 }
