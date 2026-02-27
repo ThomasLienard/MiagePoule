@@ -195,8 +195,19 @@ public class TrialAdapter {
     }
 
     private List<RankingDTO> buildTeamRankings(Integer trialId) {
-        List<RankingDTO> rankings = new ArrayList<>();
         List<ParticipateAt> teamResults = participateAtRepository.findByTrialIdOrderedByResult(trialId);
+
+        // Résultats publics uniquement si tous les participants non-forfait ont un résultat validé
+        List<ParticipateAt> nonForfeit = teamResults.stream()
+                .filter(p -> !Boolean.TRUE.equals(p.getIsForfeit()))
+                .toList();
+        boolean allValidated = !nonForfeit.isEmpty()
+                && nonForfeit.stream().allMatch(p -> Boolean.TRUE.equals(p.getIsValidated()) && p.getResult() != null);
+        if (!allValidated) {
+            return new ArrayList<>();
+        }
+
+        List<RankingDTO> rankings = new ArrayList<>();
         int teamRank = 1;
         for (ParticipateAt participation : teamResults) {
             if (participation.getTeam() != null && (participation.getResult() != null || participation.getIsForfeit())) {
@@ -217,8 +228,19 @@ public class TrialAdapter {
     }
 
     private List<RankingDTO> buildAthleteRankings(Integer trialId) {
-        List<RankingDTO> rankings = new ArrayList<>();
         List<IsConvenedTo> athleteResults = isConvenedToRepository.findByTrialIdOrderedByResult(trialId);
+
+        // Résultats publics uniquement si tous les participants non-forfait ont un résultat validé
+        List<IsConvenedTo> nonForfeit = athleteResults.stream()
+                .filter(c -> !Boolean.TRUE.equals(c.getIsForfeit()))
+                .toList();
+        boolean allValidated = !nonForfeit.isEmpty()
+                && nonForfeit.stream().allMatch(c -> Boolean.TRUE.equals(c.getIsValidated()) && c.getResult() != null);
+        if (!allValidated) {
+            return new ArrayList<>();
+        }
+
+        List<RankingDTO> rankings = new ArrayList<>();
         int athleteRank = 1;
         for (IsConvenedTo convening : athleteResults) {
             if (convening.getUser() != null && (convening.getResult() != null || convening.getIsForfeit())) {
