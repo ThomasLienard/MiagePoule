@@ -115,19 +115,25 @@ class DocumentServiceImplTest {
     }
 
     @Test
-    void uploadDocument_userNotActivated_throwsException() {
+    void uploadDocument_accountAlreadyValidated_throwsException() {
         int userId = 1;
         ApplicationUser user = new ApplicationUser();
         user.setId(userId);
-        user.setIsAccountActivated(false); // Compte non activé
+        user.setIsAccountActivated(true);
+        user.setIsAccountValidated(true); // Compte déjà validé
+        Role role = new Role();
+        role.setRoleName("ATHLETE");
+        user.setRole(role);
         when(applicationUserRepository.findByIdAndIsActiveTrue(userId)).thenReturn(Optional.of(user));
 
         MockMultipartFile file = new MockMultipartFile("file", "test.pdf", "application/pdf", "data".getBytes());
 
-        IllegalStateException exception = assertThrows(IllegalStateException.class,
+        RuntimeException exception = assertThrows(RuntimeException.class,
                 () -> sut.uploadDocument(userId, file, 1, "desc"));
-        assertEquals("Account not activated. Please complete your profile first.", exception.getMessage());
+        assertTrue(exception.getCause() instanceof IllegalStateException);
+        assertTrue(exception.getMessage().contains("account is already validated"));
     }
+
 
     @Test
     void uploadDocument_volunteerUploadingCENAccreditation_success() throws Exception {
@@ -152,7 +158,13 @@ class DocumentServiceImplTest {
         MockMultipartFile file = new MockMultipartFile("file", "accred.pdf", "application/pdf", "data".getBytes());
         EncryptionService.EncryptedData encryptedData = new EncryptionService.EncryptedData("enc".getBytes(), "key", "iv");
         when(encryptionService.encrypt(any())).thenReturn(encryptedData);
-        when(documentRepository.save(any())).thenReturn(new Document());
+
+        // Retourner un document avec le type défini
+        Document savedDoc = new Document();
+        savedDoc.setId(1);
+        savedDoc.setType(type);
+        savedDoc.setUser(user);
+        when(documentRepository.save(any())).thenReturn(savedDoc);
 
         assertDoesNotThrow(() -> sut.uploadDocument(userId, file, typeId, "desc"));
     }
@@ -180,7 +192,13 @@ class DocumentServiceImplTest {
         MockMultipartFile file = new MockMultipartFile("file", "medical.pdf", "application/pdf", "data".getBytes());
         EncryptionService.EncryptedData encryptedData = new EncryptionService.EncryptedData("enc".getBytes(), "key", "iv");
         when(encryptionService.encrypt(any())).thenReturn(encryptedData);
-        when(documentRepository.save(any())).thenReturn(new Document());
+
+        // Retourner un document avec le type défini
+        Document savedDoc = new Document();
+        savedDoc.setId(2);
+        savedDoc.setType(type);
+        savedDoc.setUser(user);
+        when(documentRepository.save(any())).thenReturn(savedDoc);
 
         assertDoesNotThrow(() -> sut.uploadDocument(userId, file, typeId, "desc"));
     }
@@ -203,36 +221,56 @@ class DocumentServiceImplTest {
         type.setName("PASSPORT");
         when(typeOfDocumentRepository.findById(typeId)).thenReturn(Optional.of(type));
 
+
         MockMultipartFile file = new MockMultipartFile("file", "passport.pdf", "application/pdf", "data".getBytes());
 
-        SecurityException exception = assertThrows(SecurityException.class,
+        RuntimeException exception = assertThrows(RuntimeException.class,
                 () -> sut.uploadDocument(userId, file, typeId, "desc"));
-        assertEquals("Only ATHLETES can upload passports and medical certificates", exception.getMessage());
+        assertTrue(exception.getCause() instanceof SecurityException);
+        assertTrue(exception.getMessage().contains("Only ATHLETES can upload passports"));
     }
 
     @Test
     void uploadDocument_quotaExceeded_throwsException() {
         int userId = 1;
-        when(applicationUserRepository.findByIdAndIsActiveTrue(userId)).thenReturn(Optional.of(new ApplicationUser()));
-        when(typeOfDocumentRepository.findById(any())).thenReturn(Optional.of(new TypeOfDocument()));
+        ApplicationUser user = new ApplicationUser();
+        user.setId(userId);
+        user.setIsAccountActivated(true);
+        Role role = new Role();
+        role.setRoleName("ATHLETE");
+        user.setRole(role);
+        when(applicationUserRepository.findByIdAndIsActiveTrue(userId)).thenReturn(Optional.of(user));
+
+        TypeOfDocument type = new TypeOfDocument();
+        type.setId(1);
+        type.setName("PASSPORT");
+        when(typeOfDocumentRepository.findById(any())).thenReturn(Optional.of(type));
         when(documentRepository.countByUserId(userId)).thenReturn(20L); // Quota max
 
         MockMultipartFile file = new MockMultipartFile("file", "test.pdf", "application/pdf", "data".getBytes());
 
-        IllegalStateException exception = assertThrows(IllegalStateException.class,
+        RuntimeException exception = assertThrows(RuntimeException.class,
                 () -> sut.uploadDocument(userId, file, 1, "desc"));
-        assertEquals("Document quota exceeded. Maximum 20 documents per user.", exception.getMessage());
+        assertTrue(exception.getCause() instanceof IllegalStateException);
+        assertTrue(exception.getMessage().contains("Document quota exceeded"));
     }
 
     @Test
     void uploadDocument_invalidFileType_throwsException() {
         int userId = 1;
-        when(applicationUserRepository.findByIdAndIsActiveTrue(userId)).thenReturn(Optional.of(new ApplicationUser()));
+        ApplicationUser user = new ApplicationUser();
+        user.setId(userId);
+        user.setIsAccountActivated(true);
+        Role role = new Role();
+        role.setRoleName("ATHLETE");
+        user.setRole(role);
+        when(applicationUserRepository.findByIdAndIsActiveTrue(userId)).thenReturn(Optional.of(user));
 
         MockMultipartFile file = new MockMultipartFile("file", "test.exe", "application/x-msdownload", "data".getBytes());
 
-        IllegalArgumentException exception = assertThrows(IllegalArgumentException.class,
+        RuntimeException exception = assertThrows(RuntimeException.class,
                 () -> sut.uploadDocument(userId, file, 1, "desc"));
+        assertTrue(exception.getCause() instanceof IllegalArgumentException);
         assertTrue(exception.getMessage().contains("Content type not allowed"));
     }
 
@@ -269,10 +307,17 @@ class DocumentServiceImplTest {
     void getUserDocuments_returnsAllUserDocuments() {
         int userId = 2;
 
+        TypeOfDocument type1 = new TypeOfDocument();
+        type1.setName("PASSPORT");
+        TypeOfDocument type2 = new TypeOfDocument();
+        type2.setName("ID_CARD");
+
         Document d1 = new Document();
         d1.setId(1);
+        d1.setType(type1);
         Document d2 = new Document();
         d2.setId(2);
+        d2.setType(type2);
 
         when(documentRepository.findByUserId(userId)).thenReturn(List.of(d1, d2));
 
@@ -285,10 +330,15 @@ class DocumentServiceImplTest {
         int userId = 2;
         String typeName = "PASSPORT";
 
+        TypeOfDocument type = new TypeOfDocument();
+        type.setName(typeName);
+
         Document d1 = new Document();
         d1.setId(1);
+        d1.setType(type);
         Document d2 = new Document();
         d2.setId(2);
+        d2.setType(type);
 
         when(documentRepository.findByUserIdAndTypeName(userId, typeName)).thenReturn(List.of(d1, d2));
 
@@ -301,9 +351,13 @@ class DocumentServiceImplTest {
         int userId = 1;
         int docId = 5;
 
+        TypeOfDocument type = new TypeOfDocument();
+        type.setName("PASSPORT");
+
         Document doc = new Document();
         doc.setId(docId);
         doc.setFileName("test.pdf");
+        doc.setType(type);
 
         when(documentRepository.findByUserIdAndId(userId, docId)).thenReturn(Optional.of(doc));
 

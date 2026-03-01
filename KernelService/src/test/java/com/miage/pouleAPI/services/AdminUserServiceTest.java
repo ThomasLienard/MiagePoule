@@ -929,4 +929,90 @@ class AdminUserServiceTest {
             verify(userRepository, times(2)).save(any(ApplicationUser.class));
         }
     }
+
+    @Nested
+    @DisplayName("Tests validateUserAccount")
+    class ValidateUserAccountTests {
+
+        @Test
+        @DisplayName("Devrait valider un compte utilisateur")
+        void validateUserAccount_shouldValidateAccount() {
+            testUser.setIsAccountValidated(false);
+            when(userRepository.findById(1)).thenReturn(Optional.of(testUser));
+            when(userRepository.save(any())).thenAnswer(i -> i.getArguments()[0]);
+
+            UserDto result = adminUserService.validateUserAccount(1);
+
+            ArgumentCaptor<ApplicationUser> captor = ArgumentCaptor.forClass(ApplicationUser.class);
+            verify(userRepository).save(captor.capture());
+
+            ApplicationUser saved = captor.getValue();
+            assertThat(saved.getIsAccountValidated()).isTrue();
+            assertThat(result.isAccountValidated()).isTrue();
+        }
+
+        @Test
+        @DisplayName("Devrait lever exception si compte déjà validé")
+        void validateUserAccount_shouldThrowIfAlreadyValidated() {
+            testUser.setIsAccountValidated(true);
+            when(userRepository.findById(1)).thenReturn(Optional.of(testUser));
+
+            assertThatThrownBy(() -> adminUserService.validateUserAccount(1))
+                .isInstanceOf(IllegalStateException.class)
+                .hasMessageContaining("Ce compte est déjà validé");
+        }
+
+        @Test
+        @DisplayName("Devrait lever exception si utilisateur non trouvé")
+        void validateUserAccount_shouldThrowIfNotFound() {
+            when(userRepository.findById(999)).thenReturn(Optional.empty());
+
+            assertThatThrownBy(() -> adminUserService.validateUserAccount(999))
+                .isInstanceOf(IllegalArgumentException.class)
+                .hasMessageContaining("Utilisateur non trouvé");
+        }
+    }
+
+    @Nested
+    @DisplayName("Tests invalidateUserAccount")
+    class InvalidateUserAccountTests {
+
+        @Test
+        @DisplayName("Devrait invalider un compte utilisateur")
+        void invalidateUserAccount_shouldInvalidateAccount() {
+            testUser.setIsAccountValidated(true);
+            when(userRepository.findById(1)).thenReturn(Optional.of(testUser));
+            when(userRepository.save(any())).thenAnswer(i -> i.getArguments()[0]);
+
+            UserDto result = adminUserService.invalidateUserAccount(1);
+
+            ArgumentCaptor<ApplicationUser> captor = ArgumentCaptor.forClass(ApplicationUser.class);
+            verify(userRepository).save(captor.capture());
+
+            ApplicationUser saved = captor.getValue();
+            assertThat(saved.getIsAccountValidated()).isFalse();
+            assertThat(result.isAccountValidated()).isFalse();
+        }
+
+        @Test
+        @DisplayName("Devrait lever exception si compte déjà invalidé")
+        void invalidateUserAccount_shouldThrowIfAlreadyInvalidated() {
+            testUser.setIsAccountValidated(false);
+            when(userRepository.findById(1)).thenReturn(Optional.of(testUser));
+
+            assertThatThrownBy(() -> adminUserService.invalidateUserAccount(1))
+                .isInstanceOf(IllegalStateException.class)
+                .hasMessageContaining("Ce compte est déjà invalidé");
+        }
+
+        @Test
+        @DisplayName("Devrait lever exception si utilisateur non trouvé")
+        void invalidateUserAccount_shouldThrowIfNotFound() {
+            when(userRepository.findById(999)).thenReturn(Optional.empty());
+
+            assertThatThrownBy(() -> adminUserService.invalidateUserAccount(999))
+                .isInstanceOf(IllegalArgumentException.class)
+                .hasMessageContaining("Utilisateur non trouvé");
+        }
+    }
 }

@@ -14,4 +14,11 @@ public interface DocumentService {
     byte[] downloadDocument(Integer userId, Integer documentId);
     void deleteDocument(Integer userId, Integer documentId);
     long getUserDocumentCount(Integer userId);
+
+    // Méthodes pour les tickets
+    DocumentResponse uploadTicket(Integer userId, MultipartFile file, Integer typeId, String description);
+    List<DocumentDTO> getUserTickets(Integer userId);
+    DocumentDTO getTicketById(Integer userId, Integer documentId);
+    byte[] downloadTicket(Integer userId, Integer documentId);
+    void deleteTicket(Integer userId, Integer documentId);
 }

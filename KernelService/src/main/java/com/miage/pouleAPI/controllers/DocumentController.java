@@ -108,6 +108,70 @@ public class DocumentController {
         return ResponseEntity.ok(count);
     }
 
+    // ===== ENDPOINTS POUR LES TICKETS =====
+
+    @PostMapping(value = "/tickets/upload", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+    public ResponseEntity<DocumentResponse> uploadTicket(
+            @AuthenticationPrincipal UserDetails userDetails,
+            @ModelAttribute DocumentUploadRequest request) {
+
+        Integer userId = getUserIdFromUserDetails(userDetails);
+        DocumentResponse response = documentService.uploadTicket(
+                userId,
+                request.getFile(),
+                request.getTypeId(),
+                request.getDescription()
+        );
+
+        return ResponseEntity.status(HttpStatus.CREATED).body(response);
+    }
+
+    @GetMapping("/tickets")
+    public ResponseEntity<List<DocumentDTO>> getUserTickets(
+            @AuthenticationPrincipal UserDetails userDetails) {
+
+        Integer userId = getUserIdFromUserDetails(userDetails);
+        List<DocumentDTO> tickets = documentService.getUserTickets(userId);
+        return ResponseEntity.ok(tickets);
+    }
+
+    @GetMapping("/tickets/{ticketId}")
+    public ResponseEntity<DocumentDTO> getTicketById(
+            @AuthenticationPrincipal UserDetails userDetails,
+            @PathVariable("ticketId") Integer ticketId) {
+
+        Integer userId = getUserIdFromUserDetails(userDetails);
+        DocumentDTO ticket = documentService.getTicketById(userId, ticketId);
+        return ResponseEntity.ok(ticket);
+    }
+
+    @GetMapping("/tickets/{ticketId}/download")
+    public ResponseEntity<byte[]> downloadTicket(
+            @AuthenticationPrincipal UserDetails userDetails,
+            @PathVariable("ticketId") Integer ticketId) {
+
+        Integer userId = getUserIdFromUserDetails(userDetails);
+        byte[] fileContent = documentService.downloadTicket(userId, ticketId);
+
+        HttpHeaders headers = new HttpHeaders();
+        headers.setContentType(MediaType.APPLICATION_PDF);
+        headers.setContentDispositionFormData("attachment", "ticket_" + ticketId + ".pdf");
+        headers.setContentLength(fileContent.length);
+        headers.setCacheControl("no-cache, no-store, must-revalidate");
+
+        return new ResponseEntity<>(fileContent, headers, HttpStatus.OK);
+    }
+
+    @DeleteMapping("/tickets/{ticketId}")
+    public ResponseEntity<Void> deleteTicket(
+            @AuthenticationPrincipal UserDetails userDetails,
+            @PathVariable("ticketId") Integer ticketId) {
+
+        Integer userId = getUserIdFromUserDetails(userDetails);
+        documentService.deleteTicket(userId, ticketId);
+        return ResponseEntity.noContent().build();
+    }
+
     // Méthode utilitaire pour obtenir l'ID utilisateur
     private Integer getUserIdFromUserDetails(UserDetails userDetails) {
         if (userDetails == null) {

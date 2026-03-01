@@ -8,9 +8,11 @@ import {
   Alert,
   Tab,
   Tabs,
+  Accordion,
+  Badge,
 } from "react-bootstrap";
 import { useAuth } from "../../contexts/AuthContext";
-import { AlertCircle, User, FileText } from "lucide-react";
+import { AlertCircle, User, FileText, FileSignature } from "lucide-react";
 import axios from "axios";
 import ChangePassword from "./ChangePassword.jsx";
 import DocumentUpload from "./DocumentUpload.jsx";
@@ -29,6 +31,7 @@ const Profile = () => {
   const [showPassModal, setShowPassModal] = useState(false);
   const [documents, setDocuments] = useState({});
   const [activeTab, setActiveTab] = useState("profile");
+  const [hasRead, setHasRead] = useState(false); // État pour forcer le dépliage de la charte
   const API_URL = "http://localhost:8084";
   const token = localStorage.getItem("token");
   const config = { headers: { Authorization: `Bearer ${token}` } };
@@ -63,8 +66,21 @@ const Profile = () => {
         // Charger les documents existants
         await loadDocuments();
 
-        // Si le compte n'est pas validé, afficher l'onglet documents
-        if (!userRes.data.isAccountActivated) {
+        // Déterminer l'onglet par défaut
+        const roleName = authUser?.roles?.[0]?.toUpperCase();
+
+        // Si ATHLETE et charte non signée, afficher onglet charte
+        if (roleName === "ATHLETE" && !userRes.data.hasSignedCharter) {
+          setActiveTab("charter");
+        }
+        // Sinon si le compte n'est pas validé et nécessite des documents, afficher onglet documents
+        else if (
+          !userRes.data.isAccountValidated &&
+          (roleName === "VOLONTAIRE" ||
+            roleName === "COMMISSAIRE" ||
+            roleName === "ATHLETE" ||
+            roleName === "SPORTIF")
+        ) {
           setActiveTab("documents");
         }
       } catch (err) {
@@ -138,12 +154,26 @@ const Profile = () => {
     try {
       // Recharger les infos utilisateur pour vérifier le statut
       const userRes = await axios.get(`${API_URL}/account`, config);
-      if (userRes.data.isAccountActivated) {
+      if (userRes.data.isAccountValidated) {
         setIsAccountValidated(true);
         localStorage.setItem("isAccountValidated", "true");
       }
     } catch (error) {
       console.error("Erreur de vérification du compte:", error);
+    }
+  };
+
+  const handleSignCharter = async () => {
+    try {
+      await axios.post(`${API_URL}/account/sign-charter`, {}, config);
+      setUser({
+        ...user,
+        hasSignedCharter: true,
+        charterSignedAt: new Date().toISOString(),
+      });
+      setMessage({ type: "success", text: "Charte signée avec succès !" });
+    } catch (error) {
+      setMessage({ type: "danger", text: "Erreur lors de la signature." });
     }
   };
 
@@ -254,17 +284,17 @@ const Profile = () => {
                     <p>
                       <strong>Rôle :</strong> {userRole || "Non renseigné"}
                     </p>
-                    {user.isAccountActivated !== undefined && (
+                    {user.isAccountValidated !== undefined && (
                       <p>
                         <strong>Statut :</strong>{" "}
                         <span
                           className={
-                            user.isAccountActivated
+                            user.isAccountValidated
                               ? "text-success"
                               : "text-warning"
                           }
                         >
-                          {user.isAccountActivated
+                          {user.isAccountValidated
                             ? "✓ Compte validé"
                             : "⏳ En attente de validation"}
                         </span>
@@ -373,30 +403,70 @@ const Profile = () => {
               <div className="mt-3">
                 {hasRequiredDocuments ? (
                   <>
-                    <h5 className="mb-3">Documents requis</h5>
-                    <p className="text-muted mb-4">
-                      Déposez vos documents d'accréditation. Ils seront chiffrés
-                      et stockés en toute sécurité.
-                    </p>
+                    {user.isAccountValidated ? (
+                      // Compte déjà validé - afficher message et documents existants
+                      <>
+                        <Alert variant="success" className="mb-4">
+                          <strong>✓ Compte validé</strong>
+                          <p className="mb-0 mt-2">
+                            Votre compte a été validé par un administrateur. Vos
+                            documents d'accréditation sont enregistrés et vous
+                            ne pouvez plus en uploader de nouveaux.
+                          </p>
+                        </Alert>
 
-                    {requiredDocuments.map((doc) => (
-                      <DocumentUpload
-                        key={doc.type}
-                        documentType={doc.typeId}
-                        label={doc.label}
-                        description={doc.description}
-                        existingDocument={documents[doc.type]}
-                        onUploadSuccess={handleDocumentUploadSuccess}
-                      />
-                    ))}
+                        <h5 className="mb-3">Vos documents enregistrés</h5>
+                        {requiredDocuments.map((doc) => {
+                          const existingDoc = documents[doc.type];
+                          return existingDoc ? (
+                            <Card key={doc.type} className="mb-3">
+                              <Card.Body>
+                                <div className="d-flex justify-content-between align-items-center">
+                                  <div>
+                                    <h6 className="mb-1">{doc.label}</h6>
+                                    <p className="text-muted mb-0 small">
+                                      Uploadé le{" "}
+                                      {new Date(
+                                        existingDoc.uploadedAt,
+                                      ).toLocaleDateString("fr-FR")}
+                                    </p>
+                                  </div>
+                                  <span className="badge bg-success">
+                                    Validé
+                                  </span>
+                                </div>
+                              </Card.Body>
+                            </Card>
+                          ) : null;
+                        })}
+                      </>
+                    ) : (
+                      // Compte non validé - permettre l'upload
+                      <>
+                        <h5 className="mb-3">Documents requis</h5>
+                        <p className="text-muted mb-4">
+                          Déposez vos documents d'accréditation. Ils seront
+                          chiffrés et stockés en toute sécurité.
+                        </p>
 
-                    {!isAccountValidated && (
-                      <Alert variant="info" className="mt-4">
-                        <strong>Information :</strong> Une fois tous vos
-                        documents déposés, votre compte sera examiné par un
-                        administrateur. Vous recevrez une notification une fois
-                        votre compte validé.
-                      </Alert>
+                        {requiredDocuments.map((doc) => (
+                          <DocumentUpload
+                            key={doc.type}
+                            documentType={doc.typeId}
+                            label={doc.label}
+                            description={doc.description}
+                            existingDocument={documents[doc.type]}
+                            onUploadSuccess={handleDocumentUploadSuccess}
+                          />
+                        ))}
+
+                        <Alert variant="info" className="mt-4">
+                          <strong>Information :</strong> Une fois tous vos
+                          documents déposés, votre compte sera examiné par un
+                          administrateur. Vous recevrez une notification une
+                          fois votre compte validé.
+                        </Alert>
+                      </>
                     )}
                   </>
                 ) : (
@@ -410,6 +480,170 @@ const Profile = () => {
                 )}
               </div>
             </Tab>
+
+            {/* ONGLET CHARTE (ATHLÈTE UNIQUEMENT) */}
+            {userRole === "ATHLETE" && (
+              <Tab
+                eventKey="charter"
+                title={
+                  <span>
+                    <FileSignature size={16} className="me-1" />
+                    Charte Européenne
+                    {!user?.hasSignedCharter && (
+                      <span className="badge bg-warning text-dark ms-2">!</span>
+                    )}
+                  </span>
+                }
+              >
+                <div className="mt-3">
+                  <Card className="border-secondary">
+                    <Card.Header className="bg-secondary text-white text-center">
+                      <h5 className="mb-0">Charte Européenne du Sport</h5>
+                    </Card.Header>
+                    <Card.Body>
+                      <p className="text-muted small">
+                        Conformément à la Recommandation CM/Rec(2021)5, veuillez
+                        lire les principes fondamentaux avant de signer.
+                      </p>
+
+                      <Accordion
+                        onSelect={() => setHasRead(true)}
+                        className="mb-3"
+                      >
+                        <Accordion.Item eventKey="0">
+                          <Accordion.Header>
+                            Lire le texte de la Charte révisée (2021)
+                          </Accordion.Header>
+                          <Accordion.Body
+                            style={{
+                              maxHeight: "400px",
+                              overflowY: "auto",
+                              fontSize: "0.9rem",
+                            }}
+                          >
+                            <div className="text-center mb-3">
+                              <Badge bg="light" text="dark" className="border">
+                                ANNEXE À LA RECOMMANDATION CM/REC(2021)5
+                              </Badge>
+                              <div className="mt-2 fw-bold text-uppercase">
+                                Charte Européenne du Sport (Révisée)
+                              </div>
+                            </div>
+
+                            <h6 className="fw-bold text-primary">
+                              Article 1 – But de la charte
+                            </h6>
+                            <p>
+                              La présente charte a pour but de donner des
+                              orientations pour mettre en valeur les bénéfices
+                              du sport sur les plans individuel et social. Elle
+                              vise à protéger et développer un sport fondé sur
+                              des valeurs et les droits de l'homme.
+                            </p>
+
+                            <h6 className="fw-bold text-primary">
+                              Article 2 – Définition du sport
+                            </h6>
+                            <p>
+                              On entend par « sport » toutes formes d'activités
+                              physiques qui, à travers une participation
+                              organisée ou non, ont pour objectif l'expression
+                              ou l'amélioration de la condition physique et
+                              psychique, le développement des relations sociales
+                              ou l'obtention de résultats en compétition.
+                            </p>
+
+                            <h6 className="fw-bold text-primary">
+                              Article 6 – Droits de l'homme
+                            </h6>
+                            <p>
+                              Toutes les parties prenantes du sport doivent
+                              respecter et protéger les droits de l'homme et les
+                              libertés fondamentales. Cela inclut une politique
+                              de <strong>tolérance zéro</strong> face à la
+                              violence et aux comportements discriminatoires.
+                            </p>
+
+                            <h6 className="fw-bold text-primary">
+                              Article 8 – Intégrité du sport
+                            </h6>
+                            <p>
+                              L'intégrité englobe les composantes personnelles,
+                              de compétition et organisationnelles. Signer cette
+                              charte implique un engagement ferme contre :
+                              <ul className="mt-1">
+                                <li>
+                                  La corruption et la manipulation des
+                                  compétitions.
+                                </li>
+                                <li>Le dopage sous toutes ses formes.</li>
+                                <li>
+                                  Les mauvais traitements et l'exploitation.
+                                </li>
+                              </ul>
+                            </p>
+
+                            <h6 className="fw-bold text-primary">
+                              Article 10 – Droit au sport
+                            </h6>
+                            <p>
+                              L'accès au sport pour tous est considéré comme un
+                              droit fondamental. Tout être humain a le droit
+                              inaliénable d'accéder au sport dans un
+                              environnement sain, sûr et éthique.
+                            </p>
+
+                            <h6 className="fw-bold text-primary">
+                              Article 11 – Sport et développement durable
+                            </h6>
+                            <p>
+                              Les activités sportives doivent être planifiées et
+                              pratiquées de manière à respecter l'environnement
+                              et à promouvoir la durabilité sociale et
+                              économique.
+                            </p>
+
+                            <hr />
+                            <div className="text-center mt-3 small bg-light p-2 rounded">
+                              Version complète :{" "}
+                              <a
+                                href="https://www.coe.int/fr/web/sport/european-sports-charter"
+                                target="_blank"
+                                rel="noopener noreferrer"
+                              >
+                                coe.int/sport
+                              </a>
+                            </div>
+                          </Accordion.Body>
+                        </Accordion.Item>
+                      </Accordion>
+
+                      <div className="bg-light p-3 rounded">
+                        <Form.Check
+                          type="checkbox"
+                          id="check-charte"
+                          label="Je m'engage à respecter les principes de la Charte Européenne du Sport."
+                          disabled={user?.hasSignedCharter || !hasRead}
+                          checked={user?.hasSignedCharter || false}
+                          onChange={handleSignCharter}
+                          className={
+                            user?.hasSignedCharter ? "text-success fw-bold" : ""
+                          }
+                        />
+                        {user?.hasSignedCharter && (
+                          <div className="mt-2 small text-success">
+                            ✅ Signée numériquement le{" "}
+                            {new Date(user.charterSignedAt).toLocaleDateString(
+                              "fr-FR",
+                            )}
+                          </div>
+                        )}
+                      </div>
+                    </Card.Body>
+                  </Card>
+                </div>
+              </Tab>
+            )}
           </Tabs>
         </Card.Body>
       </Card>

@@ -76,8 +76,7 @@ export const documentService = {
   uploadTicket: async (file, description) => {
     const formData = new FormData();
     formData.append("file", file);
-    formData.append("typeId", "3");
-    // Pas besoin de typeId si c'est toujours "TICKET"
+    formData.append("typeId", "1"); // ID 1 correspond à TICKET dans la base de données
     if (description) {
       formData.append("description", description);
     }
@@ -142,6 +141,32 @@ export const documentService = {
   getDocumentCount: async () => {
     const response = await getAxiosInstance().get("/count");
     return response.data;
+  },
+
+  // ===== MÉTHODES POUR LES TICKETS =====
+
+  // Récupérer tous les tickets de l'utilisateur
+  getUserTickets: async () => {
+    try {
+      const response = await getAxiosInstance().get("/tickets");
+      return response.data;
+    } catch (error) {
+      console.error("Erreur lors de la récupération des tickets:", error);
+      throw error;
+    }
+  },
+
+  // Télécharger un ticket
+  downloadTicket: async (ticketId) => {
+    const response = await getAxiosInstance().get(`/tickets/${ticketId}/download`, {
+      responseType: "blob",
+    });
+    return response.data;
+  },
+
+  // Supprimer un ticket
+  deleteTicket: async (ticketId) => {
+    await getAxiosInstance().delete(`/tickets/${ticketId}`);
   },
 };
 
