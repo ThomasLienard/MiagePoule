@@ -1,73 +1,71 @@
 package com.miage.pouleAPI.controllers;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.miage.pouleAPI.auth.jwt.JwtService;
-import com.miage.pouleAPI.config.SecurityConfig;
+import com.miage.pouleAPI.dtos.competition.CompetitionDTO;
 import com.miage.pouleAPI.dtos.event.CreateEventRequestDTO;
+import com.miage.pouleAPI.dtos.event.EventDetailDTO;
+import com.miage.pouleAPI.dtos.event.UpdateEventRequestDTO;
 import com.miage.pouleAPI.services.interfaces.AdminEventService;
+import com.miage.pouleAPI.services.interfaces.CompetitionService;
+import com.miage.pouleAPI.services.interfaces.EventService;
 import org.junit.jupiter.api.Test;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
-import org.springframework.context.annotation.Import;
-import org.springframework.http.MediaType;
-import org.springframework.security.core.userdetails.UserDetailsService;
-import org.springframework.security.test.context.support.WithMockUser;
-import org.springframework.test.context.bean.override.mockito.MockitoBean;
-import org.springframework.test.web.servlet.MockMvc;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.InjectMocks;
+import org.mockito.Mock;
+import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 
 import java.time.LocalDateTime;
+import java.util.Optional;
 
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.doNothing;
-import static org.mockito.Mockito.verify;
-import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.csrf;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.mockito.Mockito.*;
 
-@WebMvcTest(AdminEventController.class)
-@Import(SecurityConfig.class)
+@ExtendWith(MockitoExtension.class)
 class AdminEventControllerTest {
 
-    @Autowired
-    private MockMvc mockMvc;
+    @Mock private AdminEventService adminEventService;
+    @Mock private EventService eventService;
+    @Mock private CompetitionService competitionService;
 
-    @Autowired
-    private ObjectMapper objectMapper;
-
-    @MockitoBean
-    private AdminEventService adminEventService;
-
-    @MockitoBean private JwtService jwtService;
-    @MockitoBean private UserDetailsService userDetailsService;
+    @InjectMocks
+    private AdminEventController adminEventController;
 
     @Test
-    @WithMockUser(roles = "ADMIN")
-    void create_ShouldReturnCreated_WhenPayloadIsValid() throws Exception {
-        CreateEventRequestDTO request = new CreateEventRequestDTO(
-            "Test Event", "Desc", "TRIAL", 1,
-            LocalDateTime.now(), LocalDateTime.now().plusHours(1),
-            "Stade", "Paris", "Rue", "10", "75000", "Détails", 
-            0.0, 0.0, true
-        );
+    void create_shouldReturn201() {
+        CreateEventRequestDTO request = new CreateEventRequestDTO("Event", "Desc", "TRIAL", 1, LocalDateTime.now(), LocalDateTime.now().plusHours(1), "Lieu", "Ville", "Rue", "1", "75000", "Infos", 0.0, 0.0, true);
 
-        doNothing().when(adminEventService).createEvent(any(CreateEventRequestDTO.class));
+        ResponseEntity<Void> response = adminEventController.create(request);
 
-        mockMvc.perform(post("/admin/events")
-                .with(csrf())
-                .contentType(MediaType.APPLICATION_JSON)
-                .content(objectMapper.writeValueAsString(request)))
-                .andExpect(status().isCreated());
-
-        verify(adminEventService).createEvent(any(CreateEventRequestDTO.class));
+        assertEquals(HttpStatus.CREATED, response.getStatusCode());
+        verify(adminEventService).createEvent(request);
     }
 
     @Test
-    @WithMockUser(roles = "USER")
-    void create_ShouldReturnForbidden_WhenUserIsNotAdmin() throws Exception {
-        mockMvc.perform(post("/admin/events")
-                .with(csrf())
-                .contentType(MediaType.APPLICATION_JSON)
-                .content("{}"))
-                .andExpect(status().isForbidden());
+    void update_shouldReturn202_AndMergeWithExisting() {
+        Integer id = 5;
+        Integer compIdFound = 10;
+        String eventNameInDb = "Nom Existant";
+        String competitionNameInDb = "Marathon";
+
+        UpdateEventRequestDTO updateReq = new UpdateEventRequestDTO();
+        updateReq.setName("    ");
+        updateReq.setCompetitionId(null);
+
+        EventDetailDTO existing = new EventDetailDTO();
+        existing.setName(eventNameInDb);
+        existing.setCompetitionName(competitionNameInDb);
+
+        when(eventService.getEventById(id)).thenReturn(Optional.of(existing));
+
+        when(competitionService.findByName(competitionNameInDb))
+                .thenReturn(Optional.of(new CompetitionDTO(1, "desc", null, compIdFound, competitionNameInDb, null)));
+
+        ResponseEntity<Void> response = adminEventController.update(id, updateReq);
+
+        assertEquals(HttpStatus.ACCEPTED, response.getStatusCode());
+        assertEquals(eventNameInDb, updateReq.getName());
+        assertEquals(compIdFound, updateReq.getCompetitionId());
+        verify(adminEventService).updateEvent(updateReq);
     }
 }

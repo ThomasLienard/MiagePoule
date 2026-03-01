@@ -12,4 +12,5 @@ public interface ChampionshipService {
     List<ChampionshipDTO> findAll();
     Optional<ChampionshipDTO> findById(Integer id);
     ChampionshipDTO save (CreateChampionshipRequestDTO championship);
+    ChampionshipDTO update (ChampionshipDTO championship);
 }
