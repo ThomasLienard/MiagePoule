@@ -75,8 +75,9 @@ VALUES ('Olympic Stadium', 'Paris', '75000', 'Main Street', TRUE, '10',
 -- Time slots
 -- ======================
 INSERT INTO time_slot (start_time, end_time)
-VALUES ('2025-01-01 09:00:00', '2025-01-01 10:00:00'),
-       ('2026-09-10 09:00:00', '2026-09-10 10:00:00');
+VALUES ('2025-01-01 09:00:00', '2025-01-01 10:00:00'),     -- id=1 : passé (épreuve commencée)
+       ('2026-09-10 09:00:00', '2026-09-10 10:00:00'),      -- id=2 : futur (épreuve pas encore commencée)
+       ('2025-06-15 09:00:00', '2025-06-15 11:00:00');      -- id=3 : passé — épreuves pour tests résultats
 -- ======================
 -- Events
 -- ======================
@@ -86,7 +87,9 @@ VALUES ( 'Morning Sprint Session', 'Speed training', 'TRAINING', 1, 1, 1),
        ( 'Final Sprint Race', 'Official competition', 'TRIAL', 1, 2, 2),
        ( '400m Trial', 'Medium distance race', 'TRIAL', 1, 2, 2),
        ('Team Relay Trial', 'Team competition', 'TRIAL', 1, 2, 2),
-       ( 'Individual 800m Trial', 'Distance race', 'TRIAL', 1, 2, 2);
+       ( 'Individual 800m Trial', 'Distance race', 'TRIAL', 1, 2, 2),
+       ( 'Past Solo Trial', 'Épreuve solo passée — tests résultats', 'TRIAL', 1, 3, 1),
+       ( 'Past Team Trial', 'Épreuve équipe passée — tests résultats', 'TRIAL', 1, 3, 1);
 
 -- ======================
 -- Trials
@@ -102,7 +105,9 @@ VALUES (1),
        (2),
        (3),
        (4),
-       (5);
+       (5),
+       (6),   -- Past Solo Trial  (id=6, timeslot passé)
+       (7);   -- Past Team Trial  (id=7, timeslot passé)
 
 -- ======================
 -- Users (MODIFIÉ avec BCrypt)
@@ -164,12 +169,23 @@ INSERT INTO participate_at (id_team, id_trial, trial_result_team, is_forfeit)
 VALUES (1, 2, '12.4s', false),
        (2, 2, '11.9s', false);
 
+-- Team participation in past team trial (trial 7) — for result integration tests
+INSERT INTO participate_at (id_team, id_trial, trial_result_team, is_forfeit)
+VALUES (1, 7, null,    false),   -- Team A : pas de résultat encore
+       (2, 7, '11.9s', false);   -- Team B : résultat déjà saisi, pas validé
+
 -- Athletes participating in trial 4 and 5
 INSERT INTO is_convened_to (id, id_trial, trial_result_athlete, is_forfeit)
 VALUES (3, 4, '45.2s', false),
        (4, 4, '46.1s', false),
        (3, 5, '125.3s', false),
        (4, 5, '128.5s', false);
+
+-- Athletes in past solo trial (trial 6) — for result integration tests
+-- Marie (id=3) : pas de résultat, John (id=5) : résultat déjà saisi
+INSERT INTO is_convened_to (id, id_trial, trial_result_athlete, is_forfeit)
+VALUES (3, 6, null,    false),
+       (5, 6, '11.5s', false);
 
 -- ======================
 -- Notifications

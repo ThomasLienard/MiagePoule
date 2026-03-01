@@ -1,0 +1,32 @@
+{
+  "trialId": 1,
+  "trialName": "100m Solo Trial",
+  "teamTrial": false,
+  "startTime": "2025-01-01T09:00:00",
+  "results": [
+    {
+      "participantId": 1,
+      "participantName": "Marie Athlete",
+      "participantType": "ATHLETE",
+      "result": "11.5s",
+      "isValidated": true,
+      "isForfeit": false
+    },
+    {
+      "participantId": 2,
+      "participantName": "John Smith",
+      "participantType": "ATHLETE",
+      "result": "12.0s",
+      "isValidated": false,
+      "isForfeit": false
+    },
+    {
+      "participantId": 3,
+      "participantName": "Forfait Guy",
+      "participantType": "ATHLETE",
+      "result": null,
+      "isValidated": false,
+      "isForfeit": true
+    }
+  ]
+}

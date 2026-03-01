@@ -32,7 +32,7 @@ public interface TrialRepository extends JpaRepository<Trial, Integer> {
     @Query("SELECT t FROM Trial t " +
             "JOIN t.users u " +
             "WHERE u.id = :userId " +
-            "AND t.timeSlot.end > :now " +
+            "AND CAST(t.timeSlot.end AS date) >= CAST(:now AS date) " +
             "ORDER BY t.timeSlot.start")
     List<Trial> findActiveTrialsAssignedToUser(@Param("userId") Integer userId, @Param("now") LocalDateTime now);
 }

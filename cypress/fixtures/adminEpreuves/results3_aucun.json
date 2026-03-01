@@ -1,0 +1,23 @@
+{
+  "trialId": 3,
+  "trialName": "200m Solo Trial",
+  "teamTrial": false,
+  "results": [
+    {
+      "participantId": 4,
+      "participantName": "Alice Martin",
+      "participantType": "ATHLETE",
+      "result": null,
+      "isValidated": false,
+      "isForfeit": false
+    },
+    {
+      "participantId": 5,
+      "participantName": "Bob Dupont",
+      "participantType": "ATHLETE",
+      "result": null,
+      "isValidated": false,
+      "isForfeit": false
+    }
+  ]
+}
