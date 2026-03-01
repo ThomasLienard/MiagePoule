@@ -30,19 +30,24 @@ describe("Tests - Déclaration de forfait par un sportif", () => {
             fixture: 'athletes/declareWithdrawNotForfeit.json'
         }).as('getTrials');
      
-        cy.intercept('GET', '**/public/events/9',
+        cy.intercept('GET', '**/public/trials/9',
             { fixture: 'get-trials/trialInFutur.json'}
         ).as(`getTrialDetail-1`);
 
-        cy.intercept('GET', '**/public/events/5',
+        cy.intercept('GET', '**/public/trials/5',
             { fixture: 'get-trials/trialInPast.json'}
         ).as(`getTrialDetail-4`);
+
+        cy.intercept('GET', '**/public/athlete/3',
+            { fixture: 'athletes/athlete.json'}
+        ).as(`getAthlete`);
 
         cy.contains('Mes épreuves').click();
 
         cy.wait('@getTrials');
         cy.wait('@getTrialDetail-1');
         cy.wait('@getTrialDetail-4');
+        cy.wait('@getAthlete');
 
         // Cliquer sur le bouton "Déclarer forfait"
         cy.contains('button', 'Déclarer forfait').first().click();
@@ -74,19 +79,24 @@ describe("Tests - Déclaration de forfait par un sportif", () => {
             body: { message: 'Forfait déclaré avec succès' }
         }).as('declareForfeit');
 
-        cy.intercept('GET', '**/public/events/9',
+        cy.intercept('GET', '**/public/trials/9',
             { fixture: 'get-trials/trialInFutur.json'}
         ).as(`getTrialDetail-1`);
 
-        cy.intercept('GET', '**/public/events/5',
+        cy.intercept('GET', '**/public/trials/5',
             { fixture: 'get-trials/trialInPast.json'}
         ).as(`getTrialDetail-4`);
+
+        cy.intercept('GET', '**/public/athlete/3',
+            { fixture: 'athletes/athlete.json'}
+        ).as(`getAthlete`);
 
         cy.contains('Mes épreuves').click();
 
         cy.wait('@getTrials');
         cy.wait('@getTrialDetail-1');
         cy.wait('@getTrialDetail-4');
+        cy.wait('@getAthlete');
 
         // Vérifier que la page affiche les épreuves
         cy.contains('A venir').should('be.visible');
@@ -122,19 +132,24 @@ describe("Tests - Déclaration de forfait par un sportif", () => {
             fixture: 'athletes/declareWithdrawForfeit.json'
         }).as('getTrialsForfeit');
 
-        cy.intercept('GET', '**/public/events/9',
+        cy.intercept('GET', '**/public/trials/9',
             { fixture: 'get-trials/trialInFutur.json'}
         ).as(`getTrialDetail-1`);
 
-        cy.intercept('GET', '**/public/events/5',
+        cy.intercept('GET', '**/public/trials/5',
             { fixture: 'get-trials/trialInPast.json'}
         ).as(`getTrialDetail-4`);
+
+        cy.intercept('GET', '**/public/athlete/3',
+            { fixture: 'athletes/athlete.json'}
+        ).as(`getAthlete`);
 
         cy.contains('Mes épreuves').click();
 
         cy.wait('@getTrialsForfeit');
         cy.wait('@getTrialDetail-1');
         cy.wait('@getTrialDetail-4');
+        cy.wait('@getAthlete');
 
         // Vérifier que la page affiche les épreuves
         cy.contains('A venir').should('be.visible');
@@ -162,19 +177,24 @@ describe("Tests - Déclaration de forfait par un sportif", () => {
             fixture: 'athletes/declareWithdrawNotForfeit.json'
         }).as('getTrials');
         
-        cy.intercept('GET', '**/public/events/9',
+        cy.intercept('GET', '**/public/trials/9',
             { fixture: 'get-trials/trialInFutur.json'}
         ).as(`getTrialDetail-1`);
 
-        cy.intercept('GET', '**/public/events/5',
+        cy.intercept('GET', '**/public/trials/5',
             { fixture: 'get-trials/trialInPast.json'}
         ).as(`getTrialDetail-4`);
+
+        cy.intercept('GET', '**/public/athlete/3',
+            { fixture: 'athletes/athlete.json'}
+        ).as(`getAthlete`);
 
         cy.contains('Mes épreuves').click();
 
         cy.wait('@getTrials');
         cy.wait('@getTrialDetail-1');
         cy.wait('@getTrialDetail-4');
+        cy.wait('@getAthlete');
 
         // Vérifier la section "Passés"
         cy.contains('Passés').should('be.visible');

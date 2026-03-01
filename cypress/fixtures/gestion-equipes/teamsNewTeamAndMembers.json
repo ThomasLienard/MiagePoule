@@ -1,0 +1,47 @@
+[
+  {
+    "id": 1,
+    "name": "Team A",
+    "countryCode": "FR",
+    "members": [
+      {
+        "id": 1,
+        "name": "Anna",
+        "lastname": "Smith",
+        "countryCode": "US"
+      }
+    ]
+  },
+  {
+    "id": 2,
+    "name": "Team B",
+    "countryCode": "US",
+    "members": [
+      {
+        "id": 2,
+        "name": "Pierre",
+        "lastname": "Commissaire",
+        "countryCode": "FR"
+      }
+    ]
+  },
+  {
+    "id": 3,
+    "name": "Nouvelle Équipe",
+    "countryCode": "FR",
+    "members": [
+      {
+        "id": 1,
+        "name": "Marie",
+        "lastname": "Athlete",
+        "countryCode": "FR"
+      },
+      {
+        "id": 2,
+        "name": "John",
+        "lastname": "Doe",
+        "countryCode": "US"
+      }
+    ]
+  }
+]
