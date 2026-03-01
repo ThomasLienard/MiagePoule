@@ -13,4 +13,6 @@ public interface CompetitionService {
     Optional<CompetitionDTO> findById(Integer id);
     CompetitionDTO save (CreateCompetitionRequestDTO competition);
     List<CompetitionDTO> findByChampionship(Integer championshipId);
+    CompetitionDTO update (CompetitionDTO competitionDTO);
+    Optional<CompetitionDTO> findByName(String name);
 }

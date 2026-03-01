@@ -2,7 +2,6 @@ package com.miage.pouleAPI.controllers;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.miage.pouleAPI.dtos.event.CreateEventRequestDTO;
-import jakarta.transaction.Transactional;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
@@ -11,10 +10,10 @@ import org.springframework.http.MediaType;
 import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.web.servlet.MockMvc;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
 
-import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.csrf;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
@@ -37,8 +36,8 @@ class AdminEventControllerIntegrationTest {
                 "PMR", 10.0, 10.0, true
         );
 
+        // La SecurityConfig désactive csrf (AbstractHttpConfigurer::disable) → pas besoin de .with(csrf())
         mockMvc.perform(post("/admin/events")
-                        .with(csrf())
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(request)))
                 .andExpect(status().isCreated());
@@ -55,7 +54,6 @@ class AdminEventControllerIntegrationTest {
         );
 
         mockMvc.perform(post("/admin/events")
-                        .with(csrf())
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(invalidRequest)))
                 .andExpect(status().isBadRequest());
@@ -72,7 +70,6 @@ class AdminEventControllerIntegrationTest {
         );
 
         mockMvc.perform(post("/admin/events")
-                        .with(csrf())
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(request)))
                 .andExpect(status().isForbidden());
@@ -81,7 +78,6 @@ class AdminEventControllerIntegrationTest {
     @Test
     void shouldForbiddenWhenNotAuthenticated() throws Exception {
         mockMvc.perform(post("/admin/events")
-                        .with(csrf())
                         .contentType(MediaType.APPLICATION_JSON)
                         .content("{}"))
                 .andExpect(status().isForbidden());

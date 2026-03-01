@@ -36,10 +36,20 @@ public class CompetitionServiceImpl implements CompetitionService {
     }
 
     @Override
+    public CompetitionDTO update(CompetitionDTO competitionDTO) {
+        return competitionJpaAdapter.update(competitionDTO);
+    }
+
+    @Override
     public List<CompetitionDTO> findByChampionship(Integer championshipId) {
         return competitionJpaAdapter.findByChampionshipId(championshipId);
 
 
+    }
+
+    @Override
+    public Optional<CompetitionDTO> findByName(String name) {
+        return competitionJpaAdapter.findByName(name);
     }
 
 

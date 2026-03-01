@@ -27,6 +27,7 @@ import TeamManagement from './components/commissaire/TeamManagement.jsx';
 import CreateEventPage from "./components/admin/CreateEventPage.jsx";
 import CreateChampionshipPage from "./components/admin/CreateChampionshipPage.jsx";
 import CreateCompetitionPage from "./components/admin/CreateCompetitionPage.jsx";
+import EditEventPage from "./components/admin/EditEventPage.jsx";
 
 function App() {
 
@@ -58,6 +59,11 @@ function App() {
                             <Route path="/admin/create-event" element={
                                 <ProtectedRoute allowedRoles={['ADMIN']}>
                                     <CreateEventPage />
+                                </ProtectedRoute>
+                            } />
+                            <Route path="/admin/update-event" element={
+                                <ProtectedRoute allowedRoles={['ADMIN']}>
+                                    <EditEventPage />
                                 </ProtectedRoute>
                             } />
                             <Route path="/admin/create-champ" element={
