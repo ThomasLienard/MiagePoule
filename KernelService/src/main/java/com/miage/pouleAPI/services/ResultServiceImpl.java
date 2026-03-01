@@ -10,6 +10,7 @@ import com.miage.pouleAPI.entity.Trial;
 import com.miage.pouleAPI.repositories.IsConvenedToRepository;
 import com.miage.pouleAPI.repositories.ParticipateAtRepository;
 import com.miage.pouleAPI.repositories.TrialRepository;
+import com.miage.pouleAPI.services.interfaces.NotificationService;
 import com.miage.pouleAPI.services.interfaces.ResultService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -38,9 +39,27 @@ public class ResultServiceImpl implements ResultService {
         }
     }
 
+    /**
+     * Vérifie si tous les résultats d'une épreuve sont validés
+     * @param trialId l'identifiant de l'épreuve
+     * @return true si tous les résultats sont validés, false sinon
+     */
+    private boolean hasAllResultsValidated(Integer trialId) {
+        boolean isTeamTrial = participateAtRepository.hasTeamParticipation(trialId);
+
+        if (isTeamTrial) {
+            List<ParticipateAt> participations = participateAtRepository.findByTrialId(trialId);
+            return participations.stream().allMatch(p -> Boolean.TRUE.equals(p.getIsValidated()));
+        } else {
+            List<IsConvenedTo> convocations = isConvenedToRepository.findByTrialId(trialId);
+            return convocations.stream().allMatch(c -> Boolean.TRUE.equals(c.getIsValidated()));
+        }
+    }
+
     private final TrialRepository trialRepository;
     private final IsConvenedToRepository isConvenedToRepository;
     private final ParticipateAtRepository participateAtRepository;
+    private final NotificationService notificationService;
 
     @Override
     public Optional<TrialResultsDTO> getTrialResults(Integer trialId) {
@@ -178,6 +197,11 @@ public class ResultServiceImpl implements ResultService {
         convocation.setIsValidated(true);
         IsConvenedTo saved = isConvenedToRepository.save(convocation);
 
+        // Notifie les utilisateurs si tous les résultats sont maintenant validés
+        if (hasAllResultsValidated(trialId)) {
+            notificationService.notifyEventResults(trial);
+        }
+
         return new ResultDTO(
                 saved.getUser().getId(),
                 saved.getUser().getName() + " " + saved.getUser().getLastname(),
@@ -202,6 +226,11 @@ public class ResultServiceImpl implements ResultService {
 
         participation.setIsValidated(true);
         ParticipateAt saved = participateAtRepository.save(participation);
+
+        // Notifie les utilisateurs si tous les résultats sont maintenant validés
+        if (hasAllResultsValidated(trialId)) {
+            notificationService.notifyEventResults(trial);
+        }
 
         return new ResultDTO(
                 saved.getTeam().getId(),
@@ -232,6 +261,9 @@ public class ResultServiceImpl implements ResultService {
             convocations.forEach(c -> c.setIsValidated(true));
             isConvenedToRepository.saveAll(convocations);
         }
+
+        // Notifie tous les utilisateurs abonnés que les résultats sont disponibles
+        notificationService.notifyEventResults(trial);
 
         return getTrialResults(trialId)
                 .orElseThrow(() -> new IllegalArgumentException(TRIAL_NOT_FOUND));
