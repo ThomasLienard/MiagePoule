@@ -169,9 +169,6 @@ const EditEventPage = () => {
 
     return (
         <Container className="py-5">
-            <div className="text-end mb-2">
-                <small className="text-muted">Rôle détecté : <b>{userRoleDisplay}</b></small>
-            </div>
 
             <h2 className="mb-4 text-center">
                 {isCommissaire ? '⏱️ Modification des Horaires' : "⚙️ Gestion de l'Évènement"}
