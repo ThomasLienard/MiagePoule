@@ -85,7 +85,7 @@ const AdminEpreuves = () => {
                                                     <Badge bg={trial.teamTrial ? 'info' : 'success'} className="me-2">
                                                         {trial.teamTrial ? '👥 Équipe' : '🏃 Solo'}
                                                     </Badge>
-                                                    <Badge bg="secondary" className="me-2">
+                                                    <Badge bg="secondary">
                                                         {trial.participants?.length || 0} participant(s)
                                                     </Badge>
                                                     {resultsStats[trial.trialId] && (() => {
@@ -113,6 +113,12 @@ const AdminEpreuves = () => {
                                                 >
                                                      Gérer résultats
                                                 </Button>
+                                                <Button
+                                                    variant="outline-secondary"
+                                                    onClick={() => navigate(`/commissaire/update-event`)}
+                                                >
+                                                    Modifier la date de l'épreuve
+                                                </Button>
                                             </div>
                                         </div>
                                     </Card.Body>
@@ -123,8 +129,8 @@ const AdminEpreuves = () => {
                 </Card.Body>
             </Card>
 
-            <Button 
-                variant="outline-secondary" 
+            <Button
+                variant="outline-secondary"
                 className="mt-3"
                 onClick={() => navigate(-1)}
             >

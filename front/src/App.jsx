@@ -94,6 +94,11 @@ function App() {
                                     <TeamManagement />
                                 </ProtectedRoute>
                             } />
+                            <Route path="/commissaire/update-event" element={
+                                <ProtectedRoute allowedRoles={['COMMISSAIRE']}>
+                                    <EditEventPage />
+                                </ProtectedRoute>
+                            } />
                             <Route path="/commissaire/trials/:trialId/results" element={
                                 <ProtectedRoute allowedRoles={['COMMISSAIRE']}>
                                     <ManageResults />
