@@ -32,4 +32,7 @@ public class IsConvenedTo {
 
     @Column(name = "is_forfeit")
     private Boolean isForfeit = false;
+
+    @Column(name = "is_validated")
+    private Boolean isValidated = false;
 }

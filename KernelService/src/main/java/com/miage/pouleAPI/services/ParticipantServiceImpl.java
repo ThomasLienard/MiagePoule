@@ -179,6 +179,9 @@ public class ParticipantServiceImpl implements ParticipantService {
                 .orElseThrow(() -> new IllegalArgumentException(ATHLETE_NOT_REGISTERED));
         
         inscription.setIsForfeit(true);
+        inscription.setResult(null);
+        inscription.setIsValidated(false);
+
         isConvenedToRepository.save(inscription);
         
         return createAthleteParticipantDTO(inscription.getUser(), true);
@@ -191,6 +194,8 @@ public class ParticipantServiceImpl implements ParticipantService {
                 .orElseThrow(() -> new IllegalArgumentException(TEAM_NOT_REGISTERED));
         
         inscription.setIsForfeit(true);
+        inscription.setResult(null);
+        inscription.setIsValidated(false);
         participateAtRepository.save(inscription);
         
         return createTeamParticipantDTO(inscription.getTeam(), true);
