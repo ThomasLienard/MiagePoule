@@ -93,6 +93,11 @@ function App() {
                                     <TeamManagement />
                                 </ProtectedRoute>
                             } />
+                            <Route path="/commissaire/update-event" element={
+                                <ProtectedRoute allowedRoles={['COMMISSAIRE']}>
+                                    <EditEventPage />
+                                </ProtectedRoute>
+                            } />
 
                             {/* Routes qui nécessitent une connexion */}
                             <Route path="/account" element={

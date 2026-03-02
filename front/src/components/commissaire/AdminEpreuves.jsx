@@ -73,11 +73,17 @@ const AdminEpreuves = () => {
                                                 </div>
                                             </div>
                                             <div className="d-flex gap-2">
-                                                <Button 
+                                                <Button
                                                     variant="outline-secondary"
                                                     onClick={() => navigate(`/commissaire/trials/${trial.trialId}/participants`)}
                                                 >
                                                     Modifier participants
+                                                </Button>
+                                                <Button
+                                                    variant="outline-secondary"
+                                                    onClick={() => navigate(`/commissaire/update-event`)}
+                                                >
+                                                    Modifier la date de l'épreuve
                                                 </Button>
                                             </div>
                                         </div>
@@ -89,8 +95,8 @@ const AdminEpreuves = () => {
                 </Card.Body>
             </Card>
 
-            <Button 
-                variant="outline-secondary" 
+            <Button
+                variant="outline-secondary"
                 className="mt-3"
                 onClick={() => navigate(-1)}
             >
