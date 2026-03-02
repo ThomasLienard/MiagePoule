@@ -83,8 +83,8 @@ INSERT INTO time_slot (start_time, end_time)
 VALUES ('2025-01-01 09:00:00', '2025-01-01 10:00:00'),
        ('2026-01-01 10:00:00', '2026-01-01 11:00:00'),
        ('2026-10-09 09:00:00', '2026-10-09 10:00:00'),
-       ('2026-02-16 14:25:00', '2026-02-16 16:25:00'),
-       ('2026-02-26 14:25:00', '2026-02-26 16:25:00');
+       ('2026-03-02 10:00:00', '2026-03-02 12:00:00'),
+       ('2026-02-16 14:25:00', '2026-02-16 16:25:00');
 
 -- ======================
 -- Events
@@ -93,7 +93,7 @@ INSERT INTO event (name_event, description_event, type_event_name,
                    id_place, id_time_slot, id_competition)
 VALUES ('100m Trial Heat 1', 'First qualification heat', 'TRIAL', 1, 1, 1),
        ('100m Trial Heat 2', 'Second qualification heat', 'TRIAL', 1, 2, 1),
-       ('100m Trial Final', 'Final race', 'TRIAL', 1, 3, 1),
+       ('100m Trial Final', 'Final race', 'TRIAL', 1, 4, 1),
        ('Marathon Trial Warm-up', 'Warm-up session', 'TRIAL', 2, 2, 2),
        ('Marathon Qualification', 'Main qualification heat', 'TRIAL', 2, 1, 2),
        ('Marathon final', 'Main heat', 'TRIAL', 2, 4, 2),
@@ -222,13 +222,10 @@ VALUES (1, 1),
        (2, 1),
        (2, 2),
        (2, 3),
-       (3, 3),
-       (4, 4),
-       (5, 5),
-       (6, 4),
-       (6, 5),
-       (6, 6),
-       (6, 9),
+       (2, 4),
+       (2, 5),
+       (2, 6),
+       (2, 9),
        (2, 11);
 
 -- ======================
