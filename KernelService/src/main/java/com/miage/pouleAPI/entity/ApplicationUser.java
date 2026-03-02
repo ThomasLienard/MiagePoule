@@ -45,6 +45,9 @@ public class ApplicationUser implements Observer {
     @Column(name = "is_account_activated")
     private Boolean isAccountActivated = false;
 
+    @Column(name = "is_account_validated")
+    private Boolean isAccountValidated = false;
+
     @Column(name = "must_change_password")
     private Boolean mustChangePassword = false;
 

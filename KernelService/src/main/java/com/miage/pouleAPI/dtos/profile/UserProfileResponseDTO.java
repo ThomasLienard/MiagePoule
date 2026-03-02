@@ -11,4 +11,6 @@ public class UserProfileResponseDTO {
     private String countryCode;
     private String role;
     private boolean hasSignedCharter;
+    private boolean isAccountActivated;
+    private boolean isAccountValidated;
 }
