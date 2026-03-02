@@ -81,7 +81,7 @@ const AdminEpreuves = () => {
                                                 </Button>
                                                 <Button
                                                     variant="outline-secondary"
-                                                    onClick={() => navigate(`/commissaire/update-event`)}
+                                                    onClick={() => navigate(`/commissaire/update-event?id=${trial.trialId}`)}
                                                 >
                                                     Modifier la date de l'épreuve
                                                 </Button>
