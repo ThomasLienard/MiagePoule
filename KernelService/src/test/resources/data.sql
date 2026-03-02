@@ -47,6 +47,14 @@ VALUES ('MEETING'),
        ('TRIAL');
 
 -- ======================
+-- Type score
+-- ======================
+INSERT INTO type_score (type_score_name)
+VALUES ('TIME'),
+       ('POINTS'),
+       ('NA');
+
+-- ======================
 -- Championships
 -- ======================
 INSERT INTO championship ( description_championship, name_championship,
@@ -81,15 +89,15 @@ VALUES ('2025-01-01 09:00:00', '2025-01-01 10:00:00'),     -- id=1 : passé (ép
 -- ======================
 -- Events
 -- ======================
-INSERT INTO event ( name_event, description_event, type_event_name,
+INSERT INTO event ( name_event, description_event, type_event_name, type_score_name,
                    id_place, id_time_slot, id_competition)
-VALUES ( 'Morning Sprint Session', 'Speed training', 'TRAINING', 1, 1, 1),
-       ( 'Final Sprint Race', 'Official competition', 'TRIAL', 1, 2, 2),
-       ( '400m Trial', 'Medium distance race', 'TRIAL', 1, 2, 2),
-       ('Team Relay Trial', 'Team competition', 'TRIAL', 1, 2, 2),
-       ( 'Individual 800m Trial', 'Distance race', 'TRIAL', 1, 2, 2),
-       ( 'Past Solo Trial', 'Épreuve solo passée — tests résultats', 'TRIAL', 1, 3, 1),
-       ( 'Past Team Trial', 'Épreuve équipe passée — tests résultats', 'TRIAL', 1, 3, 1);
+VALUES ( 'Morning Sprint Session', 'Speed training', 'TRAINING','NA', 1, 1, 1),
+       ( 'Final Sprint Race', 'Official competition', 'TRIAL','TIME', 1, 2, 2),
+       ( '400m Trial', 'Medium distance race', 'TRIAL','TIME', 1, 2, 2),
+       ('Team Relay Trial', 'Team competition', 'TRIAL','TIME', 1, 2, 2),
+       ( 'Individual 800m Trial', 'Distance race', 'TRIAL','TIME', 1, 2, 2),
+       ( 'Past Solo Trial', 'Épreuve solo passée — tests résultats', 'TRIAL','SCORE', 1, 3, 1),
+       ( 'Past Team Trial', 'Épreuve équipe passée — tests résultats', 'TRIAL','SCORE', 1, 3, 1);
 
 -- ======================
 -- Trials
