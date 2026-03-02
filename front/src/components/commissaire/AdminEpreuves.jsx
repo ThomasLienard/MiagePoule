@@ -101,7 +101,7 @@ const AdminEpreuves = () => {
                                                 </div>
                                             </div>
                                             <div className="d-flex gap-2">
-                                                <Button 
+                                                <Button
                                                     variant="outline-secondary"
                                                     onClick={() => navigate(`/commissaire/trials/${trial.trialId}/participants`)}
                                                 >
@@ -115,7 +115,7 @@ const AdminEpreuves = () => {
                                                 </Button>
                                                 <Button
                                                     variant="outline-secondary"
-                                                    onClick={() => navigate(`/commissaire/update-event`)}
+                                                    onClick={() => navigate(`/commissaire/update-event?id=${trial.trialId}`)}
                                                 >
                                                     Modifier la date de l'épreuve
                                                 </Button>
