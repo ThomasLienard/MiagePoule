@@ -72,5 +72,5 @@ public class Event {
     @ManyToOne
     @JoinColumn(name = "type_score_name", nullable = false)
     @JsonIgnoreProperties({"hibernateLazyInitializer", "handler"})
-    private TypeEvent typeScore;
+    private TypeScore typeScore;
 }

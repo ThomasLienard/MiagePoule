@@ -23,10 +23,10 @@ import static org.assertj.core.api.Assertions.*;
  * Données de référence (data.sql de test) :
  *   Trial 6 : "Past Solo Trial"  — timeslot 2025-06-15 (passé) — individuel
  *     - Athlète 3 (Marie Athlete)   : pas de résultat, non validé
- *     - Athlète 5 (John Doe)        : résultat "11.5s", non validé
+ *     - Athlète 5 (John Doe)        : résultat "11.5", non validé
  *   Trial 7 : "Past Team Trial"  — timeslot 2025-06-15 (passé) — équipe
  *     - Équipe 1 (Team A)           : pas de résultat, non validé
- *     - Équipe 2 (Team B)           : résultat "11.9s", non validé
+ *     - Équipe 2 (Team B)           : résultat "11.9", non validé
  *   Trial 4 : "Team Relay Trial" — timeslot 2026-09-10 (futur)
  *     - Athlètes 3 et 4 inscrits
  */
@@ -42,11 +42,11 @@ class ResultServiceIntegrationTest {
     private static final int FUTURE_TRIAL     = 4;
 
     private static final int ATHLETE_MARIE    = 3;   // résultat null
-    private static final int ATHLETE_JOHN     = 5;   // résultat "11.5s"
+    private static final int ATHLETE_JOHN     = 5;   // résultat "11.5"
     private static final int ATHLETE_JEAN     = 4;   // inscrit trial 4 (futur)
 
     private static final int TEAM_A           = 1;   // résultat null
-    private static final int TEAM_B           = 2;   // résultat "11.9s"
+    private static final int TEAM_B           = 2;   // résultat "11.9"
 
     @Autowired
     private ResultServiceImpl resultService;
@@ -123,9 +123,9 @@ class ResultServiceIntegrationTest {
         @Test
         @DisplayName("Saisie réussie pour un athlète sans résultat")
         void setAthleteResult_noExistingResult_success() {
-            ResultDTO result = resultService.setAthleteResult(PAST_SOLO_TRIAL, ATHLETE_MARIE, "10.9s");
+            ResultDTO result = resultService.setAthleteResult(PAST_SOLO_TRIAL, ATHLETE_MARIE, "10.9");
 
-            assertThat(result.getResult()).isEqualTo("10.9s");
+            assertThat(result.getResult()).isEqualTo("10.9");
             assertThat(result.getParticipantType()).isEqualTo("ATHLETE");
             assertThat(result.getIsValidated()).isFalse();
 
@@ -134,22 +134,22 @@ class ResultServiceIntegrationTest {
             assertThat(dto.getResults())
                     .filteredOn(r -> r.getParticipantId().equals(ATHLETE_MARIE))
                     .extracting(ResultDTO::getResult)
-                    .containsExactly("10.9s");
+                    .containsExactly("10.9");
         }
 
         @Test
         @DisplayName("US2 — Modification d'un résultat existant")
         void setAthleteResult_existingResult_updated() {
-            // John a déjà "11.5s", on l'écrase
-            ResultDTO result = resultService.setAthleteResult(PAST_SOLO_TRIAL, ATHLETE_JOHN, "10.8s");
+            // John a déjà "11.5", on l'écrase
+            ResultDTO result = resultService.setAthleteResult(PAST_SOLO_TRIAL, ATHLETE_JOHN, "10.8");
 
-            assertThat(result.getResult()).isEqualTo("10.8s");
+            assertThat(result.getResult()).isEqualTo("10.8");
         }
 
         @Test
         @DisplayName("Athlète non inscrit → IllegalArgumentException")
         void setAthleteResult_notRegistered_throws() {
-            assertThatThrownBy(() -> resultService.setAthleteResult(PAST_SOLO_TRIAL, ATHLETE_JEAN, "11.0s"))
+            assertThatThrownBy(() -> resultService.setAthleteResult(PAST_SOLO_TRIAL, ATHLETE_JEAN, "11.0"))
                     .isInstanceOf(IllegalArgumentException.class)
                     .hasMessageContaining("n'est pas inscrit");
         }
@@ -157,7 +157,7 @@ class ResultServiceIntegrationTest {
         @Test
         @DisplayName("Épreuve non commencée → IllegalStateException")
         void setAthleteResult_trialNotStarted_throws() {
-            assertThatThrownBy(() -> resultService.setAthleteResult(FUTURE_TRIAL, ATHLETE_JEAN, "11.0s"))
+            assertThatThrownBy(() -> resultService.setAthleteResult(FUTURE_TRIAL, ATHLETE_JEAN, "11.0"))
                     .isInstanceOf(IllegalStateException.class)
                     .hasMessageContaining("n'a pas encore commencé");
         }
@@ -165,7 +165,7 @@ class ResultServiceIntegrationTest {
         @Test
         @DisplayName("Épreuve introuvable → IllegalArgumentException")
         void setAthleteResult_trialNotFound_throws() {
-            assertThatThrownBy(() -> resultService.setAthleteResult(9999, ATHLETE_MARIE, "11.0s"))
+            assertThatThrownBy(() -> resultService.setAthleteResult(9999, ATHLETE_MARIE, "11.0"))
                     .isInstanceOf(IllegalArgumentException.class)
                     .hasMessageContaining("Épreuve non trouvée");
         }
@@ -182,9 +182,9 @@ class ResultServiceIntegrationTest {
         @Test
         @DisplayName("Saisie réussie pour une équipe sans résultat")
         void setTeamResult_noExistingResult_success() {
-            ResultDTO result = resultService.setTeamResult(PAST_TEAM_TRIAL, TEAM_A, "11.3s");
+            ResultDTO result = resultService.setTeamResult(PAST_TEAM_TRIAL, TEAM_A, "11.3");
 
-            assertThat(result.getResult()).isEqualTo("11.3s");
+            assertThat(result.getResult()).isEqualTo("11.3");
             assertThat(result.getParticipantType()).isEqualTo("TEAM");
             assertThat(result.getIsValidated()).isFalse();
         }
@@ -192,15 +192,15 @@ class ResultServiceIntegrationTest {
         @Test
         @DisplayName("US2 — Modification d'un résultat équipe existant")
         void setTeamResult_existingResult_updated() {
-            ResultDTO result = resultService.setTeamResult(PAST_TEAM_TRIAL, TEAM_B, "11.7s");
+            ResultDTO result = resultService.setTeamResult(PAST_TEAM_TRIAL, TEAM_B, "11.7");
 
-            assertThat(result.getResult()).isEqualTo("11.7s");
+            assertThat(result.getResult()).isEqualTo("11.7");
         }
 
         @Test
         @DisplayName("Équipe non inscrite → IllegalArgumentException")
         void setTeamResult_notRegistered_throws() {
-            assertThatThrownBy(() -> resultService.setTeamResult(PAST_TEAM_TRIAL, 99, "11.0s"))
+            assertThatThrownBy(() -> resultService.setTeamResult(PAST_TEAM_TRIAL, 99, "11.0"))
                     .isInstanceOf(IllegalArgumentException.class)
                     .hasMessageContaining("n'est pas inscrite");
         }
@@ -208,7 +208,7 @@ class ResultServiceIntegrationTest {
         @Test
         @DisplayName("Épreuve non commencée → IllegalStateException")
         void setTeamResult_trialNotStarted_throws() {
-            assertThatThrownBy(() -> resultService.setTeamResult(FUTURE_TRIAL, TEAM_A, "11.0s"))
+            assertThatThrownBy(() -> resultService.setTeamResult(FUTURE_TRIAL, TEAM_A, "11.0"))
                     .isInstanceOf(IllegalStateException.class);
         }
     }
@@ -227,12 +227,12 @@ class ResultServiceIntegrationTest {
             SetResultRequest r1 = new SetResultRequest();
             r1.setParticipantId(ATHLETE_MARIE);
             r1.setParticipantType("ATHLETE");
-            r1.setResult("10.7s");
+            r1.setResult("10.7");
 
             SetResultRequest r2 = new SetResultRequest();
             r2.setParticipantId(ATHLETE_JOHN);
             r2.setParticipantType("ATHLETE");
-            r2.setResult("10.5s");
+            r2.setResult("10.5");
 
             BulkSetResultRequest bulk = new BulkSetResultRequest();
             bulk.setResults(List.of(r1, r2));
@@ -241,7 +241,7 @@ class ResultServiceIntegrationTest {
 
             assertThat(results).hasSize(2);
             assertThat(results).extracting(ResultDTO::getResult)
-                    .containsExactlyInAnyOrder("10.7s", "10.5s");
+                    .containsExactlyInAnyOrder("10.7", "10.5");
         }
 
         @Test
@@ -250,12 +250,12 @@ class ResultServiceIntegrationTest {
             SetResultRequest r1 = new SetResultRequest();
             r1.setParticipantId(TEAM_A);
             r1.setParticipantType("TEAM");
-            r1.setResult("11.1s");
+            r1.setResult("11.1");
 
             SetResultRequest r2 = new SetResultRequest();
             r2.setParticipantId(TEAM_B);
             r2.setParticipantType("TEAM");
-            r2.setResult("11.4s");
+            r2.setResult("11.4");
 
             BulkSetResultRequest bulk = new BulkSetResultRequest();
             bulk.setResults(List.of(r1, r2));
@@ -264,7 +264,7 @@ class ResultServiceIntegrationTest {
 
             assertThat(results).hasSize(2);
             assertThat(results).extracting(ResultDTO::getResult)
-                    .containsExactlyInAnyOrder("11.1s", "11.4s");
+                    .containsExactlyInAnyOrder("11.1", "11.4");
         }
 
         @Test
@@ -282,7 +282,7 @@ class ResultServiceIntegrationTest {
             SetResultRequest req = new SetResultRequest();
             req.setParticipantId(1);
             req.setParticipantType("ROBOT");
-            req.setResult("11.0s");
+            req.setResult("11.0");
 
             BulkSetResultRequest bulk = new BulkSetResultRequest();
             bulk.setResults(List.of(req));

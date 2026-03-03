@@ -98,7 +98,7 @@ VALUES ('2025-01-01 09:00:00', '2025-01-01 10:00:00'),
 -- ======================
 -- Events
 -- ======================
-INSERT INTO event (name_event, description_event, type_event_name, type_score_name
+INSERT INTO event (name_event, description_event, type_event_name, type_score_name,
                    id_place, id_time_slot, id_competition)
 VALUES ('100m Trial Heat 1', 'First qualification heat', 'TRIAL', 'TIME',1, 1, 1),
        ('100m Trial Heat 2', 'Second qualification heat', 'TRIAL', 'TIME', 1, 2, 1),
@@ -110,7 +110,7 @@ VALUES ('100m Trial Heat 1', 'First qualification heat', 'TRIAL', 'TIME',1, 1, 1
        ('Training Session B', 'Regular training', 'TRAINING','NA', 3, 2, 1),
        ('Championship Meeting', 'Official gathering', 'MEETING','NA', 3, 3, 2),
         ('Marathon Final', 'Final race', 'TRIAL', 'TIME', 2, 3, 2),
-       ('Waterpolo Final', 'Final Match', 'TRIAL', 'SCORE', 2, 3, 2),
+       ('Waterpolo Final', 'Final Match', 'TRIAL', 'POINTS', 2, 3, 2),
         ('200m Sprint Final', 'Finale du 200m sprint — épreuve de démonstration', 'TRIAL', 'TIME', 1, 5, 1);
 
 -- ======================
@@ -126,7 +126,8 @@ VALUES (1),
        (5),
        (6),
        (10),
-       (11);
+       (11),
+       (12);
 
 -- ======================
 -- Users (MODIFIÉ avec BCrypt)
