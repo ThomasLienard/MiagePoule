@@ -2,6 +2,7 @@ package com.miage.pouleAPI.controllers;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.miage.pouleAPI.dtos.event.CreateEventRequestDTO;
+import com.miage.pouleAPI.dtos.event.UpdateEventRequestDTO;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
@@ -15,6 +16,7 @@ import org.springframework.transaction.annotation.Transactional;
 import java.time.LocalDateTime;
 
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.put;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 @SpringBootTest
@@ -36,7 +38,6 @@ class AdminEventControllerIntegrationTest {
                 "PMR", 10.0, 10.0, true
         );
 
-        // La SecurityConfig désactive csrf (AbstractHttpConfigurer::disable) → pas besoin de .with(csrf())
         mockMvc.perform(post("/admin/events")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(request)))
@@ -81,5 +82,20 @@ class AdminEventControllerIntegrationTest {
                         .contentType(MediaType.APPLICATION_JSON)
                         .content("{}"))
                 .andExpect(status().isForbidden());
+    }
+
+    @Test
+    @WithMockUser(roles = "ADMIN")
+    void update_shouldModifyEventFullDetails() throws Exception {
+        Integer eventId = 1;
+
+        UpdateEventRequestDTO updateRequest = new UpdateEventRequestDTO();
+        updateRequest.setName("Épreuve Modifiée");
+        updateRequest.setDescription("Nouvelle description admin");
+
+        mockMvc.perform(put("/admin/events/" + eventId)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(updateRequest)))
+                .andExpect(status().isAccepted());
     }
 }

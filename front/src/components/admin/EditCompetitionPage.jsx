@@ -164,10 +164,7 @@ const EditCompetitionPage = () => {
             {/* FORMULAIRE DE MODIFICATION */}
             {selectedCompId && (
                 <Form onSubmit={handleSubmit}>
-                    <Card className="shadow-sm border-success">
-                        <Card.Header className="bg-success text-white">
-                            Modification de : {formData.name}
-                        </Card.Header>
+                    <Card className="shadow-sm">
                         <Card.Body>
                             <Form.Group className="mb-3">
                                 <Form.Label className="fw-bold">Nom</Form.Label>
@@ -197,7 +194,7 @@ const EditCompetitionPage = () => {
                                 </Form.Select>
                             </Form.Group>
 
-                            <Button variant="success" size="lg" type="submit" className="w-100 mt-2" disabled={submitting}>
+                            <Button variant="secondary" size="lg" type="submit" className="w-100 mt-2" disabled={submitting}>
                                 {submitting ? <Spinner size="sm" /> : "Enregistrer les modifications"}
                             </Button>
                         </Card.Body>

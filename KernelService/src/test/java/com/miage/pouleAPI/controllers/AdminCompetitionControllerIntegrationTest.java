@@ -1,6 +1,7 @@
 package com.miage.pouleAPI.controllers;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.miage.pouleAPI.dtos.competition.CompetitionDTO;
 import com.miage.pouleAPI.dtos.competition.CreateCompetitionRequestDTO;
 import com.miage.pouleAPI.entity.Competition;
 import com.miage.pouleAPI.repositories.CompetitionRepository;
@@ -71,5 +72,30 @@ class AdminCompetitionControllerIntegrationTest {
     void create_shouldReturn403_whenNotAdmin() throws Exception {
         mockMvc.perform(post("/admin/comps"))
                 .andExpect(status().isForbidden());
+    }
+
+    @Test
+    @WithMockUser(roles = "ADMIN")
+    void update_shouldModifyExistingCompetition() throws Exception {
+        Competition existing = competitionRepository.findAll().get(0);
+        Integer id = existing.getId();
+
+        CompetitionDTO updateRequest = new CompetitionDTO(
+                existing.getChampionship().getId(),
+                "Description modifiée",
+                existing.getEnd(),
+                id,
+                "Nouveau Nom Comp",
+                existing.getStart()
+        );
+
+        mockMvc.perform(put("/admin/comps/" + id)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(updateRequest)))
+                .andExpect(status().isAccepted());
+
+        Competition updated = competitionRepository.findById(id).orElseThrow();
+        assertEquals("Nouveau Nom Comp", updated.getName());
+        assertEquals("Description modifiée", updated.getDescription());
     }
 }
