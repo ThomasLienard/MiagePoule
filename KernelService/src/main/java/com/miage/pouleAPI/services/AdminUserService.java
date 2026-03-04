@@ -408,6 +408,46 @@ public class AdminUserService {
         return tempPassword;
     }
 
+    /**
+     * Valide un compte utilisateur (change isAccountValidated à true)
+     * Utilisé par un admin après validation des documents
+     */
+    @Transactional
+    public UserDto validateUserAccount(Integer userId) {
+        ApplicationUser user = userRepository.findById(userId)
+            .orElseThrow(() -> new IllegalArgumentException(USER_NOT_FOUND + userId));
+
+        if (Boolean.TRUE.equals(user.getIsAccountValidated())) {
+            throw new IllegalStateException("Ce compte est déjà validé");
+        }
+
+        user.setIsAccountValidated(true);
+        userRepository.save(user);
+        
+        log.info("Compte utilisateur validé: {} (ID: {})", user.getEmail(), userId);
+        return toUserDto(user);
+    }
+
+    /**
+     * Invalide un compte utilisateur (change isAccountValidated à false)
+     * Utilisé par un admin pour révoquer la validation d'un compte
+     */
+    @Transactional
+    public UserDto invalidateUserAccount(Integer userId) {
+        ApplicationUser user = userRepository.findById(userId)
+            .orElseThrow(() -> new IllegalArgumentException(USER_NOT_FOUND + userId));
+
+        if (Boolean.FALSE.equals(user.getIsAccountValidated())) {
+            throw new IllegalStateException("Ce compte est déjà invalidé");
+        }
+
+        user.setIsAccountValidated(false);
+        userRepository.save(user);
+        
+        log.info("Compte utilisateur invalidé: {} (ID: {})", user.getEmail(), userId);
+        return toUserDto(user);
+    }
+
     private UserDto toUserDto(ApplicationUser user) {
         return new UserDto(
             user.getId(),
@@ -418,6 +458,7 @@ public class AdminUserService {
             user.getCountry() != null ? user.getCountry().getCode() : null,
             Boolean.TRUE.equals(user.getIsActive()),
             Boolean.TRUE.equals(user.getIsAccountActivated()),
+            Boolean.TRUE.equals(user.getIsAccountValidated()),
             Boolean.TRUE.equals(user.getMustChangePassword()),
             user.getCreatedAt(),
             user.getCreatedBy(),

@@ -5,9 +5,18 @@ Projet MiagePoule - Application de gestion d'evenements sportifs.
 
 ⚠️ Le système de mailing ne fonctionne pas sur les PC de la fac car le port 587 est bloqué ⚠️
 
-## Liens utiles
+## Informations utiles
 - Google drive : https://drive.google.com/drive/u/0/folders/1j6wGk7S6pKEYNrGJsizqw5gH3CUtYePK
 - Suivi des heures de chacun : https://docs.google.com/spreadsheets/d/12Pm5g05zaR8LFwijVBRfq72DI7AqkXp7ooYLMCOAcBw/edit?gid=0#gid=0
+
+### Pseudos github: 
+
+- Jogozan : Seïf-Eddin Bouguerouche
+- ThomasLienard : Thomas Lienard
+- BaptisteParent : Baptiste Parent
+- maureencfr : Maureen Coffre
+- ElsaLogier : Elsa Logier
+
 
 ## Installation avec Docker
 
@@ -83,19 +92,20 @@ ou
 - ✅ Forfait à une épreuve (Commissaire)
 - ✅ Créer une équipe
 - ✅ Modifier une équipe
+- ✅ Visualisation des performances de ses concurrents (Sportif)
+- ✅ Dépôt de documents (Bénévole, Commissaire, Sportif)
+- ✅ Saisie des résultats (Commissaire)
+- ✅ Déclarer forfait (Sportif)
 - ⌛ Gestion des notifications
-- ⌛ Visualisation des performances de ses concurrents (Sportif)
-- ⌛ Dépôt de documents (Bénévole, Commissaire, Sportif)
 - ⌛ Accès à l'agenda (Bénévole, Commissaire, Sportif)
-- ⌛ Saisie des résultats (Commissaire)
-- ⌛ Déclarer forfait (Sportif)
 - ⌛ Modifier un évènement (Responsable déploiement, Commissaire)
 - ⌛ Téléverser un agenda (Responsable déploiement)
-- ❌ Valider le compte d'un sportif (Commissaire)
-- ❌ Valider le compte d'un commissaire ou d'un bénévole (Responsable déploiement)
+- ⌛ Valider le compte d'un sportif (Commissaire)
+- ⌛ Valider le compte d'un commissaire ou d'un bénévole (Responsable déploiement)
+- ⌛ Métrics
 - ❌ Tracking du sportif
 - ❌ Carte agrégée
-- ❌ Métrics
+
 
 ## Cas spécifique
 

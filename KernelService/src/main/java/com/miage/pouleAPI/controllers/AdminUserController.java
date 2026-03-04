@@ -155,4 +155,34 @@ public class AdminUserController {
                 .body(new ApiResponse(e.getMessage()));
         }
     }
+
+    /**
+     * Valide un compte utilisateur (après vérification des documents)
+     * Change isAccountValidated de false à true
+     */
+    @PostMapping("/{id}/validate-account")
+    public ResponseEntity<Object> validateUserAccount(@PathVariable Integer id) {
+        try {
+            UserDto user = adminUserService.validateUserAccount(id);
+            return ResponseEntity.ok(user);
+        } catch (IllegalArgumentException | IllegalStateException e) {
+            return ResponseEntity.badRequest()
+                .body(new ApiResponse(e.getMessage()));
+        }
+    }
+
+    /**
+     * Invalide un compte utilisateur (révoque la validation)
+     * Change isAccountValidated de true à false
+     */
+    @PostMapping("/{id}/invalidate-account")
+    public ResponseEntity<Object> invalidateUserAccount(@PathVariable Integer id) {
+        try {
+            UserDto user = adminUserService.invalidateUserAccount(id);
+            return ResponseEntity.ok(user);
+        } catch (IllegalArgumentException | IllegalStateException e) {
+            return ResponseEntity.badRequest()
+                .body(new ApiResponse(e.getMessage()));
+        }
+    }
 }

@@ -9,7 +9,6 @@ import {
     Spinner,
     Alert,
     Modal,
-    Badge,
     Form,
     FloatingLabel
 } from 'react-bootstrap';
@@ -178,7 +177,7 @@ const TicketsPage = () => {
     const formatDate = (dateString) => {
         try {
             return format(new Date(dateString), 'dd/MM/yyyy HH:mm', { locale: fr });
-        } catch (e) {
+        } catch {
             return dateString || 'Date inconnue';
         }
     };
@@ -338,13 +337,13 @@ const TicketsPage = () => {
                         <FloatingLabel controlId="floatingFile" label="Fichier du billet *" className="mb-3">
                             <Form.Control
                                 type="file"
-                                accept=".pdf,.jpg,.jpeg,.png"
+                                accept=".pdf"
                                 onChange={handleFileChange}
                                 disabled={uploading}
                                 required
                             />
                             <Form.Text className="text-muted">
-                                Formats acceptés : PDF, JPG, PNG (max 10MB)
+                                Formats acceptés : PDF (max 10MB)
                             </Form.Text>
                             {uploadForm.file && (
                                 <Alert variant="info" className="mt-2 py-2">

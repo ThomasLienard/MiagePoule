@@ -39,7 +39,7 @@ class AuthControllerTest {
         // Arrange
         LoginRequest request = new LoginRequest("test@example.com", "password123");
         AuthService.LoginResponseWithStatus response = 
-            new AuthService.LoginResponseWithStatus("jwt-token-123", false, true);
+            new AuthService.LoginResponseWithStatus("jwt-token-123", false, true, true);
 
         when(authService.loginWithStatus(any(LoginRequest.class))).thenReturn(response);
 
@@ -56,7 +56,7 @@ class AuthControllerTest {
         // Arrange
         LoginRequest request = new LoginRequest("", "");
         AuthService.LoginResponseWithStatus response = 
-            new AuthService.LoginResponseWithStatus("token", false, false);
+            new AuthService.LoginResponseWithStatus("token", false, false, false);
 
         when(authService.loginWithStatus(any(LoginRequest.class))).thenReturn(response);
 
