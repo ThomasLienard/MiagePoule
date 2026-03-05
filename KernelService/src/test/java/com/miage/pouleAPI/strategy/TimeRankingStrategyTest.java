@@ -3,7 +3,9 @@ package com.miage.pouleAPI.strategy;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
+import java.util.Arrays;
 import java.util.Comparator;
+import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -11,6 +13,8 @@ import static org.junit.jupiter.api.Assertions.*;
 class TimeRankingStrategyTest {
     
     private final TimeRankingStrategy strategy = new TimeRankingStrategy();
+
+    // ===== Tests de configuration de la stratégie =====
     
     @Test
     @DisplayName("getScoreType() devrait retourner TIME")
@@ -23,6 +27,14 @@ class TimeRankingStrategyTest {
     void testGetSortOrder() {
         assertEquals("ASC", strategy.getSortOrder());
     }
+
+    @Test
+    @DisplayName("getResultComparator() ne devrait pas retourner null")
+    void testGetResultComparatorNotNull() {
+        assertNotNull(strategy.getResultComparator());
+    }
+
+    // ===== Tests de comparaison de base =====
     
     @Test
     @DisplayName("getResultComparator() devrait comparer les temps en ordre croissant")
@@ -52,5 +64,90 @@ class TimeRankingStrategyTest {
         
         // Doit comparer en tant que String si la conversion en double échoue
         assertTrue(comparator.compare("abc", "def") < 0);
+    }
+
+    // ===== Tests de cas limites =====
+
+    @Test
+    @DisplayName("getResultComparator() devrait gérer des temps très proches (précision décimale)")
+    void testGetResultComparatorWithVeryCloseTimes() {
+        Comparator<String> comparator = strategy.getResultComparator();
+
+        // 9.99 < 10.00 donc 9.99 est meilleur (plus petit indice)
+        assertTrue(comparator.compare("9.99", "10.00") < 0);
+        assertTrue(comparator.compare("10.00", "9.99") > 0);
+        assertEquals(0, comparator.compare("9.99", "9.99"));
+    }
+
+    @Test
+    @DisplayName("getResultComparator() devrait gérer des valeurs entières en tant que temps")
+    void testGetResultComparatorWithIntegerTimes() {
+        Comparator<String> comparator = strategy.getResultComparator();
+
+        assertTrue(comparator.compare("10", "11") < 0);
+        assertTrue(comparator.compare("11", "10") > 0);
+        assertEquals(0, comparator.compare("10", "10"));
+    }
+
+    @Test
+    @DisplayName("getResultComparator() devrait être antisymétrique")
+    void testGetResultComparatorAntisymmetry() {
+        Comparator<String> comparator = strategy.getResultComparator();
+
+        int cmp1 = comparator.compare("10.5", "12.3");
+        int cmp2 = comparator.compare("12.3", "10.5");
+
+        assertTrue(cmp1 < 0);
+        assertTrue(cmp2 > 0);
+    }
+
+    @Test
+    @DisplayName("getResultComparator() devrait être transitif")
+    void testGetResultComparatorTransitivity() {
+        Comparator<String> comparator = strategy.getResultComparator();
+
+        // 9.8 < 10.0 < 11.2, donc compare(9.8,10.0)<0 et compare(10.0,11.2)<0 → compare(9.8,11.2)<0
+        assertTrue(comparator.compare("9.8", "10.0") < 0);
+        assertTrue(comparator.compare("10.0", "11.2") < 0);
+        assertTrue(comparator.compare("9.8", "11.2") < 0);
+    }
+
+    @Test
+    @DisplayName("getResultComparator() devrait gérer des temps identiques comme égalité")
+    void testGetResultComparatorEquality() {
+        Comparator<String> comparator = strategy.getResultComparator();
+
+        assertEquals(0, comparator.compare("10.500", "10.500"));
+        assertEquals(0, comparator.compare("60.0", "60.0"));
+    }
+
+    // ===== Tests de tri d'une liste =====
+
+    @Test
+    @DisplayName("getResultComparator() devrait trier une liste du meilleur au moins bon temps")
+    void testSortingListAscending() {
+        Comparator<String> comparator = strategy.getResultComparator();
+        List<String> times = Arrays.asList("12.5", "9.8", "11.0", "10.3", "9.9");
+        times.sort(comparator);
+
+        // Ordre attendu : 9.8, 9.9, 10.3, 11.0, 12.5
+        assertEquals("9.8",  times.get(0));
+        assertEquals("9.9",  times.get(1));
+        assertEquals("10.3", times.get(2));
+        assertEquals("11.0", times.get(3));
+        assertEquals("12.5", times.get(4));
+    }
+
+    @Test
+    @DisplayName("getResultComparator() devrait gérer les doublons dans une liste triée de temps")
+    void testSortingListWithDuplicates() {
+        Comparator<String> comparator = strategy.getResultComparator();
+        List<String> times = Arrays.asList("12.0", "10.5", "12.0", "11.0");
+        times.sort(comparator);
+
+        assertEquals("10.5", times.get(0));
+        assertEquals("11.0", times.get(1));
+        assertEquals("12.0", times.get(2));
+        assertEquals("12.0", times.get(3));
     }
 }

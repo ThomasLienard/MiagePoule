@@ -183,6 +183,220 @@ class TrialAdapterStrategyIntegrationTest {
         assertEquals("90", pointsDto.getRankings().get(1).getResult());
     }
 
+    @Test
+    @DisplayName("Devrait retourner un classement vide si les résultats ne sont pas tous validés")
+    void testRankingEmptyWhenResultsNotAllValidated() {
+        // Given - Épreuve avec un athlète non encore validé
+        Trial trial = createTrialWithScoreType("TIME");
+
+        ApplicationUser user1 = createUser(1, "Alice", "Dupont");
+        ApplicationUser user2 = createUser(2, "Bob", "Martin");
+
+        // user1 validé, user2 non validé
+        IsConvenedTo convening1 = createConvening(user1, "11.0", false, true);
+        IsConvenedTo convening2 = createConvening(user2, "12.0", false, false);
+
+        when(isConvenedToRepository.findByTrialIdOrderedByResultDynamic(trial.getId(), "ASC"))
+            .thenReturn(Arrays.asList(convening1, convening2));
+        when(participateAtRepository.findByTrialIdOrderedByResultDynamic(anyInt(), anyString())).thenReturn(Arrays.asList());
+        when(isConvenedToRepository.findByTrialId(anyInt())).thenReturn(Arrays.asList());
+        when(participateAtRepository.findByTrialId(anyInt())).thenReturn(Arrays.asList());
+
+        // When
+        TrialDetailDTO dto = trialAdapter.entityToDetailDto(trial);
+
+        // Then - aucun ranking car pas tous validés
+        assertNotNull(dto);
+        assertTrue(dto.getRankings().isEmpty(),
+            "Le classement doit être vide si tous les résultats ne sont pas validés");
+    }
+
+    @Test
+    @DisplayName("Devrait exclure les athlètes forfait du rang et les placer sans rang")
+    void testRankingForfeitAthleteHasNoRank() {
+        // Given - Épreuve avec un athlète forfait
+        Trial trial = createTrialWithScoreType("TIME");
+
+        ApplicationUser user1 = createUser(1, "Clara", "Petit");
+        ApplicationUser user2 = createUser(2, "Damien", "Gros");
+        ApplicationUser user3 = createUser(3, "Eva", "Long");
+
+        // user3 est forfait
+        IsConvenedTo convening1 = createConvening(user1, "10.0", false, true);
+        IsConvenedTo convening2 = createConvening(user2, "11.5", false, true);
+        IsConvenedTo convening3 = createConvening(user3, null, true, false);
+
+        when(isConvenedToRepository.findByTrialIdOrderedByResultDynamic(trial.getId(), "ASC"))
+            .thenReturn(Arrays.asList(convening1, convening2, convening3));
+        when(participateAtRepository.findByTrialIdOrderedByResultDynamic(anyInt(), anyString())).thenReturn(Arrays.asList());
+        when(isConvenedToRepository.findByTrialId(anyInt())).thenReturn(Arrays.asList());
+        when(participateAtRepository.findByTrialId(anyInt())).thenReturn(Arrays.asList());
+
+        // When
+        TrialDetailDTO dto = trialAdapter.entityToDetailDto(trial);
+
+        // Then
+        assertNotNull(dto);
+        assertEquals(3, dto.getRankings().size());
+
+        // Clara en rang 1
+        assertEquals(1, dto.getRankings().get(0).getRank());
+        assertEquals("Clara Petit", dto.getRankings().get(0).getParticipantName());
+        assertFalse(dto.getRankings().get(0).getIsForfeit());
+
+        // Damien en rang 2
+        assertEquals(2, dto.getRankings().get(1).getRank());
+        assertEquals("Damien Gros", dto.getRankings().get(1).getParticipantName());
+        assertFalse(dto.getRankings().get(1).getIsForfeit());
+
+        // Eva est forfait, sans rang
+        assertNull(dto.getRankings().get(2).getRank());
+        assertEquals("Eva Long", dto.getRankings().get(2).getParticipantName());
+        assertTrue(dto.getRankings().get(2).getIsForfeit());
+    }
+
+    @Test
+    @DisplayName("Devrait classer correctement les équipes avec la stratégie TIME (ordre croissant)")
+    void testTeamRankingWithTimeScore() {
+        // Given - Épreuve par équipes de type TIME
+        Trial trial = createTrialWithScoreType("TIME");
+
+        Team team1 = createTeam(1, "Team Alpha");
+        Team team2 = createTeam(2, "Team Beta");
+        Team team3 = createTeam(3, "Team Gamma");
+
+        ParticipateAt pa1 = createTeamParticipation(team1, "55.0", false, true);
+        ParticipateAt pa2 = createTeamParticipation(team2, "52.3", false, true);
+        ParticipateAt pa3 = createTeamParticipation(team3, "58.7", false, true);
+
+        // Pour TIME : tri ASC (52.3, 55.0, 58.7)
+        when(participateAtRepository.findByTrialIdOrderedByResultDynamic(trial.getId(), "ASC"))
+            .thenReturn(Arrays.asList(pa2, pa1, pa3));
+        when(isConvenedToRepository.findByTrialIdOrderedByResultDynamic(anyInt(), anyString())).thenReturn(Arrays.asList());
+        when(participateAtRepository.findByTrialId(anyInt())).thenReturn(Arrays.asList(pa1, pa2, pa3));
+        when(isConvenedToRepository.findByTrialId(anyInt())).thenReturn(Arrays.asList());
+
+        // When
+        TrialDetailDTO dto = trialAdapter.entityToDetailDto(trial);
+
+        // Then - Team Beta (52.3s) est première
+        assertNotNull(dto);
+        assertEquals(3, dto.getRankings().size());
+
+        assertEquals(1, dto.getRankings().get(0).getRank());
+        assertEquals("52.3", dto.getRankings().get(0).getResult());
+        assertEquals("Team Beta", dto.getRankings().get(0).getParticipantName());
+        assertEquals("TEAM", dto.getRankings().get(0).getParticipantType());
+
+        assertEquals(2, dto.getRankings().get(1).getRank());
+        assertEquals("55.0", dto.getRankings().get(1).getResult());
+        assertEquals("Team Alpha", dto.getRankings().get(1).getParticipantName());
+
+        assertEquals(3, dto.getRankings().get(2).getRank());
+        assertEquals("58.7", dto.getRankings().get(2).getResult());
+        assertEquals("Team Gamma", dto.getRankings().get(2).getParticipantName());
+    }
+
+    @Test
+    @DisplayName("Devrait classer correctement les équipes avec la stratégie POINTS (ordre décroissant)")
+    void testTeamRankingWithPointsScore() {
+        // Given - Épreuve par équipes de type POINTS
+        Trial trial = createTrialWithScoreType("POINTS");
+
+        Team team1 = createTeam(1, "Team Rouge");
+        Team team2 = createTeam(2, "Team Bleu");
+        Team team3 = createTeam(3, "Team Vert");
+
+        ParticipateAt pa1 = createTeamParticipation(team1, "78.0", false, true);
+        ParticipateAt pa2 = createTeamParticipation(team2, "91.5", false, true);
+        ParticipateAt pa3 = createTeamParticipation(team3, "84.2", false, true);
+
+        // Pour POINTS : tri DESC (91.5, 84.2, 78.0)
+        when(participateAtRepository.findByTrialIdOrderedByResultDynamic(trial.getId(), "DESC"))
+            .thenReturn(Arrays.asList(pa2, pa3, pa1));
+        when(isConvenedToRepository.findByTrialIdOrderedByResultDynamic(anyInt(), anyString())).thenReturn(Arrays.asList());
+        when(participateAtRepository.findByTrialId(anyInt())).thenReturn(Arrays.asList(pa1, pa2, pa3));
+        when(isConvenedToRepository.findByTrialId(anyInt())).thenReturn(Arrays.asList());
+
+        // When
+        TrialDetailDTO dto = trialAdapter.entityToDetailDto(trial);
+
+        // Then - Team Bleu (91.5 pts) est première
+        assertNotNull(dto);
+        assertEquals(3, dto.getRankings().size());
+
+        assertEquals(1, dto.getRankings().get(0).getRank());
+        assertEquals("91.5", dto.getRankings().get(0).getResult());
+        assertEquals("Team Bleu", dto.getRankings().get(0).getParticipantName());
+        assertEquals("TEAM", dto.getRankings().get(0).getParticipantType());
+
+        assertEquals(2, dto.getRankings().get(1).getRank());
+        assertEquals("84.2", dto.getRankings().get(1).getResult());
+        assertEquals("Team Vert", dto.getRankings().get(1).getParticipantName());
+
+        assertEquals(3, dto.getRankings().get(2).getRank());
+        assertEquals("78.0", dto.getRankings().get(2).getResult());
+        assertEquals("Team Rouge", dto.getRankings().get(2).getParticipantName());
+    }
+
+    @Test
+    @DisplayName("Devrait retourner un classement vide pour une équipe si les résultats ne sont pas tous validés")
+    void testTeamRankingEmptyWhenNotAllValidated() {
+        // Given - une équipe non validée
+        Trial trial = createTrialWithScoreType("POINTS");
+
+        Team team1 = createTeam(1, "Team A");
+        Team team2 = createTeam(2, "Team B");
+
+        ParticipateAt pa1 = createTeamParticipation(team1, "88.0", false, true);
+        ParticipateAt pa2 = createTeamParticipation(team2, "75.0", false, false); // non validé
+
+        when(participateAtRepository.findByTrialIdOrderedByResultDynamic(trial.getId(), "DESC"))
+            .thenReturn(Arrays.asList(pa1, pa2));
+        when(isConvenedToRepository.findByTrialIdOrderedByResultDynamic(anyInt(), anyString())).thenReturn(Arrays.asList());
+        when(participateAtRepository.findByTrialId(anyInt())).thenReturn(Arrays.asList(pa1, pa2));
+        when(isConvenedToRepository.findByTrialId(anyInt())).thenReturn(Arrays.asList());
+
+        // When
+        TrialDetailDTO dto = trialAdapter.entityToDetailDto(trial);
+
+        // Then
+        assertNotNull(dto);
+        assertTrue(dto.getRankings().isEmpty(),
+            "Le classement doit être vide si toutes les équipes ne sont pas validées");
+    }
+
+    @Test
+    @DisplayName("Devrait utiliser TIME par défaut quand le TypeScore est null")
+    void testDefaultsToTimeWhenScoreTypeIsNull() {
+        // Given - Épreuve sans TypeScore défini
+        Trial trial = createTrialWithScoreType("TIME");
+        trial.setTypeScore(null);
+
+        ApplicationUser user1 = createUser(1, "Leo", "Petit");
+        ApplicationUser user2 = createUser(2, "Marie", "Grand");
+
+        IsConvenedTo convening1 = createConvening(user1, "9.5", false, true);
+        IsConvenedTo convening2 = createConvening(user2, "10.2", false, true);
+
+        // Quand typeScore est null, la stratégie utilisée devrait être "TIME" (valeur par défaut)
+        when(isConvenedToRepository.findByTrialIdOrderedByResultDynamic(trial.getId(), "ASC"))
+            .thenReturn(Arrays.asList(convening1, convening2));
+        when(participateAtRepository.findByTrialIdOrderedByResultDynamic(anyInt(), anyString())).thenReturn(Arrays.asList());
+        when(isConvenedToRepository.findByTrialId(anyInt())).thenReturn(Arrays.asList());
+        when(participateAtRepository.findByTrialId(anyInt())).thenReturn(Arrays.asList());
+
+        // When
+        TrialDetailDTO dto = trialAdapter.entityToDetailDto(trial);
+
+        // Then - Leo (9.5) doit être premier (ordre croissant = TIME)
+        assertNotNull(dto);
+        assertEquals(2, dto.getRankings().size());
+        assertEquals(1, dto.getRankings().get(0).getRank());
+        assertEquals("9.5", dto.getRankings().get(0).getResult());
+        assertEquals("Leo Petit", dto.getRankings().get(0).getParticipantName());
+    }
+
     // ============ Méthodes utilitaires ============
 
     private Trial createTrialWithScoreType(String scoreType) {
@@ -228,5 +442,21 @@ class TrialAdapterStrategyIntegrationTest {
         convening.setIsForfeit(isForfeit);
         convening.setIsValidated(isValidated);
         return convening;
+    }
+
+    private Team createTeam(Integer id, String name) {
+        Team team = new Team();
+        team.setId(id);
+        team.setName(name);
+        return team;
+    }
+
+    private ParticipateAt createTeamParticipation(Team team, String result, Boolean isForfeit, Boolean isValidated) {
+        ParticipateAt pa = new ParticipateAt();
+        pa.setTeam(team);
+        pa.setResult(result);
+        pa.setIsForfeit(isForfeit);
+        pa.setIsValidated(isValidated);
+        return pa;
     }
 }
