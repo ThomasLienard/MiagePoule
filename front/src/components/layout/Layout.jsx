@@ -1,7 +1,7 @@
 import {Link, Outlet, useNavigate, useLocation, Navigate} from "react-router-dom";
 import {useAuth} from "../../contexts/AuthContext.jsx";
 import { useNotificationsSSE } from "../../hooks/useNotificationSSE.js";
-import {Navbar, Container, Nav, Badge, Popover} from "react-bootstrap";
+import {Navbar, Container, Nav, Badge, Popover, ListGroup} from "react-bootstrap";
 import OverlayTrigger from 'react-bootstrap/OverlayTrigger';
 
 export default function Layout() {
@@ -13,23 +13,43 @@ export default function Layout() {
     const userId = user?.id ?? null;
     const { unreadCount, markAllAsRead, notifications } = useNotificationsSSE(userId);
 
+    const handleNotificationClick = (eventId) => {
+        if (eventId) {
+            navigate(`/public/trials/${eventId}`);
+        }
+    };
+
     const popover = (
         <Popover id="popover-basic">
             <Popover.Header as="h4">Notifications</Popover.Header>
-            <Popover.Body>
-                <div>
+            <Popover.Body className="p-0">
+                <ListGroup variant="flush" style={{ maxHeight: '300px', overflowY: 'auto' }}>
                     { notifications?.length > 0 ?
-                        notifications?.map(notif =>{
-                        return (
-                            <>
-                                <hr/>
-                                <span>{notif?.description}</span>
-                                <br/>
-                            </>
-                        )
-                    })
-                    : "Aucune notification pour le moment" }
-                </div>
+                        notifications?.map((notif, index) => (
+                            <ListGroup.Item 
+                                key={index}
+                                action
+                                onClick={() => handleNotificationClick(notif?.eventId)}
+                                className={notif?.eventId ? 'cursor-pointer' : ''}
+                                style={{ cursor: notif?.eventId ? 'pointer' : 'default' }}
+                            >
+                                <div className="fw-normal">{notif?.description}</div>
+                                {notif?.eventId && (
+                                    <small className="text-primary">
+                                        → Voir les détails
+                                    </small>
+                                )}
+                                <div className="text-muted" style={{ fontSize: '0.75em', marginTop: '4px' }}>
+                                    {new Date(notif?.emissionDate).toLocaleString('fr-FR')}
+                                </div>
+                            </ListGroup.Item>
+                        ))
+                    : 
+                        <ListGroup.Item className="text-muted text-center">
+                            Aucune notification pour le moment
+                        </ListGroup.Item> 
+                    }
+                </ListGroup>
             </Popover.Body>
         </Popover>
     );
