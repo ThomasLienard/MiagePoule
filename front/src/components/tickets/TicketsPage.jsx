@@ -277,7 +277,7 @@ const TicketsPage = () => {
                                         <td className="align-middle">
                                             <div className="d-flex align-items-center">
                                                 <Calendar className="me-2 text-muted" size={14} />
-                                                {formatDate(ticket.createdAt)}
+                                                {formatDate(ticket.uploadedAt)}
                                             </div>
                                         </td>
                                         <td className="align-middle">
