@@ -8,6 +8,7 @@ import com.miage.pouleAPI.entity.*;
 import com.miage.pouleAPI.repositories.IsConvenedToRepository;
 import com.miage.pouleAPI.repositories.ParticipateAtRepository;
 import com.miage.pouleAPI.repositories.TrialRepository;
+import com.miage.pouleAPI.services.interfaces.NotificationService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
@@ -33,6 +34,7 @@ class ResultServiceImplTest {
     @Mock private TrialRepository trialRepository;
     @Mock private IsConvenedToRepository isConvenedToRepository;
     @Mock private ParticipateAtRepository participateAtRepository;
+    @Mock private NotificationService notificationService;
 
     @InjectMocks
     private ResultServiceImpl resultService;
@@ -45,14 +47,13 @@ class ResultServiceImplTest {
 
     private ApplicationUser athlete;
     private Team team;
-    private Country france;
 
     private IsConvenedTo convocation;
     private ParticipateAt participation;
 
     @BeforeEach
     void setUp() {
-        france = new Country();
+        Country france = new Country();
         france.setCode("FR");
 
         // Épreuve déjà commencée
@@ -140,8 +141,8 @@ class ResultServiceImplTest {
             TrialResultsDTO dto = result.get();
             assertThat(dto.isTeamTrial()).isFalse();
             assertThat(dto.getResults()).hasSize(1);
-            assertThat(dto.getResults().get(0).getParticipantName()).isEqualTo("Marie Dupont");
-            assertThat(dto.getResults().get(0).getParticipantType()).isEqualTo("ATHLETE");
+            assertThat(dto.getResults().getFirst().getParticipantName()).isEqualTo("Marie Dupont");
+            assertThat(dto.getResults().getFirst().getParticipantType()).isEqualTo("ATHLETE");
         }
 
         @Test
@@ -157,8 +158,8 @@ class ResultServiceImplTest {
             TrialResultsDTO dto = result.get();
             assertThat(dto.isTeamTrial()).isTrue();
             assertThat(dto.getResults()).hasSize(1);
-            assertThat(dto.getResults().get(0).getParticipantName()).isEqualTo("Team France");
-            assertThat(dto.getResults().get(0).getParticipantType()).isEqualTo("TEAM");
+            assertThat(dto.getResults().getFirst().getParticipantName()).isEqualTo("Team France");
+            assertThat(dto.getResults().getFirst().getParticipantType()).isEqualTo("TEAM");
         }
 
         @Test
@@ -405,7 +406,7 @@ class ResultServiceImplTest {
             List<ResultDTO> results = resultService.setBulkResults(1, bulk);
 
             assertThat(results).hasSize(1);
-            assertThat(results.get(0).getParticipantType()).isEqualTo("TEAM");
+            assertThat(results.getFirst().getParticipantType()).isEqualTo("TEAM");
         }
 
         @Test
