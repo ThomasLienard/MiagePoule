@@ -19,6 +19,12 @@ export default function Layout() {
         }
     };
 
+    const handleNotificationClick = (eventId) => {
+        if (eventId) {
+            navigate(`/public/trials/${eventId}`);
+        }
+    };
+
     const popover = (
         <Popover id="popover-basic" className="notification-panel">
             <Popover.Header as="h4">Notifications</Popover.Header>
