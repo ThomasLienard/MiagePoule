@@ -1,5 +1,6 @@
 package com.miage.pouleAPI.controllers;
 
+import com.miage.pouleAPI.dtos.event.CancelEventRequestDTO;
 import com.miage.pouleAPI.dtos.event.UpdateEventRequestDTO;
 import com.miage.pouleAPI.dtos.timeslot.TimeSlotDTO;
 import com.miage.pouleAPI.services.interfaces.AdminEventService;
@@ -42,5 +43,17 @@ class CommissaireControllerTest {
         assertEquals(eventId, request.getId());
 
         verify(adminEventService, times(1)).updateEvent(request);
+    }
+
+    @Test
+    void cancelEvent_shouldReturn204_AndCallService() {
+        Integer eventId = 10;
+        String reason = "Terrain impraticable";
+        CancelEventRequestDTO request = new CancelEventRequestDTO(reason);
+
+        ResponseEntity<Void> response = commissaireController.cancelEvent(eventId, request);
+
+        assertEquals(HttpStatus.NO_CONTENT, response.getStatusCode());
+        verify(adminEventService, times(1)).cancelEvent(eventId, reason);
     }
 }

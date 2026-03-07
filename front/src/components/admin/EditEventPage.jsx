@@ -20,12 +20,10 @@ const EditEventPage = () => {
     const [selectedChampionshipId, setSelectedChampionshipId] = useState('');
     const [compLimits, setCompLimits] = useState({ start: '', end: '' });
 
-    // --- CORRECTION LOGIQUE RÔLE ---
-    // On parse l'objet "user" (ou la clé qui contient ton JSON dans le localStorage)
     const storedUser = JSON.parse(localStorage.getItem('user')) || {};
     const isCommissaire = storedUser.roles?.includes('COMMISSAIRE');
-    const userRoleDisplay = storedUser.roles?.join(', ') || 'INVITÉ';
-    // -------------------------------
+    storedUser.roles?.join(', ') || 'INVITÉ';
+
 
     const [formData, setFormData] = useState({
         name: '',

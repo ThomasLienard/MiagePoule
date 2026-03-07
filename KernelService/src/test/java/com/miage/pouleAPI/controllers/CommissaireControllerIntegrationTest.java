@@ -1,9 +1,11 @@
 package com.miage.pouleAPI.controllers;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.miage.pouleAPI.dtos.event.CancelEventRequestDTO;
 import com.miage.pouleAPI.dtos.event.UpdateEventRequestDTO;
 import com.miage.pouleAPI.dtos.place.PlaceDTO;
 import com.miage.pouleAPI.dtos.timeslot.TimeSlotDTO;
+import com.miage.pouleAPI.entity.Event;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
@@ -16,6 +18,8 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
 
+import static org.springframework.test.util.AssertionErrors.assertEquals;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.patch;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.put;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
@@ -126,5 +130,17 @@ class CommissaireControllerIntegrationTest {
                         .contentType(MediaType.APPLICATION_JSON)
                         .content("{}"))
                 .andExpect(status().isForbidden());
+    }
+
+    @Test
+    @WithMockUser(roles = "COMMISSAIRE")
+    void cancelEvent_shouldUpdateStatusAndReason() throws Exception {
+        Integer eventId = 1;
+        CancelEventRequestDTO cancelReq = new CancelEventRequestDTO("Pluie torrentielle");
+
+        mockMvc.perform(patch("/commissaire/events/" + eventId + "/cancel")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(cancelReq)))
+                .andExpect(status().isNoContent());
     }
 }
