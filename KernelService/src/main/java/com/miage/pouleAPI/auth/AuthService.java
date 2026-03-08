@@ -107,13 +107,14 @@ public class AuthService {
         String role = user.getRole().getRoleName();
         Boolean mustChangePassword = user.getMustChangePassword() != null && user.getMustChangePassword();
         Boolean isAccountActivated = user.getIsAccountActivated() != null && user.getIsAccountActivated();
+        Boolean isAccountValidated = user.getIsAccountValidated() != null && user.getIsAccountValidated();
         
         String token = jwtService.generateToken(user.getId(), user.getEmail(), role);
 
-        return new LoginResponseWithStatus(token, mustChangePassword, isAccountActivated);
+        return new LoginResponseWithStatus(token, mustChangePassword, isAccountActivated, isAccountValidated);
     }
 
-    public record LoginResponseWithStatus(String token, Boolean mustChangePassword, Boolean isAccountActivated) {}
+    public record LoginResponseWithStatus(String token, Boolean mustChangePassword, Boolean isAccountActivated, Boolean isAccountValidated) {}
 
     public SignUpResponse signUp(SignUpRequest request) {
         log.info("Tentative d'inscription pour: {}", request.email());

@@ -6,6 +6,7 @@ import java.util.Set;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import com.miage.pouleAPI.users.Observer;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.NoArgsConstructor;
@@ -18,7 +19,7 @@ import lombok.Setter;
 @AllArgsConstructor
 @Entity
 @Table(name = "Application_user")
-public class ApplicationUser {
+public class ApplicationUser implements Observer {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -43,6 +44,9 @@ public class ApplicationUser {
 
     @Column(name = "is_account_activated")
     private Boolean isAccountActivated = false;
+
+    @Column(name = "is_account_validated")
+    private Boolean isAccountValidated = false;
 
     @Column(name = "must_change_password")
     private Boolean mustChangePassword = false;
@@ -130,6 +134,14 @@ public class ApplicationUser {
     @JsonIgnoreProperties({"users", "metricsEvents", "hibernateLazyInitializer", "handler"})
     @JsonIgnore
     private Set<Metrics> metrics = new HashSet<>();
+
+    @ManyToMany(mappedBy = "observers")
+    private Set<Competition> observedCompetitions = new HashSet<>();
+
+    @Override
+    public void update(Notification notification) {
+
+    }
 
     @OneToMany(mappedBy = "user", cascade = CascadeType.ALL)
     @JsonIgnoreProperties({"user", "hibernateLazyInitializer", "handler"})

@@ -11,6 +11,22 @@ const getAuthHeaders = () => {
 };
 
 const participantService = {
+
+    /**
+     * Récupère un athlète grâce à son identifiant
+     */
+    getAthleteById: async (athleteId) => {
+        try {
+            const response = await axios.get(
+                `${API_BASE_URL}/public/athlete/${athleteId}`,
+            );
+            return response.data;
+        } catch (error) {
+            throw new Error(error.response?.data?.message || 'Erreur lors de la récupération de l\'athlète');
+        }
+    },
+
+
     /**
      * Récupère toutes les épreuves avec leurs participants
      */
@@ -40,6 +56,21 @@ const participantService = {
             throw new Error(error.response?.data?.message || 'Erreur lors de la récupération des participants');
         }
     },
+
+    /**
+     * Récupère les épreuves spécifique d'un participant
+     */
+    getTrialsByAthleteId: async (athleteId) => {
+        try {
+            const response = await axios.get(
+                `${API_BASE_URL}/public/trials/assigned/${athleteId}`
+            );
+            return response.data;
+        } catch (error) {
+            throw new Error(error.response?.data?.message || 'Erreur lors de la récupération des épreuves');
+        }
+    },
+
 
     /**
      * Récupère les participants avec tous les potentiels (athlètes ET équipes)
@@ -197,6 +228,22 @@ const participantService = {
             return response.data;
         } catch (error) {
             throw new Error(error.response?.data?.message || 'Erreur lors du retrait de l\'équipe');
+        }
+    },
+
+    /**
+     * Permet à un sportif de déclarer forfait pour une épreuve
+     */
+    athleteDeclareWithdrawal: async (trialId) => {
+        try {
+            const response = await axios.post(
+                `${API_BASE_URL}/athlete/trials/${trialId}/forfeit`,
+                {},
+                { headers: getAuthHeaders() }
+            );
+            return response.data;
+        } catch (error) {
+            throw new Error(error.response?.data?.message || 'Erreur lors de la déclaration de forfait');
         }
     }
 };

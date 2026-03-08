@@ -1,6 +1,7 @@
 describe('Tests - Navigation Championnats et Résultats', () => {
 
     beforeEach(() => {
+        // On ignore les erreurs d'application asynchrones (fetch qui traîne, etc.)
         cy.on('uncaught:exception', () => false);
         cy.visit('/public/championship');
     });

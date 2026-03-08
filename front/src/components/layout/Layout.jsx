@@ -1,12 +1,58 @@
-import {Container, Nav, Navbar} from "react-bootstrap";
 import {Link, Outlet, useNavigate, useLocation, Navigate} from "react-router-dom";
-import React from "react";
 import {useAuth} from "../../contexts/AuthContext.jsx";
+import { useNotificationsSSE } from "../../hooks/useNotificationSSE.js";
+import {Navbar, Container, Nav, Badge, Popover, ListGroup} from "react-bootstrap";
+import OverlayTrigger from 'react-bootstrap/OverlayTrigger';
 
 export default function Layout() {
     const { user, logout, isAuthenticated, mustChangePassword } = useAuth();
     const navigate = useNavigate();
     const location = useLocation();
+
+    // Hook notifications SSE
+    const userId = user?.id ?? null;
+    const { unreadCount, markAllAsRead, notifications } = useNotificationsSSE(userId);
+
+    const handleNotificationClick = (eventId) => {
+        if (eventId) {
+            navigate(`/public/trials/${eventId}`);
+        }
+    };
+
+    const popover = (
+        <Popover id="popover-basic">
+            <Popover.Header as="h4">Notifications</Popover.Header>
+            <Popover.Body className="p-0">
+                <ListGroup variant="flush" style={{ maxHeight: '300px', overflowY: 'auto' }}>
+                    { notifications?.length > 0 ?
+                        notifications?.map((notif, index) => (
+                            <ListGroup.Item 
+                                key={index}
+                                action
+                                onClick={() => handleNotificationClick(notif?.eventId)}
+                                className={notif?.eventId ? 'cursor-pointer' : ''}
+                                style={{ cursor: notif?.eventId ? 'pointer' : 'default' }}
+                            >
+                                <div className="fw-normal">{notif?.description}</div>
+                                {notif?.eventId && (
+                                    <small className="text-primary">
+                                        → Voir les détails
+                                    </small>
+                                )}
+                                <div className="text-muted" style={{ fontSize: '0.75em', marginTop: '4px' }}>
+                                    {new Date(notif?.emissionDate).toLocaleString('fr-FR')}
+                                </div>
+                            </ListGroup.Item>
+                        ))
+                    : 
+                        <ListGroup.Item className="text-muted text-center">
+                            Aucune notification pour le moment
+                        </ListGroup.Item> 
+                    }
+                </ListGroup>
+            </Popover.Body>
+        </Popover>
+    );
 
     // Rediriger vers la page de changement de mot de passe si nécessaire
     const allowedPaths = ['/change-password', '/login', '/logout'];
@@ -19,9 +65,11 @@ export default function Layout() {
         logout();
         navigate('/');
     };
+
     const handleProfile = () => {
         navigate('/account');
     };
+
     return (
         <>
             <Navbar expand="sm" className="bg-body-tertiary">
@@ -36,6 +84,12 @@ export default function Layout() {
                                 <Link to="/public/championship"
                                       className="text-decoration-none text-body-secondary">Championnats</Link>
                             </Nav.Link>
+                            {user?.roles?.includes('ATHLETE') && (
+                                <Nav.Link className="auth-button secondary me-2" as="span">
+                                    <Link to={`/public/athlete-trials/${user.id}`}
+                                          className="text-decoration-none text-body-secondary">Mes épreuves</Link>
+                                </Nav.Link>
+                            )}
                             {isAuthenticated() && (
                                 <Nav.Link className="auth-button secondary me-2" as="span">
                                     <Link to="/tickets"
@@ -66,6 +120,34 @@ export default function Layout() {
                             )}
 
                         </Nav>
+
+                        {/* Badge notifications (UNIQUEMENT si connecté) */}
+                        {isAuthenticated() && (
+                            <Nav className="me-2">
+                                <OverlayTrigger trigger="click" placement="bottom" overlay={popover}>
+                                <div className="position-relative">
+                                    <Nav.Link
+                                        className="p-0 notification-bell"
+                                        onClick={markAllAsRead}
+                                        style={{ cursor: 'pointer' }}
+                                    >
+                                        🔔
+                                        {unreadCount > 0 &&
+                                            <Badge
+                                                bg="danger"
+                                                pill
+                                                className="position-absolute top-0 start-100 translate-middle"
+                                                style={{ fontSize: '0.65em' }}
+                                            >
+                                                {unreadCount}
+                                            </Badge>
+                                        }
+                                    </Nav.Link>
+                                </div>
+                                </OverlayTrigger>
+                            </Nav>
+                        )}
+
                         {isAuthenticated() ? (
                             <Nav>
                                 <Nav.Link className="auth-button secondary me-2" as="span">
@@ -100,7 +182,7 @@ export default function Layout() {
                     </Navbar.Collapse>
                 </Container>
             </Navbar>
-            <Outlet/>
+            <Outlet />
         </>
     );
 }

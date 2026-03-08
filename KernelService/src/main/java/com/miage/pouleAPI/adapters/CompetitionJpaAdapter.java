@@ -3,8 +3,10 @@ package com.miage.pouleAPI.adapters;
 import com.miage.pouleAPI.dtos.championship.ChampionshipDTO;
 import com.miage.pouleAPI.dtos.competition.CompetitionDTO;
 import com.miage.pouleAPI.dtos.competition.CreateCompetitionRequestDTO;
+import com.miage.pouleAPI.entity.ApplicationUser;
 import com.miage.pouleAPI.entity.Championship;
 import com.miage.pouleAPI.entity.Competition;
+import com.miage.pouleAPI.repositories.ApplicationUserRepository;
 import com.miage.pouleAPI.repositories.ChampionshipRepository;
 import com.miage.pouleAPI.repositories.CompetitionRepository;
 
@@ -18,10 +20,12 @@ public class CompetitionJpaAdapter {
 
     private final CompetitionRepository repository;
     private final ChampionshipRepository championshipRepository;
+    private final ApplicationUserRepository userRepository;
 
-    public CompetitionJpaAdapter(CompetitionRepository repository, ChampionshipRepository championshipRepository){
+    public CompetitionJpaAdapter(CompetitionRepository repository, ChampionshipRepository championshipRepository, ApplicationUserRepository userRepository){
         this.repository=repository;
         this.championshipRepository = championshipRepository;
+        this.userRepository = userRepository;
     }
 
 
@@ -53,6 +57,34 @@ public class CompetitionJpaAdapter {
     
     public Optional<CompetitionDTO> findByName(String name) {
         return repository.findByName(name).map(this::toDomain);
+    }
+
+    // Méthodes pour gérer les observateurs
+    public void addObserver(Integer competitionId, Integer userId) {
+        Competition competition = repository.findById(competitionId)
+                .orElseThrow(() -> new RuntimeException("Competition not found"));
+        ApplicationUser user = userRepository.findById(userId)
+                .orElseThrow(() -> new RuntimeException("User not found"));
+
+        competition.getObservers().add(user);
+        repository.save(competition);
+    }
+
+    public void removeObserver(Integer competitionId, Integer userId) {
+        Competition competition = repository.findById(competitionId)
+                .orElseThrow(() -> new RuntimeException("Competition not found"));
+        ApplicationUser user = userRepository.findById(userId)
+                .orElseThrow(() -> new RuntimeException("User not found"));
+
+        competition.getObservers().remove(user);
+        repository.save(competition);
+    }
+
+    public List<Integer> getObserverIds(Integer competitionId) {
+        return repository.findById(competitionId)
+                .map(Competition::getObservers)
+                .map(observers -> observers.stream().map(ApplicationUser::getId).toList())
+                .orElse(List.of());
     }
 
     private CompetitionDTO toDomain(Competition competition){

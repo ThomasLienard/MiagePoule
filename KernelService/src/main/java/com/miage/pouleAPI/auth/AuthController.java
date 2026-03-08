@@ -28,7 +28,8 @@ public class AuthController {
         return ResponseEntity.ok(new LoginResponse(
             response.token(),
             response.mustChangePassword(),
-            response.isAccountActivated()
+            response.isAccountActivated(),
+            response.isAccountValidated()
         ));
     }
 

@@ -22,6 +22,7 @@ import PrivacySettings from "./components/profile/PrivacySettings.jsx";
 import AdminEpreuves from './components/commissaire/AdminEpreuves.jsx';
 import ManageParticipants from './components/commissaire/ManageParticipants.jsx';
 import TeamManagement from './components/commissaire/TeamManagement.jsx';
+import ManageResults from './components/commissaire/ManageResults.jsx';
 
 //Admin
 import CreateEventPage from "./components/admin/CreateEventPage.jsx";
@@ -30,6 +31,7 @@ import CreateCompetitionPage from "./components/admin/CreateCompetitionPage.jsx"
 import EditEventPage from "./components/admin/EditEventPage.jsx";
 import EditChampionshipPage from "./components/admin/EditChampionshipPage.jsx";
 import EditCompetitionPage from "./components/admin/EditCompetitionPage.jsx";
+import TrialsByAthlete from "./components/TrialsByAthlete.jsx";
 
 function App() {
 
@@ -46,6 +48,7 @@ function App() {
                             <Route path="/change-password" element={<ChangePasswordPage />} />
                             <Route path="/public/events/:id" element={<TrialsAndEventsDetails />} />
                             <Route path="/public/trials/:id" element={<TrialsAndEventsDetails />} />
+                            <Route path="/public/athlete-trials/:athleteId" element={<TrialsByAthlete />} />
 
                             {/* Routes protégées Admin */}
                             <Route path="/admin" element={
@@ -108,6 +111,11 @@ function App() {
                             <Route path="/commissaire/update-event" element={
                                 <ProtectedRoute allowedRoles={['COMMISSAIRE']}>
                                     <EditEventPage />
+                                </ProtectedRoute>
+                            } />
+                            <Route path="/commissaire/trials/:trialId/results" element={
+                                <ProtectedRoute allowedRoles={['COMMISSAIRE']}>
+                                    <ManageResults />
                                 </ProtectedRoute>
                             } />
 

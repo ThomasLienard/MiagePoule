@@ -15,4 +15,6 @@ public interface CompetitionService {
     List<CompetitionDTO> findByChampionship(Integer championshipId);
     CompetitionDTO update (CompetitionDTO competitionDTO);
     Optional<CompetitionDTO> findByName(String name);
+    void addObserverToCompetition(Integer competitionId, Integer userId);
+    void removeObserverFromCompetition(Integer competitionId, Integer userId);
 }
