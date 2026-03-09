@@ -19,9 +19,7 @@ import {
     Upload,
     FileText,
     Calendar,
-    FilePdf,
-    Image,
-    File
+    FilePdf
 } from 'react-bootstrap-icons';
 import { documentService } from '../../services/documentService';
 import { format } from 'date-fns';
