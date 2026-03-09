@@ -66,14 +66,21 @@ public class AdminEventServiceImpl implements AdminEventService {
         Competition comp = competitionRepo.findById(req.competitionId())
                 .orElseThrow(() -> new RuntimeException("Compétition non trouvée"));
 
+
         if ("TRIAL".equalsIgnoreCase(req.typeEventName())) {
             Trial trial = new Trial();
             fillEventData(trial, req, type, place, slot, comp);
             trialRepo.save(trial);
+            if (req.commissaireId() != null) {
+                eventRepo.linkCommissaireToEvent(req.commissaireId(), trial.getId());
+            }
         } else {
             Event event = new Event();
             fillEventData(event, req, type, place, slot, comp);
             eventRepo.save(event);
+            if (req.commissaireId() != null) {
+                eventRepo.linkCommissaireToEvent(req.commissaireId(), event.getId());
+            }
         }
     }
 

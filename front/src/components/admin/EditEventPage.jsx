@@ -12,6 +12,7 @@ const EditEventPage = () => {
     const [allEvents, setAllEvents] = useState([]);
     const [championships, setChampionships] = useState([]);
     const [competitions, setCompetitions] = useState([]);
+    const [commissaires, setCommissaires] = useState([]); // Ajout liste commissaires
     const [selectedEventId, setSelectedEventId] = useState(eventIdFromUrl || '');
     const [loadingInitial, setLoadingInitial] = useState(true);
     const [loadingDetails, setLoadingDetails] = useState(false);
@@ -22,14 +23,13 @@ const EditEventPage = () => {
 
     const storedUser = JSON.parse(localStorage.getItem('user')) || {};
     const isCommissaire = storedUser.roles?.includes('COMMISSAIRE');
-    storedUser.roles?.join(', ') || 'INVITÉ';
-
 
     const [formData, setFormData] = useState({
         name: '',
         description: '',
         typeEventName: 'MEETING',
         competitionId: '',
+        commissaireId: '', // Champ ajouté pour l'US
         startTime: '',
         endTime: '',
         placeName: '',
@@ -50,11 +50,15 @@ const EditEventPage = () => {
         if (!eventId) return;
         setLoadingDetails(true);
         try {
-            const eventRes = await axios.get(`http://localhost:8084/public/events/${eventId}`);
+            // Utilisation du port 8082 (Gateway)
+            const eventRes = await axios.get(`http://localhost:8082/public/events/${eventId}`);
             const event = eventRes.data;
 
+            // Récupération de l'ID du commissaire via l'endpoint dédié si pas présent dans l'objet event
+            // Ou si ton DTO eventDetail contient déjà l'ID du commissaire : event.commissaireId
+
             for (const champ of currentChamps) {
-                const compsRes = await axios.get(`http://localhost:8084/public/championship/${champ.id}/comp`);
+                const compsRes = await axios.get(`http://localhost:8082/public/championship/${champ.id}/comp`);
                 const comps = compsRes.data;
                 const match = comps.find(c => c.name === event.competitionName);
 
@@ -71,6 +75,7 @@ const EditEventPage = () => {
                         description: event.description || '',
                         typeEventName: event.typeEventName || 'MEETING',
                         competitionId: match.id,
+                        commissaireId: event.commissaireId || '', // On charge le commissaire actuel
                         startTime: event.timeSlot?.start ? formatDateTime(event.timeSlot.start) : '',
                         endTime: event.timeSlot?.end ? formatDateTime(event.timeSlot.end) : '',
                         placeName: event.place?.name || '',
@@ -85,7 +90,7 @@ const EditEventPage = () => {
                 }
             }
         } catch (err) {
-            setStatus({ type: 'danger', message: "Erreur de chargement." });
+            setStatus({ type: 'danger', message: "Erreur de chargement des détails." });
         } finally {
             setLoadingDetails(false);
         }
@@ -94,18 +99,20 @@ const EditEventPage = () => {
     useEffect(() => {
         const initPage = async () => {
             try {
-                const [champsRes, eventsRes] = await Promise.all([
-                    axios.get('http://localhost:8084/public/championship'),
-                    axios.get('http://localhost:8084/public/events')
+                const [champsRes, eventsRes, commsRes] = await Promise.all([
+                    axios.get('http://localhost:8082/public/championship'),
+                    axios.get('http://localhost:8082/public/events'),
+                    axios.get('http://localhost:8082/commissaire/users?role=COMMISSAIRE')
                 ]);
                 setChampionships(champsRes.data);
                 setAllEvents(eventsRes.data);
+                setCommissaires(commsRes.data);
 
                 if (eventIdFromUrl) {
                     await fetchEventDetails(eventIdFromUrl, champsRes.data);
                 }
             } catch (err) {
-                setStatus({ type: 'danger', message: "Erreur serveur." });
+                setStatus({ type: 'danger', message: "Erreur serveur lors de l'initialisation." });
             } finally {
                 setLoadingInitial(false);
             }
@@ -115,7 +122,7 @@ const EditEventPage = () => {
 
     const handleChange = (e) => {
         const { name, value, type, checked } = e.target;
-        // BLOQUAGE STRICT : Le commissaire ne peut changer QUE les dates.
+        // Le commissaire ne peut changer QUE les dates. L'admin peut tout changer.
         if (isCommissaire && !["startTime", "endTime"].includes(name)) return;
 
         const val = type === 'checkbox' ? checked : value;
@@ -129,10 +136,9 @@ const EditEventPage = () => {
 
         const dataToSubmit = {
             id: finalId,
-            // On envoie tout, le backend gérera.
-            // Mais le commissaire n'aura modifié que les dates dans le formulaire.
             name: formData.name,
             competitionId: parseInt(formData.competitionId),
+            commissaireId: formData.commissaireId ? parseInt(formData.commissaireId) : null, // Envoi de l'ID pour la table de jointure
             timeSlot: {
                 start: formData.startTime.length === 16 ? formData.startTime + ":00" : formData.startTime,
                 end: formData.endTime.length === 16 ? formData.endTime + ":00" : formData.endTime
@@ -147,10 +153,9 @@ const EditEventPage = () => {
             }
         };
 
-        // CHOIX DE L'URL SELON LE RÔLE
         const url = isCommissaire
-            ? `http://localhost:8084/commissaire/events/${finalId}`
-            : `http://localhost:8084/admin/events/${finalId}`;
+            ? `http://localhost:8082/commissaire/events/${finalId}`
+            : `http://localhost:8082/admin/events/${finalId}`;
 
         try {
             await axios.put(url, dataToSubmit);
@@ -167,23 +172,21 @@ const EditEventPage = () => {
 
     return (
         <Container className="py-5">
-
             <h2 className="mb-4 text-center">
                 {isCommissaire ? '⏱️ Modification des Horaires' : "⚙️ Gestion de l'Évènement"}
             </h2>
 
             {status.message && <Alert variant={status.type} dismissible onClose={() => setStatus({type:'', message:''})}>{status.message}</Alert>}
 
-            {/* Sélecteur masqué pour le commissaire */}
             {!isCommissaire && (
-                <Card className="shadow-sm mb-4 bg-light">
+                <Card className="shadow-sm mb-4 bg-light border-0">
                     <Card.Body>
                         <Form.Label className="fw-bold">Épreuve à gérer</Form.Label>
                         <Form.Select value={selectedEventId} onChange={(e) => {
                             setSelectedEventId(e.target.value);
                             fetchEventDetails(e.target.value, championships);
                         }}>
-                            <option value="">--- Choisir ---</option>
+                            <option value="">--- Choisir une épreuve ---</option>
                             {allEvents.map(ev => <option key={ev.id} value={ev.id}>{ev.name} ({ev.competitionName})</option>)}
                         </Form.Select>
                     </Card.Body>
@@ -194,11 +197,10 @@ const EditEventPage = () => {
                 <div className="text-center py-5"><Spinner animation="grow" /></div>
             ) : (selectedEventId || eventIdFromUrl) && (
                 <Form onSubmit={handleSubmit}>
-
+                    {/* SECTION HORAIRES */}
                     <Card className="mb-4 shadow-sm border-primary">
                         <Card.Body>
                             <h5 className="text-primary mb-3">Dates de l'épreuve : {formData.name}</h5>
-
                             {!isCommissaire && (
                                 <Row className="mb-3">
                                     <Col md={6}>
@@ -208,7 +210,7 @@ const EditEventPage = () => {
                                             onChange={async (e) => {
                                                 const champId = e.target.value;
                                                 setSelectedChampionshipId(champId);
-                                                const res = await axios.get(`http://localhost:8084/public/championship/${champId}/comp`);
+                                                const res = await axios.get(`http://localhost:8082/public/championship/${champId}/comp`);
                                                 setCompetitions(res.data);
                                             }}
                                         >
@@ -246,28 +248,54 @@ const EditEventPage = () => {
                         </Card.Body>
                     </Card>
 
+                    {/* SECTION ADMIN (Nom, Lieu, et COMMISSAIRE) */}
                     {!isCommissaire && (
-                        <Card className="mb-4 shadow-sm">
-                            <Card.Body>
-                                <h5 className="text-muted mb-3">📍 Informations & Lieu</h5>
-                                <Form.Group className="mb-3">
-                                    <Form.Label>Nom</Form.Label>
-                                    <Form.Control name="name" value={formData.name} onChange={handleChange} />
-                                </Form.Group>
-                                <Row className="mb-3">
-                                    <Col md={3}><Form.Label>N° Rue</Form.Label><Form.Control name="number" value={formData.number} onChange={handleChange} /></Col>
-                                    <Col md={9}><Form.Label>Rue</Form.Label><Form.Control name="street" value={formData.street} onChange={handleChange} /></Col>
-                                </Row>
-                                <Row className="mb-3">
-                                    <Col md={4}><Form.Label>CP</Form.Label><Form.Control name="zip" value={formData.zip} onChange={handleChange} /></Col>
-                                    <Col md={8}><Form.Label>Ville</Form.Label><Form.Control name="city" value={formData.city} onChange={handleChange} /></Col>
-                                </Row>
-                                <Form.Check type="switch" label="Parking" name="parking" checked={formData.parking} onChange={handleChange} />
-                            </Card.Body>
-                        </Card>
+                        <>
+                            <Card className="mb-4 shadow-sm border-warning">
+                                <Card.Body>
+                                    <h5 className="text-warning mb-3">👮 Attribution du Personnel</h5>
+                                    <Form.Group>
+                                        <Form.Label className="fw-bold">Commissaire Responsable</Form.Label>
+                                        <Form.Select
+                                            name="commissaireId"
+                                            value={formData.commissaireId}
+                                            onChange={handleChange}
+                                            required
+                                        >
+                                            <option value="">-- Changer de commissaire --</option>
+                                            {commissaires.map(c => (
+                                                <option key={c.id} value={c.id}>
+                                                    {c.firstName} {c.lastName} ({c.email})
+                                                </option>
+                                            ))}
+                                        </Form.Select>
+                                    </Form.Group>
+                                </Card.Body>
+                            </Card>
+
+                            <Card className="mb-4 shadow-sm">
+                                <Card.Body>
+                                    <h5 className="text-muted mb-3">📍 Informations & Lieu</h5>
+                                    <Form.Group className="mb-3">
+                                        <Form.Label>Nom de l'épreuve</Form.Label>
+                                        <Form.Control name="name" value={formData.name} onChange={handleChange} />
+                                    </Form.Group>
+                                    <Row className="mb-3">
+                                        <Col md={3}><Form.Label>N°</Form.Label><Form.Control name="number" value={formData.number} onChange={handleChange} /></Col>
+                                        <Col md={9}><Form.Label>Rue</Form.Label><Form.Control name="street" value={formData.street} onChange={handleChange} /></Col>
+                                    </Row>
+                                    <Row className="mb-3">
+                                        <Col md={4}><Form.Label>CP</Form.Label><Form.Control name="zip" value={formData.zip} onChange={handleChange} /></Col>
+                                        <Col md={8}><Form.Label>Ville</Form.Label><Form.Control name="city" value={formData.city} onChange={handleChange} /></Col>
+                                    </Row>
+                                    <Form.Check type="switch" label="Parking disponible" name="parking" checked={formData.parking} onChange={handleChange} />
+                                </Card.Body>
+                            </Card>
+                        </>
                     )}
 
-                    <Button variant="secondary" size="lg" type="submit" className="w-100 shadow" disabled={submitting}>
+                    <Button variant="secondary" size="lg" type="submit" className="w-100 shadow mb-5" disabled={submitting}>
+                        {submitting ? <Spinner animation="border" size="sm" className="me-2" /> : null}
                         {submitting ? "Enregistrement..." : "Enregistrer les modifications"}
                     </Button>
                 </Form>

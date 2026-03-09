@@ -158,7 +158,7 @@ class AdminEventServiceImplTest {
 
     private CreateEventRequestDTO createSampleDTO(String type) {
         return new CreateEventRequestDTO("Test", "Desc", type, 1,
-                LocalDateTime.now(), LocalDateTime.now().plusHours(1),
+                LocalDateTime.now(), LocalDateTime.now().plusHours(1),2,
                 "Stade", "Paris", "Rue", "1", "75000", "PMR", 0.0, 0.0, true);
     }
 }
