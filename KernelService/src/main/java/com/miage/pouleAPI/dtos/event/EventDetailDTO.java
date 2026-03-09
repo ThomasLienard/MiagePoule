@@ -21,4 +21,5 @@ public class EventDetailDTO {
     private TimeSlotDTO timeSlot;
     private PlaceDTO place;
     private List<RankingDTO> rankings;
+    private String status;
 }

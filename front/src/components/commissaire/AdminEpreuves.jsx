@@ -151,6 +151,12 @@ const AdminEpreuves = () => {
                                                         Modifier date
                                                     </Button>
                                                     <Button
+                                                        variant="outline-secondary"
+                                                        onClick={() => navigate(`/commissaire/trials/${trial.trialId}/results`)}
+                                                    >
+                                                        Gérer résultats
+                                                    </Button>
+                                                    <Button
                                                         variant="outline-danger"
                                                         size="sm"
                                                         onClick={() => handleShowCancel(trial)}
@@ -162,55 +168,6 @@ const AdminEpreuves = () => {
                                         </Card.Body>
                                     </Card>
                                 ))}
-                            {trials.map((trial) => (
-                                <Card key={trial.trialId} className="shadow-sm">
-                                    <Card.Body>
-                                        <div className="d-flex justify-content-between align-items-start">
-                                            <div>
-                                                <Card.Title>{trial.trialName}</Card.Title>
-                                                <div className="mb-2">
-                                                    <Badge bg={trial.teamTrial ? 'info' : 'success'} className="me-2">
-                                                        {trial.teamTrial ? '👥 Équipe' : '🏃 Solo'}
-                                                    </Badge>
-                                                    <Badge bg="secondary">
-                                                        {trial.participants?.length || 0} participant(s)
-                                                    </Badge>
-                                                    {resultsStats[trial.trialId] && (() => {
-                                                        const { validated, total } = resultsStats[trial.trialId];
-                                                        const allValidated = total > 0 && validated === total;
-                                                        const noneValidated = validated === 0;
-                                                        return (
-                                                            <Badge bg={allValidated ? 'success' : noneValidated ? 'secondary' : 'warning'}>
-                                                                ✔ {validated}/{total} résultat(s) validé(s)
-                                                            </Badge>
-                                                        );
-                                                    })()}
-                                                </div>
-                                            </div>
-                                            <div className="d-flex gap-2">
-                                                <Button
-                                                    variant="outline-secondary"
-                                                    onClick={() => navigate(`/commissaire/trials/${trial.trialId}/participants`)}
-                                                >
-                                                    Modifier participants
-                                                </Button>
-                                                <Button
-                                                    variant="outline-secondary"
-                                                    onClick={() => navigate(`/commissaire/trials/${trial.trialId}/results`)}
-                                                >
-                                                     Gérer résultats
-                                                </Button>
-                                                <Button
-                                                    variant="outline-secondary"
-                                                    onClick={() => navigate(`/commissaire/update-event?id=${trial.trialId}`)}
-                                                >
-                                                    Modifier la date de l'épreuve
-                                                </Button>
-                                            </div>
-                                        </div>
-                                    </Card.Body>
-                                </Card>
-                            ))}
                         </div>
                     )}
                 </Card.Body>

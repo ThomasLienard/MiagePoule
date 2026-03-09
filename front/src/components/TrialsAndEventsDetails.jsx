@@ -47,12 +47,16 @@ const TrialsAndEventsDetails = () => {
     return (
         <>
             <h2 className="text-center">{eventData.name}</h2>
-            <div className="d-flex justify-content-center pt-1 pb-3">
-                {
-                    isTrial
-                        ? <Badge bg="warning" className="text-center">🏆 Épreuve</Badge>
-                        : <Badge bg="info" className="text-center">📅 Événements</Badge>
-                }
+            <div className="d-flex flex-column align-items-center pt-1 pb-3 gap-2">
+                {eventData.status === 'CANCELLED' && (
+                    <Badge bg="danger">ANNULÉ</Badge>
+                )}
+
+                {isTrial ? (
+                    <Badge bg="warning" className="text-dark">🏆 Épreuve</Badge>
+                ) : (
+                    <Badge bg="info">📅 Événement</Badge>
+                )}
             </div>
             <div className="d-flex justify-content-center flex-md-row flex-column">
                 <div className="d-flex flex-column w-100 border rounded mx-md-3 p-3">
@@ -136,7 +140,8 @@ const TrialsAndEventsDetails = () => {
                                                                 {eventData.teamParticipants
                                                                     .find((team) => team.name === ranking.participantName)
                                                                     .members.map((athelete, index) => (
-                                                                        <ListGroupItem onClick={() => navigate(`/public/athlete-trials/${athelete.id}`)}
+                                                                        <ListGroupItem
+                                                                            onClick={() => navigate(`/public/athlete-trials/${athelete.id}`)}
                                                                             key={`team-${ranking.participantId}-${index}-${athelete.id}`}
                                                                             style={{"cursor": "pointer"}}>
                                                                             {athelete.fullName}
@@ -160,7 +165,7 @@ const TrialsAndEventsDetails = () => {
                                                     <ListGroup.Item as="li"
                                                                     key={`athlete-${ranking.participantId}-${index}`}
                                                                     onClick={() => navigate(`/public/athlete-trials/${ranking.participantId}`)}
-                                                                    style={{"cursor": "pointer"}} >
+                                                                    style={{"cursor": "pointer"}}>
                                                         <div className="d-flex justify-content-between">
                                                             <RankingFormat rank={ranking.rank}/>
                                                             <span>{ranking.participantName}</span>
@@ -176,11 +181,11 @@ const TrialsAndEventsDetails = () => {
                             </div>
                         </div>
                     )}
-                    {(eventData.rankings.length === 0 && (eventData.soloParticipants || eventData.teamParticipants) ) && (
+                    {(eventData.rankings.length === 0 && (eventData.soloParticipants || eventData.teamParticipants)) && (
                         <div className="border rounded p-3 m-3">
                             <h5 className="text-center">‍🏊‍♀️ Participants</h5>
                             <div className="d-flex flex-row gap-2">
-                                {(eventData.teamParticipants && eventData.teamParticipants.length >0) && (
+                                {(eventData.teamParticipants && eventData.teamParticipants.length > 0) && (
                                     <div className="w-100">
                                         <div className="text-center fw-semibold">Équipes</div>
                                         <Accordion>
@@ -213,7 +218,7 @@ const TrialsAndEventsDetails = () => {
                                         </Accordion>
                                     </div>
                                 )}
-                                {(eventData.soloParticipants && eventData.soloParticipants.length >0) && (
+                                {(eventData.soloParticipants && eventData.soloParticipants.length > 0) && (
                                     <div className="w-100">
                                         <div className="text-center fw-semibold">Athlètes</div>
                                         <ListGroup as="ol">
