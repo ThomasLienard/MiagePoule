@@ -191,9 +191,9 @@ class ResultServiceImplTest {
             when(isConvenedToRepository.findByTrialIdAndUserId(1, 10)).thenReturn(Optional.of(convocation));
             when(isConvenedToRepository.save(any())).thenAnswer(i -> i.getArgument(0));
 
-            ResultDTO result = resultService.setAthleteResult(1, 10, "11.5");
+            ResultDTO result = resultService.setAthleteResult(1, 10, 11.5);
 
-            assertThat(result.getResult()).isEqualTo("11.5");
+            assertThat(result.getResult()).isEqualTo(11.5);
             assertThat(result.getParticipantName()).isEqualTo("Marie Dupont");
             assertThat(result.getParticipantType()).isEqualTo("ATHLETE");
             assertThat(result.getIsValidated()).isFalse();
@@ -204,7 +204,7 @@ class ResultServiceImplTest {
         void setAthleteResult_trialNotFound_throws() {
             when(trialRepository.findById(99)).thenReturn(Optional.empty());
 
-            assertThatThrownBy(() -> resultService.setAthleteResult(99, 10, "11.5"))
+            assertThatThrownBy(() -> resultService.setAthleteResult(99, 10, 11.5))
                     .isInstanceOf(IllegalArgumentException.class)
                     .hasMessageContaining("Épreuve non trouvée");
         }
@@ -215,7 +215,7 @@ class ResultServiceImplTest {
             when(trialRepository.findById(1)).thenReturn(Optional.of(pastTrial));
             when(isConvenedToRepository.findByTrialIdAndUserId(1, 99)).thenReturn(Optional.empty());
 
-            assertThatThrownBy(() -> resultService.setAthleteResult(1, 99, "11.5"))
+            assertThatThrownBy(() -> resultService.setAthleteResult(1, 99, 11.5))
                     .isInstanceOf(IllegalArgumentException.class)
                     .hasMessageContaining("n'est pas inscrit");
         }
@@ -225,7 +225,7 @@ class ResultServiceImplTest {
         void setAthleteResult_trialNotStarted_throws() {
             when(trialRepository.findById(2)).thenReturn(Optional.of(futureTrial));
 
-            assertThatThrownBy(() -> resultService.setAthleteResult(2, 10, "11.5"))
+            assertThatThrownBy(() -> resultService.setAthleteResult(2, 10, 11.5))
                     .isInstanceOf(IllegalStateException.class)
                     .hasMessageContaining("n'a pas encore commencé");
         }
@@ -237,7 +237,7 @@ class ResultServiceImplTest {
             when(isConvenedToRepository.findByTrialIdAndUserId(3, 10)).thenReturn(Optional.of(convocation));
             when(isConvenedToRepository.save(any())).thenAnswer(i -> i.getArgument(0));
 
-            assertThatCode(() -> resultService.setAthleteResult(3, 10, "11.5"))
+            assertThatCode(() -> resultService.setAthleteResult(3, 10, 11.5))
                     .doesNotThrowAnyException();
         }
 
@@ -246,31 +246,11 @@ class ResultServiceImplTest {
         void setAthleteResult_negativeResult_throws() {
             when(trialRepository.findById(1)).thenReturn(Optional.of(pastTrial));
 
-            assertThatThrownBy(() -> resultService.setAthleteResult(1, 10, "-5.5"))
+            assertThatThrownBy(() -> resultService.setAthleteResult(1, 10, -5.5))
                     .isInstanceOf(IllegalArgumentException.class)
                     .hasMessageContaining("ne peut pas être négatif");
         }
-
-        @Test
-        @DisplayName("Résultat non numérique → IllegalArgumentException")
-        void setAthleteResult_nonNumericResult_throws() {
-            when(trialRepository.findById(1)).thenReturn(Optional.of(pastTrial));
-
-            assertThatThrownBy(() -> resultService.setAthleteResult(1, 10, "abc"))
-                    .isInstanceOf(IllegalArgumentException.class)
-                    .hasMessageContaining("nombre valide");
-        }
-
-        @Test
-        @DisplayName("Résultat avec suffixe → IllegalArgumentException")
-        void setAthleteResult_resultWithSuffix_throws() {
-            when(trialRepository.findById(1)).thenReturn(Optional.of(pastTrial));
-
-            assertThatThrownBy(() -> resultService.setAthleteResult(1, 10, "11.5s"))
-                    .isInstanceOf(IllegalArgumentException.class)
-                    .hasMessageContaining("nombre valide");
-        }
-
+        
         @Test
         @DisplayName("Résultat null → accepté (suppression)")
         void setAthleteResult_nullResult_succeeds() {
@@ -281,18 +261,6 @@ class ResultServiceImplTest {
             assertThatCode(() -> resultService.setAthleteResult(1, 10, null))
                     .doesNotThrowAnyException();
         }
-
-        @Test
-        @DisplayName("Résultat vide → accepté (suppression)")
-        void setAthleteResult_emptyResult_succeeds() {
-            when(trialRepository.findById(1)).thenReturn(Optional.of(pastTrial));
-            when(isConvenedToRepository.findByTrialIdAndUserId(1, 10)).thenReturn(Optional.of(convocation));
-            when(isConvenedToRepository.save(any())).thenAnswer(i -> i.getArgument(0));
-
-            assertThatCode(() -> resultService.setAthleteResult(1, 10, ""))
-                    .doesNotThrowAnyException();
-        }
-    }
 
     // =========================================================================
     // setTeamResult
@@ -309,9 +277,9 @@ class ResultServiceImplTest {
             when(participateAtRepository.findByTrialIdAndTeamId(1, 5)).thenReturn(Optional.of(participation));
             when(participateAtRepository.save(any())).thenAnswer(i -> i.getArgument(0));
 
-            ResultDTO result = resultService.setTeamResult(1, 5, "11.2");
+            ResultDTO result = resultService.setTeamResult(1, 5, 11.2);
 
-            assertThat(result.getResult()).isEqualTo("11.2");
+            assertThat(result.getResult()).isEqualTo(11.2);
             assertThat(result.getParticipantName()).isEqualTo("Team France");
             assertThat(result.getParticipantType()).isEqualTo("TEAM");
         }
@@ -322,7 +290,7 @@ class ResultServiceImplTest {
             when(trialRepository.findById(1)).thenReturn(Optional.of(pastTrial));
             when(participateAtRepository.findByTrialIdAndTeamId(1, 99)).thenReturn(Optional.empty());
 
-            assertThatThrownBy(() -> resultService.setTeamResult(1, 99, "11.2"))
+            assertThatThrownBy(() -> resultService.setTeamResult(1, 99, 11.2))
                     .isInstanceOf(IllegalArgumentException.class)
                     .hasMessageContaining("n'est pas inscrite");
         }
@@ -332,7 +300,7 @@ class ResultServiceImplTest {
         void setTeamResult_trialNotStarted_throws() {
             when(trialRepository.findById(2)).thenReturn(Optional.of(futureTrial));
 
-            assertThatThrownBy(() -> resultService.setTeamResult(2, 5, "11.2"))
+            assertThatThrownBy(() -> resultService.setTeamResult(2, 5, 11.2))
                     .isInstanceOf(IllegalStateException.class)
                     .hasMessageContaining("n'a pas encore commencé");
         }
@@ -342,21 +310,10 @@ class ResultServiceImplTest {
         void setTeamResult_negativeResult_throws() {
             when(trialRepository.findById(1)).thenReturn(Optional.of(pastTrial));
 
-            assertThatThrownBy(() -> resultService.setTeamResult(1, 5, "-10.5"))
+            assertThatThrownBy(() -> resultService.setTeamResult(1, 5, -10.5))
                     .isInstanceOf(IllegalArgumentException.class)
                     .hasMessageContaining("ne peut pas être négatif");
         }
-
-        @Test
-        @DisplayName("Résultat non numérique → IllegalArgumentException")
-        void setTeamResult_nonNumericResult_throws() {
-            when(trialRepository.findById(1)).thenReturn(Optional.of(pastTrial));
-
-            assertThatThrownBy(() -> resultService.setTeamResult(1, 5, "invalid"))
-                    .isInstanceOf(IllegalArgumentException.class)
-                    .hasMessageContaining("nombre valide");
-        }
-    }
 
     // =========================================================================
     // setBulkResults
@@ -377,7 +334,7 @@ class ResultServiceImplTest {
             SetResultRequest req = new SetResultRequest();
             req.setParticipantId(10);
             req.setParticipantType("ATHLETE");
-            req.setResult("11.5");
+            req.setResult(11.5);
 
             BulkSetResultRequest bulk = new BulkSetResultRequest();
             bulk.setResults(List.of(req));
@@ -385,7 +342,7 @@ class ResultServiceImplTest {
             List<ResultDTO> results = resultService.setBulkResults(1, bulk);
 
             assertThat(results).hasSize(1);
-            assertThat(results.get(0).getResult()).isEqualTo("11.5");
+            assertThat(results.get(0).getResult()).isEqualTo(11.5);
         }
 
         @Test
@@ -398,7 +355,7 @@ class ResultServiceImplTest {
             SetResultRequest req = new SetResultRequest();
             req.setParticipantId(5);
             req.setParticipantType("TEAM");
-            req.setResult("11.2");
+            req.setResult(11.2);
 
             BulkSetResultRequest bulk = new BulkSetResultRequest();
             bulk.setResults(List.of(req));
@@ -417,7 +374,7 @@ class ResultServiceImplTest {
             SetResultRequest req = new SetResultRequest();
             req.setParticipantId(1);
             req.setParticipantType("INCONNU");
-            req.setResult("11.5");
+            req.setResult(11.5);
 
             BulkSetResultRequest bulk = new BulkSetResultRequest();
             bulk.setResults(List.of(req));
@@ -655,4 +612,6 @@ class ResultServiceImplTest {
                     .hasMessageContaining("n'est pas inscrite");
         }
     }
+}
+}
 }

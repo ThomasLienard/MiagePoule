@@ -34,15 +34,15 @@ public class ResultServiceImpl implements ResultService {
     private static final String INVALID_RESULT_FORMAT = "Le résultat doit être un nombre valide (chiffres uniquement)";
     private static final String NEGATIVE_RESULT = "Le résultat ne peut pas être négatif";
 
-    private void validateResult(String result) {
+    private void validateResult(Double result) {
         // Permettre null pour supprimer un résultat
-        if (result == null || result.trim().isEmpty()) {
+        if (result == null) {
             return;
         }
 
         // Vérifier que c'est un nombre valide
         try {
-            double value = Double.parseDouble(result);
+            Double value = result;
             // Vérifier que le nombre est non négatif
             if (value < 0) {
                 throw new IllegalArgumentException(NEGATIVE_RESULT);
@@ -131,7 +131,7 @@ public class ResultServiceImpl implements ResultService {
 
     @Override
     @Transactional
-    public ResultDTO setAthleteResult(Integer trialId, Integer athleteId, String result) {
+    public ResultDTO setAthleteResult(Integer trialId, Integer athleteId, Double result) {
         Trial trial = trialRepository.findById(trialId)
                 .orElseThrow(() -> new IllegalArgumentException(TRIAL_NOT_FOUND));
         checkTrialStarted(trial);
@@ -157,7 +157,7 @@ public class ResultServiceImpl implements ResultService {
 
     @Override
     @Transactional
-    public ResultDTO setTeamResult(Integer trialId, Integer teamId, String result) {
+    public ResultDTO setTeamResult(Integer trialId, Integer teamId, Double result) {
         Trial trial = trialRepository.findById(trialId)
                 .orElseThrow(() -> new IllegalArgumentException(TRIAL_NOT_FOUND));
         checkTrialStarted(trial);

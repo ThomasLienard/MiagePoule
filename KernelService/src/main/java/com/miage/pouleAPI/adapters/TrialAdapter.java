@@ -216,7 +216,7 @@ public class TrialAdapter {
                 .filter(p -> !Boolean.TRUE.equals(p.getIsForfeit()))
                 .toList();
         boolean allValidated = !nonForfeit.isEmpty()
-                && nonForfeit.stream().allMatch(p -> Boolean.TRUE.equals(p.getIsValidated()) && p.getResult() != null);
+                && nonForfeit.stream().allMatch(p -> Boolean.TRUE.equals(p.getIsValidated()) &&  p.getResult() != null);
         if (!allValidated) {
             return new ArrayList<>();
         }

@@ -132,23 +132,23 @@ INSERT INTO is_a_part_of (id, id_team) VALUES (2, 2);
 -- Participation
 -- ======================
 -- Team participation in trial 2
-INSERT INTO participate_at (id_team, id_trial, trial_result_team, is_forfeit) VALUES (1, 2, '12.4', false);
-INSERT INTO participate_at (id_team, id_trial, trial_result_team, is_forfeit) VALUES (2, 2, '11.9', false);
+INSERT INTO participate_at (id_team, id_trial, trial_result_team, is_forfeit) VALUES (1, 2, 12.4, false);
+INSERT INTO participate_at (id_team, id_trial, trial_result_team, is_forfeit) VALUES (2, 2, 11.9, false);
 
 -- Team participation in past team trial (trial 7) — for result integration tests
 INSERT INTO participate_at (id_team, id_trial, trial_result_team, is_forfeit) VALUES (1, 7, null, false);  -- Team A : pas de résultat encore
-INSERT INTO participate_at (id_team, id_trial, trial_result_team, is_forfeit) VALUES (2, 7, '11.9', false);  -- Team B : résultat déjà saisi, pas validé
+INSERT INTO participate_at (id_team, id_trial, trial_result_team, is_forfeit) VALUES (2, 7, 11.9, false);  -- Team B : résultat déjà saisi, pas validé
 
 -- Athletes participating in trial 4 and 5
-INSERT INTO is_convened_to (id, id_trial, trial_result_athlete, is_forfeit) VALUES (3, 4, '45.2', false);
-INSERT INTO is_convened_to (id, id_trial, trial_result_athlete, is_forfeit) VALUES (4, 4, '46.1', false);
-INSERT INTO is_convened_to (id, id_trial, trial_result_athlete, is_forfeit) VALUES (3, 5, '125.3', false);
-INSERT INTO is_convened_to (id, id_trial, trial_result_athlete, is_forfeit) VALUES (4, 5, '128.5', false);
+INSERT INTO is_convened_to (id, id_trial, trial_result_athlete, is_forfeit) VALUES (3, 4, 45.2, false);
+INSERT INTO is_convened_to (id, id_trial, trial_result_athlete, is_forfeit) VALUES (4, 4, 46.1, false);
+INSERT INTO is_convened_to (id, id_trial, trial_result_athlete, is_forfeit) VALUES (3, 5, 125.3, false);
+INSERT INTO is_convened_to (id, id_trial, trial_result_athlete, is_forfeit) VALUES (4, 5, 128.5, false);
 
 -- Athletes in past solo trial (trial 6) — for result integration tests
 -- Marie (id=3) : pas de résultat, John (id=5) : résultat déjà saisi
 INSERT INTO is_convened_to (id, id_trial, trial_result_athlete, is_forfeit) VALUES (3, 6, null, false);
-INSERT INTO is_convened_to (id, id_trial, trial_result_athlete, is_forfeit) VALUES (5, 6, '11.5', false);
+INSERT INTO is_convened_to (id, id_trial, trial_result_athlete, is_forfeit) VALUES (5, 6, 11.5, false);
 
 -- ======================
 -- Notifications

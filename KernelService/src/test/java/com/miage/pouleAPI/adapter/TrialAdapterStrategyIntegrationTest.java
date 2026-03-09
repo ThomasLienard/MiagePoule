@@ -60,9 +60,9 @@ class TrialAdapterStrategyIntegrationTest {
         ApplicationUser user2 = createUser(2, "Jane", "Smith");
         ApplicationUser user3 = createUser(3, "Bob", "Martin");
 
-        IsConvenedTo convening1 = createConvening(user1, "12.5", false, true);
-        IsConvenedTo convening2 = createConvening(user2, "10.8", false, true);
-        IsConvenedTo convening3 = createConvening(user3, "11.2", false, true);
+        IsConvenedTo convening1 = createConvening(user1, 12.5, false, true);
+        IsConvenedTo convening2 = createConvening(user2, 10.8, false, true);
+        IsConvenedTo convening3 = createConvening(user3, 11.2, false, true);
 
         // Ordre attendu en base pour TIME : ASC (croissant)
         when(isConvenedToRepository.findByTrialIdOrderedByResultDynamic(trial.getId(), "ASC"))
@@ -80,17 +80,17 @@ class TrialAdapterStrategyIntegrationTest {
         
         // Jane Smith (10.8s) devrait être première
         assertEquals(1, dto.getRankings().get(0).getRank());
-        assertEquals("10.8", dto.getRankings().get(0).getResult());
+        assertEquals(10.8, dto.getRankings().get(0).getResult());
         assertEquals("Jane Smith", dto.getRankings().get(0).getParticipantName());
         
         // Bob Martin (11.2s) devrait être deuxième
         assertEquals(2, dto.getRankings().get(1).getRank());
-        assertEquals("11.2", dto.getRankings().get(1).getResult());
+        assertEquals(11.2, dto.getRankings().get(1).getResult());
         assertEquals("Bob Martin", dto.getRankings().get(1).getParticipantName());
         
         // John Doe (12.5s) devrait être troisième
         assertEquals(3, dto.getRankings().get(2).getRank());
-        assertEquals("12.5", dto.getRankings().get(2).getResult());
+        assertEquals(12.5, dto.getRankings().get(2).getResult());
         assertEquals("John Doe", dto.getRankings().get(2).getParticipantName());
     }
 
@@ -104,9 +104,9 @@ class TrialAdapterStrategyIntegrationTest {
         ApplicationUser user2 = createUser(2, "Charlie", "Brown");
         ApplicationUser user3 = createUser(3, "Diana", "Prince");
 
-        IsConvenedTo convening1 = createConvening(user1, "85.5", false, true);
-        IsConvenedTo convening2 = createConvening(user2, "92.3", false, true);
-        IsConvenedTo convening3 = createConvening(user3, "88.7", false, true);
+        IsConvenedTo convening1 = createConvening(user1, 85.5, false, true);
+        IsConvenedTo convening2 = createConvening(user2, 92.3, false, true);
+        IsConvenedTo convening3 = createConvening(user3, 88.7, false, true);
 
         // Ordre attendu en base pour POINTS : DESC (décroissant)
         when(isConvenedToRepository.findByTrialIdOrderedByResultDynamic(trial.getId(), "DESC"))
@@ -124,17 +124,17 @@ class TrialAdapterStrategyIntegrationTest {
         
         // Charlie Brown (92.3 pts) devrait être premier
         assertEquals(1, dto.getRankings().get(0).getRank());
-        assertEquals("92.3", dto.getRankings().get(0).getResult());
+        assertEquals(92.3, dto.getRankings().get(0).getResult());
         assertEquals("Charlie Brown", dto.getRankings().get(0).getParticipantName());
         
         // Diana Prince (88.7 pts) devrait être deuxième
         assertEquals(2, dto.getRankings().get(1).getRank());
-        assertEquals("88.7", dto.getRankings().get(1).getResult());
+        assertEquals(88.7, dto.getRankings().get(1).getResult());
         assertEquals("Diana Prince", dto.getRankings().get(1).getParticipantName());
         
         // Alice Johnson (85.5 pts) devrait être troisième
         assertEquals(3, dto.getRankings().get(2).getRank());
-        assertEquals("85.5", dto.getRankings().get(2).getResult());
+        assertEquals(85.5, dto.getRankings().get(2).getResult());
         assertEquals("Alice Johnson", dto.getRankings().get(2).getParticipantName());
     }
 
@@ -148,11 +148,11 @@ class TrialAdapterStrategyIntegrationTest {
         ApplicationUser user1 = createUser(1, "User", "One");
         ApplicationUser user2 = createUser(2, "User", "Two");
 
-        IsConvenedTo timeConvening1 = createConvening(user1, "90", false, true);
-        IsConvenedTo timeConvening2 = createConvening(user2, "100", false, true);
+        IsConvenedTo timeConvening1 = createConvening(user1, 90.0, false, true);
+        IsConvenedTo timeConvening2 = createConvening(user2, 100.0, false, true);
         
-        IsConvenedTo pointsConvening1 = createConvening(user1, "90", false, true);
-        IsConvenedTo pointsConvening2 = createConvening(user2, "100", false, true);
+        IsConvenedTo pointsConvening1 = createConvening(user1, 90.0, false, true);
+        IsConvenedTo pointsConvening2 = createConvening(user2, 100.0, false, true);
 
         // Pour TIME : 90 < 100, donc 90 est meilleur (rang 1)
         when(isConvenedToRepository.findByTrialIdOrderedByResultDynamic(timeTrial.getId(), "ASC"))
@@ -172,15 +172,15 @@ class TrialAdapterStrategyIntegrationTest {
 
         // Then - Pour TIME, 90 doit être premier
         assertEquals(1, timeDto.getRankings().get(0).getRank());
-        assertEquals("90", timeDto.getRankings().get(0).getResult());
+        assertEquals(90.0, timeDto.getRankings().get(0).getResult());
         assertEquals(2, timeDto.getRankings().get(1).getRank());
-        assertEquals("100", timeDto.getRankings().get(1).getResult());
+        assertEquals(100.0, timeDto.getRankings().get(1).getResult());
         
         // Then - Pour POINTS, 100 doit être premier
         assertEquals(1, pointsDto.getRankings().get(0).getRank());
-        assertEquals("100", pointsDto.getRankings().get(0).getResult());
+        assertEquals(100.0, pointsDto.getRankings().get(0).getResult());
         assertEquals(2, pointsDto.getRankings().get(1).getRank());
-        assertEquals("90", pointsDto.getRankings().get(1).getResult());
+        assertEquals(90.0, pointsDto.getRankings().get(1).getResult());
     }
 
     @Test
@@ -193,8 +193,8 @@ class TrialAdapterStrategyIntegrationTest {
         ApplicationUser user2 = createUser(2, "Bob", "Martin");
 
         // user1 validé, user2 non validé
-        IsConvenedTo convening1 = createConvening(user1, "11.0", false, true);
-        IsConvenedTo convening2 = createConvening(user2, "12.0", false, false);
+        IsConvenedTo convening1 = createConvening(user1, 11.0, false, true);
+        IsConvenedTo convening2 = createConvening(user2, 12.0, false, false);
 
         when(isConvenedToRepository.findByTrialIdOrderedByResultDynamic(trial.getId(), "ASC"))
             .thenReturn(Arrays.asList(convening1, convening2));
@@ -222,8 +222,8 @@ class TrialAdapterStrategyIntegrationTest {
         ApplicationUser user3 = createUser(3, "Eva", "Long");
 
         // user3 est forfait
-        IsConvenedTo convening1 = createConvening(user1, "10.0", false, true);
-        IsConvenedTo convening2 = createConvening(user2, "11.5", false, true);
+        IsConvenedTo convening1 = createConvening(user1, 10.0, false, true);
+        IsConvenedTo convening2 = createConvening(user2, 11.5, false, true);
         IsConvenedTo convening3 = createConvening(user3, null, true, false);
 
         when(isConvenedToRepository.findByTrialIdOrderedByResultDynamic(trial.getId(), "ASC"))
@@ -265,9 +265,9 @@ class TrialAdapterStrategyIntegrationTest {
         Team team2 = createTeam(2, "Team Beta");
         Team team3 = createTeam(3, "Team Gamma");
 
-        ParticipateAt pa1 = createTeamParticipation(team1, "55.0", false, true);
-        ParticipateAt pa2 = createTeamParticipation(team2, "52.3", false, true);
-        ParticipateAt pa3 = createTeamParticipation(team3, "58.7", false, true);
+        ParticipateAt pa1 = createTeamParticipation(team1, 55.0, false, true);
+        ParticipateAt pa2 = createTeamParticipation(team2, 52.3, false, true);
+        ParticipateAt pa3 = createTeamParticipation(team3, 58.7, false, true);
 
         // Pour TIME : tri ASC (52.3, 55.0, 58.7)
         when(participateAtRepository.findByTrialIdOrderedByResultDynamic(trial.getId(), "ASC"))
@@ -284,16 +284,16 @@ class TrialAdapterStrategyIntegrationTest {
         assertEquals(3, dto.getRankings().size());
 
         assertEquals(1, dto.getRankings().get(0).getRank());
-        assertEquals("52.3", dto.getRankings().get(0).getResult());
+        assertEquals(52.3, dto.getRankings().get(0).getResult());
         assertEquals("Team Beta", dto.getRankings().get(0).getParticipantName());
         assertEquals("TEAM", dto.getRankings().get(0).getParticipantType());
 
         assertEquals(2, dto.getRankings().get(1).getRank());
-        assertEquals("55.0", dto.getRankings().get(1).getResult());
+        assertEquals(55.0, dto.getRankings().get(1).getResult());
         assertEquals("Team Alpha", dto.getRankings().get(1).getParticipantName());
 
         assertEquals(3, dto.getRankings().get(2).getRank());
-        assertEquals("58.7", dto.getRankings().get(2).getResult());
+        assertEquals(58.7, dto.getRankings().get(2).getResult());
         assertEquals("Team Gamma", dto.getRankings().get(2).getParticipantName());
     }
 
@@ -307,9 +307,9 @@ class TrialAdapterStrategyIntegrationTest {
         Team team2 = createTeam(2, "Team Bleu");
         Team team3 = createTeam(3, "Team Vert");
 
-        ParticipateAt pa1 = createTeamParticipation(team1, "78.0", false, true);
-        ParticipateAt pa2 = createTeamParticipation(team2, "91.5", false, true);
-        ParticipateAt pa3 = createTeamParticipation(team3, "84.2", false, true);
+        ParticipateAt pa1 = createTeamParticipation(team1, 78.0, false, true);
+        ParticipateAt pa2 = createTeamParticipation(team2, 91.5, false, true);
+        ParticipateAt pa3 = createTeamParticipation(team3, 84.2, false, true);
 
         // Pour POINTS : tri DESC (91.5, 84.2, 78.0)
         when(participateAtRepository.findByTrialIdOrderedByResultDynamic(trial.getId(), "DESC"))
@@ -326,16 +326,16 @@ class TrialAdapterStrategyIntegrationTest {
         assertEquals(3, dto.getRankings().size());
 
         assertEquals(1, dto.getRankings().get(0).getRank());
-        assertEquals("91.5", dto.getRankings().get(0).getResult());
+        assertEquals(91.5, dto.getRankings().get(0).getResult());
         assertEquals("Team Bleu", dto.getRankings().get(0).getParticipantName());
         assertEquals("TEAM", dto.getRankings().get(0).getParticipantType());
 
         assertEquals(2, dto.getRankings().get(1).getRank());
-        assertEquals("84.2", dto.getRankings().get(1).getResult());
+        assertEquals(84.2, dto.getRankings().get(1).getResult());
         assertEquals("Team Vert", dto.getRankings().get(1).getParticipantName());
 
         assertEquals(3, dto.getRankings().get(2).getRank());
-        assertEquals("78.0", dto.getRankings().get(2).getResult());
+        assertEquals(78.0, dto.getRankings().get(2).getResult());
         assertEquals("Team Rouge", dto.getRankings().get(2).getParticipantName());
     }
 
@@ -348,8 +348,8 @@ class TrialAdapterStrategyIntegrationTest {
         Team team1 = createTeam(1, "Team A");
         Team team2 = createTeam(2, "Team B");
 
-        ParticipateAt pa1 = createTeamParticipation(team1, "88.0", false, true);
-        ParticipateAt pa2 = createTeamParticipation(team2, "75.0", false, false); // non validé
+        ParticipateAt pa1 = createTeamParticipation(team1, 88.0, false, true);
+        ParticipateAt pa2 = createTeamParticipation(team2, 75.0, false, false); // non validé
 
         when(participateAtRepository.findByTrialIdOrderedByResultDynamic(trial.getId(), "DESC"))
             .thenReturn(Arrays.asList(pa1, pa2));
@@ -376,8 +376,8 @@ class TrialAdapterStrategyIntegrationTest {
         ApplicationUser user1 = createUser(1, "Leo", "Petit");
         ApplicationUser user2 = createUser(2, "Marie", "Grand");
 
-        IsConvenedTo convening1 = createConvening(user1, "9.5", false, true);
-        IsConvenedTo convening2 = createConvening(user2, "10.2", false, true);
+        IsConvenedTo convening1 = createConvening(user1, 9.5, false, true);
+        IsConvenedTo convening2 = createConvening(user2, 10.2, false, true);
 
         // Quand typeScore est null, la stratégie utilisée devrait être "TIME" (valeur par défaut)
         when(isConvenedToRepository.findByTrialIdOrderedByResultDynamic(trial.getId(), "ASC"))
@@ -393,7 +393,7 @@ class TrialAdapterStrategyIntegrationTest {
         assertNotNull(dto);
         assertEquals(2, dto.getRankings().size());
         assertEquals(1, dto.getRankings().get(0).getRank());
-        assertEquals("9.5", dto.getRankings().get(0).getResult());
+        assertEquals(9.5, dto.getRankings().get(0).getResult());
         assertEquals("Leo Petit", dto.getRankings().get(0).getParticipantName());
     }
 
@@ -435,7 +435,7 @@ class TrialAdapterStrategyIntegrationTest {
         return user;
     }
 
-    private IsConvenedTo createConvening(ApplicationUser user, String result, Boolean isForfeit, Boolean isValidated) {
+    private IsConvenedTo createConvening(ApplicationUser user, Double result, Boolean isForfeit, Boolean isValidated) {
         IsConvenedTo convening = new IsConvenedTo();
         convening.setUser(user);
         convening.setResult(result);
@@ -451,7 +451,7 @@ class TrialAdapterStrategyIntegrationTest {
         return team;
     }
 
-    private ParticipateAt createTeamParticipation(Team team, String result, Boolean isForfeit, Boolean isValidated) {
+    private ParticipateAt createTeamParticipation(Team team, Double result, Boolean isForfeit, Boolean isValidated) {
         ParticipateAt pa = new ParticipateAt();
         pa.setTeam(team);
         pa.setResult(result);

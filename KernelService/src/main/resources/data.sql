@@ -177,23 +177,23 @@ VALUES (1, 1),
 -- Team participation: Trial 1 and Trial 2 have team participation
 -- Team B est en forfait sur Trial 1 pour les tests
 INSERT INTO participate_at (id_team, id_trial, trial_result_team, is_forfeit, is_validated)
-VALUES (1, 1, '11.2s', false, true),
+VALUES (1, 1, 11.2, false, true),
        (2, 1, null, true, true),
-       (1, 2, '11.8s', false, true),
-       (2,2, '10.9s', false, true),
+       (1, 2, 11.8, false, true),
+       (2,2, 10.9, false, true),
        (2,3, null, false, false);
 -- ======================
 -- Convened athletes
 -- ======================
 -- Athletes participation: Trial 4 and Trial 5 have athlete convocation (no participate_at)
 INSERT INTO is_convened_to (id, id_trial, trial_result_athlete, is_forfeit, is_validated)
-VALUES (1, 4, '2h15m', false, true),
-       (2, 4, '2h05m', false, true),
-       (3, 5, '11.6s', false, true),
-       (4, 5, '11.1s', false, true),
+VALUES (1, 4, 8100, false, true),
+       (2, 4, 7500, false, true),
+       (3, 5, 11.6, false, true),
+       (4, 5, 11.2, false, true),
        (3, 10, null, false, true),
-       (3, 11, '22.4s', false, true),
-       (5, 11, '22.1s', false, true);
+       (3, 11, 22.4, false, true),
+       (5, 11, 22.1, false, true);
 
 -- ======================
 -- Notifications

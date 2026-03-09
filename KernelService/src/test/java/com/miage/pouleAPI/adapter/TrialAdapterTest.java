@@ -585,13 +585,13 @@ class TrialAdapterTest {
 
         ParticipateAt participation1 = new ParticipateAt();
         participation1.setTeam(team1);
-        participation1.setResult("45");
+        participation1.setResult(45.0);
         participation1.setIsForfeit(false);
         participation1.setIsValidated(true);
 
         ParticipateAt participation2 = new ParticipateAt();
         participation2.setTeam(team2);
-        participation2.setResult("52");
+        participation2.setResult(52.0);
         participation2.setIsForfeit(false);
         participation2.setIsValidated(true);
 
@@ -605,12 +605,12 @@ class TrialAdapterTest {
         assertNotNull(dto);
         assertEquals(2, dto.getRankings().size());
         assertEquals(1, dto.getRankings().get(0).getRank());
-        assertEquals("45", dto.getRankings().get(0).getResult());
+        assertEquals(45.0, dto.getRankings().get(0).getResult());
         assertEquals("Team Alpha", dto.getRankings().get(0).getParticipantName());
         assertEquals("TEAM", dto.getRankings().get(0).getParticipantType());
         
         assertEquals(2, dto.getRankings().get(1).getRank());
-        assertEquals("52", dto.getRankings().get(1).getResult());
+        assertEquals(52.0, dto.getRankings().get(1).getResult());
         assertEquals("Team Beta", dto.getRankings().get(1).getParticipantName());
     }
 
@@ -630,13 +630,13 @@ class TrialAdapterTest {
 
         IsConvenedTo convening1 = new IsConvenedTo();
         convening1.setUser(user1);
-        convening1.setResult("100");
+        convening1.setResult(100.0);
         convening1.setIsForfeit(false);
         convening1.setIsValidated(true);
 
         IsConvenedTo convening2 = new IsConvenedTo();
         convening2.setUser(user2);
-        convening2.setResult("95");
+        convening2.setResult(95.0);
         convening2.setIsForfeit(false);
         convening2.setIsValidated(true);
 
@@ -650,12 +650,12 @@ class TrialAdapterTest {
         assertNotNull(dto);
         assertEquals(2, dto.getRankings().size());
         assertEquals(1, dto.getRankings().get(0).getRank());
-        assertEquals("100", dto.getRankings().get(0).getResult());
+        assertEquals(100.0, dto.getRankings().get(0).getResult());
         assertEquals("John Doe", dto.getRankings().get(0).getParticipantName());
         assertEquals("ATHLETE", dto.getRankings().get(0).getParticipantType());
         
         assertEquals(2, dto.getRankings().get(1).getRank());
-        assertEquals("95", dto.getRankings().get(1).getResult());
+        assertEquals(95.0, dto.getRankings().get(1).getResult());
         assertEquals("Jane Smith", dto.getRankings().get(1).getParticipantName());
     }
 
@@ -680,7 +680,7 @@ class TrialAdapterTest {
 
         IsConvenedTo convening2 = new IsConvenedTo();
         convening2.setUser(user2);
-        convening2.setResult("100");
+        convening2.setResult(100.0);
         convening2.setIsForfeit(false);
         convening2.setIsValidated(true);
 
@@ -701,7 +701,7 @@ class TrialAdapterTest {
         assertEquals("ATHLETE", dto.getRankings().get(0).getParticipantType());
 
         assertEquals(1, dto.getRankings().get(1).getRank());
-        assertEquals("100", dto.getRankings().get(1).getResult());
+        assertEquals(100.0, dto.getRankings().get(1).getResult());
         assertEquals(false, dto.getRankings().get(1).getIsForfeit());
         assertEquals("Jane Smith", dto.getRankings().get(1).getParticipantName());
         assertEquals("ATHLETE", dto.getRankings().get(1).getParticipantType());
@@ -717,13 +717,13 @@ class TrialAdapterTest {
 
         ParticipateAt participation1 = new ParticipateAt();
         participation1.setTeam(team1);
-        participation1.setResult("45");
+        participation1.setResult(45.0);
         participation1.setIsForfeit(false);
         participation1.setIsValidated(true);
 
         ParticipateAt participation2 = new ParticipateAt();
         participation2.setTeam(null);
-        participation2.setResult("52");
+        participation2.setResult(52.0);
         participation2.setIsForfeit(false);
         participation2.setIsValidated(true);
 
@@ -750,7 +750,7 @@ class TrialAdapterTest {
 
         ParticipateAt participation1 = new ParticipateAt();
         participation1.setTeam(team1);
-        participation1.setResult("45");
+        participation1.setResult(45.0);
         participation1.setIsForfeit(false);
         participation1.setIsValidated(true);
 
@@ -786,7 +786,7 @@ class TrialAdapterTest {
 
         ParticipateAt participation2 = new ParticipateAt();
         participation2.setTeam(team1);
-        participation2.setResult("45");
+        participation2.setResult(45.0);
         participation2.setIsForfeit(false);
         participation2.setIsValidated(true);
 
@@ -800,7 +800,7 @@ class TrialAdapterTest {
         assertNotNull(dto);
         assertEquals(2, dto.getRankings().size());
         assertNull(dto.getRankings().get(0).getResult());
-        assertEquals("45", dto.getRankings().get(1).getResult());
+        assertEquals(45.0, dto.getRankings().get(1).getResult());
         assertEquals(true, dto.getRankings().get(0).getIsForfeit());
         assertEquals(false, dto.getRankings().get(1).getIsForfeit());
         assertNull(dto.getRankings().get(0).getRank());
