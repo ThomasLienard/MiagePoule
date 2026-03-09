@@ -213,25 +213,4 @@ describe('Tests - Système de Notifications SSE', () => {
         });
     });
 
-    it('Devrait afficher les notifications avec les bonnes icônes selon le type', () => {
-        cy.get('body').then(($body) => {
-            // Vérifier que l'interface charge correctement
-            cy.get('nav').should('be.visible');
-        });
-    });
-
-    it('Devrait limiter le nombre de notifications affichées', () => {
-        cy.get('body').then(($body) => {
-            // Vérifier que l'interface charge correctement
-            cy.get('nav').should('be.visible');
-        });
-    });
-
-    it('Devrait permettre la suppression d\'une notification', () => {
-        cy.get('body').then(($body) => {
-            // Vérifier que l'interface charge correctement
-            cy.get('nav').should('be.visible');
-        });
-    });
-
 });
