@@ -24,6 +24,15 @@ VALUES ('INFO', 'Information message'),
        ('CRITICAL', 'Critical event');
 
 -- ======================
+-- Alert Levels
+-- ======================
+INSERT INTO alert_level (name_alert_level)
+VALUES ('LOW'),
+       ('MEDIUM'),
+       ('HIGH'),
+       ('CRITICAL');
+
+-- ======================
 -- Type of documents
 -- ======================
 INSERT INTO type_of_document (name_type_doc)
