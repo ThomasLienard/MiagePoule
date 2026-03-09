@@ -53,16 +53,16 @@ VALUES ('MEETING'),
 -- ======================
 INSERT INTO championship (description_championship, name_championship,
                           start_date_championship, end_date_championship)
-VALUES ('World level championship', 'World Cup', '2025-01-01', '2025-01-02'),
-       ('National level championship', 'National League', '2025-01-01', '2025-01-02');
+VALUES ('World level championship', 'World Cup', '2025-01-01', '2026-01-06'),
+       ('National level championship', 'National League', '2025-01-01', '2026-01-06');
 
 -- ======================
 -- Competitions
 -- ======================
 INSERT INTO competition (name_competition, description_competition,
                          id_championship, start_date_competition, end_date_competition)
-VALUES ('100m Sprint', 'Short distance run', 1, '2025-01-01', '2025-01-02'),
-       ('Marathon', 'Long distance run', 1, '2025-01-01', '2025-01-02');
+VALUES ('100m Sprint', 'Short distance run', 1, '2025-01-01', '2026-06-27'),
+       ('Marathon', 'Long distance run', 1, '2025-01-01', '2026-06-27');
 
 -- ======================
 -- Places
@@ -84,7 +84,7 @@ INSERT INTO time_slot (start_time, end_time)
 VALUES ('2025-01-01 09:00:00', '2025-01-01 10:00:00'),
        ('2026-01-01 10:00:00', '2026-01-01 11:00:00'),
        ('2026-10-09 09:00:00', '2026-10-09 10:00:00'),
-       ('2026-03-02 10:00:00', '2026-03-02 12:00:00'),
+       ('2026-03-09 10:00:00', '2026-03-12 12:00:00'),
        ('2026-02-16 14:25:00', '2026-02-16 16:25:00');
 
 -- ======================
@@ -223,11 +223,13 @@ VALUES (1, 1),
        (2, 1),
        (2, 2),
        (2, 3),
-       (2, 4),
-       (2, 5),
-       (2, 6),
-       (2, 9),
-       (2, 11);
+       (3, 3),
+       (4, 4),
+       (5, 5),
+       (6, 4),
+       (6, 5),
+       (6, 6),
+       (6, 9);
 
 -- ======================
 -- Tasks

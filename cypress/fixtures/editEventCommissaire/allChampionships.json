@@ -1,0 +1,16 @@
+[
+  {
+    "description": "World level championship",
+    "end": "2027-01-02",
+    "id": 1,
+    "name": "World Cup",
+    "start": "2025-01-01"
+  },
+  {
+    "description": "National level championship",
+    "end": "2027-01-02",
+    "id": 2,
+    "name": "National League",
+    "start": "2025-01-01"
+  }
+]

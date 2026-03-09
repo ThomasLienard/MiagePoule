@@ -1,0 +1,14 @@
+[
+  {
+    "id": 1,
+    "name": "Anniversaire de Arnaud",
+    "description": "Un petit scénario de JDR",
+    "competitionName": "100m Sprint"
+  },
+  {
+    "id": 2,
+    "name": "Saut en échasses",
+    "description": "Restez bien accrochés à vos chaussures !",
+    "competitionName": "100m Sprint"
+  }
+]
