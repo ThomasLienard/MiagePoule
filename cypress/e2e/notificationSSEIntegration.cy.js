@@ -30,7 +30,6 @@ describe('Tests - Intégration SSE avec Authentification', () => {
     it('Devrait afficher les notifications pendant la navigation', () => {
         // Se connecter d'abord
         cy.loginTest();
-        cy.wait(500);
 
         // Naviguer entre les pages
         cy.contains('nav a', 'Championnats').click();
@@ -48,7 +47,6 @@ describe('Tests - Intégration SSE avec Authentification', () => {
     it('Devrait afficher un toast pour les notifications critiques', () => {
         // Se connecter d'abord
         cy.loginTest();
-        cy.wait(500);
 
         // Créer une notification critique
         cy.window().then((win) => {
@@ -63,26 +61,10 @@ describe('Tests - Intégration SSE avec Authentification', () => {
         });
     });
 
-    it('Devrait permettre le clic sur une notification pour la consulter', () => {
-        // Se connecter d'abord
-        cy.loginTest();
-        cy.wait(500);
-
-        cy.get('body').then(($body) => {
-            if ($body.find('.notification-item').length > 0) {
-                cy.get('.notification-item').first().click();
-
-                cy.wait(500);
-
-                // Vérifier qu'une page ou un modal s'ouvre
-            }
-        });
-    });
 
     it('Devrait fermer la connexion SSE à la déconnexion', () => {
         // Se connecter d'abord
         cy.loginTest();
-        cy.wait(500);
 
         // Naviguer vers le profil ou les paramètres
         cy.get('body').then(($body) => {
@@ -107,7 +89,6 @@ describe('Tests - Intégration SSE avec Authentification', () => {
     it('Devrait supporter les notifications pour différents types d\'événements', () => {
         // Se connecter d'abord
         cy.loginTest();
-        cy.wait(500);
 
         const eventTypes = ['INFO', 'WARNING', 'ERROR'];
 
@@ -140,7 +121,6 @@ describe('Tests - Intégration SSE avec Authentification', () => {
     it('Devrait afficher un historique des notifications', () => {
         // Se connecter d'abord
         cy.loginTest();
-        cy.wait(500);
 
         // Ouvrir le panneau de notifications
         cy.get('body').then(($body) => {
@@ -162,7 +142,6 @@ describe('Tests - Intégration SSE avec Authentification', () => {
     it('Devrait trier les notifications par date (plus récent en haut)', () => {
         // Se connecter d'abord
         cy.loginTest();
-        cy.wait(500);
 
         // Vérifier que nous sommes authentifiés
         cy.get('nav').should('be.visible');
@@ -171,7 +150,6 @@ describe('Tests - Intégration SSE avec Authentification', () => {
     it('Devrait supporter le dark mode pour les notifications', () => {
         // Se connecter d'abord
         cy.loginTest();
-        cy.wait(500);
 
         // Chercher le bouton de dark mode
         cy.get('body').then(($body) => {
@@ -192,7 +170,6 @@ describe('Tests - Intégration SSE avec Authentification', () => {
     it('Devrait gérer les notifications lors d\'un rebase de la page', () => {
         // Se connecter d'abord
         cy.loginTest();
-        cy.wait(500);
 
         // Appuyer sur F5 pour recharger
         cy.reload();
@@ -211,7 +188,6 @@ describe('Tests - Intégration SSE avec Authentification', () => {
     it('Devrait supporter les filtres de notification', () => {
         // Se connecter d'abord
         cy.loginTest();
-        cy.wait(500);
 
         cy.get('body').then(($body) => {
             if ($body.find('.notification-filter').length > 0) {
@@ -228,7 +204,6 @@ describe('Tests - Intégration SSE avec Authentification', () => {
                 if ($body.find('.filter-option').length > 0) {
                     cy.get('.filter-option').first().click();
 
-                    cy.wait(500);
                 }
             }
         });

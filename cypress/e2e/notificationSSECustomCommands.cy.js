@@ -18,7 +18,6 @@ describe('Tests - Notifications SSE avec Commandes Personnalisées', () => {
     it('Devrait ouvrir et fermer le panneau de notifications', () => {
         // Se connecter d'abord
         cy.loginTest();
-        cy.wait(500);
         
         // Ouvrir
         cy.openNotificationPanel();
@@ -138,7 +137,6 @@ describe('Tests - Notifications SSE avec Commandes Personnalisées', () => {
     it('Devrait supporter le dark mode pour les notifications', () => {
         // Se connecter d'abord
         cy.loginTest();
-        cy.wait(500);
 
         // Ouvrir le panneau de notifications
         cy.openNotificationPanel();

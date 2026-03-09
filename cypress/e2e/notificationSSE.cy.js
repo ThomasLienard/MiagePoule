@@ -38,7 +38,6 @@ describe('Tests - Système de Notifications SSE', () => {
             });
         });
 
-        cy.wait(500);
     });
 
     it('Devrait ouvrir le panneau de notifications au clic', () => {
@@ -72,12 +71,10 @@ describe('Tests - Système de Notifications SSE', () => {
             // Note: Ceci dépend de la façon dont le composant est structuré
         });
 
-        cy.wait(500);
     });
 
 
     it('Devrait gérer la déconnexion et la reconnexion', () => {
-        cy.wait(500);
 
         // Simuler une déconnexion
         cy.window().then((win) => {
@@ -117,7 +114,6 @@ describe('Tests - Système de Notifications SSE', () => {
             cy.spy(win.console, 'log');
         });
 
-        cy.wait(1000); // Attendre la tentative de reconnexion
     });
 
     it('Devrait gérer plusieurs notifications simultanées', () => {
@@ -145,14 +141,9 @@ describe('Tests - Système de Notifications SSE', () => {
 
         cy.wait(500);
 
-        // Vérifier que les notifications peuvent être affichées
-        cy.get('body').then(($body) => {
-            // Les notifications existent
-        });
     });
 
     it('Devrait persister les notifications après un rafraîchissement', () => {
-        cy.wait(500);
 
         // Rafraîchir la page
         cy.reload();
@@ -182,9 +173,6 @@ describe('Tests - Système de Notifications SSE', () => {
         // Retourner à la page
         cy.go('back');
 
-        cy.wait(500);
-
-        // Vérifier que une nouvelle connexion a été établie
     });
 
     it('Devrait afficher le timestamp des notifications', () => {
@@ -210,7 +198,6 @@ describe('Tests - Système de Notifications SSE', () => {
     });
 
     it('Devrait supporter la reconnexion après une longue déconnexion', () => {
-        cy.wait(500);
 
         // Simuler une longue déconnexion
         cy.intercept('GET', '/api/notifications/stream/*').as('firstConnection');
@@ -247,9 +234,4 @@ describe('Tests - Système de Notifications SSE', () => {
         });
     });
 
-    it('Devrait afficher une animation lors de la réception d\'une notification', () => {
-        cy.get('body').then(($body) => {
-            // Les notifications peut être affichées
-        });
-    });
 });
