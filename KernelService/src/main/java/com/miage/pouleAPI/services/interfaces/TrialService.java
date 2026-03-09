@@ -12,4 +12,5 @@ public interface TrialService {
     Optional<TrialDetailDTO> getTrialById(Integer id);
     List<TrialSummaryDTO> getTrialsByChampionshipAndCompetition(Integer championshipId, Integer competitionId);
     Optional<AssignedTrialsResponseDTO> getAssignedTrialsForUserEmail(String email);
+    Optional<AssignedTrialsResponseDTO> getAssignedTrialsForAthleteId(Integer athleteId);
 }
