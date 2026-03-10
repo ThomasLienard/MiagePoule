@@ -39,31 +39,22 @@ class TimeRankingStrategyTest {
     @Test
     @DisplayName("getResultComparator() devrait comparer les temps en ordre croissant")
     void testGetResultComparator() {
-        Comparator<String> comparator = strategy.getResultComparator();
+        Comparator<Double> comparator = strategy.getResultComparator();
         
         // Le temps le plus bas doit être avant le temps le plus haut
-        assertTrue(comparator.compare("10.5", "12.3") < 0);
-        assertTrue(comparator.compare("12.3", "10.5") > 0);
-        assertEquals(0, comparator.compare("10.5", "10.5"));
+        assertTrue(comparator.compare(10.5, 12.3) < 0);
+        assertTrue(comparator.compare(12.3, 10.5) > 0);
+        assertEquals(0, comparator.compare(10.5, 10.5));
     }
     
     @Test
     @DisplayName("getResultComparator() devrait gérer les valeurs null")
     void testGetResultComparatorWithNull() {
-        Comparator<String> comparator = strategy.getResultComparator();
+        Comparator<Double> comparator = strategy.getResultComparator();
         
-        assertTrue(comparator.compare(null, "10.5") > 0);
-        assertTrue(comparator.compare("10.5", null) < 0);
+        assertTrue(comparator.compare(null, 10.5) > 0);
+        assertTrue(comparator.compare(10.5, null) < 0);
         assertEquals(0, comparator.compare(null, null));
-    }
-    
-    @Test
-    @DisplayName("getResultComparator() devrait gérer les valeurs non numériques")
-    void testGetResultComparatorWithNonNumeric() {
-        Comparator<String> comparator = strategy.getResultComparator();
-        
-        // Doit comparer en tant que String si la conversion en double échoue
-        assertTrue(comparator.compare("abc", "def") < 0);
     }
 
     // ===== Tests de cas limites =====
@@ -71,31 +62,31 @@ class TimeRankingStrategyTest {
     @Test
     @DisplayName("getResultComparator() devrait gérer des temps très proches (précision décimale)")
     void testGetResultComparatorWithVeryCloseTimes() {
-        Comparator<String> comparator = strategy.getResultComparator();
+        Comparator<Double> comparator = strategy.getResultComparator();
 
         // 9.99 < 10.00 donc 9.99 est meilleur (plus petit indice)
-        assertTrue(comparator.compare("9.99", "10.00") < 0);
-        assertTrue(comparator.compare("10.00", "9.99") > 0);
-        assertEquals(0, comparator.compare("9.99", "9.99"));
+        assertTrue(comparator.compare(9.99, 10.00) < 0);
+        assertTrue(comparator.compare(10.0, 9.99) > 0);
+        assertEquals(0, comparator.compare(9.99, 9.99));
     }
 
     @Test
     @DisplayName("getResultComparator() devrait gérer des valeurs entières en tant que temps")
     void testGetResultComparatorWithIntegerTimes() {
-        Comparator<String> comparator = strategy.getResultComparator();
+        Comparator<Double> comparator = strategy.getResultComparator();
 
-        assertTrue(comparator.compare("10", "11") < 0);
-        assertTrue(comparator.compare("11", "10") > 0);
-        assertEquals(0, comparator.compare("10", "10"));
+        assertTrue(comparator.compare(10.0, 11.0) < 0);
+        assertTrue(comparator.compare(11.0, 10.0) > 0);
+        assertEquals(0, comparator.compare(10.0, 10.0));
     }
 
     @Test
     @DisplayName("getResultComparator() devrait être antisymétrique")
     void testGetResultComparatorAntisymmetry() {
-        Comparator<String> comparator = strategy.getResultComparator();
+        Comparator<Double> comparator = strategy.getResultComparator();
 
-        int cmp1 = comparator.compare("10.5", "12.3");
-        int cmp2 = comparator.compare("12.3", "10.5");
+        int cmp1 = comparator.compare(10.5, 12.3);
+        int cmp2 = comparator.compare(12.3, 10.5);
 
         assertTrue(cmp1 < 0);
         assertTrue(cmp2 > 0);
@@ -104,21 +95,21 @@ class TimeRankingStrategyTest {
     @Test
     @DisplayName("getResultComparator() devrait être transitif")
     void testGetResultComparatorTransitivity() {
-        Comparator<String> comparator = strategy.getResultComparator();
+        Comparator<Double> comparator = strategy.getResultComparator();
 
         // 9.8 < 10.0 < 11.2, donc compare(9.8,10.0)<0 et compare(10.0,11.2)<0 → compare(9.8,11.2)<0
-        assertTrue(comparator.compare("9.8", "10.0") < 0);
-        assertTrue(comparator.compare("10.0", "11.2") < 0);
-        assertTrue(comparator.compare("9.8", "11.2") < 0);
+        assertTrue(comparator.compare(9.8, 10.0) < 0);
+        assertTrue(comparator.compare(10.0, 11.2) < 0);
+        assertTrue(comparator.compare(9.8, 11.2) < 0);
     }
 
     @Test
     @DisplayName("getResultComparator() devrait gérer des temps identiques comme égalité")
     void testGetResultComparatorEquality() {
-        Comparator<String> comparator = strategy.getResultComparator();
+        Comparator<Double> comparator = strategy.getResultComparator();
 
-        assertEquals(0, comparator.compare("10.500", "10.500"));
-        assertEquals(0, comparator.compare("60.0", "60.0"));
+        assertEquals(0, comparator.compare(10.500, 10.500));
+        assertEquals(0, comparator.compare(60.0, 60.0));
     }
 
     // ===== Tests de tri d'une liste =====
@@ -126,28 +117,28 @@ class TimeRankingStrategyTest {
     @Test
     @DisplayName("getResultComparator() devrait trier une liste du meilleur au moins bon temps")
     void testSortingListAscending() {
-        Comparator<String> comparator = strategy.getResultComparator();
-        List<String> times = Arrays.asList("12.5", "9.8", "11.0", "10.3", "9.9");
+        Comparator<Double> comparator = strategy.getResultComparator();
+        List<Double> times = Arrays.asList(12.5, 9.8, 11.0, 10.3, 9.9);
         times.sort(comparator);
 
         // Ordre attendu : 9.8, 9.9, 10.3, 11.0, 12.5
-        assertEquals("9.8",  times.get(0));
-        assertEquals("9.9",  times.get(1));
-        assertEquals("10.3", times.get(2));
-        assertEquals("11.0", times.get(3));
-        assertEquals("12.5", times.get(4));
+        assertEquals(9.8,  times.get(0));
+        assertEquals(9.9,  times.get(1));
+        assertEquals(10.3, times.get(2));
+        assertEquals(11.0, times.get(3));
+        assertEquals(12.5, times.get(4));
     }
 
     @Test
     @DisplayName("getResultComparator() devrait gérer les doublons dans une liste triée de temps")
     void testSortingListWithDuplicates() {
-        Comparator<String> comparator = strategy.getResultComparator();
-        List<String> times = Arrays.asList("12.0", "10.5", "12.0", "11.0");
+        Comparator<Double> comparator = strategy.getResultComparator();
+        List<Double> times = Arrays.asList(12.0, 10.5, 12.0, 11.0);
         times.sort(comparator);
 
-        assertEquals("10.5", times.get(0));
-        assertEquals("11.0", times.get(1));
-        assertEquals("12.0", times.get(2));
-        assertEquals("12.0", times.get(3));
+        assertEquals(10.5, times.get(0));
+        assertEquals(11.0, times.get(1));
+        assertEquals(12.0, times.get(2));
+        assertEquals(12.0, times.get(3));
     }
 }

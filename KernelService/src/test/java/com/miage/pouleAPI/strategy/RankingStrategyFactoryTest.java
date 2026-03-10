@@ -90,7 +90,7 @@ class RankingStrategyFactoryTest {
         assertEquals("ASC", strategy.getSortOrder());
         assertNotNull(strategy.getResultComparator());
         // Vérification que le comparateur trie bien dans le sens croissant (meilleur temps = plus petit)
-        assertTrue(strategy.getResultComparator().compare("9.0", "10.0") < 0);
+        assertTrue(strategy.getResultComparator().compare(9.0, 10.0) < 0);
     }
 
     @Test
@@ -101,7 +101,7 @@ class RankingStrategyFactoryTest {
         assertEquals("DESC", strategy.getSortOrder());
         assertNotNull(strategy.getResultComparator());
         // Vérification que le comparateur trie bien dans le sens décroissant (meilleur score = plus grand)
-        assertTrue(strategy.getResultComparator().compare("100", "80") < 0);
+        assertTrue(strategy.getResultComparator().compare(100.0, 80.0) < 0);
     }
 
     // ===== Tests isSupported =====

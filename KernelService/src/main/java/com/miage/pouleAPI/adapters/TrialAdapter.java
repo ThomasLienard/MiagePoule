@@ -201,86 +201,54 @@ public class TrialAdapter {
     }
 
     private List<RankingDTO> buildTeamRankings(Trial trial) {
-        // Obtenir la stratégie de ranking appropriée
-        String scoreTypeName = trial.getTypeScore() != null ? trial.getTypeScore().getName() : "TIME";
-        RankingStrategy strategy = rankingStrategyFactory.getStrategy(scoreTypeName);
-        
-        // Récupérer les résultats avec le tri approprié
-        List<ParticipateAt> teamResults = participateAtRepository.findByTrialIdOrderedByResultDynamic(
-            trial.getId(), 
-            strategy.getSortOrder()
-        );
+    String scoreTypeName = trial.getTypeScore() != null ? trial.getTypeScore().getName() : "TIME";
+    RankingStrategy strategy = rankingStrategyFactory.getStrategy(scoreTypeName);
 
-        // Résultats publics uniquement si tous les participants non-forfait ont un résultat validé
-        List<ParticipateAt> nonForfeit = teamResults.stream()
-                .filter(p -> !Boolean.TRUE.equals(p.getIsForfeit()))
-                .toList();
-        boolean allValidated = !nonForfeit.isEmpty()
-                && nonForfeit.stream().allMatch(p -> Boolean.TRUE.equals(p.getIsValidated()) &&  p.getResult() != null);
-        if (!allValidated) {
-            return new ArrayList<>();
-        }
+    List<ParticipateAt> results = participateAtRepository.findByTrialIdOrderedByResultDynamic(
+        trial.getId(), strategy.getSortOrder()
+    );
 
-        List<RankingDTO> rankings = new ArrayList<>();
-        int teamRank = 1;
-        for (ParticipateAt participation : teamResults) {
-            if (participation.getTeam() != null && (participation.getResult() != null || participation.getIsForfeit())) {
-                RankingDTO ranking = new RankingDTO();
-                if (Boolean.FALSE.equals(participation.getIsForfeit())) {
-                    ranking.setRank(teamRank);
-                    teamRank++;
-                }
-                ranking.setResult(participation.getResult());
-                ranking.setParticipantName(participation.getTeam().getName());
-                ranking.setParticipantType("TEAM");
-                ranking.setParticipantId(participation.getTeam().getId());
-                ranking.setIsForfeit(participation.getIsForfeit());
-                rankings.add(ranking);
-            }
-        }
-        return rankings;
-    }
+    List<RankingDTO> participants = results.stream()
+        .filter(p -> p.getTeam() != null)
+        .map(p -> new RankingDTO(
+            null,  // rank temporaire
+            p.getResult(),
+            p.getTeam().getName(),
+            "TEAM",
+            p.getTeam().getId(),
+            p.getIsForfeit(),
+            p.getIsValidated()
+        ))
+        .toList();
+
+    return strategy.calculateRankings(participants);
+}
 
     private List<RankingDTO> buildAthleteRankings(Trial trial) {
-        // Obtenir la stratégie de ranking appropriée
-        String scoreTypeName = trial.getTypeScore() != null ? trial.getTypeScore().getName() : "TIME";
-        RankingStrategy strategy = rankingStrategyFactory.getStrategy(scoreTypeName);
-        
-        // Récupérer les résultats avec le tri approprié
-        List<IsConvenedTo> athleteResults = isConvenedToRepository.findByTrialIdOrderedByResultDynamic(
-            trial.getId(), 
-            strategy.getSortOrder()
-        );
+    String scoreTypeName = trial.getTypeScore() != null ? trial.getTypeScore().getName() : "TIME";
+    RankingStrategy strategy = rankingStrategyFactory.getStrategy(scoreTypeName);
 
-        // Résultats publics uniquement si tous les participants non-forfait ont un résultat validé
-        List<IsConvenedTo> nonForfeit = athleteResults.stream()
-                .filter(c -> !Boolean.TRUE.equals(c.getIsForfeit()))
-                .toList();
-        boolean allValidated = !nonForfeit.isEmpty()
-                && nonForfeit.stream().allMatch(c -> Boolean.TRUE.equals(c.getIsValidated()) && c.getResult() != null);
-        if (!allValidated) {
-            return new ArrayList<>();
-        }
+    List<IsConvenedTo> results = isConvenedToRepository.findByTrialIdOrderedByResultDynamic(
+        trial.getId(), strategy.getSortOrder()
+    );
 
-        List<RankingDTO> rankings = new ArrayList<>();
-        int athleteRank = 1;
-        for (IsConvenedTo convening : athleteResults) {
-            if (convening.getUser() != null && (convening.getResult() != null || convening.getIsForfeit())) {
-                RankingDTO ranking = new RankingDTO();
-                if (Boolean.FALSE.equals(convening.getIsForfeit())) {
-                    ranking.setRank(athleteRank);
-                    athleteRank++;
-                }
-                ranking.setResult(convening.getResult());
-                ranking.setParticipantName(convening.getUser().getName() + " " + convening.getUser().getLastname());
-                ranking.setParticipantType("ATHLETE");
-                ranking.setParticipantId(convening.getUser().getId());
-                ranking.setIsForfeit(convening.getIsForfeit());
-                rankings.add(ranking);
-            }
-        }
-        return rankings;
-    }
+    List<RankingDTO> participants = results.stream()
+        .filter(c -> c.getUser() != null)
+        .map(c -> new RankingDTO(
+            null,  // rank temporaire
+            c.getResult(),
+            c.getUser().getName(),
+            "ATHLETE",
+            c.getUser().getId(),
+            c.getIsForfeit(),
+            c.getIsValidated()
+
+        ))
+        .toList();
+
+    return strategy.calculateRankings(participants); 
+}
+
 
     
     private List<SoloParticipantDTO> buildSoloParticipants(List<IsConvenedTo> soloParticipations) {

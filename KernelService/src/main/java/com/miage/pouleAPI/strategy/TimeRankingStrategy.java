@@ -12,21 +12,14 @@ import java.util.Comparator;
 public class TimeRankingStrategy implements RankingStrategy {
     
     @Override
-    public Comparator<String> getResultComparator() {
+    public Comparator<Double> getResultComparator() {
         return (result1, result2) -> {
             if (result1 == null && result2 == null) return 0;
             if (result1 == null) return 1;
             if (result2 == null) return -1;
             
-            try {
-                Double time1 = Double.parseDouble(result1);
-                Double time2 = Double.parseDouble(result2);
-                // Temps le plus bas = meilleur classement
-                return time1.compareTo(time2);
-            } catch (NumberFormatException e) {
-                // Si la conversion échoue, on compare en tant que String
-                return result1.compareTo(result2);
-            }
+            return result1.compareTo(result2);
+            
         };
     }
     

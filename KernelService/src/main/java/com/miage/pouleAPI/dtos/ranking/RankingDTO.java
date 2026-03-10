@@ -14,4 +14,5 @@ public class RankingDTO {
     private String participantType;   // "ATHLETE" or "TEAM"
     private Integer participantId;
     private Boolean isForfeit;
+    private Boolean isValidated;
 }
