@@ -40,40 +40,42 @@ public interface RankingStrategy {
                 Boolean.TRUE.equals(p.getIsValidated()) && p.getResult() != null);
         if (!allValidated) return List.of();
 
-        // 2. Tri + ex-aequo
-        List<RankingDTO> sorted = nonForfeit.stream()
-            .sorted((p1, p2) -> getResultComparator().compare(p1.getResult(), p2.getResult()))
-            .toList();
-
-        // 3. Recalcul des rangs
+        // 2. Assign ranks in DB order (DB already sorted via findByTrialIdOrderedByResultDynamic)
+        // Forfeits retain their original position; non-forfeits are ranked in order with tie support
         List<RankingDTO> rankings = new ArrayList<>();
         int currentRank = 1;
-        int position = 1;
+        int nonForfeitPosition = 1;
         Double previousResult = null;
 
-        for (RankingDTO p : sorted) {
-            if (previousResult == null || 
-                getResultComparator().compare(p.getResult(), previousResult) != 0) {
-                currentRank = position;
+        for (RankingDTO p : participants) {
+            if (Boolean.TRUE.equals(p.getIsForfeit())) {
+                rankings.add(new RankingDTO(
+                    null,
+                    p.getResult(),
+                    p.getParticipantName(),
+                    p.getParticipantType(),
+                    p.getParticipantId(),
+                    true,
+                    p.getIsValidated()
+                ));
+            } else {
+                if (previousResult == null ||
+                    getResultComparator().compare(p.getResult(), previousResult) != 0) {
+                    currentRank = nonForfeitPosition;
+                }
+                rankings.add(new RankingDTO(
+                    currentRank,
+                    p.getResult(),
+                    p.getParticipantName(),
+                    p.getParticipantType(),
+                    p.getParticipantId(),
+                    false,
+                    true
+                ));
+                previousResult = p.getResult();
+                nonForfeitPosition++;
             }
-            // Créer nouveau DTO avec bon rang
-            rankings.add(new RankingDTO(
-                currentRank,
-                p.getResult(),
-                p.getParticipantName(),
-                p.getParticipantType(),
-                p.getParticipantId(),
-                false,
-                true
-            ));
-            previousResult = p.getResult();
-            position++;
         }
-
-        // 4. Forfaits 
-        participants.stream()
-            .filter(RankingDTO::getIsForfeit)
-            .forEach(rankings::add);
 
         return rankings;
     }

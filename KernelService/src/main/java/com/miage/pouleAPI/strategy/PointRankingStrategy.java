@@ -18,7 +18,7 @@ public class PointRankingStrategy implements RankingStrategy {
             if (result1 == null) return 1;
             if (result2 == null) return -1;
             
-            return result1.compareTo(result2);
+            return result2.compareTo(result1);
         };
     }
     

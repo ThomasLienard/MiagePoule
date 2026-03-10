@@ -237,7 +237,7 @@ public class TrialAdapter {
         .map(c -> new RankingDTO(
             null,  // rank temporaire
             c.getResult(),
-            c.getUser().getName(),
+            c.getUser().getName() + " " + c.getUser().getLastname(),
             "ATHLETE",
             c.getUser().getId(),
             c.getIsForfeit(),
