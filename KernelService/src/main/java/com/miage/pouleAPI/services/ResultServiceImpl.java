@@ -94,6 +94,7 @@ public class ResultServiceImpl implements ResultService {
 
             boolean isTeamTrial = participateAtRepository.hasTeamParticipation(trialId);
             dto.setTeamTrial(isTeamTrial);
+            dto.setScoreType(trial.getTypeScore() != null ? trial.getTypeScore().getName() : "TIME");
 
             if (isTeamTrial) {
                 List<ParticipateAt> participations = participateAtRepository.findByTrialId(trialId);

@@ -82,6 +82,9 @@ public class TrialAdapter {
             dto.setPlace(placeToDto(trial.getPlace()));
         }
         
+        // Score type
+        dto.setScoreType(trial.getTypeScore() != null ? trial.getTypeScore().getName() : "TIME");
+
         // Rankings from ParticipateAt and IsConvenedTo
         dto.setRankings(buildRankings(trial));
         
