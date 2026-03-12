@@ -99,6 +99,13 @@ export default function Layout() {
                                 </Nav.Link>
                             )}
 
+                            {user?.roles?.includes('VOLONTAIRE') && (
+                                <Nav.Link className="auth-button secondary me-2" as="span">
+                                    <Link to={`/agenda`}
+                                          className="text-decoration-none text-body-secondary">📖 Mon agenda</Link>
+                                </Nav.Link>
+                            )}
+
                             {user?.roles?.includes('ADMIN') && (
                                 <>
                                     <Nav.Link className="auth-button secondary me-2" as="span">
