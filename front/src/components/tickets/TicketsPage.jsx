@@ -19,9 +19,7 @@ import {
     Upload,
     FileText,
     Calendar,
-    FilePdf,
-    Image,
-    File
+    FilePdf
 } from 'react-bootstrap-icons';
 import { documentService } from '../../services/documentService';
 import { format } from 'date-fns';
@@ -157,23 +155,6 @@ const TicketsPage = () => {
         }
     };
 
-    const getFileIcon = (fileName) => {
-        if (!fileName) return <File className="me-2" />;
-
-        const extension = fileName.split('.').pop().toLowerCase();
-        switch (extension) {
-            case 'pdf':
-                return <FilePdf className="me-2 text-danger" />;
-            case 'jpg':
-            case 'jpeg':
-            case 'png':
-            case 'gif':
-                return <Image className="me-2 text-success" />;
-            default:
-                return <FileText className="me-2 text-primary" />;
-        }
-    };
-
     const formatDate = (dateString) => {
         try {
             return format(new Date(dateString), 'dd/MM/yyyy HH:mm', { locale: fr });
@@ -210,7 +191,6 @@ const TicketsPage = () => {
             <Row className="mb-4">
                 <Col>
                     <h2>📄 Mes Billets</h2>
-                    <p className="text-muted">Gérez vos billets d'événements</p>
                 </Col>
                 <Col className="text-end">
                     <Button
@@ -265,9 +245,9 @@ const TicketsPage = () => {
                                     <tr key={ticket.id}>
                                         <td className="align-middle ps-3">
                                             <div className="d-flex align-items-center">
-                                                {getFileIcon(ticket.fileName)}
+                                                <FilePdf className="me-2 text-danger" />
                                                 <span className="text-truncate" style={{ maxWidth: '150px' }}>
-                                                        {ticket.fileName || `Ticket ${ticket.id}`}
+                                                        {ticket.originalFileName || `Ticket ${ticket.id}`}
                                                     </span>
                                             </div>
                                         </td>
@@ -277,7 +257,7 @@ const TicketsPage = () => {
                                         <td className="align-middle">
                                             <div className="d-flex align-items-center">
                                                 <Calendar className="me-2 text-muted" size={14} />
-                                                {formatDate(ticket.createdAt)}
+                                                {formatDate(ticket.uploadedAt)}
                                             </div>
                                         </td>
                                         <td className="align-middle">

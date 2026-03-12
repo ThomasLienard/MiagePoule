@@ -17,4 +17,5 @@ public class TrialResultsDTO {
     private List<ResultDTO> results;
     private LocalDateTime startTime;
     private LocalDateTime endTime;
+    private String scoreType;
 }

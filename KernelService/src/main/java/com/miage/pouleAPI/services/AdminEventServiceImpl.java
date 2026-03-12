@@ -23,6 +23,7 @@ public class AdminEventServiceImpl implements AdminEventService {
     private final TimeSlotRepository timeSlotRepo;
     private final CompetitionRepository competitionRepo;
     private final TypeEventRepository typeRepo;
+    private final TypeScoreRepository typeScoreRepo;
     private final GeocodingService geocodingService;
 
     @Override
@@ -137,5 +138,18 @@ public class AdminEventServiceImpl implements AdminEventService {
         e.setPlace(p);
         e.setTimeSlot(s);
         e.setCompetition(c);
+        
+        // Détermine le type de score
+        String scoreTypeName;
+        if (req.typeScoreName() != null && !req.typeScoreName().isBlank()) {
+            // Utilise le type de score spécifié dans la requête
+            scoreTypeName = req.typeScoreName();
+        } else {
+            // Valeur par défaut selon le type d'événement
+            scoreTypeName = "TRIAL".equalsIgnoreCase(req.typeEventName()) ? "TIME" : "NA";
+        }
+        
+        e.setTypeScore(typeScoreRepo.findById(scoreTypeName)
+                .orElseThrow(() -> new RuntimeException("Type de score non trouvé: " + scoreTypeName)));
     }
 }

@@ -17,12 +17,12 @@ public interface ResultService {
     /**
      * Saisit ou modifie le résultat d'un athlète pour une épreuve
      */
-    ResultDTO setAthleteResult(Integer trialId, Integer athleteId, String result);
+    ResultDTO setAthleteResult(Integer trialId, Integer athleteId, Double result);
 
     /**
      * Saisit ou modifie le résultat d'une équipe pour une épreuve
      */
-    ResultDTO setTeamResult(Integer trialId, Integer teamId, String result);
+    ResultDTO setTeamResult(Integer trialId, Integer teamId, Double result);
 
     /**
      * Modifie plusieurs résultats en une seule opération

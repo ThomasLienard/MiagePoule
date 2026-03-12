@@ -33,7 +33,7 @@ class AdminEventControllerTest {
 
     @Test
     void create_shouldReturn201() {
-        CreateEventRequestDTO request = new CreateEventRequestDTO("Event", "Desc", "TRIAL", 1, LocalDateTime.now(), LocalDateTime.now().plusHours(1), "Lieu", "Ville", "Rue", "1", "75000", "Infos", 0.0, 0.0, true);
+        CreateEventRequestDTO request = new CreateEventRequestDTO("Event", "Desc", "TRIAL", 1, LocalDateTime.now(), LocalDateTime.now().plusHours(1), "Lieu", "Ville", "Rue", "1", "75000", "Infos", 0.0, 0.0, true, null);
 
         ResponseEntity<Void> response = adminEventController.create(request);
 

@@ -7,13 +7,19 @@ spring:
   jpa:
     hibernate:
       ddl-auto: create-drop
-    show-sql: true
-    defer-datasource-initialization: true   # <- IMPORTANT
-
+    properties:
+      hibernate:
+        dialect: org.hibernate.dialect.H2Dialect
+        format_sql: true
+    show-sql: false
+    defer-datasource-initialization: true
+  
   sql:
     init:
-      mode: always                          # <- IMPORTANT
-      data-locations: classpath:data.sql    # <- IMPORTANT
+      mode: always
+      data-locations: classpath:data.sql
+      separator: ;
+      continue-on-error: false
 
 security:
   jwt:

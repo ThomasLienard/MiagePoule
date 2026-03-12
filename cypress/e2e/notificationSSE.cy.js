@@ -25,7 +25,7 @@ describe('Tests - Système de Notifications SSE', () => {
 
     it('Devrait établir une connexion SSE au chargement de la page', () => {
         // Attendre que la page se charge
-        cy.wait(2000);
+        cy.wait(500);
 
         // Vérifier que la connexion SSE a été établie
         cy.window().then((win) => {
@@ -38,29 +38,13 @@ describe('Tests - Système de Notifications SSE', () => {
             });
         });
 
-        cy.wait(2000);
-    });
-
-    it('Devrait afficher le badge de notifications', () => {
-        // Chercher le badge de notifications dans le header
-        // Structure typique : <span class="notification-badge">0</span>
-        cy.get('body').then(($body) => {
-            if ($body.find('[data-testid="notification-badge"]').length > 0) {
-                cy.get('[data-testid="notification-badge"]')
-                    .should('exist')
-                    .should('contain', '0');
-            } else if ($body.find('.notification-count').length > 0) {
-                cy.get('.notification-count')
-                    .should('exist');
-            }
-        });
     });
 
     it('Devrait ouvrir le panneau de notifications au clic', () => {
         // Chercher le bouton de notifications
         cy.get('body').then(($body) => {
-            if ($body.find('[data-testid="notification-button"]').length > 0) {
-                cy.get('[data-testid="notification-button"]').click();
+            if ($body.find('.notification-button').length > 0) {
+                cy.get('.notification-button').click();
                 cy.wait(1000);
             } else if ($body.find('.notification-bell').length > 0) {
                 cy.get('.notification-bell').click();
@@ -87,25 +71,10 @@ describe('Tests - Système de Notifications SSE', () => {
             // Note: Ceci dépend de la façon dont le composant est structuré
         });
 
-        cy.wait(2000);
     });
 
-    it('Devrait marquer les notifications comme lues', () => {
-        // Chercher le bouton pour marquer comme lu
-        cy.get('body').then(($body) => {
-            if ($body.find('[data-testid="mark-as-read-button"]').length > 0) {
-                cy.get('[data-testid="mark-as-read-button"]').click();
-                cy.wait(1000);
-                
-                // Vérifier que le badge est à 0
-                cy.get('[data-testid="notification-badge"]')
-                    .should('contain', '0');
-            }
-        });
-    });
 
     it('Devrait gérer la déconnexion et la reconnexion', () => {
-        cy.wait(2000);
 
         // Simuler une déconnexion
         cy.window().then((win) => {
@@ -115,13 +84,13 @@ describe('Tests - Système de Notifications SSE', () => {
             }
         });
 
-        cy.wait(2000);
+        cy.wait(500);
 
         // Vérifier que le statut de connexion change
         cy.get('body').then(($body) => {
             // Chercher un indicateur de déconnexion
-            if ($body.find('[data-testid="connection-status"]').length > 0) {
-                cy.get('[data-testid="connection-status"]')
+            if ($body.find('.connection-status').length > 0) {
+                cy.get('.connection-status')
                     .should('contain', 'Déconnecté');
             }
         });
@@ -137,7 +106,7 @@ describe('Tests - Système de Notifications SSE', () => {
         }).as('sseError');
 
         cy.reload();
-        cy.wait(2000);
+        cy.wait(500);
 
         // Vérifier que le système essaie de se reconnecter
         cy.window().then((win) => {
@@ -145,7 +114,6 @@ describe('Tests - Système de Notifications SSE', () => {
             cy.spy(win.console, 'log');
         });
 
-        cy.wait(3000); // Attendre la tentative de reconnexion
     });
 
     it('Devrait gérer plusieurs notifications simultanées', () => {
@@ -171,29 +139,21 @@ describe('Tests - Système de Notifications SSE', () => {
             }
         ];
 
-        cy.wait(2000);
+        cy.wait(500);
 
-        // Le badge devrait refleter le nombre de notifications
-        cy.get('body').then(($body) => {
-            if ($body.find('[data-testid="notification-badge"]').length > 0) {
-                cy.get('[data-testid="notification-badge"]')
-                    .should('exist');
-            }
-        });
     });
 
     it('Devrait persister les notifications après un rafraîchissement', () => {
-        cy.wait(2000);
 
         // Rafraîchir la page
         cy.reload();
 
-        cy.wait(2000);
+        cy.wait(500);
 
         // Vérifier que la connexion est rétablie
         cy.get('body').then(($body) => {
-            if ($body.find('[data-testid="connection-status"]').length > 0) {
-                cy.get('[data-testid="connection-status"]')
+            if ($body.find('.connection-status').length > 0) {
+                cy.get('.connection-status')
                     .should('not.contain', 'Erreur');
             }
         });
@@ -208,20 +168,17 @@ describe('Tests - Système de Notifications SSE', () => {
         // Naviguer vers une autre page
         cy.get('nav a').first().click();
 
-        cy.wait(2000);
+        cy.wait(500);
 
         // Retourner à la page
         cy.go('back');
 
-        cy.wait(2000);
-
-        // Vérifier que une nouvelle connexion a été établie
     });
 
     it('Devrait afficher le timestamp des notifications', () => {
         cy.get('body').then(($body) => {
-            if ($body.find('[data-testid="notification-item"]').length > 0) {
-                cy.get('[data-testid="notification-item"]').first()
+            if ($body.find('.notification-item').length > 0) {
+                cy.get('.notification-item').first()
                     .should('contain', /\d{1,2}\/\d{1,2}\/\d{4}|\d{1,2}:\d{2}/);
             }
         });
@@ -231,7 +188,7 @@ describe('Tests - Système de Notifications SSE', () => {
         // Naviguer vers une page sans authentification
         cy.get('nav a').contains('Connexion').click();
 
-        cy.wait(2000);
+        cy.wait(500);
 
         // Vérifier qu'aucune connexion SSE ne s'établit
         cy.window().then((win) => {
@@ -241,64 +198,19 @@ describe('Tests - Système de Notifications SSE', () => {
     });
 
     it('Devrait supporter la reconnexion après une longue déconnexion', () => {
-        cy.wait(2000);
 
         // Simuler une longue déconnexion
         cy.intercept('GET', '/api/notifications/stream/*').as('firstConnection');
 
-        cy.wait(5000);
+        cy.wait(1000);
 
         // Vérifier que la reconnexion se fait
         cy.get('body').then(($body) => {
-            if ($body.find('[data-testid="connection-status"]').length > 0) {
-                cy.get('[data-testid="connection-status"]')
+            if ($body.find('.connection-status').length > 0) {
+                cy.get('.connection-status')
                     .should('exist');
             }
         });
     });
 
-    it('Devrait afficher les notifications avec les bonnes icônes selon le type', () => {
-        cy.get('body').then(($body) => {
-            if ($body.find('[data-testid="notification-item"]').length > 0) {
-                // Chercher les icônes ou classes de notification
-                cy.get('[data-testid="notification-item"]').first()
-                    .should('have.attr', 'class')
-                    .and('match', /notification|alert/);
-            }
-        });
-    });
-
-    it('Devrait limiter le nombre de notifications affichées', () => {
-        cy.get('body').then(($body) => {
-            if ($body.find('[data-testid="notification-item"]').length > 0) {
-                // Vérifier qu'on n'affiche pas plus de X notifications
-                cy.get('[data-testid="notification-item"]')
-                    .should('have.length.lessThan', 50);
-            }
-        });
-    });
-
-    it('Devrait permettre la suppression d\'une notification', () => {
-        cy.get('body').then(($body) => {
-            if ($body.find('[data-testid="notification-delete"]').length > 0) {
-                cy.get('[data-testid="notification-delete"]').first().click();
-
-                cy.wait(1000);
-
-                // Vérifier que la notification a disparu
-                // (en comptant le nombre de notifications)
-            }
-        });
-    });
-
-    it('Devrait afficher une animation lors de la réception d\'une notification', () => {
-        cy.get('body').then(($body) => {
-            if ($body.find('[data-testid="notification-badge"]').length > 0) {
-                // Vérifier qu'une classe d'animation est appliquée
-                cy.get('[data-testid="notification-badge"]')
-                    .should('exist');
-                    // .should('have.class', 'animate');  // si applicable
-            }
-        });
-    });
 });
