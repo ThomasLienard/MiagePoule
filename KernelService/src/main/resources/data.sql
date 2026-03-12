@@ -27,9 +27,10 @@ VALUES ('INFO', 'Information message'),
 -- Type of documents
 -- ======================
 INSERT INTO type_of_document (name_type_doc)
-VALUES ('PASSPORT'),
-       ('LICENSE'),
-       ('TICKET');
+VALUES ('TICKET'),
+       ('CEN_ACCREDITATION'),
+       ('PASSPORT'),
+       ('MEDICAL_CERTIFICATE');
 
 -- ======================
 -- Type of notification
@@ -46,6 +47,14 @@ INSERT INTO type_event (type_event_name)
 VALUES ('MEETING'),
        ('TRAINING'),
        ('TRIAL');
+
+-- ======================
+-- Type score
+-- ======================
+INSERT INTO type_score (type_score_name)
+VALUES ('TIME'),
+       ('POINTS'),
+       ('NA');
 
 -- ======================
 -- Championships
@@ -89,18 +98,20 @@ VALUES ('2025-01-01 09:00:00', '2025-01-01 10:00:00'),
 -- ======================
 -- Events
 -- ======================
-INSERT INTO event (name_event, description_event, type_event_name,
+INSERT INTO event (name_event, description_event, type_event_name, type_score_name,
                    id_place, id_time_slot, id_competition)
-VALUES ('100m Trial Heat 1', 'First qualification heat', 'TRIAL', 1, 1, 1),
-       ('100m Trial Heat 2', 'Second qualification heat', 'TRIAL', 1, 2, 1),
-       ('100m Trial Final', 'Final race', 'TRIAL', 1, 3, 1),
-       ('Marathon Trial Warm-up', 'Warm-up session', 'TRIAL', 2, 4, 2),
-       ('Marathon Qualification', 'Main qualification heat', 'TRIAL', 2, 5, 2),
-       ('Marathon final', 'Main heat', 'TRIAL', 2, 5, 2),
-       ('Training Session A', 'Regular training', 'TRAINING', 3, 1, 1),
-       ('Training Session B', 'Regular training', 'TRAINING', 3, 2, 1),
-       ('Championship Meeting', 'Official gathering', 'MEETING', 3, 3, 2),
-        ('Marathon Final', 'Final race', 'TRIAL', 2, 3, 2);
+VALUES ('100m Trial Heat 1', 'First qualification heat', 'TRIAL', 'TIME',1, 1, 1),
+       ('100m Trial Heat 2', 'Second qualification heat', 'TRIAL', 'TIME', 1, 2, 1),
+       ('100m Trial Final', 'Final race', 'TRIAL', 'TIME', 1, 3, 1),
+       ('Marathon Trial Warm-up', 'Warm-up session', 'TRIAL', 'TIME', 2, 2, 2),
+       ('Marathon Qualification', 'Main qualification heat', 'TRIAL', 'TIME', 2, 1, 2),
+       ('Marathon final', 'Main heat', 'TRIAL', 'TIME', 2, 4, 2),
+       ('Training Session A', 'Regular training', 'TRAINING','NA', 3, 1, 1),
+       ('Training Session B', 'Regular training', 'TRAINING','NA', 3, 2, 1),
+       ('Championship Meeting', 'Official gathering', 'MEETING','NA', 3, 3, 2),
+        ('Marathon Final', 'Final race', 'TRIAL', 'TIME', 2, 3, 2),
+       ('Waterpolo Final', 'Final Match', 'TRIAL', 'POINTS', 2, 3, 2),
+        ('200m Sprint Final', 'Finale du 200m sprint — épreuve de démonstration', 'TRIAL', 'TIME', 1, 5, 1);
 
 -- ======================
 -- Trials
@@ -114,7 +125,9 @@ VALUES (1),
        (4),
        (5),
        (6),
-       (9);
+       (10),
+       (11),
+       (12);
 
 -- ======================
 -- Users (MODIFIÉ avec BCrypt)
@@ -122,17 +135,17 @@ VALUES (1),
 -- mdp : "test123"
 
 
-INSERT INTO application_user (name, lastname, password, email, country_code, role_name, is_active, is_account_activated, must_change_password, created_at, created_by, has_signed_charter)
+INSERT INTO application_user (name, lastname, password, email, country_code, role_name, is_active, is_account_activated, is_account_validated, must_change_password, created_at, created_by, has_signed_charter)
 VALUES
     -- Admin existant - email: anna@smith.com
-    ('Anna', 'Smith', '$2a$10$vycWMvbko2wycSl3u6bIL.vCeHgNBQfNq7jpVc7pCEnfER6A2vTLi', 'anna@example.com', 'US', 'ADMIN', true, true, false, NOW(), 'system', true),
+    ('Anna', 'Smith', '$2a$10$vycWMvbko2wycSl3u6bIL.vCeHgNBQfNq7jpVc7pCEnfER6A2vTLi', 'anna@example.com', 'US', 'ADMIN', true, true, false, false, NOW(), 'system', true),
     -- Nouveaux utilisateurs pour chaque rôle
-    ('Pierre', 'Commissaire', '$2a$10$vycWMvbko2wycSl3u6bIL.vCeHgNBQfNq7jpVc7pCEnfER6A2vTLi', 'commissaire@example.com', 'FR', 'COMMISSAIRE', true, true, false, NOW(), 'system',true),
-    ('Marie', 'Athlete', '$2a$10$vycWMvbko2wycSl3u6bIL.vCeHgNBQfNq7jpVc7pCEnfER6A2vTLi', 'athlete@example.com', 'FR', 'ATHLETE', true, true, false, NOW(), 'system', false),
-    ('Jean', 'Volontaire', '$2a$10$vycWMvbko2wycSl3u6bIL.vCeHgNBQfNq7jpVc7pCEnfER6A2vTLi', 'volontaire@example.com', 'FR', 'VOLONTAIRE', true, true, false, NOW(), 'system', true),
-    ('John', 'Doe', '$2a$10$vycWMvbko2wycSl3u6bIL.vCeHgNBQfNq7jpVc7pCEnfER6A2vTLi', 'john@example.com', 'US', 'ATHLETE', true, true, false, NOW(), 'system',true),
-    ('Jane', 'Smith', '$2a$10$vycWMvbko2wycSl3u6bIL.vCeHgNBQfNq7jpVc7pCEnfER6A2vTLi', 'jane@example.com', 'US', 'COMMISSAIRE', true, true, false, NOW(), 'system', true);
-    ('Spec', 'tateur', '$2a$10$vycWMvbko2wycSl3u6bIL.vCeHgNBQfNq7jpVc7pCEnfER6A2vTLi', 'spec@example.com', 'US', 'SPECTATEUR', true, true, false, NOW(), 'system', true);
+    ('Pierre', 'Commissaire', '$2a$10$vycWMvbko2wycSl3u6bIL.vCeHgNBQfNq7jpVc7pCEnfER6A2vTLi', 'commissaire@example.com', 'FR', 'COMMISSAIRE', true, true, false, false, NOW(), 'system',true),
+    ('Marie', 'Athlete', '$2a$10$vycWMvbko2wycSl3u6bIL.vCeHgNBQfNq7jpVc7pCEnfER6A2vTLi', 'athlete@example.com', 'FR', 'ATHLETE', true, true, false, false, NOW(), 'system', false),
+    ('Jean', 'Volontaire', '$2a$10$vycWMvbko2wycSl3u6bIL.vCeHgNBQfNq7jpVc7pCEnfER6A2vTLi', 'volontaire@example.com', 'FR', 'VOLONTAIRE', true, true, false, false, NOW(), 'system', true),
+    ('John', 'Doe', '$2a$10$vycWMvbko2wycSl3u6bIL.vCeHgNBQfNq7jpVc7pCEnfER6A2vTLi', 'john@example.com', 'US', 'ATHLETE', true, true, false, false, NOW(), 'system',true),
+    ('Jane', 'Smith', '$2a$10$vycWMvbko2wycSl3u6bIL.vCeHgNBQfNq7jpVc7pCEnfER6A2vTLi', 'jane@example.com', 'US', 'COMMISSAIRE', true, true, false, false, NOW(), 'system', true),
+    ('Spec', 'tateur', '$2a$10$vycWMvbko2wycSl3u6bIL.vCeHgNBQfNq7jpVc7pCEnfER6A2vTLi', 'spec@example.com', 'US', 'SPECTATEUR', true, true, false, false, NOW(), 'system', true);
 
 -- ======================
 -- Documents
@@ -163,22 +176,24 @@ VALUES (1, 1),
 -- ======================
 -- Team participation: Trial 1 and Trial 2 have team participation
 -- Team B est en forfait sur Trial 1 pour les tests
-INSERT INTO participate_at (id_team, id_trial, trial_result_team, is_forfeit)
-VALUES (1, 1, '11.2s', false),
-       (2, 1, null, true),
-       (1, 2, '11.8s', false),
-       (2,2, '10.9s', false),
-       (2,3, null, false);
+INSERT INTO participate_at (id_team, id_trial, trial_result_team, is_forfeit, is_validated)
+VALUES (1, 1, 11.2, false, true),
+       (2, 1, null, true, true),
+       (1, 2, 11.8, false, true),
+       (2,2, 10.9, false, true),
+       (2,3, null, false, false);
 -- ======================
 -- Convened athletes
 -- ======================
 -- Athletes participation: Trial 4 and Trial 5 have athlete convocation (no participate_at)
-INSERT INTO is_convened_to (id, id_trial, trial_result_athlete, is_forfeit)
-VALUES (1, 4, '2h15m', false),
-       (2, 4, '2h05m', false),
-       (3, 5, '11.6s', false),
-       (4, 5, '11.1s', false),
-       (3, 9, null, false);
+INSERT INTO is_convened_to (id, id_trial, trial_result_athlete, is_forfeit, is_validated)
+VALUES (1, 4, 8100, false, true),
+       (2, 4, 7500, false, true),
+       (3, 5, 11.6, false, true),
+       (4, 5, 11.2, false, true),
+       (3, 10, null, false, true),
+       (3, 11, 22.4, false, true),
+       (5, 11, 22.1, false, true);
 
 -- ======================
 -- Notifications
@@ -218,19 +233,16 @@ VALUES (1, 1),
        (2, 1),
        (2, 2),
        (2, 3),
-       (3, 3),
-       (4, 4),
-       (5, 5),
-       (6, 4),
-       (6, 5),
-       (6, 6),
-       (6, 9);
+       (2, 4),
+       (2, 5),
+       (2, 6),
+       (2, 9),
+       (2, 11);
 
 -- ======================
 -- Tasks
 -- ======================
-
-INSERT INTO task (task_name, task_description, id_event)
+INSERT INTO task (task_name, task_description)
 VALUES ('Prepare track', 'Ensure the track surface is clean', 1),
        ('Prepare track', 'Ensure the track surface is clean', 2),
        ('Prepare track', 'Ensure the track surface is clean', 3),
@@ -238,6 +250,19 @@ VALUES ('Prepare track', 'Ensure the track surface is clean', 1),
        ('Check timing system', 'Verify sensors and timing devices', 5),
        ('Prepare track', 'Ensure the track surface is clean', 6),
        ('Check timing system', 'Verify sensors and timing devices', 7);
+
+-- ======================
+-- Event-task association
+-- ======================
+-- Associate tasks to trials and other events
+INSERT INTO is_associated_to (id, id_task)
+VALUES (1, 1),
+       (2, 1),
+       (3, 1),
+       (4, 2),
+       (5, 2),
+       (6, 1),
+       (7, 2);
 
 -- ======================
 -- User tasks

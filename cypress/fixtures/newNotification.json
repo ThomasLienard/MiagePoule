@@ -1,0 +1,8 @@
+{
+  "id": 6,
+  "description": "Nouvelle notification de test",
+  "emissionDate": "2026-03-05T15:00:00Z",
+  "type": "INFO",
+  "eventId": 4,
+  "severity": "NORMAL"
+}

@@ -24,9 +24,18 @@ class EventService {
         }
         return response.json();
     }
-    
 
-    async getById(id) {
+    async getTrialById(id) {
+        if (!id) throw new Error('Trial ID is required');
+
+        const response = await fetch(`${API_BASE_URL}/trials/${id}`);
+        if (!response.ok) {
+            throw new Error(`HTTP ${response.status}: Failed to fetch trial ${id}`);
+        }
+        return response.json();
+    }
+
+    async getEventById(id) {
         if (!id) throw new Error('Event ID is required');
 
         const response = await fetch(`${API_BASE_URL}/events/${id}`);
@@ -52,7 +61,7 @@ class EventService {
 
             for (const basicEvent of basicEvents) {
                 try {
-                    const eventDetails = await this.getById(basicEvent.id);
+                    const eventDetails = await this.getEventById(basicEvent.id);
                     detailedEvents.push(eventDetails);
                     console.log(`Loaded details for event ${basicEvent.id}: ${basicEvent.name}`);
                 } catch (error) {

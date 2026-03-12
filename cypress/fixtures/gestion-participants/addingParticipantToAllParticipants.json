@@ -1,0 +1,50 @@
+{
+  "trialId": 1,
+  "trialName": "100m Trial Final",
+  "canChangeType": false,
+  "participants": [
+    {
+      "id": 1,
+      "name": "Team Aquatique",
+      "type": "TEAM",
+      "country": "FR",
+      "forfeit": false
+    },
+    {
+      "id": 2,
+      "name": "Team Bits",
+      "type": "TEAM",
+      "country": "US",
+      "forfeit": false
+    }
+  ],
+  "potentialAthletes": [
+    {
+      "id": 1,
+      "name": "Marie Athlete",
+      "type": "ATHLETE",
+      "country": "FR"
+    },
+    {
+      "id": 2,
+      "name": "Jean Pâte",
+      "type": "ATHLETE",
+      "country": "US"
+    }
+  ],
+  "potentialTeams": [
+    {
+      "id": 3,
+      "name": "Team Catapulte",
+      "type": "TEAM",
+      "country": "DE"
+    },
+    {
+      "id": 4,
+      "name": "Team Dinosaure",
+      "type": "TEAM",
+      "country": "FR"
+    }
+  ],
+  "teamTrial": true
+}

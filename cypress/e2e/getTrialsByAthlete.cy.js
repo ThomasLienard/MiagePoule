@@ -1,5 +1,7 @@
 describe("Tests - Visualisation des épreuves d'un sportif connecté", () => {
 
+    const currentAthleteId = 3;
+
     beforeEach(() => {
         // Désactive l'arrêt du test sur les exceptions non gérées
         cy.on('uncaught:exception', () => false);
@@ -13,7 +15,7 @@ describe("Tests - Visualisation des épreuves d'un sportif connecté", () => {
         cy.wait(2000);
 
         // Remplir le formulaire de connexion
-        cy.get('input[type="email"]').type('athlete@test.com');
+        cy.get('input[type="email"]').type('athlete@example.com');
         cy.wait(500);
         cy.get('input[type="password"]').type('test123');
         cy.wait(500);
@@ -28,15 +30,15 @@ describe("Tests - Visualisation des épreuves d'un sportif connecté", () => {
         const futurFixturePath = "get-trials/trialInFutur.json"
         const pastFixturePath = "get-trials/trialInPast.json"
 
-        cy.intercept('GET', '**/public/trials/assigned/3',
+        cy.intercept('GET', `**/public/trials/assigned/${currentAthleteId}`,
             { fixture: fixturePath}
         ).as('getTrials');
 
-        cy.intercept('GET', '**/public/events/1',
+        cy.intercept('GET', '**/public/trials/1',
             { fixture: futurFixturePath}
         ).as(`getTrialDetail-1`);
 
-        cy.intercept('GET', '**/public/events/4',
+        cy.intercept('GET', '**/public/trials/4',
             { fixture: pastFixturePath}
         ).as(`getTrialDetail-4`);
 
@@ -58,6 +60,122 @@ describe("Tests - Visualisation des épreuves d'un sportif connecté", () => {
                 .parentsUntil(".card")
                 .get(".card-title")
                 .contains("Passés").should('be.visible');
+        })
+
+    });
+
+    it('display athlete\'s ranking', () => {
+        const fixturePath = "get-trials/assignedTrialsWithPastAndFutur.json"
+        const pastFixturePath = "get-trials/trialInPastWithSoloRanking.json"
+
+        cy.intercept('GET', `**/public/trials/assigned/${currentAthleteId}`,
+            { fixture: fixturePath}
+        ).as('getTrials');
+
+        cy.intercept('GET', '**/public/trials/4',
+            { fixture: pastFixturePath}
+        ).as(`getTrialDetail-4`);
+
+        cy.contains('Mes épreuves').click();
+
+        cy.wait('@getTrials');
+        cy.wait('@getTrialDetail-4');
+
+        cy.fixture(pastFixturePath).then((trial) => {
+            cy.contains(trial.name).should('be.visible')
+                .parentsUntil(".card")
+                .get(".card-title")
+                .contains("Passés").should('be.visible')
+                .parentsUntil(".card")
+                .get(".card-body")
+                .contains("2h05m").should('be.visible');
+        })
+
+    });
+
+    it('display athlete\'s team ranking', () => {
+        const fixturePath = "get-trials/assignedTrialsWithPastAndFutur.json"
+        const pastFixturePath = "get-trials/trialInPastWithTeamRanking.json"
+
+        cy.intercept('GET', `**/public/trials/assigned/${currentAthleteId}`,
+            { fixture: fixturePath}
+        ).as('getTrials');
+
+        cy.intercept('GET', '**/public/trials/4',
+            { fixture: pastFixturePath}
+        ).as(`getTrialDetail-4`);
+
+        cy.contains('Mes épreuves').click();
+
+        cy.wait('@getTrials');
+        cy.wait('@getTrialDetail-4');
+
+        cy.fixture(pastFixturePath).then((trial) => {
+            cy.contains(trial.name).should('be.visible')
+                .parentsUntil(".card")
+                .get(".card-title")
+                .contains("Passés").should('be.visible')
+                .parentsUntil(".card")
+                .get(".card-body")
+                .contains("2h05m").should('be.visible');
+        })
+
+    });
+
+    it('display athlete\'s forfeit', () => {
+        const fixturePath = "get-trials/assignedTrialsWithPastAndFutur.json"
+        const pastFixturePath = "get-trials/trialInPastWithSoloRankingAndForfeit.json"
+
+        cy.intercept('GET', `**/public/trials/assigned/${currentAthleteId}`,
+            { fixture: fixturePath}
+        ).as('getTrials');
+
+        cy.intercept('GET', '**/public/trials/4',
+            { fixture: pastFixturePath}
+        ).as(`getTrialDetail-4`);
+
+        cy.contains('Mes épreuves').click();
+
+        cy.wait('@getTrials');
+        cy.wait('@getTrialDetail-4');
+
+        cy.fixture(pastFixturePath).then((trial) => {
+            cy.contains(trial.name).should('be.visible')
+                .parentsUntil(".card")
+                .get(".card-title")
+                .contains("Passés").should('be.visible')
+                .parentsUntil(".card")
+                .get(".card-body")
+                .contains("Forfait").should('be.visible');
+        })
+
+    });
+
+    it('display athlete\'s team forfeit', () => {
+        const fixturePath = "get-trials/assignedTrialsWithPastAndFutur.json"
+        const pastFixturePath = "get-trials/trialInPastWithTeamRankingAndForfeit.json"
+
+        cy.intercept('GET', `**/public/trials/assigned/${currentAthleteId}`,
+            { fixture: fixturePath}
+        ).as('getTrials');
+
+        cy.intercept('GET', '**/public/trials/4',
+            { fixture: pastFixturePath}
+        ).as(`getTrialDetail-4`);
+
+        cy.contains('Mes épreuves').click();
+
+        cy.wait('@getTrials');
+        cy.wait('@getTrialDetail-4');
+
+        cy.fixture(pastFixturePath).then((trial) => {
+            cy.contains(trial.name).should('be.visible')
+                .parentsUntil(".card")
+                .get(".card-title")
+                .contains("Passés").should('be.visible')
+                .parentsUntil(".card")
+                .get(".card-body")
+                .contains("Forfait").should('be.visible');
         })
 
     });

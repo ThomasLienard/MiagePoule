@@ -1,9 +1,6 @@
 package com.miage.pouleAPI.services;
 
-import com.miage.pouleAPI.dtos.participant.ParticipantDTO;
-import com.miage.pouleAPI.dtos.participant.PotentialParticipantDTO;
-import com.miage.pouleAPI.dtos.participant.TrialParticipantsDTO;
-import com.miage.pouleAPI.dtos.participant.TrialParticipantsFullDTO;
+import com.miage.pouleAPI.dtos.participant.*;
 import com.miage.pouleAPI.entity.*;
 import com.miage.pouleAPI.repositories.*;
 import com.miage.pouleAPI.services.interfaces.ParticipantService;
@@ -32,6 +29,22 @@ public class ParticipantServiceImpl implements ParticipantService {
     private final TeamRepository teamRepository;
     private final ParticipateAtRepository participateAtRepository;
     private final IsConvenedToRepository isConvenedToRepository;
+
+    @Override
+    public Optional<AthleteDTO> getAthleteById(Integer athleteId) {
+        Optional<ApplicationUser> optionalUser = userRepository.findById(athleteId);
+        if (optionalUser.isEmpty()) {
+            return Optional.empty();
+        }
+        ApplicationUser user = optionalUser.get();
+
+        AthleteDTO athleteDTO = new AthleteDTO(
+                user.getId(),
+                (user.getName() + " " + user.getLastname()),
+                user.getCountry().getCode()
+        );
+        return Optional.of(athleteDTO);
+    }
 
     @Override
     public Optional<TrialParticipantsDTO> getTrialParticipants(Integer trialId) {
@@ -166,6 +179,9 @@ public class ParticipantServiceImpl implements ParticipantService {
                 .orElseThrow(() -> new IllegalArgumentException(ATHLETE_NOT_REGISTERED));
         
         inscription.setIsForfeit(true);
+        inscription.setResult(null);
+        inscription.setIsValidated(false);
+
         isConvenedToRepository.save(inscription);
         
         return createAthleteParticipantDTO(inscription.getUser(), true);
@@ -178,6 +194,8 @@ public class ParticipantServiceImpl implements ParticipantService {
                 .orElseThrow(() -> new IllegalArgumentException(TEAM_NOT_REGISTERED));
         
         inscription.setIsForfeit(true);
+        inscription.setResult(null);
+        inscription.setIsValidated(false);
         participateAtRepository.save(inscription);
         
         return createTeamParticipantDTO(inscription.getTeam(), true);

@@ -52,7 +52,7 @@ class AdminUserControllerTest {
     private UserDto createUserDto(Integer id, String name, String lastname, String email, String role) {
         return new UserDto(
             id, name, lastname, email, role, "FR",
-            true, true, false,
+            true, true, false, false,
             LocalDateTime.now(), "admin@test.com",
             null, null
         );
@@ -180,7 +180,7 @@ class AdminUserControllerTest {
             DeactivateUserRequest request = new DeactivateUserRequest("Violation des règles");
             UserDto deactivated = new UserDto(
                 1, "John", "Doe", "john@test.com", "ATHLETE", "FR",
-                false, true, false,
+                false, true, false, false,
                 LocalDateTime.now(), "admin@test.com",
                 LocalDateTime.now(), "Violation des règles"
             );
@@ -262,6 +262,90 @@ class AdminUserControllerTest {
             mockMvc.perform(post("/admin/users/999/reset-password"))
                 .andExpect(status().isBadRequest())
                 .andExpect(jsonPath("$.message").value("Utilisateur non trouvé"));
+        }
+    }
+
+    @Nested
+    @DisplayName("Tests POST /admin/users/{id}/validate-account")
+    class ValidateAccountTests {
+
+        @Test
+        @DisplayName("Devrait valider le compte utilisateur")
+        void validateAccount_shouldValidateAccount() throws Exception {
+            UserDto validated = new UserDto(
+                1, "John", "Doe", "john@test.com", "ATHLETE", "FR",
+                true, true, true, false,
+                LocalDateTime.now(), "admin@test.com",
+                null, null
+            );
+            when(adminUserService.validateUserAccount(1)).thenReturn(validated);
+
+            mockMvc.perform(post("/admin/users/1/validate-account"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.isAccountValidated").value(true));
+        }
+
+        @Test
+        @DisplayName("Devrait retourner 400 si compte déjà validé")
+        void validateAccount_shouldReturn400IfAlreadyValidated() throws Exception {
+            when(adminUserService.validateUserAccount(1))
+                .thenThrow(new IllegalStateException("Ce compte est déjà validé"));
+
+            mockMvc.perform(post("/admin/users/1/validate-account"))
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("$.message").value("Ce compte est déjà validé"));
+        }
+
+        @Test
+        @DisplayName("Devrait retourner 400 si utilisateur non trouvé")
+        void validateAccount_shouldReturn400IfNotFound() throws Exception {
+            when(adminUserService.validateUserAccount(999))
+                .thenThrow(new IllegalArgumentException("Utilisateur non trouvé avec l'ID: 999"));
+
+            mockMvc.perform(post("/admin/users/999/validate-account"))
+                .andExpect(status().isBadRequest());
+        }
+    }
+
+    @Nested
+    @DisplayName("Tests POST /admin/users/{id}/invalidate-account")
+    class InvalidateAccountTests {
+
+        @Test
+        @DisplayName("Devrait invalider le compte utilisateur")
+        void invalidateAccount_shouldInvalidateAccount() throws Exception {
+            UserDto invalidated = new UserDto(
+                1, "John", "Doe", "john@test.com", "ATHLETE", "FR",
+                true, true, false, false,
+                LocalDateTime.now(), "admin@test.com",
+                null, null
+            );
+            when(adminUserService.invalidateUserAccount(1)).thenReturn(invalidated);
+
+            mockMvc.perform(post("/admin/users/1/invalidate-account"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.isAccountValidated").value(false));
+        }
+
+        @Test
+        @DisplayName("Devrait retourner 400 si compte déjà invalidé")
+        void invalidateAccount_shouldReturn400IfAlreadyInvalidated() throws Exception {
+            when(adminUserService.invalidateUserAccount(1))
+                .thenThrow(new IllegalStateException("Ce compte est déjà invalidé"));
+
+            mockMvc.perform(post("/admin/users/1/invalidate-account"))
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("$.message").value("Ce compte est déjà invalidé"));
+        }
+
+        @Test
+        @DisplayName("Devrait retourner 400 si utilisateur non trouvé")
+        void invalidateAccount_shouldReturn400IfNotFound() throws Exception {
+            when(adminUserService.invalidateUserAccount(999))
+                .thenThrow(new IllegalArgumentException("Utilisateur non trouvé avec l'ID: 999"));
+
+            mockMvc.perform(post("/admin/users/999/invalidate-account"))
+                .andExpect(status().isBadRequest());
         }
     }
 }

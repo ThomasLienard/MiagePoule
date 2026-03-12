@@ -47,7 +47,7 @@ class AdminEventControllerTest {
             "Test Event", "Desc", "TRIAL", 1,
             LocalDateTime.now(), LocalDateTime.now().plusHours(1),
             "Stade", "Paris", "Rue", "10", "75000", "Détails", 
-            0.0, 0.0, true
+            0.0, 0.0, true, null
         );
 
         doNothing().when(adminEventService).createEvent(any(CreateEventRequestDTO.class));

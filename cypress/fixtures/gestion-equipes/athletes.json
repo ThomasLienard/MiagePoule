@@ -1,0 +1,32 @@
+[
+  {
+    "id": 1,
+    "name": "Marie",
+    "lastname": "Athlete",
+    "email": "athlete@example.com",
+    "roleName": "ATHLETE",
+    "countryCode": "FR",
+    "isActive": true,
+    "isAccountActivated": true,
+    "mustChangePassword": false,
+    "createdAt": "2026-02-25T15:26:45.315557",
+    "createdBy": "system",
+    "deactivatedAt": null,
+    "deactivationReason": null
+  },
+  {
+    "id": 2,
+    "name": "John",
+    "lastname": "Doe",
+    "email": "john@example.com",
+    "roleName": "ATHLETE",
+    "countryCode": "US",
+    "isActive": true,
+    "isAccountActivated": true,
+    "mustChangePassword": false,
+    "createdAt": "2026-02-25T15:26:45.315557",
+    "createdBy": "system",
+    "deactivatedAt": null,
+    "deactivationReason": null
+  }
+]

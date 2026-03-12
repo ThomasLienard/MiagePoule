@@ -42,10 +42,10 @@ class EventControllerIntegrationTest {
         String json = mvcResult.getResponse().getContentAsString();
         List<EventSummaryDTO> events = objectMapper.readValue(json, new TypeReference<>() {});
 
-        assertThat(events).isNotEmpty().hasSize(5);
+        assertThat(events).isNotEmpty().hasSize(7);
         assertThat(events)
             .extracting(EventSummaryDTO::getId)
-            .containsExactlyInAnyOrder(1, 2, 3, 4, 5);
+            .containsExactlyInAnyOrder(1, 2, 3, 4, 5, 6, 7);
     }
 
     @Test
@@ -75,8 +75,7 @@ class EventControllerIntegrationTest {
         String json = mvcResult.getResponse().getContentAsString();
         List<EventSummaryDTO> events = objectMapper.readValue(json, new TypeReference<>() {});
 
-        assertThat(events).isNotEmpty();
-        assertThat(events).allMatch(e -> e.getId() > 0 && e.getName() != null);
+        assertThat(events).isNotEmpty().allMatch(e -> e.getId() > 0 && e.getName() != null);
     }
 
     @Test

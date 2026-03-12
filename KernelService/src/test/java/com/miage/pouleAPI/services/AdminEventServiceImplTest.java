@@ -25,6 +25,7 @@ class AdminEventServiceImplTest {
     @Mock private TypeEventRepository typeRepo;
     @Mock private CompetitionRepository competitionRepo;
     @Mock private TrialRepository trialRepo;
+    @Mock private TypeScoreRepository typeScoreRepo;
 
     @InjectMocks
     private AdminEventServiceImpl adminEventService;
@@ -76,6 +77,7 @@ class AdminEventServiceImplTest {
 
         when(timeSlotRepo.save(any(TimeSlot.class))).thenAnswer(i -> i.getArguments()[0]);
         when(placeRepo.save(any(Place.class))).thenAnswer(i -> i.getArguments()[0]);
+        when(typeScoreRepo.findById(anyString())).thenReturn(Optional.of(new TypeScore()));
 
         adminEventService.createEvent(req);
 
@@ -102,6 +104,7 @@ class AdminEventServiceImplTest {
         when(typeRepo.findById("TRIAL")).thenReturn(Optional.of(new TypeEvent()));
         when(competitionRepo.findById(any())).thenReturn(Optional.of(new Competition()));
         when(timeSlotRepo.save(any())).thenAnswer(i -> i.getArguments()[0]);
+        when(typeScoreRepo.findById(anyString())).thenReturn(Optional.of(new TypeScore()));
 
         adminEventService.createEvent(req);
 
@@ -112,11 +115,12 @@ class AdminEventServiceImplTest {
         when(timeSlotRepo.save(any())).thenReturn(new TimeSlot());
         when(typeRepo.findById(anyString())).thenReturn(Optional.of(new TypeEvent()));
         when(competitionRepo.findById(anyInt())).thenReturn(Optional.of(new Competition()));
+        when(typeScoreRepo.findById(anyString())).thenReturn(Optional.of(new TypeScore()));
     }
 
     private CreateEventRequestDTO createSampleDTO(String type) {
         return new CreateEventRequestDTO("Test", "Desc", type, 1,
                 LocalDateTime.now(), LocalDateTime.now().plusHours(1),
-                "Stade", "Paris", "Rue", "1", "75000", "PMR", 0.0, 0.0, true);
+                "Stade", "Paris", "Rue", "1", "75000", "PMR", 0.0, 0.0, true, null);
     }
 }

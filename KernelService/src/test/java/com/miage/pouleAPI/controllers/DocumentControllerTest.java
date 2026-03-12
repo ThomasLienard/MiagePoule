@@ -43,75 +43,127 @@ class DocumentControllerTest {
     }
 
     @Test
-    void uploadTicket_happyPath_returnsCreated() {
+    void uploadDocument_happyPath_returnsCreated() {
         String email = "user@example.com";
         when(userDetails.getUsername()).thenReturn(email);
-        ApplicationUser user = new ApplicationUser(); user.setId(12); user.setEmail(email);
+        ApplicationUser user = new ApplicationUser();
+        user.setId(12);
+        user.setEmail(email);
         when(applicationUserRepository.findByEmail(email)).thenReturn(Optional.of(user));
 
-        MockMultipartFile file = new MockMultipartFile("file", "ticket.pdf", "application/pdf", "data".getBytes());
+        MockMultipartFile file = new MockMultipartFile("file", "document.pdf", "application/pdf", "data".getBytes());
         DocumentUploadRequest req = new DocumentUploadRequest();
         req.setFile(file);
         req.setTypeId(1);
         req.setDescription("desc");
 
         DocumentResponse resp = new DocumentResponse("ok", new DocumentDTO());
-        when(documentService.uploadTicket(12, file, 1, "desc")).thenReturn(resp);
+        when(documentService.uploadDocument(12, file, 1, "desc")).thenReturn(resp);
 
-        ResponseEntity<DocumentResponse> response = sut.uploadTicket(userDetails, req);
+        ResponseEntity<DocumentResponse> response = sut.uploadDocument(userDetails, req);
         assertEquals(201, response.getStatusCode().value());
         assertEquals(resp, response.getBody());
     }
 
     @Test
-    void getUserTickets_happyPath_returnsList() {
+    void getUserDocuments_happyPath_returnsList() {
         String email = "a@b.com";
         when(userDetails.getUsername()).thenReturn(email);
-        ApplicationUser user = new ApplicationUser(); user.setId(3); user.setEmail(email);
+        ApplicationUser user = new ApplicationUser();
+        user.setId(3);
+        user.setEmail(email);
         when(applicationUserRepository.findByEmail(email)).thenReturn(Optional.of(user));
 
         List<DocumentDTO> list = List.of(new DocumentDTO());
-        when(documentService.getUserTickets(3)).thenReturn(list);
+        when(documentService.getUserDocuments(3)).thenReturn(list);
 
-        ResponseEntity<List<DocumentDTO>> response = sut.getUserTickets(userDetails);
+        ResponseEntity<List<DocumentDTO>> response = sut.getUserDocuments(userDetails);
         assertEquals(200, response.getStatusCode().value());
         assertEquals(list, response.getBody());
     }
 
     @Test
-    void downloadTicket_happyPath_setsHeadersAndBody() {
-        String email = "user@example.com";
+    void getUserDocumentsByType_happyPath_returnsList() {
+        String email = "a@b.com";
         when(userDetails.getUsername()).thenReturn(email);
-        ApplicationUser user = new ApplicationUser(); user.setId(7); user.setEmail(email);
+        ApplicationUser user = new ApplicationUser();
+        user.setId(3);
+        user.setEmail(email);
         when(applicationUserRepository.findByEmail(email)).thenReturn(Optional.of(user));
 
-        byte[] fileContent = "pdfdata".getBytes();
-        when(documentService.downloadTicket(7, 2)).thenReturn(fileContent);
+        List<DocumentDTO> list = List.of(new DocumentDTO());
+        when(documentService.getUserDocumentsByType(3, "PASSPORT")).thenReturn(list);
 
-        ResponseEntity<byte[]> response = sut.downloadTicket(userDetails, 2);
+        ResponseEntity<List<DocumentDTO>> response = sut.getUserDocumentsByType(userDetails, "PASSPORT");
         assertEquals(200, response.getStatusCode().value());
-        assertArrayEquals(fileContent, response.getBody());
-        assertEquals(MediaType.APPLICATION_PDF, response.getHeaders().getContentType());
-        assertTrue(response.getHeaders().getContentDisposition().toString().contains("ticket_2.pdf"));
+        assertEquals(list, response.getBody());
     }
 
     @Test
-    void deleteTicket_returnsNoContent() {
-        String email = "x@x.com";
+    void getDocumentById_happyPath_returnsDocument() {
+        String email = "a@b.com";
         when(userDetails.getUsername()).thenReturn(email);
-        ApplicationUser user = new ApplicationUser(); user.setId(9); user.setEmail(email);
+        ApplicationUser user = new ApplicationUser();
+        user.setId(3);
+        user.setEmail(email);
         when(applicationUserRepository.findByEmail(email)).thenReturn(Optional.of(user));
 
-        ResponseEntity<Void> resp = sut.deleteTicket(userDetails, 5);
+        DocumentDTO dto = new DocumentDTO();
+        dto.setId(5);
+        when(documentService.getDocumentById(3, 5)).thenReturn(dto);
+
+        ResponseEntity<DocumentDTO> response = sut.getDocumentById(userDetails, 5);
+        assertEquals(200, response.getStatusCode().value());
+        assertEquals(dto, response.getBody());
+    }
+
+    @Test
+    void downloadDocument_happyPath_setsHeadersAndBody() {
+        String email = "user@example.com";
+        when(userDetails.getUsername()).thenReturn(email);
+        ApplicationUser user = new ApplicationUser();
+        user.setId(7);
+        user.setEmail(email);
+        when(applicationUserRepository.findByEmail(email)).thenReturn(Optional.of(user));
+
+        // Mock pour getDocumentById (pour obtenir le nom du fichier)
+        DocumentDTO docDto = new DocumentDTO();
+        docDto.setId(2);
+        docDto.setContentType("application/pdf");
+        docDto.setOriginalFileName("test.pdf");
+        when(documentService.getDocumentById(7, 2)).thenReturn(docDto);
+
+        byte[] fileContent = "pdfdata".getBytes();
+        when(documentService.downloadDocument(7, 2)).thenReturn(fileContent);
+
+        ResponseEntity<byte[]> response = sut.downloadDocument(userDetails, 2);
+        assertEquals(200, response.getStatusCode().value());
+        assertArrayEquals(fileContent, response.getBody());
+        assertEquals(MediaType.APPLICATION_PDF, response.getHeaders().getContentType());
+        assertTrue(response.getHeaders().getContentDisposition().toString().contains("test.pdf"));
+    }
+
+    @Test
+    void deleteDocument_returnsNoContent() {
+        String email = "x@x.com";
+        when(userDetails.getUsername()).thenReturn(email);
+        ApplicationUser user = new ApplicationUser();
+        user.setId(9);
+        user.setEmail(email);
+        when(applicationUserRepository.findByEmail(email)).thenReturn(Optional.of(user));
+
+        ResponseEntity<Void> resp = sut.deleteDocument(userDetails, 5);
         assertEquals(204, resp.getStatusCode().value());
-        verify(documentService, times(1)).deleteTicket(9,5);
+        verify(documentService, times(1)).deleteDocument(9,5);
     }
 
     @Test
     void getDocumentCount_returnsValue() {
         String email = "a@b.com";
         when(userDetails.getUsername()).thenReturn(email);
-        ApplicationUser user = new ApplicationUser(); user.setId(4); user.setEmail(email);
+        ApplicationUser user = new ApplicationUser();
+        user.setId(4);
+        user.setEmail(email);
         when(applicationUserRepository.findByEmail(email)).thenReturn(Optional.of(user));
 
         when(documentService.getUserDocumentCount(4)).thenReturn(42L);
@@ -122,6 +174,10 @@ class DocumentControllerTest {
 
     @Test
     void methods_withUnauthenticatedUser_throw() {
-        assertThrows(IllegalArgumentException.class, () -> sut.getUserTickets(null));
+        assertThrows(IllegalArgumentException.class, () -> sut.getUserDocuments(null));
+        assertThrows(IllegalArgumentException.class, () -> sut.getUserDocumentsByType(null, "TICKET"));
+        assertThrows(IllegalArgumentException.class, () -> sut.getDocumentById(null, 1));
+        assertThrows(IllegalArgumentException.class, () -> sut.downloadDocument(null, 1));
+        assertThrows(IllegalArgumentException.class, () -> sut.deleteDocument(null, 1));
     }
 }

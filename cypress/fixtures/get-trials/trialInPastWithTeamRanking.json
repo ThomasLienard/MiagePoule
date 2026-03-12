@@ -1,0 +1,49 @@
+{
+  "id": 4,
+  "name": "Marathon Trial Warm-up",
+  "description": "Warm-up session",
+  "competitionName": "Marathon",
+  "timeSlot": {
+    "start": "2026-01-01T10:00:00",
+    "end": "2026-01-01T11:00:00"
+  },
+  "place": {
+    "id": 2,
+    "name": "Bercy Sports Palace",
+    "description": "Indoor sports complex",
+    "street": "Boulevard de Bercy",
+    "number": "8",
+    "city": "Paris",
+    "zip": "75012",
+    "parking": false,
+    "latitude": 48.8365,
+    "longitude": 2.3738
+  },
+  "rankings": [
+    {
+      "rank": 1,
+      "result": "2h05m",
+      "participantName": "Team A",
+      "participantType": "TEAM",
+      "participantId": 1,
+      "isForfeit": false
+    }
+  ],
+  "soloParticipants": [],
+  "teamParticipants": [
+    {
+      "id": 1,
+      "name": "Team A",
+      "country": "FR",
+      "members": [
+        {
+          "id": 3,
+          "firstName": "Athete",
+          "lastName": "Athete",
+          "fullName": "Athete Athete"
+        }
+      ]
+    }
+  ],
+  "teamEvent": true
+}

@@ -58,7 +58,7 @@ const PublicMapPage = () => {
             const detailedEvents = await Promise.all(
                 basicEvents.map(async (event) => {
                     try {
-                        return await eventService.getById(event.id);
+                        return await eventService.getEventById(event.id);
                     } catch (error) {
                         console.warn(`Failed to load details for event ${event.id}:`, error);
                         return {...event, _isTrial: false};
