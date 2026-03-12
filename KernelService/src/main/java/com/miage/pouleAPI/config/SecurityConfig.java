@@ -40,6 +40,7 @@ public class SecurityConfig {
 
                         .requestMatchers("/admin/**").hasRole("ADMIN")
                         .requestMatchers("/commissaire/**").hasRole("COMMISSAIRE")
+                        .requestMatchers("/volunteer/**").hasRole("VOLONTAIRE")
 
 
                         .anyRequest().authenticated()
