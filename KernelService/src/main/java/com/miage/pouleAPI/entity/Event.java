@@ -68,4 +68,9 @@ public class Event {
     @ManyToMany(mappedBy = "metricsEvents")
     @JsonIgnoreProperties({"metricsEvents", "users", "hibernateLazyInitializer", "handler"})
     private Set<Metrics> metrics = new HashSet<>();
+
+    @ManyToOne
+    @JoinColumn(name = "type_score_name", nullable = false)
+    @JsonIgnoreProperties({"hibernateLazyInitializer", "handler"})
+    private TypeScore typeScore;
 }

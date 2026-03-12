@@ -34,7 +34,7 @@ class AdminEventControllerIntegrationTest {
                 "Nouveau Test" + System.currentTimeMillis(), "Description", "TRIAL", 1,
                 LocalDateTime.now().plusDays(5), LocalDateTime.now().plusDays(5).plusHours(1),
                 "Stade Unique", "Paris", "Avenue", "99", "75000",
-                "PMR", 10.0, 10.0, true
+                "PMR", 10.0, 10.0, true, null
         );
 
         mockMvc.perform(post("/admin/events")
@@ -51,7 +51,7 @@ class AdminEventControllerIntegrationTest {
                 null, "Description", "TRIAL", 1,
                 LocalDateTime.now().plusDays(5), LocalDateTime.now().plusDays(5).plusHours(1),
                 "Stade", "Paris", "Rue", "1", "75000",
-                "PMR", 10.0, 10.0, true
+                "PMR", 10.0, 10.0, true, null
         );
 
         mockMvc.perform(post("/admin/events")
@@ -68,7 +68,7 @@ class AdminEventControllerIntegrationTest {
                 "Test Fraude", "Desc", "TRIAL", 1,
                 LocalDateTime.now().plusDays(2), LocalDateTime.now().plusDays(2).plusHours(1),
                 "Lieu", "Ville", "Rue", "1", "00000",
-                "NONE", 5.0, 5.0, false
+                "NONE", 5.0, 5.0, false, null
         );
 
         mockMvc.perform(post("/admin/events")

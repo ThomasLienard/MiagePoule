@@ -14,8 +14,11 @@ import com.miage.pouleAPI.entity.ApplicationUser;
 import com.miage.pouleAPI.entity.Team;
 import com.miage.pouleAPI.entity.ParticipateAt;
 import com.miage.pouleAPI.entity.IsConvenedTo;
+import com.miage.pouleAPI.entity.TypeScore;
 import com.miage.pouleAPI.repositories.IsConvenedToRepository;
 import com.miage.pouleAPI.repositories.ParticipateAtRepository;
+import com.miage.pouleAPI.strategy.RankingStrategyFactory;
+import com.miage.pouleAPI.strategy.TimeRankingStrategy;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -30,6 +33,7 @@ import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.anyInt;
+import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.lenient;
 import static org.mockito.Mockito.when;
 
@@ -42,6 +46,9 @@ class TrialAdapterTest {
     
     @Mock
     private IsConvenedToRepository isConvenedToRepository;
+    
+    @Mock
+    private RankingStrategyFactory rankingStrategyFactory;
 
     private TrialAdapter trialAdapter;
     private Trial trial;
@@ -52,11 +59,16 @@ class TrialAdapterTest {
 
     @BeforeEach
     void setUp() {
-        trialAdapter = new TrialAdapter(participateAtRepository, isConvenedToRepository);
+        trialAdapter = new TrialAdapter(participateAtRepository, isConvenedToRepository, rankingStrategyFactory);
+        
+        // Mock the ranking strategy factory to return TimeRankingStrategy by default
+        lenient().when(rankingStrategyFactory.getStrategy(anyString())).thenReturn(new TimeRankingStrategy());
         
         // Mock empty rankings for tests that don't specifically test rankings (lenient to avoid UnnecessaryStubbingException)
         lenient().when(participateAtRepository.findByTrialIdOrderedByResult(anyInt())).thenReturn(Collections.emptyList());
         lenient().when(isConvenedToRepository.findByTrialIdOrderedByResult(anyInt())).thenReturn(Collections.emptyList());
+        lenient().when(participateAtRepository.findByTrialIdOrderedByResultDynamic(anyInt(), anyString())).thenReturn(Collections.emptyList());
+        lenient().when(isConvenedToRepository.findByTrialIdOrderedByResultDynamic(anyInt(), anyString())).thenReturn(Collections.emptyList());
 
         competition = new Competition();
         competition.setId(1);
@@ -86,6 +98,9 @@ class TrialAdapterTest {
         event.setTimeSlot(timeSlot);
         event.setPlace(place);
 
+        TypeScore typeScore = new TypeScore();
+        typeScore.setName("TIME");
+
         trial = new Trial();
         trial.setId(1);
         trial.setName(event.getName());
@@ -93,6 +108,7 @@ class TrialAdapterTest {
         trial.setCompetition(event.getCompetition());
         trial.setTimeSlot(event.getTimeSlot());
         trial.setPlace(event.getPlace());
+        trial.setTypeScore(typeScore);
     }
 
     @Test
@@ -569,17 +585,17 @@ class TrialAdapterTest {
 
         ParticipateAt participation1 = new ParticipateAt();
         participation1.setTeam(team1);
-        participation1.setResult("45");
+        participation1.setResult(45.0);
         participation1.setIsForfeit(false);
         participation1.setIsValidated(true);
 
         ParticipateAt participation2 = new ParticipateAt();
         participation2.setTeam(team2);
-        participation2.setResult("52");
+        participation2.setResult(52.0);
         participation2.setIsForfeit(false);
         participation2.setIsValidated(true);
 
-        when(participateAtRepository.findByTrialIdOrderedByResult(trial.getId()))
+        when(participateAtRepository.findByTrialIdOrderedByResultDynamic(trial.getId(), "ASC"))
             .thenReturn(Arrays.asList(participation1, participation2));
 
         // When
@@ -589,12 +605,12 @@ class TrialAdapterTest {
         assertNotNull(dto);
         assertEquals(2, dto.getRankings().size());
         assertEquals(1, dto.getRankings().get(0).getRank());
-        assertEquals("45", dto.getRankings().get(0).getResult());
+        assertEquals(45.0, dto.getRankings().get(0).getResult());
         assertEquals("Team Alpha", dto.getRankings().get(0).getParticipantName());
         assertEquals("TEAM", dto.getRankings().get(0).getParticipantType());
         
         assertEquals(2, dto.getRankings().get(1).getRank());
-        assertEquals("52", dto.getRankings().get(1).getResult());
+        assertEquals(52.0, dto.getRankings().get(1).getResult());
         assertEquals("Team Beta", dto.getRankings().get(1).getParticipantName());
     }
 
@@ -614,17 +630,17 @@ class TrialAdapterTest {
 
         IsConvenedTo convening1 = new IsConvenedTo();
         convening1.setUser(user1);
-        convening1.setResult("100");
+        convening1.setResult(100.0);
         convening1.setIsForfeit(false);
         convening1.setIsValidated(true);
 
         IsConvenedTo convening2 = new IsConvenedTo();
         convening2.setUser(user2);
-        convening2.setResult("95");
+        convening2.setResult(95.0);
         convening2.setIsForfeit(false);
         convening2.setIsValidated(true);
 
-        when(isConvenedToRepository.findByTrialIdOrderedByResult(trial.getId()))
+        when(isConvenedToRepository.findByTrialIdOrderedByResultDynamic(trial.getId(), "ASC"))
             .thenReturn(Arrays.asList(convening1, convening2));
 
         // When
@@ -634,12 +650,12 @@ class TrialAdapterTest {
         assertNotNull(dto);
         assertEquals(2, dto.getRankings().size());
         assertEquals(1, dto.getRankings().get(0).getRank());
-        assertEquals("100", dto.getRankings().get(0).getResult());
+        assertEquals(100.0, dto.getRankings().get(0).getResult());
         assertEquals("John Doe", dto.getRankings().get(0).getParticipantName());
         assertEquals("ATHLETE", dto.getRankings().get(0).getParticipantType());
         
         assertEquals(2, dto.getRankings().get(1).getRank());
-        assertEquals("95", dto.getRankings().get(1).getResult());
+        assertEquals(95.0, dto.getRankings().get(1).getResult());
         assertEquals("Jane Smith", dto.getRankings().get(1).getParticipantName());
     }
 
@@ -664,11 +680,11 @@ class TrialAdapterTest {
 
         IsConvenedTo convening2 = new IsConvenedTo();
         convening2.setUser(user2);
-        convening2.setResult("100");
+        convening2.setResult(100.0);
         convening2.setIsForfeit(false);
         convening2.setIsValidated(true);
 
-        when(isConvenedToRepository.findByTrialIdOrderedByResult(trial.getId()))
+        when(isConvenedToRepository.findByTrialIdOrderedByResultDynamic(trial.getId(), "ASC"))
                 .thenReturn(Arrays.asList(convening1, convening2));
 
         // When
@@ -685,7 +701,7 @@ class TrialAdapterTest {
         assertEquals("ATHLETE", dto.getRankings().get(0).getParticipantType());
 
         assertEquals(1, dto.getRankings().get(1).getRank());
-        assertEquals("100", dto.getRankings().get(1).getResult());
+        assertEquals(100.0, dto.getRankings().get(1).getResult());
         assertEquals(false, dto.getRankings().get(1).getIsForfeit());
         assertEquals("Jane Smith", dto.getRankings().get(1).getParticipantName());
         assertEquals("ATHLETE", dto.getRankings().get(1).getParticipantType());
@@ -701,17 +717,17 @@ class TrialAdapterTest {
 
         ParticipateAt participation1 = new ParticipateAt();
         participation1.setTeam(team1);
-        participation1.setResult("45");
+        participation1.setResult(45.0);
         participation1.setIsForfeit(false);
         participation1.setIsValidated(true);
 
         ParticipateAt participation2 = new ParticipateAt();
         participation2.setTeam(null);
-        participation2.setResult("52");
+        participation2.setResult(52.0);
         participation2.setIsForfeit(false);
         participation2.setIsValidated(true);
 
-        when(participateAtRepository.findByTrialIdOrderedByResult(trial.getId()))
+        when(participateAtRepository.findByTrialIdOrderedByResultDynamic(trial.getId(), "ASC"))
             .thenReturn(Arrays.asList(participation1, participation2));
 
         // When
@@ -734,7 +750,7 @@ class TrialAdapterTest {
 
         ParticipateAt participation1 = new ParticipateAt();
         participation1.setTeam(team1);
-        participation1.setResult("45");
+        participation1.setResult(45.0);
         participation1.setIsForfeit(false);
         participation1.setIsValidated(true);
 
@@ -744,7 +760,7 @@ class TrialAdapterTest {
         participation2.setIsForfeit(false);
         participation2.setIsValidated(false);
 
-        when(participateAtRepository.findByTrialIdOrderedByResult(trial.getId()))
+        when(participateAtRepository.findByTrialIdOrderedByResultDynamic(trial.getId(), "ASC"))
             .thenReturn(Arrays.asList(participation1, participation2));
 
         // When
@@ -770,11 +786,11 @@ class TrialAdapterTest {
 
         ParticipateAt participation2 = new ParticipateAt();
         participation2.setTeam(team1);
-        participation2.setResult("45");
+        participation2.setResult(45.0);
         participation2.setIsForfeit(false);
         participation2.setIsValidated(true);
 
-        when(participateAtRepository.findByTrialIdOrderedByResult(trial.getId()))
+        when(participateAtRepository.findByTrialIdOrderedByResultDynamic(trial.getId(), "ASC"))
                 .thenReturn(Arrays.asList(participation1, participation2));
 
         // When
@@ -784,7 +800,7 @@ class TrialAdapterTest {
         assertNotNull(dto);
         assertEquals(2, dto.getRankings().size());
         assertNull(dto.getRankings().get(0).getResult());
-        assertEquals("45", dto.getRankings().get(1).getResult());
+        assertEquals(45.0, dto.getRankings().get(1).getResult());
         assertEquals(true, dto.getRankings().get(0).getIsForfeit());
         assertEquals(false, dto.getRankings().get(1).getIsForfeit());
         assertNull(dto.getRankings().get(0).getRank());

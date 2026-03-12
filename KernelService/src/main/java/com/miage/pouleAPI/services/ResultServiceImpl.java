@@ -31,6 +31,26 @@ public class ResultServiceImpl implements ResultService {
     private static final String ATHLETE_NOT_REGISTERED = "L'athlète n'est pas inscrit à cette épreuve";
     private static final String TEAM_NOT_REGISTERED = "L'équipe n'est pas inscrite à cette épreuve";
     private static final String TRIAL_NOT_STARTED = "Impossible de saisir un résultat : l'épreuve n'a pas encore commencé";
+    private static final String INVALID_RESULT_FORMAT = "Le résultat doit être un nombre valide (chiffres uniquement)";
+    private static final String NEGATIVE_RESULT = "Le résultat ne peut pas être négatif";
+
+    private void validateResult(Double result) {
+        // Permettre null pour supprimer un résultat
+        if (result == null) {
+            return;
+        }
+
+        // Vérifier que c'est un nombre valide
+        try {
+            Double value = result;
+            // Vérifier que le nombre est non négatif
+            if (value < 0) {
+                throw new IllegalArgumentException(NEGATIVE_RESULT);
+            }
+        } catch (NumberFormatException e) {
+            throw new IllegalArgumentException(INVALID_RESULT_FORMAT);
+        }
+    }
 
     private void checkTrialStarted(Trial trial) {
         if (trial.getTimeSlot() == null) return;
@@ -74,6 +94,7 @@ public class ResultServiceImpl implements ResultService {
 
             boolean isTeamTrial = participateAtRepository.hasTeamParticipation(trialId);
             dto.setTeamTrial(isTeamTrial);
+            dto.setScoreType(trial.getTypeScore() != null ? trial.getTypeScore().getName() : "TIME");
 
             if (isTeamTrial) {
                 List<ParticipateAt> participations = participateAtRepository.findByTrialId(trialId);
@@ -111,10 +132,11 @@ public class ResultServiceImpl implements ResultService {
 
     @Override
     @Transactional
-    public ResultDTO setAthleteResult(Integer trialId, Integer athleteId, String result) {
+    public ResultDTO setAthleteResult(Integer trialId, Integer athleteId, Double result) {
         Trial trial = trialRepository.findById(trialId)
                 .orElseThrow(() -> new IllegalArgumentException(TRIAL_NOT_FOUND));
         checkTrialStarted(trial);
+        validateResult(result);
 
         IsConvenedTo convocation = isConvenedToRepository
                 .findByTrialIdAndUserId(trialId, athleteId)
@@ -136,10 +158,11 @@ public class ResultServiceImpl implements ResultService {
 
     @Override
     @Transactional
-    public ResultDTO setTeamResult(Integer trialId, Integer teamId, String result) {
+    public ResultDTO setTeamResult(Integer trialId, Integer teamId, Double result) {
         Trial trial = trialRepository.findById(trialId)
                 .orElseThrow(() -> new IllegalArgumentException(TRIAL_NOT_FOUND));
         checkTrialStarted(trial);
+        validateResult(result);
 
         ParticipateAt participation = participateAtRepository
                 .findByTrialIdAndTeamId(trialId, teamId)

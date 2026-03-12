@@ -3,6 +3,7 @@ import { useNavigate, useParams} from 'react-router-dom';
 import {Accordion, Badge, Button, ListGroup, ListGroupItem} from "react-bootstrap";
 import {eventService} from "../services/eventService.jsx";
 import RankingFormat from "./common/RankingFormat.jsx";
+import {formatScore} from "../utils/scoreFormatter.js";
 
 const TrialsAndEventsDetails = () => {
     const {id} = useParams();
@@ -126,8 +127,8 @@ const TrialsAndEventsDetails = () => {
                                                             <div className="w-100 d-flex justify-content-between me-4">
                                                                 <RankingFormat rank={ranking.rank}/>
                                                                 <span>{ranking.participantName}</span>
-                                                                {ranking.result
-                                                                    ? <span>{ranking.result}</span>
+                                                                {ranking.result !== null && ranking.result !== undefined
+                                                                    ? <span>{formatScore(ranking.result, eventData.scoreType)}</span>
                                                                     : <span>Forfait</span>}
                                                             </div>
                                                         </Accordion.Header>
@@ -164,8 +165,8 @@ const TrialsAndEventsDetails = () => {
                                                         <div className="d-flex justify-content-between">
                                                             <RankingFormat rank={ranking.rank}/>
                                                             <span>{ranking.participantName}</span>
-                                                            {ranking.result
-                                                                ? <span>{ranking.result}</span>
+                                                            {ranking.result !== null && ranking.result !== undefined
+                                                                ? <span>{formatScore(ranking.result, eventData.scoreType)}</span>
                                                                 : <span>Forfait</span>}
                                                         </div>
                                                     </ListGroup.Item>

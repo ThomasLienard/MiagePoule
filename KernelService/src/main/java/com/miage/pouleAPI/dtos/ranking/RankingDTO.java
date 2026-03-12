@@ -9,9 +9,10 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 public class RankingDTO {
     private Integer rank;
-    private String result;
+    private Double result;
     private String participantName;  // For athletes: "firstname lastname", for teams: "team name"
     private String participantType;   // "ATHLETE" or "TEAM"
     private Integer participantId;
     private Boolean isForfeit;
+    private Boolean isValidated;
 }

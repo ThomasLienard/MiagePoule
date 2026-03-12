@@ -12,7 +12,7 @@ public class ResultDTO {
     private String participantName;
     private String participantType; // "ATHLETE" or "TEAM"
     private String country;
-    private String result;
+    private Double result;
     private Boolean isValidated;
     private Boolean isForfeit;
 }
