@@ -92,8 +92,10 @@ INSERT INTO time_slot (start_time, end_time)
 VALUES ('2025-01-01 09:00:00', '2025-01-01 10:00:00'),
        ('2026-01-01 10:00:00', '2026-01-01 11:00:00'),
        ('2026-10-09 09:00:00', '2026-10-09 10:00:00'),
-       ('2026-03-02 10:00:00', '2026-03-02 12:00:00'),
-       ('2026-02-16 14:25:00', '2026-02-16 16:25:00');
+       ('2026-02-25 14:25:00', '2026-02-25 16:25:00'),
+       ('2026-02-26 14:25:00', '2026-02-26 16:25:00'),
+       (CURRENT_TIMESTAMP, CURRENT_TIMESTAMP + INTERVAL '1 day'),
+       (CURRENT_TIMESTAMP + INTERVAL '1 day', CURRENT_TIMESTAMP + INTERVAL '2 day');
 
 -- ======================
 -- Events
@@ -111,7 +113,9 @@ VALUES ('100m Trial Heat 1', 'First qualification heat', 'TRIAL', 'TIME',1, 1, 1
        ('Championship Meeting', 'Official gathering', 'MEETING','NA', 3, 3, 2),
         ('Marathon Final', 'Final race', 'TRIAL', 'TIME', 2, 3, 2),
        ('Waterpolo Final', 'Final Match', 'TRIAL', 'POINTS', 2, 3, 2),
-        ('200m Sprint Final', 'Finale du 200m sprint — épreuve de démonstration', 'TRIAL', 'TIME', 1, 5, 1);
+        ('200m Sprint Final', 'Finale du 200m sprint — épreuve de démonstration', 'TRIAL', 'TIME', 1, 5, 1),
+       ('Waterpolo quarter-finals', 'Opening', 'TRIAL', 'POINTS', 2, 6, 2),
+       ('Waterpolo demi-finals', 'Opening', 'TRIAL', 'POINTS', 2, 7, 2);
 
 -- ======================
 -- Trials
@@ -127,7 +131,9 @@ VALUES (1),
        (6),
        (10),
        (11),
-       (12);
+       (12),
+       (13),
+       (14);
 
 -- ======================
 -- Users (MODIFIÉ avec BCrypt)
@@ -242,9 +248,18 @@ VALUES (1, 1),
 -- ======================
 -- Tasks
 -- ======================
-INSERT INTO task (task_name, task_description)
-VALUES ('Prepare track', 'Ensure the track surface is clean'),
-       ('Check timing system', 'Verify sensors and timing devices');
+INSERT INTO task (task_name, task_description, id_event)
+VALUES ('Prepare track', 'Ensure the track surface is clean', 1),
+       ('Prepare track', 'Ensure the track surface is clean', 2),
+       ('Prepare track', 'Ensure the track surface is clean', 3),
+       ('Check timing system', 'Verify sensors and timing devices', 4),
+       ('Check timing system', 'Verify sensors and timing devices', 5),
+       ('Prepare track', 'Ensure the track surface is clean', 6),
+       ('Check timing system', 'Verify sensors and timing devices', 7),
+       ('Goodies', 'Distribute goodies', 13),
+       ('Opening', 'Welcome participants', 13),
+       ('Check timing system', 'Verify timing devices', 14),
+       ('Clean track', 'Clean the confettis after the race', 14);
 
 -- ======================
 -- Event-task association
@@ -257,12 +272,19 @@ VALUES (1, 1),
        (4, 2),
        (5, 2),
        (6, 1),
-       (7, 2);
+       (13, 8),
+       (13, 9),
+       (14, 10),
+       (14, 11);
 
 -- ======================
 -- User tasks
 -- ======================
 INSERT INTO must_do (id, id_task)
-VALUES (2, 2),
-       (3, 1),
-       (4, 2);
+VALUES (4, 4),
+       (4, 1),
+       (4, 5),
+       (4, 8),
+       (4, 9),
+       (4, 10),
+       (4, 11);

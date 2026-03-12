@@ -29,6 +29,7 @@ import CreateEventPage from "./components/admin/CreateEventPage.jsx";
 import CreateChampionshipPage from "./components/admin/CreateChampionshipPage.jsx";
 import CreateCompetitionPage from "./components/admin/CreateCompetitionPage.jsx";
 import TrialsByAthlete from "./components/TrialsByAthlete.jsx";
+import Agenda from "./components/volunteer/Agenda.jsx";
 
 function App() {
 
@@ -93,6 +94,12 @@ function App() {
                             <Route path="/commissaire/trials/:trialId/results" element={
                                 <ProtectedRoute allowedRoles={['COMMISSAIRE']}>
                                     <ManageResults />
+                                </ProtectedRoute>
+                            } />
+
+                            <Route path="/agenda" element={
+                                <ProtectedRoute allowedRoles={['VOLONTAIRE']}>
+                                    <Agenda />
                                 </ProtectedRoute>
                             } />
 

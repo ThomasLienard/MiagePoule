@@ -185,16 +185,9 @@ VALUES (1, 1),
 -- ======================
 -- Tasks
 -- ======================
-INSERT INTO task (id_task, task_name, task_description)
-VALUES (1, 'Prepare track', 'Ensure the track surface is clean'),
-       (2, 'Check timing system', 'Verify sensors and timing devices');
-
--- ======================
--- Event-task association
--- ======================
--- Associate task to the trial (which is also an event with id=2)
-INSERT INTO is_associated_to (id, id_task)
-VALUES (2, 1);
+INSERT INTO task (id_task, task_name, task_description, id_event)
+VALUES (1, 'Prepare track', 'Ensure the track surface is clean', 2),
+       (2, 'Check timing system', 'Verify sensors and timing devices', NULL);
 
 -- ======================
 -- User tasks
