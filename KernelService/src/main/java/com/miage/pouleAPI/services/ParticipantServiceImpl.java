@@ -52,6 +52,7 @@ public class ParticipantServiceImpl implements ParticipantService {
             TrialParticipantsDTO dto = new TrialParticipantsDTO();
             dto.setTrialId(trial.getId());
             dto.setTrialName(trial.getName());
+            dto.setStatus(trial.getStatus());
             
             // Déterminer si c'est une épreuve en équipe ou solo
             boolean hasTeamParticipation = participateAtRepository.hasTeamParticipation(trialId);

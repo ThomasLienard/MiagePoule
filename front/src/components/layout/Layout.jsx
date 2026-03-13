@@ -87,7 +87,7 @@ export default function Layout() {
                                       className="text-decoration-none text-body-secondary">Championnats</Link>
                             </Nav.Link>
 
-                            {user?.roles?.includes('ATHLETE') && isAccountValidated && (
+                            {user?.roles?.includes('ATHLETE') && (
                                 <Nav.Link className="auth-button secondary me-2" as="span">
                                     <Link to={`/public/athlete-trials/${user.id}`}
                                           className="text-decoration-none text-body-secondary">Mes épreuves</Link>
@@ -98,6 +98,13 @@ export default function Layout() {
                                 <Nav.Link className="auth-button secondary me-2" as="span">
                                     <Link to="/tickets"
                                           className="text-decoration-none text-body-secondary">📄 Mes Billets</Link>
+                                </Nav.Link>
+                            )}
+
+                            {user?.roles?.includes('VOLONTAIRE') && (
+                                <Nav.Link className="auth-button secondary me-2" as="span">
+                                    <Link to={`/agenda`}
+                                          className="text-decoration-none text-body-secondary">📖 Mon agenda</Link>
                                 </Nav.Link>
                             )}
 
