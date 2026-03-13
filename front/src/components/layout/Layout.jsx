@@ -86,6 +86,13 @@ export default function Layout() {
                                 <Link to="/public/championship"
                                       className="text-decoration-none text-body-secondary">Championnats</Link>
                             </Nav.Link>
+                            {user?.roles?.includes('ATHLETE') && (
+                                <Nav.Link className="auth-button secondary me-2" as="span">
+                                    <Link to={`/public/athlete-trials/${user.id}`}
+                                          className="text-decoration-none text-body-secondary">Mes épreuves</Link>
+                                </Nav.Link>
+                            )}
+
                             {isAuthenticated() && (
                                 <Nav.Link className="auth-button secondary me-2" as="span">
                                     <Link to="/tickets"
