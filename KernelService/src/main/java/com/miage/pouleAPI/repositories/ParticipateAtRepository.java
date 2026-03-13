@@ -15,6 +15,12 @@ import java.util.Optional;
 public interface ParticipateAtRepository extends JpaRepository<ParticipateAt, ParticipateAtId> {
     @Query("SELECT p FROM ParticipateAt p WHERE p.trial.id = :trialId ORDER BY p.result ASC")
     List<ParticipateAt> findByTrialIdOrderedByResult(@Param("trialId") Integer trialId);
+    
+    @Query("SELECT p FROM ParticipateAt p WHERE p.trial.id = :trialId ORDER BY " +
+           "CASE WHEN :sortOrder = 'ASC' THEN p.result END ASC, " +
+           "CASE WHEN :sortOrder = 'DESC' THEN p.result END DESC")
+    List<ParticipateAt> findByTrialIdOrderedByResultDynamic(@Param("trialId") Integer trialId, 
+                                                             @Param("sortOrder") String sortOrder);
 
     @Query("SELECT p FROM ParticipateAt p WHERE p.trial.id = :trialId AND p.team.id = :teamId")
     Optional<ParticipateAt> findByTrialIdAndTeamId(@Param("trialId") Integer trialId, @Param("teamId") Integer teamId);

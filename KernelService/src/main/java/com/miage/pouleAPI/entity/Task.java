@@ -28,8 +28,9 @@ public class Task {
     @Column(name = "task_description", length = 1500)
     private String description;
 
-    @ManyToMany(mappedBy = "tasks")
-    private Set<Event> events = new HashSet<>();
+    @ManyToOne
+    @JoinColumn(name = "id_event")
+    private Event event;
 
     @ManyToMany(mappedBy = "dailyTasks")
     private Set<ApplicationUser> users = new HashSet<>();
