@@ -93,80 +93,109 @@ public class VolunteerAgendaServiceImpl implements VolunteerAgendaService {
     }
 
     private int processVolunteerAgenda(AgendaUploadItemDTO item) {
-        ApplicationUser volunteer = userRepository.findByEmail(item.volunteerEmail())
-                .orElseThrow(() -> new IllegalArgumentException(
-                        "Bénévole non trouvé : " + item.volunteerEmail()));
-
-        if (volunteer.getRole() == null || !ROLE_VOLUNTEER.equals(volunteer.getRole().getRoleName())) {
-            throw new IllegalArgumentException(
-                    "L'utilisateur " + item.volunteerEmail() + " n'est pas un bénévole");
-        }
-
+        ApplicationUser volunteer = getVolunteerForAgendaUpload(item.volunteerEmail());
         LocalDate tomorrow = LocalDate.now().plusDays(1);
-        List<Event> resolvedEvents = new ArrayList<>();
-        for (TaskUploadItemDTO taskItem : item.tasks()) {
-            List<Event> events = eventRepository.findByCompetitionNameAndEventName(
-                taskItem.competitionName().trim(),
-                taskItem.eventName().trim()
-            );
-
-            if (events.isEmpty()) {
-            throw new IllegalArgumentException(
-                "Événement non trouvé pour competition='"
-                    + taskItem.competitionName()
-                    + "' et event='"
-                    + taskItem.eventName()
-                    + "'");
-            }
-
-            if (events.size() > 1) {
-            throw new IllegalArgumentException(
-                "Événement ambigu pour competition='"
-                    + taskItem.competitionName()
-                    + "' et event='"
-                    + taskItem.eventName()
-                    + "' ("
-                    + events.size()
-                    + " correspondances)");
-            }
-
-            Event event = events.get(0);
-            if (event.getTimeSlot() == null || event.getTimeSlot().getStart() == null) {
-                throw new IllegalArgumentException(
-                        "Événement sans créneau valide pour competition='"
-                                + taskItem.competitionName()
-                                + "' et event='"
-                                + taskItem.eventName()
-                                + "'");
-            }
-
-            LocalDate eventDate = event.getTimeSlot().getStart().toLocalDate();
-            if (!eventDate.equals(tomorrow)) {
-                throw new IllegalArgumentException(
-                        "L'événement '"
-                                + taskItem.eventName()
-                                + "' (competition='"
-                                + taskItem.competitionName()
-                                + "') n'est pas planifié pour demain");
-            }
-
-            resolvedEvents.add(event);
-        }
+        List<Event> resolvedEvents = resolveTomorrowEvents(item.tasks(), tomorrow);
 
         // Remplacer uniquement les tâches du lendemain et conserver celles d'aujourd'hui (ou autres dates)
-        Set<Task> keptTasks = new HashSet<>();
-        for (Task existingTask : volunteer.getDailyTasks()) {
-            if (!isTaskScheduledForDate(existingTask, tomorrow)) {
-                keptTasks.add(existingTask);
-            }
-        }
+        Set<Task> keptTasks = keepTasksOutsideDate(volunteer.getDailyTasks(), tomorrow);
 
         volunteer.getDailyTasks().clear();
         volunteer.getDailyTasks().addAll(keptTasks);
 
+        int tasksCreated = createTasksForVolunteer(volunteer, item.tasks(), resolvedEvents);
+
+        userRepository.save(volunteer);
+        return tasksCreated;
+    }
+
+    private ApplicationUser getVolunteerForAgendaUpload(String volunteerEmail) {
+        ApplicationUser volunteer = userRepository.findByEmail(volunteerEmail)
+                .orElseThrow(() -> new IllegalArgumentException(
+                        "Bénévole non trouvé : " + volunteerEmail));
+
+        if (volunteer.getRole() == null || !ROLE_VOLUNTEER.equals(volunteer.getRole().getRoleName())) {
+            throw new IllegalArgumentException(
+                    "L'utilisateur " + volunteerEmail + " n'est pas un bénévole");
+        }
+
+        return volunteer;
+    }
+
+    private List<Event> resolveTomorrowEvents(List<TaskUploadItemDTO> tasks, LocalDate tomorrow) {
+        List<Event> resolvedEvents = new ArrayList<>();
+        for (TaskUploadItemDTO taskItem : tasks) {
+            Event event = resolveUniqueEvent(taskItem);
+            validateEventScheduledForTomorrow(event, taskItem, tomorrow);
+            resolvedEvents.add(event);
+        }
+        return resolvedEvents;
+    }
+
+    private Event resolveUniqueEvent(TaskUploadItemDTO taskItem) {
+        List<Event> events = eventRepository.findByCompetitionNameAndEventName(
+                taskItem.competitionName().trim(),
+                taskItem.eventName().trim()
+        );
+
+        if (events.isEmpty()) {
+            throw new IllegalArgumentException(
+                    "Événement non trouvé pour competition='"
+                            + taskItem.competitionName()
+                            + "' et event='"
+                            + taskItem.eventName()
+                            + "'");
+        }
+
+        if (events.size() > 1) {
+            throw new IllegalArgumentException(
+                    "Événement ambigu pour competition='"
+                            + taskItem.competitionName()
+                            + "' et event='"
+                            + taskItem.eventName()
+                            + "' ("
+                            + events.size()
+                            + " correspondances)");
+        }
+
+        return events.get(0);
+    }
+
+    private void validateEventScheduledForTomorrow(Event event, TaskUploadItemDTO taskItem, LocalDate tomorrow) {
+        if (event.getTimeSlot() == null || event.getTimeSlot().getStart() == null) {
+            throw new IllegalArgumentException(
+                    "Événement sans créneau valide pour competition='"
+                            + taskItem.competitionName()
+                            + "' et event='"
+                            + taskItem.eventName()
+                            + "'");
+        }
+
+        LocalDate eventDate = event.getTimeSlot().getStart().toLocalDate();
+        if (!eventDate.equals(tomorrow)) {
+            throw new IllegalArgumentException(
+                    "L'événement '"
+                            + taskItem.eventName()
+                            + "' (competition='"
+                            + taskItem.competitionName()
+                            + "') n'est pas planifié pour demain");
+        }
+    }
+
+    private Set<Task> keepTasksOutsideDate(Set<Task> existingTasks, LocalDate date) {
+        Set<Task> keptTasks = new HashSet<>();
+        for (Task existingTask : existingTasks) {
+            if (!isTaskScheduledForDate(existingTask, date)) {
+                keptTasks.add(existingTask);
+            }
+        }
+        return keptTasks;
+    }
+
+    private int createTasksForVolunteer(ApplicationUser volunteer, List<TaskUploadItemDTO> tasks, List<Event> resolvedEvents) {
         int tasksCreated = 0;
-        for (int i = 0; i < item.tasks().size(); i++) {
-            TaskUploadItemDTO taskItem = item.tasks().get(i);
+        for (int i = 0; i < tasks.size(); i++) {
+            TaskUploadItemDTO taskItem = tasks.get(i);
             Event event = resolvedEvents.get(i);
 
             Task task = new Task();
@@ -174,13 +203,10 @@ public class VolunteerAgendaServiceImpl implements VolunteerAgendaService {
             task.setDescription(taskItem.description());
             task.setEvent(event);
             task.setUsers(new HashSet<>());
-            task = taskRepository.save(task);
 
-            volunteer.getDailyTasks().add(task);
+            volunteer.getDailyTasks().add(taskRepository.save(task));
             tasksCreated++;
         }
-
-        userRepository.save(volunteer);
         return tasksCreated;
     }
 
