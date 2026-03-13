@@ -1,4 +1,4 @@
-package com.miage.pouleAPI.dtos.trial;
+package com.miage.pouleAPI.dtos.event;
 
 import com.miage.pouleAPI.dtos.place.PlaceDTO;
 import com.miage.pouleAPI.dtos.ranking.RankingDTO;
@@ -13,18 +13,12 @@ import java.util.List;
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
-public class TrialDetailDTO {
+public class UpdateEventRequestDTO {
     private Integer id;
     private String name;
     private String description;
-    private String competitionName;
+    private Integer competitionId;
     private TimeSlotDTO timeSlot;
     private PlaceDTO place;
-    private String status;
     private List<RankingDTO> rankings;
-    private boolean isTeamEvent;
-    private List<SoloParticipantDTO> soloParticipants;
-    private List<TeamParticipantDTO> teamParticipants;
-    private String scoreType;
 }
-

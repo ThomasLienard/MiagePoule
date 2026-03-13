@@ -37,14 +37,20 @@ const AdminPage = () => {
                                 <Button as={Link} to="/admin/create-event" variant="secondary">
                                     Créer un évènement
                                 </Button>
-                                <Button variant="secondary" disabled>
+                                <Button as={Link} to="/admin/update-event" variant="secondary">
                                     Modifier un évènement
                                 </Button>
                                 <Button as={Link} to="/admin/create-champ" variant="secondary">
                                     Créer un championnat
                                 </Button>
+                                <Button as={Link} to="/admin/update-champ" variant="secondary">
+                                    Modifier un championnat
+                                </Button>
                                 <Button as={Link} to="/admin/create-comp" variant="secondary">
                                     Créer une compétition
+                                </Button>
+                                <Button as={Link} to="/admin/update-comp" variant="secondary">
+                                    Modifier une compétition
                                 </Button>
                             </div>
                         </Card.Body>

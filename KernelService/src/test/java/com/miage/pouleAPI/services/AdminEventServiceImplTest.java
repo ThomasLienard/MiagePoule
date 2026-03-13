@@ -12,6 +12,8 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import java.time.LocalDateTime;
 import java.util.Optional;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.*;
 import static org.mockito.Mockito.*;
 
@@ -109,6 +111,46 @@ class AdminEventServiceImplTest {
         adminEventService.createEvent(req);
 
         verify(trialRepo).save(any(Trial.class));
+    }
+
+    @Test
+    void cancelEvent_ShouldUpdateStatusAndAppendReasonToDescription() {
+        // GIVEN
+        Integer eventId = 1;
+        String initialDesc = "Compétition de natation";
+        String cancelReason = "Panne de filtrage";
+
+        Event event = new Event();
+        event.setId(eventId);
+        event.setStatus("SCHEDULED");
+        event.setDescription(initialDesc);
+
+        when(eventRepo.findById(eventId)).thenReturn(Optional.of(event));
+
+        adminEventService.cancelEvent(eventId, cancelReason);
+
+        assertEquals("CANCELLED", event.getStatus());
+
+        org.junit.jupiter.api.Assertions.assertTrue(
+                event.getDescription().contains(cancelReason),
+                "La description devrait contenir la raison de l'annulation"
+        );
+
+        org.junit.jupiter.api.Assertions.assertTrue(event.getDescription().startsWith(initialDesc));
+
+        verify(eventRepo).save(event);
+    }
+
+    @Test
+    void cancelEvent_ShouldThrowException_WhenEventNotFound() {
+        Integer eventId = 99;
+        when(eventRepo.findById(eventId)).thenReturn(Optional.empty());
+
+        org.junit.jupiter.api.Assertions.assertThrows(RuntimeException.class, () -> {
+            adminEventService.cancelEvent(eventId, "raison");
+        });
+
+        verify(eventRepo, never()).save(any());
     }
 
     private void setupCommonMocks() {

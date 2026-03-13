@@ -2,7 +2,6 @@ package com.miage.pouleAPI.services;
 
 import com.miage.pouleAPI.adapters.ChampionshipJpaAdapter;
 import com.miage.pouleAPI.dtos.championship.ChampionshipDTO;
-
 import com.miage.pouleAPI.dtos.championship.CreateChampionshipRequestDTO;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -35,11 +34,11 @@ class ChampionshipServiceImplTest {
     @BeforeEach
     void setUp() {
         championshipDTO1 = new ChampionshipDTO(
-                "Description Championship 1",
-                LocalDate.of(2024, 12, 31),
-                1,
-                "Championship 1",
-                LocalDate.of(2024, 1, 1)
+                "Description Championship 1",          // description
+                LocalDate.of(2024, 12, 31),           // end
+                1,                                     // id
+                "Championship 1",                      // name
+                LocalDate.of(2024, 1, 1)              // start
         );
 
         championshipDTO2 = new ChampionshipDTO(
@@ -103,10 +102,10 @@ class ChampionshipServiceImplTest {
     @Test
     void save_ShouldReturnSavedChampionship() {
         CreateChampionshipRequestDTO newChampionship = new CreateChampionshipRequestDTO(
-                "New Championship Description",
-                "New Championship",
-                LocalDate.of(2025, 12, 31),
-                LocalDate.of(2025, 1, 1)
+                "New Championship Description",        // description
+                "New Championship",                    // name
+                LocalDate.of(2025, 12, 31),           // end
+                LocalDate.of(2025, 1, 1)              // start
         );
 
         ChampionshipDTO savedChampionship = new ChampionshipDTO(
@@ -131,7 +130,7 @@ class ChampionshipServiceImplTest {
     }
 
     @Test
-    void save_ShouldUpdateExistingChampionship() {
+    void update_ShouldCallAdapterUpdate() {
         ChampionshipDTO updatedChampionship = new ChampionshipDTO(
                 "Updated Description",
                 LocalDate.of(2024, 12, 31),
@@ -140,28 +139,20 @@ class ChampionshipServiceImplTest {
                 LocalDate.of(2024, 1, 1)
         );
 
-        CreateChampionshipRequestDTO updatedChampionshipRequest = new CreateChampionshipRequestDTO(
-                "Updated Description",
-                "Updated Championship",
-                LocalDate.of(2024, 12, 31),
-                LocalDate.of(2024, 1, 1)
-        );
+        when(championshipJpaAdapter.update(any(ChampionshipDTO.class))).thenReturn(updatedChampionship);
 
-        when(championshipJpaAdapter.save(any(CreateChampionshipRequestDTO.class))).thenReturn(updatedChampionship);
-
-        ChampionshipDTO result = championshipService.save(updatedChampionshipRequest);
+        ChampionshipDTO result = championshipService.update(updatedChampionship);
 
         assertThat(result).isNotNull();
         assertThat(result.getId()).isEqualTo(1);
         assertThat(result.getName()).isEqualTo("Updated Championship");
         assertThat(result.getDescription()).isEqualTo("Updated Description");
-        verify(championshipJpaAdapter, times(1)).save(updatedChampionshipRequest);
+        verify(championshipJpaAdapter, times(1)).update(updatedChampionship);
     }
 
     @Test
     void constructor_ShouldInitializePort() {
         ChampionshipServiceImpl service = new ChampionshipServiceImpl(championshipJpaAdapter);
-
         assertThat(service).isNotNull();
     }
 }

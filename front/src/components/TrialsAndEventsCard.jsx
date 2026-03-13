@@ -59,11 +59,16 @@ const TrialsAndEventsCard = ({trials, events, title, showForfeitButton, onForfei
                                                         : <span>Forfait</span>}
                                                 </span>
                                             )}
+
+                                            {trial.status === "CANCELLED" && (
+                                                <div className="text-danger text-end">Épreuve annulée</div>
+                                            )}
+
                                             {(trial.rankings?.length > 0 && (!rankingMap || !rankingMap.get(trial.id))) && (
                                                 <div
                                                     className="text-success text-end">Résultats disponibles !</div>
                                             )}
-                                            {showForfeitButton && (
+                                            {trial.status !== "CANCELLED" && showForfeitButton && (
                                                 <div className="mt-2">
                                                     {trial.isForfeit ? (
                                                         <span className="badge bg-warning text-dark">Forfait déclaré</span>

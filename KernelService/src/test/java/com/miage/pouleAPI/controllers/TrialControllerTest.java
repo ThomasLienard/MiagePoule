@@ -79,6 +79,7 @@ class TrialControllerTest {
             "Championnats de France",
             timeSlot,
             place,
+            null,
             new ArrayList<>(),
             false,
             new ArrayList<>(),
@@ -258,8 +259,8 @@ class TrialControllerTest {
     void testGetTrialById_WithoutOptionalFields() {
         // Given
         TrialDetailDTO minimalTrial = new TrialDetailDTO(
-            1, "Minimal Trial", "Description", null, null, null, new ArrayList<>(),
-            false, new ArrayList<>(), new ArrayList<>(), null
+            1, "Minimal Trial", "Description", null, null, null,null, new ArrayList<>(),
+            false, new ArrayList<>(), new ArrayList<>(),null
         );
         when(trialService.getTrialById(1)).thenReturn(Optional.of(minimalTrial));
 
