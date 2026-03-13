@@ -1,0 +1,16 @@
+{
+  "totalVolunteers": 2,
+  "successfullyProcessed": 2,
+  "results": [
+    {
+      "volunteerEmail": "lea.benevole@example.com",
+      "success": true,
+      "message": "Agenda téléversé avec succès"
+    },
+    {
+      "volunteerEmail": "marc.benevole@example.com",
+      "success": true,
+      "message": "Agenda téléversé avec succès"
+    }
+  ]
+}
