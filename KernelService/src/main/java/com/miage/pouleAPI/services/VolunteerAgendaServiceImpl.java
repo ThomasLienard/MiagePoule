@@ -1,5 +1,9 @@
 package com.miage.pouleAPI.services;
 
+import com.miage.pouleAPI.dtos.agenda.AgendaUploadItemDTO;
+import com.miage.pouleAPI.dtos.agenda.TaskUploadItemDTO;
+import com.miage.pouleAPI.dtos.agenda.UploadAgendaResponse;
+import com.miage.pouleAPI.dtos.agenda.VolunteerProcessResult;
 import com.miage.pouleAPI.dtos.agenda.VolunteerTaskDTO;
 import com.miage.pouleAPI.dtos.agenda.VolunteerTaskEventDTO;
 import com.miage.pouleAPI.dtos.place.PlaceDTO;
@@ -10,9 +14,11 @@ import com.miage.pouleAPI.entity.Place;
 import com.miage.pouleAPI.entity.Task;
 import com.miage.pouleAPI.entity.TimeSlot;
 import com.miage.pouleAPI.repositories.ApplicationUserRepository;
+import com.miage.pouleAPI.repositories.EventRepository;
 import com.miage.pouleAPI.repositories.TaskRepository;
 import com.miage.pouleAPI.services.interfaces.VolunteerAgendaService;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
@@ -21,18 +27,23 @@ import org.springframework.web.server.ResponseStatusException;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.Comparator;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Optional;
+import java.util.Set;
 
 @Service
 @RequiredArgsConstructor
+@Slf4j
 public class VolunteerAgendaServiceImpl implements VolunteerAgendaService {
 
     private static final String ROLE_VOLUNTEER = "VOLONTAIRE";
 
     private final ApplicationUserRepository userRepository;
     private final TaskRepository taskRepository;
+    private final EventRepository eventRepository;
 
     @Override
     @Transactional(readOnly = true)
@@ -55,6 +66,122 @@ public class VolunteerAgendaServiceImpl implements VolunteerAgendaService {
 
         return taskRepository.findTaskForUserById(user.getId(), taskId)
                 .map(this::toTaskDto);
+    }
+
+    @Override
+    @Transactional
+    public UploadAgendaResponse uploadAgendas(List<AgendaUploadItemDTO> items) {
+        List<VolunteerProcessResult> results = new ArrayList<>();
+        int successCount = 0;
+        int failedCount = 0;
+
+        for (AgendaUploadItemDTO item : items) {
+            try {
+                int tasksCreated = processVolunteerAgenda(item);
+                results.add(new VolunteerProcessResult(
+                        item.volunteerEmail(), true, tasksCreated, "Agenda téléversé avec succès"));
+                successCount++;
+            } catch (Exception e) {
+                log.warn("Échec du traitement de l'agenda pour {}: {}", item.volunteerEmail(), e.getMessage());
+                results.add(new VolunteerProcessResult(
+                        item.volunteerEmail(), false, 0, e.getMessage()));
+                failedCount++;
+            }
+        }
+
+        return new UploadAgendaResponse(items.size(), successCount, failedCount, results);
+    }
+
+    private int processVolunteerAgenda(AgendaUploadItemDTO item) {
+        ApplicationUser volunteer = userRepository.findByEmail(item.volunteerEmail())
+                .orElseThrow(() -> new IllegalArgumentException(
+                        "Bénévole non trouvé : " + item.volunteerEmail()));
+
+        if (volunteer.getRole() == null || !ROLE_VOLUNTEER.equals(volunteer.getRole().getRoleName())) {
+            throw new IllegalArgumentException(
+                    "L'utilisateur " + item.volunteerEmail() + " n'est pas un bénévole");
+        }
+
+        LocalDate tomorrow = LocalDate.now().plusDays(1);
+        List<Event> resolvedEvents = new ArrayList<>();
+        for (TaskUploadItemDTO taskItem : item.tasks()) {
+            List<Event> events = eventRepository.findByCompetitionNameAndEventName(
+                taskItem.competitionName().trim(),
+                taskItem.eventName().trim()
+            );
+
+            if (events.isEmpty()) {
+            throw new IllegalArgumentException(
+                "Événement non trouvé pour competition='"
+                    + taskItem.competitionName()
+                    + "' et event='"
+                    + taskItem.eventName()
+                    + "'");
+            }
+
+            if (events.size() > 1) {
+            throw new IllegalArgumentException(
+                "Événement ambigu pour competition='"
+                    + taskItem.competitionName()
+                    + "' et event='"
+                    + taskItem.eventName()
+                    + "' ("
+                    + events.size()
+                    + " correspondances)");
+            }
+
+            Event event = events.get(0);
+            if (event.getTimeSlot() == null || event.getTimeSlot().getStart() == null) {
+                throw new IllegalArgumentException(
+                        "Événement sans créneau valide pour competition='"
+                                + taskItem.competitionName()
+                                + "' et event='"
+                                + taskItem.eventName()
+                                + "'");
+            }
+
+            LocalDate eventDate = event.getTimeSlot().getStart().toLocalDate();
+            if (!eventDate.equals(tomorrow)) {
+                throw new IllegalArgumentException(
+                        "L'événement '"
+                                + taskItem.eventName()
+                                + "' (competition='"
+                                + taskItem.competitionName()
+                                + "') n'est pas planifié pour demain");
+            }
+
+            resolvedEvents.add(event);
+        }
+
+        // Remplacer uniquement les tâches du lendemain et conserver celles d'aujourd'hui (ou autres dates)
+        Set<Task> keptTasks = new HashSet<>();
+        for (Task existingTask : volunteer.getDailyTasks()) {
+            if (!isTaskScheduledForDate(existingTask, tomorrow)) {
+                keptTasks.add(existingTask);
+            }
+        }
+
+        volunteer.getDailyTasks().clear();
+        volunteer.getDailyTasks().addAll(keptTasks);
+
+        int tasksCreated = 0;
+        for (int i = 0; i < item.tasks().size(); i++) {
+            TaskUploadItemDTO taskItem = item.tasks().get(i);
+            Event event = resolvedEvents.get(i);
+
+            Task task = new Task();
+            task.setName(taskItem.name());
+            task.setDescription(taskItem.description());
+            task.setEvent(event);
+            task.setUsers(new HashSet<>());
+            task = taskRepository.save(task);
+
+            volunteer.getDailyTasks().add(task);
+            tasksCreated++;
+        }
+
+        userRepository.save(volunteer);
+        return tasksCreated;
     }
 
     private ApplicationUser getCurrentVolunteer() {
@@ -96,6 +223,11 @@ public class VolunteerAgendaServiceImpl implements VolunteerAgendaService {
 
         LocalDate taskDate = taskStart.toLocalDate();
         return taskDate.equals(today) || taskDate.equals(tomorrow);
+    }
+
+    private boolean isTaskScheduledForDate(Task task, LocalDate date) {
+        LocalDateTime taskStart = getTaskStart(task);
+        return taskStart != null && taskStart.toLocalDate().equals(date);
     }
 
     private VolunteerTaskDTO toTaskDto(Task task) {

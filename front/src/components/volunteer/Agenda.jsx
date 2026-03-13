@@ -28,14 +28,13 @@ const Agenda = () => {
 
     useEffect(() => {
         const filterTasks = () => {
-            const isTodayTask = (task) => {
+            const getTaskRelativeDay = (task) => {
                 const date = task.event.timeSlot.start
-                const relativeTime = getRelativeTime(date)
-                return relativeTime === 'Today'
+                return getRelativeTime(date)
             }
 
-            const todayTasks = tasks.filter(task => isTodayTask(task))
-            const tomorrowTasks = tasks.filter(task => !isTodayTask(task))
+            const todayTasks = tasks.filter(task => getTaskRelativeDay(task) === 'Today')
+            const tomorrowTasks = tasks.filter(task => getTaskRelativeDay(task) === 'Tomorrow')
 
             const initMap = (map, tasks) => {
                 for (const task of tasks) {
