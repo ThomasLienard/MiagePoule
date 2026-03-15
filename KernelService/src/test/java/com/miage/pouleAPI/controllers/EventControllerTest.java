@@ -71,7 +71,8 @@ class EventControllerTest {
             "TechWorld 2025",
             timeSlot,
             place,
-            new ArrayList<>()
+            new ArrayList<>(),
+                null
         );
     }
 
@@ -233,7 +234,7 @@ class EventControllerTest {
     void testGetEventById_WithoutOptionalFields() {
         // Given
         EventDetailDTO minimalEvent = new EventDetailDTO(
-            1, "Minimal Event", "Description", null, null, null, new ArrayList<>()
+            1, "Minimal Event", "Description", null, null, null, new ArrayList<>(),null
         );
         when(eventService.getEventById(1)).thenReturn(Optional.of(minimalEvent));
 

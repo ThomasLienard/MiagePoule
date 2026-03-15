@@ -19,6 +19,7 @@ public class CompetitionServiceImpl implements CompetitionService {
         this.competitionJpaAdapter = competitionJpaAdapter;
     }
 
+
     @Override
     public List<CompetitionDTO> findAll() {
         return competitionJpaAdapter.findAll();

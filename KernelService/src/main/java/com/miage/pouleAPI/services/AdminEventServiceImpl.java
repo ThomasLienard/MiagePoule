@@ -131,6 +131,17 @@ public class AdminEventServiceImpl implements AdminEventService {
         eventRepo.save(existing);
     }
 
+    @Override
+    @Transactional
+    public void cancelEvent(Integer id, String reason) {
+        Event event = eventRepo.findById(id)
+                .orElseThrow(() -> new RuntimeException("Épreuve introuvable"));
+
+        event.setStatus("CANCELLED");
+        event.setDescription(event.getDescription() + '\n' +reason);
+        eventRepo.save(event);
+    }
+
     private void fillEventData(Event e, CreateEventRequestDTO req, TypeEvent t, Place p, TimeSlot s, Competition c) {
         e.setName(req.name());
         e.setDescription(req.description());

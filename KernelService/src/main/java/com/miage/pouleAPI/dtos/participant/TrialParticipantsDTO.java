@@ -15,4 +15,5 @@ public class TrialParticipantsDTO {
     private boolean isTeamTrial; // true si épreuve en équipe, false si solo
     private List<ParticipantDTO> participants;
     private List<PotentialParticipantDTO> potentialParticipants;
+    private String status;
 }

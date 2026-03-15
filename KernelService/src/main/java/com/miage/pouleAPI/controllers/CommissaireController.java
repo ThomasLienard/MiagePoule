@@ -1,5 +1,6 @@
 package com.miage.pouleAPI.controllers;
 
+import com.miage.pouleAPI.dtos.event.CancelEventRequestDTO;
 import com.miage.pouleAPI.dtos.event.UpdateEventRequestDTO;
 import com.miage.pouleAPI.services.interfaces.AdminEventService;
 import jakarta.validation.Valid;
@@ -21,5 +22,12 @@ public class CommissaireController {
         request.setId(id);
         adminEventService.updateEvent(request);
         return ResponseEntity.status(HttpStatus.ACCEPTED).build();
+    }
+
+    @PatchMapping("/{id}/cancel")
+    public ResponseEntity<Void> cancelEvent(@PathVariable Integer id,
+                                            @RequestBody CancelEventRequestDTO request) {
+        adminEventService.cancelEvent(id, request.reason());
+        return ResponseEntity.noContent().build();
     }
 }

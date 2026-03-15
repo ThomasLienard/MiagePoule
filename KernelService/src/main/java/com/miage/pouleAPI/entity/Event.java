@@ -31,6 +31,9 @@ public class Event {
     @Column(name = "description_event", length = 1500)
     private String description;
 
+    @Column(name = "status", length = 1500)
+    private String status;
+
     @ManyToOne
     @JoinColumn(name = "type_event_name", nullable = false)
     @JsonIgnoreProperties({"hibernateLazyInitializer", "handler"})

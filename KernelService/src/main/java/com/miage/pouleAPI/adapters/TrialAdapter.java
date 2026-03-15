@@ -66,7 +66,9 @@ public class TrialAdapter {
         dto.setId(trial.getId());
         dto.setName(trial.getName());
         dto.setDescription(trial.getDescription());
-        
+        dto.setStatus(trial.getStatus());
+
+
         // Competition name
         if (trial.getCompetition() != null) {
             dto.setCompetitionName(trial.getCompetition().getName());
@@ -125,6 +127,7 @@ public class TrialAdapter {
         trial.setId(dto.getId());
         trial.setName(dto.getName());
         trial.setDescription(dto.getDescription());
+        trial.setStatus(dto.getStatus());
         
         if (dto.getTimeSlot() != null) {
             trial.setTimeSlot(dtoToTimeSlot(dto.getTimeSlot()));
