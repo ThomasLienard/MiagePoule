@@ -22,6 +22,20 @@ const AdminEpreuves = () => {
         fetchTrials();
     }, []);
 
+    const getResultsBadgeVariant = (trialId) => {
+        const stats = resultsStats[trialId] ?? { validated: 0, total: 0 };
+
+        if (stats.validated === 0) {
+            return 'secondary';
+        }
+
+        if (stats.validated === stats.total) {
+            return 'success';
+        }
+
+        return 'warning';
+    };
+
     const fetchTrials = async () => {
         try {
             setLoading(true);
@@ -113,10 +127,10 @@ const AdminEpreuves = () => {
             {error && <Alert variant="danger">{error}</Alert>}
 
             <Card className="shadow-sm">
-                <Card.Header as="h5" className="bg-white">Épreuves à gérer</Card.Header>
+                <Card.Header as="h5" className="bg-white">Vos épreuves</Card.Header>
                 <Card.Body className="overflow-auto" style={{ maxHeight: '70vh' }}>
                     {trials.filter(t => t.status !== 'CANCELLED').length === 0 ? (
-                        <p className="text-center text-muted my-4">Aucune épreuve active à gérer.</p>
+                        <p className="text-center text-muted my-4">Aucune épreuve disponible</p>
                     ) : (
                         <div className="d-flex flex-column gap-3">
                             {trials
@@ -134,9 +148,12 @@ const AdminEpreuves = () => {
                                                         <Badge bg="secondary">
                                                             {trial.participants?.length || 0} participant(s)
                                                         </Badge>
-                                                        <Badge bg="warning" text="dark">
+                                                        <Badge
+                                                            bg={getResultsBadgeVariant(trial.trialId)}
+                                                            text={getResultsBadgeVariant(trial.trialId) === 'warning' ? 'dark' : undefined}
+                                                        >
                                                             {resultsStats[trial.trialId]?.validated ?? 0}/
-                                                            {resultsStats[trial.trialId]?.total ?? 0} validés
+                                                            {resultsStats[trial.trialId]?.total ?? 0} résultat(s) validé(s)
                                                         </Badge>
                                                     </div>
                                                 </div>
@@ -146,7 +163,7 @@ const AdminEpreuves = () => {
                                                         size="sm"
                                                         onClick={() => navigate(`/commissaire/trials/${trial.trialId}/participants`)}
                                                     >
-                                                        Modifier les participants
+                                                        Modifier participants
                                                     </Button>
                                                     <Button
                                                         variant="outline-secondary"
