@@ -9,10 +9,18 @@ public record CreateIncidentRequestDTO(
         @NotBlank(message = "La description est obligatoire")
         String description,
 
-        @NotBlank(message = "Le niveau d'alerte est obligatoire")
-        String alertLevel,
+        @NotBlank(message = "Le niveau de sévérité est obligatoire")
+        String severity,
 
         Integer eventId,
+        Integer placeId,
+        Integer competitionId,
 
-        Integer placeId
+        /**
+         * Impact scope:
+         * - "COMMISSAIRES": seulement les commissaires
+         * - "COMMISSAIRES_ATHLETES": commissaires + athlètes
+         * - "TOUS": tous les observateurs
+         */
+        String audienceScope
 ) {}

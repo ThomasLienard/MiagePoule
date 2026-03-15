@@ -6,6 +6,7 @@ import com.miage.pouleAPI.dtos.incident.IncidentSummaryDTO;
 import com.miage.pouleAPI.entity.*;
 import com.miage.pouleAPI.repositories.*;
 import com.miage.pouleAPI.services.interfaces.IncidentService;
+import com.miage.pouleAPI.services.interfaces.NotificationService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
@@ -18,21 +19,18 @@ import java.util.stream.Collectors;
 @RequiredArgsConstructor
 public class IncidentServiceImpl implements IncidentService {
 
-    private final IncidentRepository incidentRepository;
-    private final ApplicationUserRepository applicationUserRepository;
+    private final NotificationRepository notificationRepository;
     private final EventRepository eventRepository;
     private final PlaceRepository placeRepository;
-    private final AlertLevelRepository alertLevelRepository;
+    private final SeverityRepository severityRepository;
+    private final NotificationService notificationService;
+    private final CompetitionRepository competitionRepository;
 
     @Override
-    public IncidentDetailDTO createIncident(CreateIncidentRequestDTO requestDTO, Integer userId) {
-        // Récupérer l'utilisateur qui crée l'incident
-        ApplicationUser user = applicationUserRepository.findById(userId)
-                .orElseThrow(() -> new RuntimeException("Utilisateur non trouvé"));
-
-        // Récupérer le niveau d'alerte
-        AlertLevel alertLevel = alertLevelRepository.findById(requestDTO.alertLevel())
-                .orElseThrow(() -> new RuntimeException("Niveau d'alerte non trouvé: " + requestDTO.alertLevel()));
+    public IncidentDetailDTO createIncident(CreateIncidentRequestDTO requestDTO) {
+        // Récupérer la sévérité
+        Severity severity = severityRepository.findById(requestDTO.severity())
+                .orElseThrow(() -> new RuntimeException("Sévérité non trouvée: " + requestDTO.severity()));
 
         // Récupérer l'événement (optionnel)
         Event event = null;
@@ -48,78 +46,108 @@ public class IncidentServiceImpl implements IncidentService {
                     .orElseThrow(() -> new RuntimeException("Lieu non trouvé"));
         }
 
-        // Créer l'incident
-        Incident incident = new Incident();
-        incident.setTitle(requestDTO.title());
-        incident.setDescription(requestDTO.description());
-        incident.setAlertLevel(alertLevel);
-        incident.setEvent(event);
-        incident.setPlace(place);
-        incident.setCreatedBy(user);
-        incident.setCreatedAt(LocalDateTime.now());
+        // Créer la notification d'incident
+        Notification notification = new Notification();
+        notification.setTitle(requestDTO.title());
+        notification.setDescription(requestDTO.description());
+        notification.setSeverity(severity);
+        notification.setEvent(event);
+        notification.setPlace(place);
+        notification.setType(TypeNotification.INCIDENT);
+        notification.setEmissionDate(LocalDateTime.now());
 
-        // Sauvegarder l'incident
-        Incident savedIncident = incidentRepository.save(incident);
+        // Déterminer les destinataires et notifier
+        String scope = requestDTO.audienceScope() == null ? "TOUS" : requestDTO.audienceScope();
 
-        // Retourner le DTO
-        return convertToDetailDTO(savedIncident);
+        if (requestDTO.competitionId() != null) {
+            Competition competition = competitionRepository.findById(requestDTO.competitionId())
+                    .orElseThrow(() -> new RuntimeException("Compétition non trouvée"));
+            Notification saved = notificationService.notifyIncident(notification, competition, scope);
+            return convertToDetailDTO(saved);
+        }
+
+        if (event != null && event.getCompetition() != null) {
+            Notification saved = notificationService.notifyIncident(notification, event.getCompetition(), scope);
+            return convertToDetailDTO(saved);
+        }
+
+        if (place != null) {
+            // Notifier les observateurs des compétitions des événements qui se déroulent à ce lieu
+            List<Event> eventsAtPlace = eventRepository.findByPlaceId(place.getId());
+            Notification saved = notificationRepository.save(notification);
+
+            eventsAtPlace.stream()
+                    .map(Event::getCompetition)
+                    .distinct()
+                    .forEach(comp -> notificationService.notifyIncident(saved, comp, scope));
+
+            return convertToDetailDTO(saved);
+        }
+
+        // Si aucun contexte trouvée (ni compétition, ni épreuve, ni lieu), on sauvegarde quand même.
+        Notification saved = notificationRepository.save(notification);
+        return convertToDetailDTO(saved);
     }
 
     @Override
     public Optional<IncidentDetailDTO> getIncidentById(Integer id) {
-        return incidentRepository.findById(id)
+        return notificationRepository.findById(id)
+                .filter(notification -> notification.getType() == TypeNotification.INCIDENT)
                 .map(this::convertToDetailDTO);
     }
 
     @Override
     public List<IncidentSummaryDTO> getAllIncidents() {
-        return incidentRepository.findAll().stream()
+        return notificationRepository.findAll().stream()
+                .filter(notification -> notification.getType() == TypeNotification.INCIDENT)
                 .map(this::convertToSummaryDTO)
                 .collect(Collectors.toList());
     }
 
     @Override
     public List<IncidentSummaryDTO> getIncidentsByEventId(Integer eventId) {
-        return incidentRepository.findByEventId(eventId).stream()
+        return notificationRepository.findByEventId(eventId).stream()
+                .filter(notification -> notification.getType() == TypeNotification.INCIDENT)
                 .map(this::convertToSummaryDTO)
                 .collect(Collectors.toList());
     }
 
     @Override
     public List<IncidentSummaryDTO> getIncidentsByPlaceId(Integer placeId) {
-        return incidentRepository.findByPlaceId(placeId).stream()
+        return notificationRepository.findByPlaceId(placeId).stream()
+                .filter(notification -> notification.getType() == TypeNotification.INCIDENT)
                 .map(this::convertToSummaryDTO)
                 .collect(Collectors.toList());
     }
 
     @Override
-    public List<IncidentSummaryDTO> getIncidentsByAlertLevel(String alertLevel) {
-        return incidentRepository.findByAlertLevel(alertLevel).stream()
+    public List<IncidentSummaryDTO> getIncidentsBySeverity(String severity) {
+        return notificationRepository.findBySeverity(severity).stream()
+                .filter(notification -> notification.getType() == TypeNotification.INCIDENT)
                 .map(this::convertToSummaryDTO)
                 .collect(Collectors.toList());
     }
 
-    private IncidentDetailDTO convertToDetailDTO(Incident incident) {
+    private IncidentDetailDTO convertToDetailDTO(Notification notification) {
         return new IncidentDetailDTO(
-                incident.getId(),
-                incident.getTitle(),
-                incident.getDescription(),
-                incident.getAlertLevel().getName(),
-                incident.getEvent() != null ? incident.getEvent().getId() : null,
-                incident.getEvent() != null ? incident.getEvent().getName() : null,
-                incident.getPlace() != null ? incident.getPlace().getId() : null,
-                incident.getPlace() != null ? incident.getPlace().getName() : null,
-                incident.getCreatedBy().getEmail(),
-                incident.getCreatedAt()
+                notification.getId(),
+                notification.getTitle(),
+                notification.getDescription(),
+                notification.getSeverity().getName(),
+                notification.getEvent() != null ? notification.getEvent().getId() : null,
+                notification.getEvent() != null ? notification.getEvent().getName() : null,
+                notification.getPlace() != null ? notification.getPlace().getId() : null,
+                notification.getPlace() != null ? notification.getPlace().getName() : null,
+                notification.getEmissionDate()
         );
     }
 
-    private IncidentSummaryDTO convertToSummaryDTO(Incident incident) {
+    private IncidentSummaryDTO convertToSummaryDTO(Notification notification) {
         return new IncidentSummaryDTO(
-                incident.getId(),
-                incident.getTitle(),
-                incident.getAlertLevel().getName(),
-                incident.getCreatedAt()
+                notification.getId(),
+                notification.getTitle(),
+                notification.getSeverity().getName(),
+                notification.getEmissionDate()
         );
     }
 }

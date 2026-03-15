@@ -6,11 +6,10 @@ public record IncidentDetailDTO(
         Integer id,
         String title,
         String description,
-        String alertLevel,
+        String severity,
         Integer eventId,
         String eventName,
         Integer placeId,
         String placeName,
-        String createdByUsername,
-        LocalDateTime createdAt
+        LocalDateTime emissionDate
 ) {}

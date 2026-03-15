@@ -5,6 +5,6 @@ import java.time.LocalDateTime;
 public record IncidentSummaryDTO(
         Integer id,
         String title,
-        String alertLevel,
-        LocalDateTime createdAt
+        String severity,
+        LocalDateTime emissionDate
 ) {}

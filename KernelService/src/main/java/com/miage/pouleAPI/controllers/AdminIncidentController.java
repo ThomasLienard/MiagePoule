@@ -4,15 +4,11 @@ package com.miage.pouleAPI.controllers;
 import com.miage.pouleAPI.dtos.incident.CreateIncidentRequestDTO;
 import com.miage.pouleAPI.dtos.incident.IncidentDetailDTO;
 import com.miage.pouleAPI.dtos.incident.IncidentSummaryDTO;
-import com.miage.pouleAPI.repositories.ApplicationUserRepository;
 import com.miage.pouleAPI.services.interfaces.IncidentService;
-import com.miage.pouleAPI.services.interfaces.NotificationService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.core.annotation.AuthenticationPrincipal;
-import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -23,24 +19,19 @@ import java.util.Optional;
 @RequiredArgsConstructor
 public class AdminIncidentController {
 
-    private final NotificationService notificationService;
     private final IncidentService incidentService;
-    private final ApplicationUserRepository applicationUserRepository;
 
     /**
      * Crée un nouvel incident
      * @param requestDTO les données de l'incident
-     * @param userDetails les détails de l'utilisateur courant
      * @return l'incident créé
      */
     @PostMapping
     public ResponseEntity<IncidentDetailDTO> createIncident(
-            @RequestBody @Valid CreateIncidentRequestDTO requestDTO,
-            @AuthenticationPrincipal UserDetails userDetails) {
-        
-        Integer userId = getUserIdFromUserDetails(userDetails);
-        IncidentDetailDTO incident = incidentService.createIncident(requestDTO, userId);
-        
+            @RequestBody @Valid CreateIncidentRequestDTO requestDTO) {
+
+        IncidentDetailDTO incident = incidentService.createIncident(requestDTO);
+
         return ResponseEntity.status(HttpStatus.CREATED).body(incident);
     }
 
@@ -91,30 +82,14 @@ public class AdminIncidentController {
     }
 
     /**
-     * Récupère les incidents par niveau d'alerte
-     * @param alertLevel le niveau d'alerte
+     * Récupère les incidents par niveau de sévérité
+     * @param severity le niveau de sévérité
      * @return la liste des incidents
      */
-    @GetMapping("/alert-level/{alertLevel}")
-    public ResponseEntity<List<IncidentSummaryDTO>> getIncidentsByAlertLevel(@PathVariable String alertLevel) {
-        List<IncidentSummaryDTO> incidents = incidentService.getIncidentsByAlertLevel(alertLevel);
+    @GetMapping("/severity/{severity}")
+    public ResponseEntity<List<IncidentSummaryDTO>> getIncidentsBySeverity(@PathVariable String severity) {
+        List<IncidentSummaryDTO> incidents = incidentService.getIncidentsBySeverity(severity);
         return ResponseEntity.ok(incidents);
-    }
-
-    /**
-     * Récupère l'ID de l'utilisateur à partir de ses détails de sécurité
-     * @param userDetails les détails de l'utilisateur
-     * @return l'ID de l'utilisateur
-     */
-    private Integer getUserIdFromUserDetails(UserDetails userDetails) {
-        if (userDetails == null) {
-            throw new IllegalArgumentException("L'utilisateur n'est pas authentifié");
-        }
-
-        String email = userDetails.getUsername();
-        return applicationUserRepository.findByEmail(email)
-                .orElseThrow(() -> new IllegalArgumentException("Utilisateur non trouvé avec l'email: " + email))
-                .getId();
     }
 
 }

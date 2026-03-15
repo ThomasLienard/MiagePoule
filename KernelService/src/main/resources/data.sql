@@ -21,16 +21,10 @@ INSERT INTO role (role_name) VALUES ('SPECTATEUR');
 INSERT INTO severity (name_severity, desc_severity)
 VALUES ('INFO', 'Information message'),
        ('WARNING', 'Warning level'),
-       ('CRITICAL', 'Critical event');
-
--- ======================
--- Alert Levels
--- ======================
-INSERT INTO alert_level (name_alert_level)
-VALUES ('LOW'),
-       ('MEDIUM'),
-       ('HIGH'),
-       ('CRITICAL');
+       ('CRITICAL', 'Critical event'),
+       ('LOW', 'Low severity incident'),
+       ('MEDIUM', 'Medium severity incident'),
+       ('HIGH', 'High severity incident');
 
 -- ======================
 -- Type of documents

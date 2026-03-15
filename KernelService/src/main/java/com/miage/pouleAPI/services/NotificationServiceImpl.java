@@ -85,6 +85,39 @@ public class NotificationServiceImpl implements com.miage.pouleAPI.services.inte
         }
     }
 
+    @Override
+    public Notification notifyIncident(Notification notification, Competition competition, String scope) {
+        if (competition == null) {
+            // Pas de destinataires connus (aucune compétition associée)
+            return notificationRepository.save(notification);
+        }
+
+        // Persiste la notification
+        Notification saved = notificationRepository.save(notification);
+
+        NotificationDTO dto = NotificationDTO.fromEntity(saved);
+        Collection<CompetitionObserver> observers = competitionObserverRepository.findByCompetition(competition);
+
+        for (CompetitionObserver observer : observers) {
+            String roleName = observer.getUser().getRole().getRoleName();
+            boolean shouldNotify = false;
+
+            if ("TOUS".equalsIgnoreCase(scope)) {
+                shouldNotify = true;
+            } else if ("COMMISSAIRES".equalsIgnoreCase(scope)) {
+                shouldNotify = "COMMISSAIRE".equalsIgnoreCase(roleName);
+            } else if ("COMMISSAIRES_ATHLETES".equalsIgnoreCase(scope)) {
+                shouldNotify = "COMMISSAIRE".equalsIgnoreCase(roleName) || "ATHLETE".equalsIgnoreCase(roleName);
+            }
+
+            if (shouldNotify) {
+                sseNotificationService.sendNotification(observer.getId().getUserId(), dto);
+            }
+        }
+
+        return saved;
+    }
+
 //    public void notifySecurityIncident(Place place, String message, Severity severity) {
 //        Notification n = new Notification();
 //        n.setDescription(message);

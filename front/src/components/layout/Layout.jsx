@@ -35,7 +35,10 @@ export default function Layout() {
                                 data-date={notif?.emissionDate}
                                 data-type={notif?.type}
                             >
-                                <div className="fw-normal notification-description">{notif?.description}</div>
+                                <div className="fw-semibold">{notif?.title || notif?.description}</div>
+                                {notif?.title && notif?.description && (
+                                    <div className="fw-normal notification-description">{notif?.description}</div>
+                                )}
                                 {notif?.eventId && (
                                     <small className="text-primary">
                                         → Voir les détails
