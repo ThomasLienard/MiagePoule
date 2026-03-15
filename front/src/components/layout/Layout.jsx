@@ -11,7 +11,7 @@ export default function Layout() {
 
     // Hook notifications SSE
     const userId = user?.id ?? null;
-    const { unreadCount, notifications } = useNotificationsSSE(userId);
+    const { unreadCount, markAllAsRead, notifications } = useNotificationsSSE(userId);
 
     const handleNotificationClick = (eventId) => {
         if (eventId) {
@@ -135,6 +135,7 @@ export default function Layout() {
                                 <div className="position-relative notification-button">
                                     <Nav.Link
                                         className="p-0 notification-bell"
+                                        onClick={markAllAsRead}
                                         style={{ cursor: 'pointer' }}
                                     >
                                         🔔
