@@ -7,7 +7,7 @@ import resultService from '../../services/resultService';
 
 const AdminEpreuves = () => {
     const [trials, setTrials] = useState([]);
-    const [resultsStats, setResultsStats] = useState({}); // { trialId: { validated, total } }
+    const [resultsStats, setResultsStats] = useState({});
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
     const navigate = useNavigate();
@@ -78,6 +78,7 @@ const AdminEpreuves = () => {
             // Rafraîchir la liste : l'épreuve disparaîtra grâce au filtre ci-dessous
             await fetchTrials();
         } catch (err) {
+            console.error("Erreur lors de l'annulation de l'épreuve:", err);
             alert("Erreur lors de l'annulation de l'épreuve.");
         } finally {
             setIsSubmitting(false);
@@ -133,6 +134,10 @@ const AdminEpreuves = () => {
                                                         <Badge bg="secondary">
                                                             {trial.participants?.length || 0} participant(s)
                                                         </Badge>
+                                                        <Badge bg="warning" text="dark">
+                                                            {resultsStats[trial.trialId]?.validated ?? 0}/
+                                                            {resultsStats[trial.trialId]?.total ?? 0} validés
+                                                        </Badge>
                                                     </div>
                                                 </div>
                                                 <div className="d-flex gap-2">
@@ -165,28 +170,7 @@ const AdminEpreuves = () => {
                                                     </Button>
                                                 </div>
                                             </div>
-                                            <div className="d-flex gap-2">
-                                                <Button
-                                                    variant="outline-secondary"
-                                                    onClick={() => navigate(`/commissaire/trials/${trial.trialId}/participants`)}
-                                                >
-                                                    Modifier participants
-                                                </Button>
-                                                <Button
-                                                    variant="outline-secondary"
-                                                    onClick={() => navigate(`/commissaire/trials/${trial.trialId}/results`)}
-                                                >
-                                                     Gérer résultats
-                                                </Button>
-                                                <Button
-                                                    variant="outline-secondary"
-                                                    onClick={() => navigate(`/commissaire/update-event?id=${trial.trialId}`)}
-                                                >
-                                                    Modifier la date de l'épreuve
-                                                </Button>
-                                            </div>
-                                        </div>
-                                    </Card.Body>
+                                        </Card.Body>
                                 </Card>
                             ))}
                         </div>
