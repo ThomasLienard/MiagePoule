@@ -7,7 +7,7 @@ import resultService from '../../services/resultService';
 
 const AdminEpreuves = () => {
     const [trials, setTrials] = useState([]);
-    const [resultsStats, setResultsStats] = useState({}); // { trialId: { validated, total } }
+    const [resultsStats, setResultsStats] = useState({});
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
     const navigate = useNavigate();
@@ -21,6 +21,20 @@ const AdminEpreuves = () => {
     useEffect(() => {
         fetchTrials();
     }, []);
+
+    const getResultsBadgeVariant = (trialId) => {
+        const stats = resultsStats[trialId] ?? { validated: 0, total: 0 };
+
+        if (stats.validated === 0) {
+            return 'secondary';
+        }
+
+        if (stats.validated === stats.total) {
+            return 'success';
+        }
+
+        return 'warning';
+    };
 
     const fetchTrials = async () => {
         try {
@@ -78,6 +92,7 @@ const AdminEpreuves = () => {
             // Rafraîchir la liste : l'épreuve disparaîtra grâce au filtre ci-dessous
             await fetchTrials();
         } catch (err) {
+            console.error("Erreur lors de l'annulation de l'épreuve:", err);
             alert("Erreur lors de l'annulation de l'épreuve.");
         } finally {
             setIsSubmitting(false);
@@ -112,10 +127,10 @@ const AdminEpreuves = () => {
             {error && <Alert variant="danger">{error}</Alert>}
 
             <Card className="shadow-sm">
-                <Card.Header as="h5" className="bg-white">Épreuves à gérer</Card.Header>
+                <Card.Header as="h5" className="bg-white">Vos épreuves</Card.Header>
                 <Card.Body className="overflow-auto" style={{ maxHeight: '70vh' }}>
                     {trials.filter(t => t.status !== 'CANCELLED').length === 0 ? (
-                        <p className="text-center text-muted my-4">Aucune épreuve active à gérer.</p>
+                        <p className="text-center text-muted my-4">Aucune épreuve disponible</p>
                     ) : (
                         <div className="d-flex flex-column gap-3">
                             {trials
@@ -133,6 +148,13 @@ const AdminEpreuves = () => {
                                                         <Badge bg="secondary">
                                                             {trial.participants?.length || 0} participant(s)
                                                         </Badge>
+                                                        <Badge
+                                                            bg={getResultsBadgeVariant(trial.trialId)}
+                                                            text={getResultsBadgeVariant(trial.trialId) === 'warning' ? 'dark' : undefined}
+                                                        >
+                                                            {resultsStats[trial.trialId]?.validated ?? 0}/
+                                                            {resultsStats[trial.trialId]?.total ?? 0} résultat(s) validé(s)
+                                                        </Badge>
                                                     </div>
                                                 </div>
                                                 <div className="d-flex gap-2">
@@ -141,7 +163,7 @@ const AdminEpreuves = () => {
                                                         size="sm"
                                                         onClick={() => navigate(`/commissaire/trials/${trial.trialId}/participants`)}
                                                     >
-                                                        Modifier les participants
+                                                        Modifier participants
                                                     </Button>
                                                     <Button
                                                         variant="outline-secondary"
@@ -166,13 +188,20 @@ const AdminEpreuves = () => {
                                                 </div>
                                             </div>
                                         </Card.Body>
-                                    </Card>
-                                ))}
+                                </Card>
+                            ))}
                         </div>
                     )}
                 </Card.Body>
             </Card>
 
+            <Button
+                variant="outline-secondary"
+                className="mt-3"
+                onClick={() => navigate(-1)}
+            >
+                ← Retour
+            </Button>
             {/* MODAL D'ANNULATION */}
             <Modal show={showCancelModal} onHide={handleCloseCancel} centered>
                 <Modal.Header closeButton>

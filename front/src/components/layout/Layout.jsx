@@ -92,7 +92,6 @@ export default function Layout() {
                                           className="text-decoration-none text-body-secondary">Mes épreuves</Link>
                                 </Nav.Link>
                             )}
-
                             {isAuthenticated() && (
                                 <Nav.Link className="auth-button secondary me-2" as="span">
                                     <Link to="/tickets"

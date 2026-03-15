@@ -26,6 +26,7 @@ const participantService = {
         }
     },
 
+
     /**
      * Récupère toutes les épreuves avec leurs participants
      */
@@ -69,6 +70,7 @@ const participantService = {
             throw new Error(error.response?.data?.message || 'Erreur lors de la récupération des épreuves');
         }
     },
+
 
     /**
      * Récupère les participants avec tous les potentiels (athlètes ET équipes)

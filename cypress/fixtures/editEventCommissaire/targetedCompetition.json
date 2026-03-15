@@ -1,0 +1,23 @@
+{
+  "id": 3,
+  "name": "saut en super-hauteur",
+  "description": "Final race",
+  "competitionName": "100m Sprint",
+  "timeSlot": {
+    "start": "2025-03-31T10:00:00",
+    "end": "2026-06-27T06:00:00"
+  },
+  "place": {
+    "id": 1,
+    "name": "France Stadium",
+    "description": "Central stadium",
+    "street": "Main Street",
+    "number": "1",
+    "city": "Saint-Denis",
+    "zip": "93200",
+    "parking": true,
+    "latitude": 48.924459,
+    "longitude": 2.360164
+  },
+  "rankings": []
+}
