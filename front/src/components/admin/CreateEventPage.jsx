@@ -33,14 +33,14 @@ const CreateEventPage = () => {
     });
 
     useEffect(() => {
-        axios.get('http://localhost:8084/public/championship')
+        axios.get(`${import.meta.env.VITE_API_URL}/public/championship`)
             .then(res => setChampionships(res.data))
             .catch(err => console.error("Erreur championnats", err));
     }, []);
 
     useEffect(() => {
         if (selectedChampionshipId) {
-            axios.get(`http://localhost:8084/public/championship/${selectedChampionshipId}/comp`)
+            axios.get(`${import.meta.env.VITE_API_URL}/public/championship/${selectedChampionshipId}/comp`)
                 .then(res => setCompetitions(res.data))
                 .catch(err => {
                     console.error("Erreur compétitions", err);
@@ -98,7 +98,7 @@ const CreateEventPage = () => {
         setLoading(true);
 
         try {
-            await axios.post('http://localhost:8084/admin/events', formData);
+            await axios.post(`${import.meta.env.VITE_API_URL}/admin/events`, formData);
             setStatus({ type: 'success', message: 'Évènement planifié avec succès !' });
             setTimeout(() => navigate('/admin'), 2000);
         } catch (error) {

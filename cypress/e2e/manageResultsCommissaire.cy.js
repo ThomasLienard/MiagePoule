@@ -21,7 +21,7 @@ describe('ManageResults – Gestion des résultats d\'une épreuve', () => {
     /** Charge la page des résultats pour le trial `id` avec la fixture donnée. */
     const visitResults = (trialId, fixturePath, alias = 'getResults') => {
         cy.intercept(/localhost:8084/, { statusCode: 200, body: {} });
-        cy.intercept('GET', `http://localhost:8084/commissaire/trials/${trialId}/results`, {
+        cy.intercept('GET', `**/commissaire/trials/${trialId}/results`, {
             fixture: fixturePath
         }).as(alias);
         cy.visit(`/commissaire/trials/${trialId}/results`, { onBeforeLoad: setCommissaireAuth });
@@ -210,7 +210,7 @@ describe('ManageResults – Gestion des résultats d\'une épreuve', () => {
     it('saisir et enregistrer un résultat → appel PUT et message de succès', () => {
         visitResults(1, 'manageResults/results_partiel.json');
 
-        cy.intercept('PUT', 'http://localhost:8084/commissaire/trials/1/results', {
+        cy.intercept('PUT', '**/commissaire/trials/1/results', {
             body: {
                 participantId: 2,
                 participantName: 'John Smith',
@@ -241,7 +241,7 @@ describe('ManageResults – Gestion des résultats d\'une épreuve', () => {
     it('"Tout enregistrer" → appel PUT bulk et message de succès', () => {
         visitResults(1, 'manageResults/results_partiel.json');
 
-        cy.intercept('PUT', 'http://localhost:8084/commissaire/trials/1/results/bulk', {
+        cy.intercept('PUT', '**/commissaire/trials/1/results/bulk', {
             body: [
                 { participantId: 1, participantName: 'Marie Athlete', participantType: 'ATHLETE', result: '11.5s', isValidated: true, isForfeit: false },
                 { participantId: 2, participantName: 'John Smith', participantType: 'ATHLETE', result: '12.0s', isValidated: false, isForfeit: false }
@@ -261,7 +261,7 @@ describe('ManageResults – Gestion des résultats d\'une épreuve', () => {
     it('cliquer "✔ Valider" → appel POST validate et badge passe à "✔ Validé"', () => {
         visitResults(1, 'manageResults/results_partiel.json');
 
-        cy.intercept('POST', 'http://localhost:8084/commissaire/trials/1/results/validate', {
+        cy.intercept('POST', '**/commissaire/trials/1/results/validate', {
             body: {
                 participantId: 2,
                 participantName: 'John Smith',
@@ -291,7 +291,7 @@ describe('ManageResults – Gestion des résultats d\'une épreuve', () => {
     it('cliquer "✕ Invalider" → appel POST invalidate et message de succès', () => {
         visitResults(1, 'manageResults/results_partiel.json');
 
-        cy.intercept('POST', 'http://localhost:8084/commissaire/trials/1/results/invalidate', {
+        cy.intercept('POST', '**/commissaire/trials/1/results/invalidate', {
             body: {
                 participantId: 1,
                 participantName: 'Marie Athlete',
@@ -314,7 +314,7 @@ describe('ManageResults – Gestion des résultats d\'une épreuve', () => {
     it('après invalidation, le badge de Marie repasse à "Non validé"', () => {
         visitResults(1, 'manageResults/results_partiel.json');
 
-        cy.intercept('POST', 'http://localhost:8084/commissaire/trials/1/results/invalidate', {
+        cy.intercept('POST', '**/commissaire/trials/1/results/invalidate', {
             body: {
                 participantId: 1,
                 participantName: 'Marie Athlete',
@@ -375,7 +375,7 @@ describe('ManageResults – Gestion des résultats d\'une épreuve', () => {
             ]
         };
 
-        cy.intercept('POST', 'http://localhost:8084/commissaire/trials/1/results/validate-all', {
+        cy.intercept('POST', '**/commissaire/trials/1/results/validate-all', {
             body: validatedAll
         }).as('validateAll');
 
@@ -390,7 +390,7 @@ describe('ManageResults – Gestion des résultats d\'une épreuve', () => {
     it('après validation globale, le badge compteur passe à "2/2 validé(s)" (bg-success)', () => {
         visitResults(1, 'manageResults/results_partiel.json');
 
-        cy.intercept('POST', 'http://localhost:8084/commissaire/trials/1/results/validate-all', {
+        cy.intercept('POST', '**/commissaire/trials/1/results/validate-all', {
             body: {
                 trialId: 1,
                 trialName: '100m Solo Trial',
@@ -420,7 +420,7 @@ describe('ManageResults – Gestion des résultats d\'une épreuve', () => {
 
     it('cliquer "← Retour aux épreuves" navigue vers /commissaire/trials', () => {
         cy.intercept(/localhost:8084/, { statusCode: 200, body: {} });
-        cy.intercept('GET', 'http://localhost:8084/commissaire/trials', { body: [] });
+        cy.intercept('GET', '**/commissaire/trials', { body: [] });
         visitResults(1, 'manageResults/results_partiel.json');
         cy.contains('button', '← Retour aux épreuves').click();
         cy.wait(500);

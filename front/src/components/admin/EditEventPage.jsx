@@ -50,11 +50,11 @@ const EditEventPage = () => {
         if (!eventId) return;
         setLoadingDetails(true);
         try {
-            const eventRes = await axios.get(`http://localhost:8084/public/events/${eventId}`);
+            const eventRes = await axios.get(`${import.meta.env.VITE_API_URL}/public/events/${eventId}`);
             const event = eventRes.data;
 
             for (const champ of currentChamps) {
-                const compsRes = await axios.get(`http://localhost:8084/public/championship/${champ.id}/comp`);
+                const compsRes = await axios.get(`${import.meta.env.VITE_API_URL}/public/championship/${champ.id}/comp`);
                 const comps = compsRes.data;
                 const match = comps.find(c => c.name === event.competitionName);
 
@@ -95,8 +95,8 @@ const EditEventPage = () => {
         const initPage = async () => {
             try {
                 const [champsRes, eventsRes] = await Promise.all([
-                    axios.get('http://localhost:8084/public/championship'),
-                    axios.get('http://localhost:8084/public/events')
+                    axios.get(`${import.meta.env.VITE_API_URL}/public/championship`),
+                    axios.get(`${import.meta.env.VITE_API_URL}/public/events`)
                 ]);
                 setChampionships(champsRes.data);
                 setAllEvents(eventsRes.data);
@@ -149,8 +149,8 @@ const EditEventPage = () => {
 
         // CHOIX DE L'URL SELON LE RÔLE
         const url = isCommissaire
-            ? `http://localhost:8084/commissaire/events/${finalId}`
-            : `http://localhost:8084/admin/events/${finalId}`;
+            ? `${import.meta.env.VITE_API_URL}/commissaire/events/${finalId}`
+            : `${import.meta.env.VITE_API_URL}/admin/events/${finalId}`;
 
         try {
             await axios.put(url, dataToSubmit);
@@ -211,7 +211,7 @@ const EditEventPage = () => {
                                                 onChange={async (e) => {
                                                     const champId = e.target.value;
                                                     setSelectedChampionshipId(champId);
-                                                    const res = await axios.get(`http://localhost:8084/public/championship/${champId}/comp`);
+                                                    const res = await axios.get(`${import.meta.env.VITE_API_URL}/public/championship/${champId}/comp`);
                                                     setCompetitions(res.data);
                                                 }}
                                             >

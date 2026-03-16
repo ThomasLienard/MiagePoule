@@ -7,7 +7,7 @@ const PrivacySettings = () => {
     const [loading, setLoading] = useState(true);
     const [message, setMessage] = useState({ type: "", text: "" });
 
-    const API_URL = "http://localhost:8084/account/privacy";
+    const API_URL = `${import.meta.env.VITE_API_URL}/account/privacy`;
     const token = localStorage.getItem("token");
     const config = { headers: { Authorization: `Bearer ${token}` } };
 

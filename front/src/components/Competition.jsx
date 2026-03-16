@@ -60,7 +60,7 @@ const Competition = () => {
             const detailedTrials = await Promise.all(
                 trialsData.map(async (trial) => {
                     try {
-                        const response = await fetch(`http://localhost:8084/public/trials/${trial.id}`);
+                        const response = await fetch(`${import.meta.env.VITE_API_URL}/public/trials/${trial.id}`);
                         if (response.ok) {
                             const detailed = await response.json();
                             return {...detailed, idEvent: trial.idEvent, _isTrial: true};

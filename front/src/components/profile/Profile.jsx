@@ -32,7 +32,7 @@ const Profile = () => {
   const [documents, setDocuments] = useState({});
   const [activeTab, setActiveTab] = useState("profile");
   const [hasRead, setHasRead] = useState(false); // État pour forcer le dépliage de la charte
-  const API_URL = "http://localhost:8084";
+  const API_URL = import.meta.env.VITE_API_URL;
   const token = localStorage.getItem("token");
   const config = { headers: { Authorization: `Bearer ${token}` } };
 

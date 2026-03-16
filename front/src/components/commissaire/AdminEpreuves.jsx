@@ -84,7 +84,7 @@ const AdminEpreuves = () => {
         setIsSubmitting(true);
         try {
             // Appel au endpoint PATCH pour l'annulation
-            await axios.patch(`http://localhost:8084/commissaire/events/${selectedTrial.trialId}/cancel`, {
+            await axios.patch(`${import.meta.env.VITE_API_URL}/commissaire/events/${selectedTrial.trialId}/cancel`, {
                 reason: cancelReason
             });
 

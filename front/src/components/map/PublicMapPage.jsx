@@ -69,7 +69,7 @@ const PublicMapPage = () => {
             const detailedTrials = await Promise.all(
                 basicTrials.map(async (basicTrial) => {
                     try {
-                        const response = await fetch(`http://localhost:8084/public/trials/${basicTrial.id}`);
+                        const response = await fetch(`${import.meta.env.VITE_API_URL}/public/trials/${basicTrial.id}`);
                         if (response.ok) {
                             const detailed = await response.json();
                             return {...detailed, idEvent: basicTrial.idEvent, _isTrial: true};

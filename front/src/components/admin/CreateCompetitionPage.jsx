@@ -19,7 +19,7 @@ const CreateCompetitionPage = () => {
     });
 
     useEffect(() => {
-        axios.get('http://localhost:8084/public/championship')
+        axios.get(`${import.meta.env.VITE_API_URL}/public/championship`)
             .then(res => setChampionships(res.data))
             .catch(err => console.error("Erreur championnats", err));
     }, []);
@@ -80,7 +80,7 @@ const CreateCompetitionPage = () => {
                 championshipId: parseInt(formData.championshipId, 10)
             };
 
-            await axios.post('http://localhost:8084/admin/comps', dataToSend);
+            await axios.post(`${import.meta.env.VITE_API_URL}/admin/comps`, dataToSend);
 
             setStatus({ type: 'success', message: 'Compétition planifiée avec succès !' });
             setTimeout(() => navigate('/admin'), 2000);

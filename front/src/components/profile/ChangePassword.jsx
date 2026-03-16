@@ -6,7 +6,7 @@ const ChangePassword = ({ show, handleClose }) => {
     const [passwords, setPasswords] = useState({ currentPassword: "", newPassword: "" });
     const [status, setStatus] = useState({ type: "", msg: "" });
 
-    const API_URL = "http://localhost:8084/account/password";
+    const API_URL = `${import.meta.env.VITE_API_URL}/account/password`;
     const token = localStorage.getItem("token");
     const config = { headers: { Authorization: `Bearer ${token}` } };
 

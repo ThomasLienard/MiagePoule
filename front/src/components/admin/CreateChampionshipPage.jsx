@@ -46,7 +46,7 @@ const CreateChampionshipPage = () => {
         setLoading(true);
 
         try {
-            await axios.post('http://localhost:8084/admin/champs', formData);
+            await axios.post(`${import.meta.env.VITE_API_URL}/admin/champs`, formData);
 
             setStatus({ type: 'success', message: 'Championnat planifié avec succès !' });
             setTimeout(() => navigate('/admin'), 2000);

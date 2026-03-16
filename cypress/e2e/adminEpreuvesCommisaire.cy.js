@@ -25,13 +25,13 @@ describe('AdminEpreuves – Administration des épreuves', () => {
 
     /** Intercepte les appels résultats pour les 3 épreuves de la fixture de base. */
     const interceptTrialResults = () => {
-        cy.intercept('GET', 'http://localhost:8084/commissaire/trials/1/results', {
+        cy.intercept('GET', '**/commissaire/trials/1/results', {
             fixture: 'adminEpreuves/results1_partiel.json'
         }).as('getResults1');
-        cy.intercept('GET', 'http://localhost:8084/commissaire/trials/2/results', {
+        cy.intercept('GET', '**/commissaire/trials/2/results', {
             fixture: 'adminEpreuves/results2_tous.json'
         }).as('getResults2');
-        cy.intercept('GET', 'http://localhost:8084/commissaire/trials/3/results', {
+        cy.intercept('GET', '**/commissaire/trials/3/results', {
             fixture: 'adminEpreuves/results3_aucun.json'
         }).as('getResults3');
     };
@@ -41,7 +41,7 @@ describe('AdminEpreuves – Administration des épreuves', () => {
 
         cy.intercept(/localhost:8084/, { statusCode: 200, body: {} });
 
-        cy.intercept('GET', 'http://localhost:8084/commissaire/trials', {
+        cy.intercept('GET', '**/commissaire/trials', {
             fixture: 'adminEpreuves/trialsList.json'
         }).as('getTrials');
         interceptTrialResults();
@@ -160,7 +160,7 @@ describe('AdminEpreuves – Administration des épreuves', () => {
 
     it('"Modifier participants" navigue vers /commissaire/trials/1/participants', () => {
         // Intercepter les endpoints appelés par ManageParticipants au chargement
-        cy.intercept('GET', 'http://localhost:8084/commissaire/trials/1/participants/full', {
+        cy.intercept('GET', '**/commissaire/trials/1/participants/full', {
             body: { registered: [], potential: [], trialName: '100m Solo Trial', teamTrial: false }
         }).as('getParticipantsFull');
 
@@ -174,7 +174,7 @@ describe('AdminEpreuves – Administration des épreuves', () => {
 
     it('"Gérer résultats" navigue vers /commissaire/trials/1/results', () => {
         // Intercepter l'endpoint rechargé par ManageResults
-        cy.intercept('GET', 'http://localhost:8084/commissaire/trials/1/results', {
+        cy.intercept('GET', '**/commissaire/trials/1/results', {
             fixture: 'adminEpreuves/results1_partiel.json'
         }).as('getResultsDetail');
 
@@ -196,7 +196,7 @@ describe('AdminEpreuves – Administration des épreuves', () => {
 
     it('affiche "Aucune épreuve disponible" quand la liste retournée est vide', () => {
         cy.intercept(/localhost:8084/, { statusCode: 200, body: {} });
-        cy.intercept('GET', 'http://localhost:8084/commissaire/trials', { body: [] }).as('getTrialsEmpty');
+        cy.intercept('GET', '**/commissaire/trials', { body: [] }).as('getTrialsEmpty');
         cy.visit('/commissaire/trials', { onBeforeLoad: setCommissaireAuth });
         cy.wait('@getTrialsEmpty');
         cy.get('.spinner-border').should('not.exist');
@@ -210,7 +210,7 @@ describe('AdminEpreuves – Administration des épreuves', () => {
 
     it('affiche une alerte .alert-danger en cas d\'erreur 500 au chargement', () => {
         cy.intercept(/localhost:8084/, { statusCode: 200, body: {} });
-        cy.intercept('GET', 'http://localhost:8084/commissaire/trials', {
+        cy.intercept('GET', '**/commissaire/trials', {
             statusCode: 500,
             body: { message: 'Erreur serveur interne' }
         }).as('getTrialsError');

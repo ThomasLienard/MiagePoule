@@ -1,4 +1,4 @@
-const API_BASE_URL = "http://localhost:8084/public";
+const API_BASE_URL = `${import.meta.env.VITE_API_URL}/public`;
 
 class EventService {
     async getAll() {

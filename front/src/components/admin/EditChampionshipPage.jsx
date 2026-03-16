@@ -25,7 +25,7 @@ const EditChampionshipPage = () => {
     useEffect(() => {
         const fetchData = async () => {
             try {
-                const res = await axios.get('http://localhost:8084/public/championship');
+                const res = await axios.get(`${import.meta.env.VITE_API_URL}/public/championship`);
                 setAllChampionships(res.data);
                 if (champIdFromUrl) {
                     const champ = res.data.find(c => c.id === parseInt(champIdFromUrl));
@@ -57,7 +57,7 @@ const EditChampionshipPage = () => {
 
         try {
             // Attention : Vérifie si ton endpoint admin est /admin/championship/{id}
-            await axios.put(`http://localhost:8084/admin/champs/${finalId}`, {
+            await axios.put(`${import.meta.env.VITE_API_URL}/admin/champs/${finalId}`, {
                 id: finalId,
                 ...formData
             });
