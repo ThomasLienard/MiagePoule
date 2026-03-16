@@ -83,7 +83,8 @@ class TrialControllerTest {
             new ArrayList<>(),
             false,
             new ArrayList<>(),
-            new ArrayList<>()
+            new ArrayList<>(),
+            "TIME"
         );
 
         // Setup test user
@@ -259,7 +260,7 @@ class TrialControllerTest {
         // Given
         TrialDetailDTO minimalTrial = new TrialDetailDTO(
             1, "Minimal Trial", "Description", null, null, null,null, new ArrayList<>(),
-            false, new ArrayList<>(), new ArrayList<>()
+            false, new ArrayList<>(), new ArrayList<>(),null
         );
         when(trialService.getTrialById(1)).thenReturn(Optional.of(minimalTrial));
 

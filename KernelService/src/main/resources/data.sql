@@ -49,20 +49,28 @@ VALUES ('MEETING'),
        ('TRIAL');
 
 -- ======================
+-- Type score
+-- ======================
+INSERT INTO type_score (type_score_name)
+VALUES ('TIME'),
+       ('POINTS'),
+       ('NA');
+
+-- ======================
 -- Championships
 -- ======================
 INSERT INTO championship (description_championship, name_championship,
                           start_date_championship, end_date_championship)
-VALUES ('World level championship', 'World Cup', '2025-01-01', '2025-01-02'),
-       ('National level championship', 'National League', '2025-01-01', '2025-01-02');
+VALUES ('World level championship', 'World Cup', '2025-01-01', '2026-01-06'),
+       ('National level championship', 'National League', '2025-01-01', '2026-01-06');
 
 -- ======================
 -- Competitions
 -- ======================
 INSERT INTO competition (name_competition, description_competition,
                          id_championship, start_date_competition, end_date_competition)
-VALUES ('100m Sprint', 'Short distance run', 1, '2025-01-01', '2025-01-02'),
-       ('Marathon', 'Long distance run', 1, '2025-01-01', '2025-01-02');
+VALUES ('100m Sprint', 'Short distance run', 1, '2025-01-01', '2026-06-27'),
+       ('Marathon', 'Long distance run', 1, '2025-01-01', '2026-06-27');
 
 -- ======================
 -- Places
@@ -84,25 +92,30 @@ INSERT INTO time_slot (start_time, end_time)
 VALUES ('2025-01-01 09:00:00', '2025-01-01 10:00:00'),
        ('2026-01-01 10:00:00', '2026-01-01 11:00:00'),
        ('2026-10-09 09:00:00', '2026-10-09 10:00:00'),
-       ('2026-03-02 10:00:00', '2026-03-02 12:00:00'),
-       ('2026-02-16 14:25:00', '2026-02-16 16:25:00');
+       ('2026-03-09 10:00:00', '2026-03-12 12:00:00'),
+       ('2026-02-16 14:25:00', '2026-02-16 16:25:00'),
+       (CURRENT_TIMESTAMP, CURRENT_TIMESTAMP + INTERVAL '1 day'),
+       (CURRENT_TIMESTAMP + INTERVAL '1 day', CURRENT_TIMESTAMP + INTERVAL '2 day');
 
 -- ======================
 -- Events
 -- ======================
-INSERT INTO event (name_event, description_event, type_event_name,
+INSERT INTO event (name_event, description_event, type_event_name, type_score_name,
                    id_place, id_time_slot, id_competition)
-VALUES ('100m Trial Heat 1', 'First qualification heat', 'TRIAL', 1, 1, 1),
-       ('100m Trial Heat 2', 'Second qualification heat', 'TRIAL', 1, 2, 1),
-       ('100m Trial Final', 'Final race', 'TRIAL', 1, 4, 1),
-       ('Marathon Trial Warm-up', 'Warm-up session', 'TRIAL', 2, 2, 2),
-       ('Marathon Qualification', 'Main qualification heat', 'TRIAL', 2, 1, 2),
-       ('Marathon final', 'Main heat', 'TRIAL', 2, 4, 2),
-       ('Training Session A', 'Regular training', 'TRAINING', 3, 1, 1),
-       ('Training Session B', 'Regular training', 'TRAINING', 3, 2, 1),
-       ('Championship Meeting', 'Official gathering', 'MEETING', 3, 3, 2),
-        ('Marathon Final', 'Final race', 'TRIAL', 2, 3, 2),
-        ('200m Sprint Final', 'Finale du 200m sprint — épreuve de démonstration', 'TRIAL', 1, 5, 1);
+VALUES ('100m Trial Heat 1', 'First qualification heat', 'TRIAL', 'TIME',1, 1, 1),
+       ('100m Trial Heat 2', 'Second qualification heat', 'TRIAL', 'TIME', 1, 2, 1),
+       ('100m Trial Final', 'Final race', 'TRIAL', 'TIME', 1, 3, 1),
+       ('Marathon Trial Warm-up', 'Warm-up session', 'TRIAL', 'TIME', 2, 2, 2),
+       ('Marathon Qualification', 'Main qualification heat', 'TRIAL', 'TIME', 2, 1, 2),
+       ('Marathon final', 'Main heat', 'TRIAL', 'TIME', 2, 4, 2),
+       ('Training Session A', 'Regular training', 'TRAINING','NA', 3, 1, 1),
+       ('Training Session B', 'Regular training', 'TRAINING','NA', 3, 2, 1),
+       ('Championship Meeting', 'Official gathering', 'MEETING','NA', 3, 3, 2),
+        ('Marathon Final', 'Final race', 'TRIAL', 'TIME', 2, 3, 2),
+       ('Waterpolo Final', 'Final Match', 'TRIAL', 'POINTS', 2, 7, 2),
+        ('200m Sprint Final', 'Finale du 200m sprint — épreuve de démonstration', 'TRIAL', 'TIME', 1, 5, 1),
+       ('Waterpolo quarter-finals', 'Opening', 'TRIAL', 'POINTS', 2, 6, 2),
+       ('Waterpolo demi-finals', 'Opening', 'TRIAL', 'POINTS', 2, 7, 2);
 
 -- ======================
 -- Trials
@@ -117,7 +130,10 @@ VALUES (1),
        (5),
        (6),
        (10),
-       (11);
+       (11),
+       (12),
+       (13),
+       (14);
 
 -- ======================
 -- Users (MODIFIÉ avec BCrypt)
@@ -167,23 +183,23 @@ VALUES (1, 1),
 -- Team participation: Trial 1 and Trial 2 have team participation
 -- Team B est en forfait sur Trial 1 pour les tests
 INSERT INTO participate_at (id_team, id_trial, trial_result_team, is_forfeit, is_validated)
-VALUES (1, 1, '11.2s', false, true),
+VALUES (1, 1, 11.2, false, true),
        (2, 1, null, true, true),
-       (1, 2, '11.8s', false, true),
-       (2,2, '10.9s', false, true),
+       (1, 2, 11.8, false, true),
+       (2,2, 10.9, false, true),
        (2,3, null, false, false);
 -- ======================
 -- Convened athletes
 -- ======================
 -- Athletes participation: Trial 4 and Trial 5 have athlete convocation (no participate_at)
 INSERT INTO is_convened_to (id, id_trial, trial_result_athlete, is_forfeit, is_validated)
-VALUES (1, 4, '2h15m', false, true),
-       (2, 4, '2h05m', false, true),
-       (3, 5, '11.6s', false, true),
-       (4, 5, '11.1s', false, true),
+VALUES (1, 4, 8100, false, true),
+       (2, 4, 7500, false, true),
+       (3, 5, 11.6, false, true),
+       (4, 5, 11.2, false, true),
        (3, 10, null, false, true),
-       (3, 11, '22.4s', false, true),
-       (5, 11, '22.1s', false, true);
+       (3, 11, 22.4, false, true),
+       (5, 11, 22.1, false, true);
 
 -- ======================
 -- Notifications
@@ -223,18 +239,29 @@ VALUES (1, 1),
        (2, 1),
        (2, 2),
        (2, 3),
-       (2, 4),
-       (2, 5),
-       (2, 6),
-       (2, 9),
-       (2, 11);
+       (3, 3),
+       (4, 4),
+       (5, 5),
+       (6, 4),
+       (6, 5),
+       (6, 6),
+       (6, 9);
 
 -- ======================
 -- Tasks
 -- ======================
-INSERT INTO task (task_name, task_description)
-VALUES ('Prepare track', 'Ensure the track surface is clean'),
-       ('Check timing system', 'Verify sensors and timing devices');
+INSERT INTO task (task_name, task_description, id_event)
+VALUES ('Prepare track', 'Ensure the track surface is clean', 1),
+       ('Prepare track', 'Ensure the track surface is clean', 2),
+       ('Prepare track', 'Ensure the track surface is clean', 3),
+       ('Check timing system', 'Verify sensors and timing devices', 4),
+       ('Check timing system', 'Verify sensors and timing devices', 5),
+       ('Prepare track', 'Ensure the track surface is clean', 6),
+       ('Check timing system', 'Verify sensors and timing devices', 7),
+       ('Goodies', 'Distribute goodies', 13),
+       ('Opening', 'Welcome participants', 13),
+       ('Check timing system', 'Verify timing devices', 14),
+       ('Clean track', 'Clean the confettis after the race', 14);
 
 -- ======================
 -- Event-task association
@@ -247,12 +274,19 @@ VALUES (1, 1),
        (4, 2),
        (5, 2),
        (6, 1),
-       (7, 2);
+       (13, 8),
+       (13, 9),
+       (14, 10),
+       (14, 11);
 
 -- ======================
 -- User tasks
 -- ======================
 INSERT INTO must_do (id, id_task)
-VALUES (2, 2),
-       (3, 1),
-       (4, 2);
+VALUES (4, 4),
+       (4, 1),
+       (4, 5),
+       (4, 8),
+       (4, 9),
+       (4, 10),
+       (4, 11);

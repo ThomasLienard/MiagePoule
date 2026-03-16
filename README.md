@@ -4,6 +4,8 @@
 Projet MiagePoule - Application de gestion d'evenements sportifs.
 
 ⚠️ Le système de mailing ne fonctionne pas sur les PC de la fac car le port 587 est bloqué ⚠️
+⚠️ Bug connu : Parfois lors de la connexion, le front n'énvoie pas de requête au back la première fois. La page de login réapparait et il faut entrer une deuxième fois les identifiants ⚠️
+
 
 ## Informations utiles
 - Google drive : https://drive.google.com/drive/u/0/folders/1j6wGk7S6pKEYNrGJsizqw5gH3CUtYePK
@@ -68,6 +70,9 @@ ou
 - Sportif
   - Mail : athlete@example.com
   - Mot de passe : test123
+- Bénévole
+  - Mail : volontaire@example.com
+  - Mot de passe : test123
 
 
 
@@ -96,10 +101,10 @@ ou
 - ✅ Dépôt de documents (Bénévole, Commissaire, Sportif)
 - ✅ Saisie des résultats (Commissaire)
 - ✅ Déclarer forfait (Sportif)
+- ✅ Accès à l'agenda (Bénévole, Commissaire, Sportif)
+- ✅ Modifier un évènement (Responsable déploiement, Commissaire)
+- ✅ Téléverser un agenda (Responsable déploiement)
 - ⌛ Gestion des notifications
-- ⌛ Accès à l'agenda (Bénévole, Commissaire, Sportif)
-- ⌛ Modifier un évènement (Responsable déploiement, Commissaire)
-- ⌛ Téléverser un agenda (Responsable déploiement)
 - ⌛ Valider le compte d'un sportif (Commissaire)
 - ⌛ Valider le compte d'un commissaire ou d'un bénévole (Responsable déploiement)
 - ⌛ Métrics

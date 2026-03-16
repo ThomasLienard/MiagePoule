@@ -33,5 +33,7 @@ public record CreateEventRequestDTO(
         String descriptionPlace,
         Double latitude,
         Double longitude,
-        boolean hasParking
+        boolean hasParking,
+        
+        String typeScoreName  // Optional: "TIME", "POINTS", etc. Si null, valeur par défaut selon le type d'événement
 ) {}

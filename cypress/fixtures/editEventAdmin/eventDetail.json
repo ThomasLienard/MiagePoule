@@ -1,0 +1,23 @@
+{
+  "id": 1,
+  "name": "100m Trial Heat 1",
+  "description": "First qualification heat",
+  "competitionName": "100m Sprint",
+  "timeSlot": {
+    "start": "2025-01-01T09:00:00",
+    "end": "2025-01-01T10:00:00"
+  },
+  "place": {
+    "id": 1,
+    "name": "France Stadium",
+    "description": null,
+    "street": "Main Street",
+    "number": "1",
+    "city": "Saint-Denis",
+    "zip": "93200",
+    "parking": true,
+    "latitude": 48.9350549,
+    "longitude": 2.3453785
+  },
+  "rankings": []
+}

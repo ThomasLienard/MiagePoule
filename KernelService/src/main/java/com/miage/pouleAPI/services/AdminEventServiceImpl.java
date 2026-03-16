@@ -23,6 +23,7 @@ public class AdminEventServiceImpl implements AdminEventService {
     private final TimeSlotRepository timeSlotRepo;
     private final CompetitionRepository competitionRepo;
     private final TypeEventRepository typeRepo;
+    private final TypeScoreRepository typeScoreRepo;
     private final GeocodingService geocodingService;
 
     @Override
@@ -86,6 +87,17 @@ public class AdminEventServiceImpl implements AdminEventService {
 
     @Override
     @Transactional
+    public void cancelEvent(Integer id, String reason) {
+        Event event = eventRepo.findById(id)
+                .orElseThrow(() -> new RuntimeException("Épreuve introuvable"));
+
+        event.setStatus("CANCELLED");
+        event.setDescription(event.getDescription() + '\n' +reason);
+        eventRepo.save(event);
+    }
+
+    @Override
+    @Transactional
     public void updateEvent(UpdateEventRequestDTO dto) {
         Event existing = eventRepo.findById(dto.getId())
                 .orElseThrow(() -> new RuntimeException("Event introuvable"));
@@ -97,19 +109,16 @@ public class AdminEventServiceImpl implements AdminEventService {
                 .orElseThrow(() -> new RuntimeException("Compétition introuvable"));
         existing.setCompetition(comp);
 
-        if (dto.getTimeSlot() != null) {
-            TimeSlot slot = existing.getTimeSlot();
-            if (dto.getTimeSlot().getStart() != null) {
-                slot.setStart(dto.getTimeSlot().getStart());
-            }
-            if (dto.getTimeSlot().getEnd() != null) {
-                slot.setEnd(dto.getTimeSlot().getEnd());
-            }
-            timeSlotRepo.save(slot);
-        }
+        TimeSlot slot = existing.getTimeSlot();
+        slot.setStart(dto.getTimeSlot().getStart());
+        slot.setEnd(dto.getTimeSlot().getEnd());
+        timeSlotRepo.save(slot);
 
         PlaceDTO p = dto.getPlace();
-        Place place = existing.getPlace();
+
+        Place place = placeRepo.findByNameAndStreetAndCity(p.getName(), p.getStreet(), p.getCity())
+                .orElse(new Place());
+
         place.setName(p.getName());
         place.setStreet(p.getStreet());
         place.setCity(p.getCity());
@@ -117,31 +126,27 @@ public class AdminEventServiceImpl implements AdminEventService {
         place.setNumber(p.getNumber());
         place.setParking(p.getParking());
         place.setDescription(p.getDescription());
-        placeRepo.save(place);
 
-        String typeName = existing.getTypeEvent().getName();
-
-        if ("TRIAL".equalsIgnoreCase(typeName) || "TRIAL".equalsIgnoreCase(dto.getTypeEventName())) {
-            eventRepo.unlinkAllCommissairesFromEvent(existing.getId());
+        if (p.getLatitude() == null || p.getLongitude() == null) {
+            try {
+                String fullAddress = p.getNumber() + " " + p.getStreet() + ", " + p.getZip() + " " + p.getCity();
+                Double[] coords = geocodingService.getCoordinates(fullAddress);
+                place.setLatitude(coords[0]);
+                place.setLongitude(coords[1]);
+            } catch (Exception e) {
+                place.setLatitude(p.getLatitude());
+                place.setLongitude(p.getLongitude());
+            }
+        } else {
+            place.setLatitude(p.getLatitude());
+            place.setLongitude(p.getLongitude());
         }
 
-        if ("TRIAL".equalsIgnoreCase(dto.getTypeEventName()) && dto.getCommissaireId() != null) {
-            eventRepo.linkCommissaireToEvent(dto.getCommissaireId(), existing.getId());
-        }
+        place = placeRepo.save(place);
+
+        existing.setPlace(place);
 
         eventRepo.save(existing);
-    }
-
-
-    @Override
-    @Transactional
-    public void cancelEvent(Integer id, String reason) {
-        Event event = eventRepo.findById(id)
-                .orElseThrow(() -> new RuntimeException("Épreuve introuvable"));
-
-        event.setStatus("CANCELLED");
-        event.setDescription(event.getDescription() + '\n' +reason);
-        eventRepo.save(event);
     }
 
     private void fillEventData(Event e, CreateEventRequestDTO req, TypeEvent t, Place p, TimeSlot s, Competition c) {
@@ -151,5 +156,18 @@ public class AdminEventServiceImpl implements AdminEventService {
         e.setPlace(p);
         e.setTimeSlot(s);
         e.setCompetition(c);
+
+        // Détermine le type de score
+        String scoreTypeName;
+        if (req.typeScoreName() != null && !req.typeScoreName().isBlank()) {
+            // Utilise le type de score spécifié dans la requête
+            scoreTypeName = req.typeScoreName();
+        } else {
+            // Valeur par défaut selon le type d'événement
+            scoreTypeName = "TRIAL".equalsIgnoreCase(req.typeEventName()) ? "TIME" : "NA";
+        }
+
+        e.setTypeScore(typeScoreRepo.findById(scoreTypeName)
+                .orElseThrow(() -> new RuntimeException("Type de score non trouvé: " + scoreTypeName)));
     }
 }

@@ -11,7 +11,7 @@ export default function Layout() {
 
     // Hook notifications SSE
     const userId = user?.id ?? null;
-    const { unreadCount, markAllAsRead, notifications } = useNotificationsSSE(userId);
+    const { unreadCount, notifications } = useNotificationsSSE(userId);
 
     const handleNotificationClick = (eventId) => {
         if (eventId) {
@@ -20,9 +20,9 @@ export default function Layout() {
     };
 
     const popover = (
-        <Popover id="popover-basic">
+        <Popover id="popover-basic" className="notification-panel">
             <Popover.Header as="h4">Notifications</Popover.Header>
-            <Popover.Body className="p-0">
+            <Popover.Body className="p-0 notification-panel">
                 <ListGroup variant="flush" style={{ maxHeight: '300px', overflowY: 'auto' }}>
                     { notifications?.length > 0 ?
                         notifications?.map((notif, index) => (
@@ -30,16 +30,18 @@ export default function Layout() {
                                 key={index}
                                 action
                                 onClick={() => handleNotificationClick(notif?.eventId)}
-                                className={notif?.eventId ? 'cursor-pointer' : ''}
+                                className={`notification-item ${notif?.eventId ? 'cursor-pointer' : ''}`}
                                 style={{ cursor: notif?.eventId ? 'pointer' : 'default' }}
+                                data-date={notif?.emissionDate}
+                                data-type={notif?.type}
                             >
-                                <div className="fw-normal">{notif?.description}</div>
+                                <div className="fw-normal notification-description">{notif?.description}</div>
                                 {notif?.eventId && (
                                     <small className="text-primary">
                                         → Voir les détails
                                     </small>
                                 )}
-                                <div className="text-muted" style={{ fontSize: '0.75em', marginTop: '4px' }}>
+                                <div className="text-muted notification-date" style={{ fontSize: '0.75em', marginTop: '4px' }}>
                                     {new Date(notif?.emissionDate).toLocaleString('fr-FR')}
                                 </div>
                             </ListGroup.Item>
@@ -84,10 +86,23 @@ export default function Layout() {
                                 <Link to="/public/championship"
                                       className="text-decoration-none text-body-secondary">Championnats</Link>
                             </Nav.Link>
+                            {user?.roles?.includes('ATHLETE') && (
+                                <Nav.Link className="auth-button secondary me-2" as="span">
+                                    <Link to={`/public/athlete-trials/${user.id}`}
+                                          className="text-decoration-none text-body-secondary">Mes épreuves</Link>
+                                </Nav.Link>
+                            )}
                             {isAuthenticated() && (
                                 <Nav.Link className="auth-button secondary me-2" as="span">
                                     <Link to="/tickets"
                                           className="text-decoration-none text-body-secondary">📄 Mes Billets</Link>
+                                </Nav.Link>
+                            )}
+
+                            {user?.roles?.includes('VOLONTAIRE') && (
+                                <Nav.Link className="auth-button secondary me-2" as="span">
+                                    <Link to={`/agenda`}
+                                          className="text-decoration-none text-body-secondary">📖 Mon agenda</Link>
                                 </Nav.Link>
                             )}
 
@@ -119,10 +134,9 @@ export default function Layout() {
                         {isAuthenticated() && (
                             <Nav className="me-2">
                                 <OverlayTrigger trigger="click" placement="bottom" overlay={popover}>
-                                <div className="position-relative">
+                                <div className="position-relative notification-button">
                                     <Nav.Link
                                         className="p-0 notification-bell"
-                                        onClick={markAllAsRead}
                                         style={{ cursor: 'pointer' }}
                                     >
                                         🔔
@@ -130,7 +144,7 @@ export default function Layout() {
                                             <Badge
                                                 bg="danger"
                                                 pill
-                                                className="position-absolute top-0 start-100 translate-middle"
+                                                className="position-absolute top-0 start-100 translate-middle notification-badge"
                                                 style={{ fontSize: '0.65em' }}
                                             >
                                                 {unreadCount}

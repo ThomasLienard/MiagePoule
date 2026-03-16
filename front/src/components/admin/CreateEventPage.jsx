@@ -6,12 +6,10 @@ import axios from 'axios';
 const CreateEventPage = () => {
     const navigate = useNavigate();
 
-    // États pour les listes
     const [championships, setChampionships] = useState([]);
     const [competitions, setCompetitions] = useState([]);
     const [commissaires, setCommissaires] = useState([]);
 
-    // États de gestion
     const [loading, setLoading] = useState(false);
     const [status, setStatus] = useState({ type: '', message: '' });
     const [selectedChampionshipId, setSelectedChampionshipId] = useState('');
@@ -67,7 +65,6 @@ const CreateEventPage = () => {
         fetchData();
     }, []);
 
-    // 2. Chargement des compétitions
     useEffect(() => {
         if (selectedChampionshipId) {
             axios.get(`http://localhost:8084/public/championship/${selectedChampionshipId}/comp`)
@@ -99,6 +96,12 @@ const CreateEventPage = () => {
 
         if (form.checkValidity() === false) {
             e.stopPropagation();
+            setValidated(true);
+            return;
+        }
+
+        if (new Date(formData.startTime) >= new Date(formData.endTime)) {
+            setStatus({ type: 'danger', message: 'La date de fin doit être strictement après la date de début.' });
             setValidated(true);
             return;
         }

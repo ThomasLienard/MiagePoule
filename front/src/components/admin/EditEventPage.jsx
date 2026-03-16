@@ -23,6 +23,8 @@ const EditEventPage = () => {
 
     const storedUser = JSON.parse(localStorage.getItem('user')) || {};
     const isCommissaire = storedUser.roles?.includes('COMMISSAIRE');
+    storedUser.roles?.join(', ') || 'INVITÉ';
+
 
     const [formData, setFormData] = useState({
         name: '',
@@ -118,8 +120,6 @@ const EditEventPage = () => {
 
     const handleChange = (e) => {
         const { name, value, type, checked } = e.target;
-
-        // Bloquer tout sauf les dates pour le commissaire
         if (isCommissaire && !["startTime", "endTime"].includes(name)) return;
 
         const val = type === 'checkbox' ? checked : value;

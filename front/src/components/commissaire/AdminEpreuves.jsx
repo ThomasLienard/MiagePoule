@@ -7,7 +7,7 @@ import resultService from '../../services/resultService';
 
 const AdminEpreuves = () => {
     const [trials, setTrials] = useState([]);
-    const [resultsStats, setResultsStats] = useState({}); // { trialId: { validated, total } }
+    const [resultsStats, setResultsStats] = useState({});
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
     const navigate = useNavigate();
@@ -21,6 +21,20 @@ const AdminEpreuves = () => {
     useEffect(() => {
         fetchTrials();
     }, []);
+
+    const getResultsBadgeVariant = (trialId) => {
+        const stats = resultsStats[trialId] ?? { validated: 0, total: 0 };
+
+        if (stats.validated === 0) {
+            return 'secondary';
+        }
+
+        if (stats.validated === stats.total) {
+            return 'success';
+        }
+
+        return 'warning';
+    };
 
     const fetchTrials = async () => {
         try {
@@ -78,6 +92,7 @@ const AdminEpreuves = () => {
             // Rafraîchir la liste : l'épreuve disparaîtra grâce au filtre ci-dessous
             await fetchTrials();
         } catch (err) {
+            console.error("Erreur lors de l'annulation de l'épreuve:", err);
             alert("Erreur lors de l'annulation de l'épreuve.");
         } finally {
             setIsSubmitting(false);
@@ -168,11 +183,107 @@ const AdminEpreuves = () => {
                                         </Card.Body>
                                     </Card>
                                 ))}
+                            {trials
+                                .filter(trial => trial.status !== 'CANCELLED')
+                                .map((trial) => (
+                                    <Card key={trial.trialId} className="border-start border-4">
+                                        <Card.Body>
+                                            <div className="d-flex justify-content-between align-items-center">
+                                                <div>
+                                                    <Card.Title className="mb-1">{trial.trialName}</Card.Title>
+                                                    <div className="d-flex gap-2">
+                                                        <Badge bg={trial.teamTrial ? 'info' : 'success'}>
+                                                            {trial.teamTrial ? '👥 Équipe' : '🏃 Solo'}
+                                                        </Badge>
+                                                        <Badge bg="secondary">
+                                                            {trial.participants?.length || 0} participant(s)
+                                                        </Badge>
+                                                        <Badge
+                                                            bg={getResultsBadgeVariant(trial.trialId)}
+                                                            text={getResultsBadgeVariant(trial.trialId) === 'warning' ? 'dark' : undefined}
+                                                        >
+                                                            {resultsStats[trial.trialId]?.validated ?? 0}/
+                                                            {resultsStats[trial.trialId]?.total ?? 0} résultat(s) validé(s)
+                                                        </Badge>
+                                                    </div>
+                                                </div>
+                                                <div className="d-flex gap-2">
+                                                    <Button
+                                                        variant="outline-secondary"
+                                                        size="sm"
+                                                        onClick={() => navigate(`/commissaire/trials/${trial.trialId}/participants`)}
+                                                    >
+                                                        Modifier participants
+                                                    </Button>
+                                                    <Button
+                                                        variant="outline-secondary"
+                                                        size="sm"
+                                                        onClick={() => navigate(`/commissaire/update-event?id=${trial.trialId}`)}
+                                                    >
+                                                        Modifier date
+                                                    </Button>
+                                                    <Button
+                                                        variant="outline-secondary"
+                                                        onClick={() => navigate(`/commissaire/trials/${trial.trialId}/results`)}
+                                                    >
+                                                        Gérer résultats
+                                                    </Button>
+                                                    <Button
+                                                        variant="outline-danger"
+                                                        size="sm"
+                                                        onClick={() => handleShowCancel(trial)}
+                                                    >
+                                                        Annuler
+                                                    </Button>
+                                                </div>
+                                            </div>
+                                        </Card.Body>
+                                </Card>
+                            ))}
                         </div>
                     )}
                 </Card.Body>
             </Card>
 
+            {/* MODAL D'ANNULATION */}
+            <Modal show={showCancelModal} onHide={handleCloseCancel} centered>
+                <Modal.Header closeButton>
+                    <Modal.Title className="text-danger">🚫 Annulation d'épreuve</Modal.Title>
+                </Modal.Header>
+                <Modal.Body>
+                    <p>Confirmez-vous l'annulation de : <strong>{selectedTrial?.trialName}</strong> ?</p>
+                    <Form.Group className="mt-3">
+                        <Form.Label className="fw-bold">Raison de l'annulation :</Form.Label>
+                        <Form.Control
+                            as="textarea"
+                            rows={3}
+                            placeholder="Ex: Conditions météo, problème technique..."
+                            value={cancelReason}
+                            onChange={(e) => setCancelReason(e.target.value)}
+                            autoFocus
+                        />
+                        <Form.Text className="text-muted">
+                            Cette raison sera ajoutée à la description de l'épreuve.
+                        </Form.Text>
+                    </Form.Group>
+                </Modal.Body>
+                <Modal.Footer className="bg-light">
+                    <Button variant="secondary" onClick={handleCloseCancel} disabled={isSubmitting}>
+                        Abandonner
+                    </Button>
+                    <Button variant="danger" onClick={confirmCancel} disabled={isSubmitting}>
+                        {isSubmitting ? <Spinner size="sm" className="me-2" /> : null}
+                        Confirmer l'annulation
+                    </Button>
+                </Modal.Footer>
+            </Modal>
+            <Button
+                variant="outline-secondary"
+                className="mt-3"
+                onClick={() => navigate(-1)}
+            >
+                ← Retour
+            </Button>
             {/* MODAL D'ANNULATION */}
             <Modal show={showCancelModal} onHide={handleCloseCancel} centered>
                 <Modal.Header closeButton>

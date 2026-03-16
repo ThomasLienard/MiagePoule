@@ -1,0 +1,36 @@
+[
+  {
+    "trialId": 1,
+    "trialName": "saut en super-hauteur",
+    "participants": [
+      {
+        "id": 2,
+        "name": "Team Bisou",
+        "type": "TEAM",
+        "country": "US",
+        "forfeit": false
+      }
+    ],
+    "potentialParticipants": [
+      {
+        "id": 1,
+        "name": "Team Aquarium",
+        "type": "TEAM",
+        "country": "FR"
+      },
+      {
+        "id": 3,
+        "name": "Team Catapulte",
+        "type": "TEAM",
+        "country": "DE"
+      },
+      {
+        "id": 4,
+        "name": "Team Dessert",
+        "type": "TEAM",
+        "country": "ES"
+      }
+    ],
+    "teamTrial": true
+  }
+]

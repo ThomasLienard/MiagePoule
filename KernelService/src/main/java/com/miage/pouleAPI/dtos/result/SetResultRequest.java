@@ -13,5 +13,5 @@ public class SetResultRequest {
     private Integer participantId;
     @NotNull
     private String participantType; // "ATHLETE" or "TEAM"
-    private String result;
+    private Double result;
 }

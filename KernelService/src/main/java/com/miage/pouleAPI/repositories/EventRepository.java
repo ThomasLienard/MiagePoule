@@ -16,6 +16,12 @@ public interface EventRepository extends JpaRepository<Event, Integer> {
     @Query("SELECT e FROM Event e WHERE e.competition.id = :competitionId")
     List<Event> findByCompetitionId(@Param("competitionId") Integer competitionId);
 
+        @Query("SELECT e FROM Event e WHERE LOWER(e.competition.name) = LOWER(:competitionName) AND LOWER(e.name) = LOWER(:eventName)")
+        List<Event> findByCompetitionNameAndEventName(
+            @Param("competitionName") String competitionName,
+            @Param("eventName") String eventName
+        );
+
     @Query("SELECT e FROM Event e WHERE e.typeEvent.name != 'TRIAL'")
     List<Event> findByTypeEventNameNotEqual();
 

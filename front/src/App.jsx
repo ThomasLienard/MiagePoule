@@ -31,6 +31,8 @@ import CreateCompetitionPage from "./components/admin/CreateCompetitionPage.jsx"
 import EditEventPage from "./components/admin/EditEventPage.jsx";
 import EditChampionshipPage from "./components/admin/EditChampionshipPage.jsx";
 import EditCompetitionPage from "./components/admin/EditCompetitionPage.jsx";
+import TrialsByAthlete from "./components/TrialsByAthlete.jsx";
+import Agenda from "./components/volunteer/Agenda.jsx";
 
 function App() {
 
@@ -47,6 +49,7 @@ function App() {
                             <Route path="/change-password" element={<ChangePasswordPage />} />
                             <Route path="/public/events/:id" element={<TrialsAndEventsDetails />} />
                             <Route path="/public/trials/:id" element={<TrialsAndEventsDetails />} />
+                            <Route path="/public/athlete-trials/:athleteId" element={<TrialsByAthlete />} />
 
                             {/* Routes protégées Admin */}
                             <Route path="/admin" element={
@@ -114,6 +117,12 @@ function App() {
                             <Route path="/commissaire/trials/:trialId/results" element={
                                 <ProtectedRoute allowedRoles={['COMMISSAIRE']}>
                                     <ManageResults />
+                                </ProtectedRoute>
+                            } />
+
+                            <Route path="/agenda" element={
+                                <ProtectedRoute allowedRoles={['VOLONTAIRE']}>
+                                    <Agenda />
                                 </ProtectedRoute>
                             } />
 
