@@ -1,8 +1,12 @@
 package com.miage.pouleAPI.services;
 
+import com.miage.pouleAPI.dtos.agenda.AgendaUploadItemDTO;
+import com.miage.pouleAPI.dtos.agenda.TaskUploadItemDTO;
+import com.miage.pouleAPI.dtos.agenda.UploadAgendaResponse;
 import com.miage.pouleAPI.dtos.agenda.VolunteerTaskDTO;
 import com.miage.pouleAPI.entity.*;
 import com.miage.pouleAPI.repositories.ApplicationUserRepository;
+import com.miage.pouleAPI.repositories.EventRepository;
 import com.miage.pouleAPI.repositories.TaskRepository;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
@@ -10,7 +14,6 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
-import org.mockito.MockedStatic;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.core.Authentication;
@@ -24,6 +27,7 @@ import java.util.*;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
@@ -34,6 +38,9 @@ class VolunteerAgendaServiceImplTest {
 
     @Mock
     private TaskRepository taskRepository;
+
+    @Mock
+    private EventRepository eventRepository;
 
     @Mock
     private SecurityContext securityContext;
@@ -421,4 +428,99 @@ class VolunteerAgendaServiceImplTest {
         verify(userRepository, times(1)).findByEmail("volunteer@example.com");
         verify(taskRepository, never()).findTaskForUserById(any(), any());
     }
+
+        @Test
+        @DisplayName("uploadAgendas() - Should replace only tomorrow tasks and keep today's tasks")
+        void testUploadAgendas_ReplaceOnlyTomorrowTasks() {
+        Task existingTodayTask = new Task();
+        existingTodayTask.setId(100);
+        existingTodayTask.setName("Existing today");
+        existingTodayTask.setEvent(eventToday);
+
+        Task existingTomorrowTask = new Task();
+        existingTomorrowTask.setId(101);
+        existingTomorrowTask.setName("Existing tomorrow");
+        existingTomorrowTask.setEvent(eventTomorrow);
+
+        volunteer.setDailyTasks(new HashSet<>(Arrays.asList(existingTodayTask, existingTomorrowTask)));
+
+        AgendaUploadItemDTO uploadItem = new AgendaUploadItemDTO(
+            "volunteer@example.com",
+            List.of(new TaskUploadItemDTO(
+                "New tomorrow task",
+                "Task created by upload",
+                "Marathon",
+                "Event Tomorrow"
+            ))
+        );
+
+        when(userRepository.findByEmail("volunteer@example.com")).thenReturn(Optional.of(volunteer));
+        when(eventRepository.findByCompetitionNameAndEventName(eq("Marathon"), eq("Event Tomorrow")))
+            .thenReturn(List.of(eventTomorrow));
+        when(taskRepository.save(any(Task.class))).thenAnswer(invocation -> {
+            Task t = invocation.getArgument(0);
+            t.setId(999);
+            return t;
+        });
+
+        UploadAgendaResponse response = volunteerAgendaService.uploadAgendas(List.of(uploadItem));
+
+        assertThat(response.successfullyProcessed()).isEqualTo(1);
+        assertThat(response.failed()).isZero();
+        assertThat(response.results()).hasSize(1);
+        assertThat(response.results().get(0).tasksCreated()).isEqualTo(1);
+
+        assertThat(volunteer.getDailyTasks()).hasSize(2);
+        assertThat(volunteer.getDailyTasks()).contains(existingTodayTask);
+        assertThat(volunteer.getDailyTasks())
+            .anySatisfy(task -> assertThat(task.getName()).isEqualTo("New tomorrow task"));
+        assertThat(volunteer.getDailyTasks()).doesNotContain(existingTomorrowTask);
+
+        verify(userRepository, times(1)).save(volunteer);
+        verify(taskRepository, times(1)).save(any(Task.class));
+        }
+
+        @Test
+        @DisplayName("uploadAgendas() - Should fail and keep tasks unchanged when event is not tomorrow")
+        void testUploadAgendas_EventNotTomorrow_ShouldKeepExistingTasks() {
+        Task existingTodayTask = new Task();
+        existingTodayTask.setId(200);
+        existingTodayTask.setName("Existing today");
+        existingTodayTask.setEvent(eventToday);
+
+        Task existingTomorrowTask = new Task();
+        existingTomorrowTask.setId(201);
+        existingTomorrowTask.setName("Existing tomorrow");
+        existingTomorrowTask.setEvent(eventTomorrow);
+
+        Set<Task> initialTasks = new HashSet<>(Arrays.asList(existingTodayTask, existingTomorrowTask));
+        volunteer.setDailyTasks(initialTasks);
+
+        AgendaUploadItemDTO uploadItem = new AgendaUploadItemDTO(
+            "volunteer@example.com",
+            List.of(new TaskUploadItemDTO(
+                "Invalid day task",
+                "Should fail",
+                "100m Sprint",
+                "Event Today"
+            ))
+        );
+
+        when(userRepository.findByEmail("volunteer@example.com")).thenReturn(Optional.of(volunteer));
+        when(eventRepository.findByCompetitionNameAndEventName(eq("100m Sprint"), eq("Event Today")))
+            .thenReturn(List.of(eventToday));
+
+        UploadAgendaResponse response = volunteerAgendaService.uploadAgendas(List.of(uploadItem));
+
+        assertThat(response.successfullyProcessed()).isZero();
+        assertThat(response.failed()).isEqualTo(1);
+        assertThat(response.results()).hasSize(1);
+        assertThat(response.results().get(0).success()).isFalse();
+        assertThat(response.results().get(0).message()).contains("n'est pas planifié pour demain");
+
+        assertThat(volunteer.getDailyTasks()).containsExactlyInAnyOrderElementsOf(initialTasks);
+
+        verify(taskRepository, never()).save(any(Task.class));
+        verify(userRepository, never()).save(volunteer);
+        }
 }

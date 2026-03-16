@@ -112,7 +112,7 @@ VALUES ('100m Trial Heat 1', 'First qualification heat', 'TRIAL', 'TIME',1, 1, 1
        ('Training Session B', 'Regular training', 'TRAINING','NA', 3, 2, 1),
        ('Championship Meeting', 'Official gathering', 'MEETING','NA', 3, 3, 2),
         ('Marathon Final', 'Final race', 'TRIAL', 'TIME', 2, 3, 2),
-       ('Waterpolo Final', 'Final Match', 'TRIAL', 'POINTS', 2, 3, 2),
+       ('Waterpolo Final', 'Final Match', 'TRIAL', 'POINTS', 2, 7, 2),
         ('200m Sprint Final', 'Finale du 200m sprint — épreuve de démonstration', 'TRIAL', 'TIME', 1, 5, 1),
        ('Waterpolo quarter-finals', 'Opening', 'TRIAL', 'POINTS', 2, 6, 2),
        ('Waterpolo demi-finals', 'Opening', 'TRIAL', 'POINTS', 2, 7, 2);
