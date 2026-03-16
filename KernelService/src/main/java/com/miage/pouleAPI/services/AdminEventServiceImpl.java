@@ -97,16 +97,19 @@ public class AdminEventServiceImpl implements AdminEventService {
                 .orElseThrow(() -> new RuntimeException("Compétition introuvable"));
         existing.setCompetition(comp);
 
-        TimeSlot slot = existing.getTimeSlot();
-        slot.setStart(dto.getTimeSlot().getStart());
-        slot.setEnd(dto.getTimeSlot().getEnd());
-        timeSlotRepo.save(slot);
+        if (dto.getTimeSlot() != null) {
+            TimeSlot slot = existing.getTimeSlot();
+            if (dto.getTimeSlot().getStart() != null) {
+                slot.setStart(dto.getTimeSlot().getStart());
+            }
+            if (dto.getTimeSlot().getEnd() != null) {
+                slot.setEnd(dto.getTimeSlot().getEnd());
+            }
+            timeSlotRepo.save(slot);
+        }
 
         PlaceDTO p = dto.getPlace();
-
-        Place place = placeRepo.findByNameAndStreetAndCity(p.getName(), p.getStreet(), p.getCity())
-                .orElse(new Place());
-
+        Place place = existing.getPlace();
         place.setName(p.getName());
         place.setStreet(p.getStreet());
         place.setCity(p.getCity());
@@ -114,28 +117,21 @@ public class AdminEventServiceImpl implements AdminEventService {
         place.setNumber(p.getNumber());
         place.setParking(p.getParking());
         place.setDescription(p.getDescription());
+        placeRepo.save(place);
 
-        if (p.getLatitude() == null || p.getLongitude() == null) {
-            try {
-                String fullAddress = p.getNumber() + " " + p.getStreet() + ", " + p.getZip() + " " + p.getCity();
-                Double[] coords = geocodingService.getCoordinates(fullAddress);
-                place.setLatitude(coords[0]);
-                place.setLongitude(coords[1]);
-            } catch (Exception e) {
-                place.setLatitude(p.getLatitude());
-                place.setLongitude(p.getLongitude());
-            }
-        } else {
-            place.setLatitude(p.getLatitude());
-            place.setLongitude(p.getLongitude());
+        String typeName = existing.getTypeEvent().getName();
+
+        if ("TRIAL".equalsIgnoreCase(typeName) || "TRIAL".equalsIgnoreCase(dto.getTypeEventName())) {
+            eventRepo.unlinkAllCommissairesFromEvent(existing.getId());
         }
 
-        place = placeRepo.save(place);
-
-        existing.setPlace(place);
+        if ("TRIAL".equalsIgnoreCase(dto.getTypeEventName()) && dto.getCommissaireId() != null) {
+            eventRepo.linkCommissaireToEvent(dto.getCommissaireId(), existing.getId());
+        }
 
         eventRepo.save(existing);
     }
+
 
     @Override
     @Transactional
