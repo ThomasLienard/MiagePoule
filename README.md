@@ -96,10 +96,10 @@ ou
 - ✅ Dépôt de documents (Bénévole, Commissaire, Sportif)
 - ✅ Saisie des résultats (Commissaire)
 - ✅ Déclarer forfait (Sportif)
+- ✅ Accès à l'agenda (Bénévole, Commissaire, Sportif)
+- ✅ Modifier un évènement (Responsable déploiement, Commissaire)
+- ✅ Téléverser un agenda (Responsable déploiement)
 - ⌛ Gestion des notifications
-- ⌛ Accès à l'agenda (Bénévole, Commissaire, Sportif)
-- ⌛ Modifier un évènement (Responsable déploiement, Commissaire)
-- ⌛ Téléverser un agenda (Responsable déploiement)
 - ⌛ Valider le compte d'un sportif (Commissaire)
 - ⌛ Valider le compte d'un commissaire ou d'un bénévole (Responsable déploiement)
 - ⌛ Métrics
