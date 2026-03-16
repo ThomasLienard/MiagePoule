@@ -118,7 +118,7 @@ const CreateIncidentModal = ({ show, onClose, onCreated }) => {
                 eventId: formData.incidentMode === 'EVENT' ? (formData.eventId ? Number(formData.eventId) : null) : null,
                 placeId: formData.incidentMode === 'PLACE' ? (formData.placeId ? Number(formData.placeId) : null) : null,
                 competitionId: formData.incidentMode === 'COMPETITION' ? (formData.competitionId ? Number(formData.competitionId) : null) : null,
-                audienceScope: formData.incidentMode === 'COMPETITION' ? formData.audienceScope : 'TOUS'
+                audienceScope: formData.audienceScope === '' ? 'TOUS' : formData.audienceScope
             };
             const created = await adminIncidentService.createIncident(payload);
             onCreated(created);
@@ -232,12 +232,14 @@ const CreateIncidentModal = ({ show, onClose, onCreated }) => {
                     </Row>
 
                     {formData.incidentMode === 'EVENT' && (
+                        <>
                         <Form.Group className="mb-3">
-                            <Form.Label>Épreuve (optionnel)</Form.Label>
+                            <Form.Label>Épreuve</Form.Label>
                             <Form.Select
                                 name="eventId"
                                 value={formData.eventId}
                                 onChange={handleChange}
+                                disabled={ formData.competitionId !== "" || formData.placeId !== "" }
                             >
                                 <option value="">Aucune</option>
                                 {events.map(event => (
@@ -247,24 +249,66 @@ const CreateIncidentModal = ({ show, onClose, onCreated }) => {
                                 ))}
                             </Form.Select>
                         </Form.Group>
+
+                        <Form.Group className="mb-3">
+                                    <Form.Label>Niveau d’impact *</Form.Label>
+                                    <Form.Select
+                                        name="audienceScope"
+                                        value={formData.audienceScope}
+                                        onChange={handleChange}
+                                        isInvalid={!!errors.audienceScope}
+                                    >
+                                        {audienceOptions.map(option => (
+                                            <option key={option.value} value={option.value}>
+                                                {option.label}
+                                            </option>
+                                        ))}
+                                    </Form.Select>
+                                    <Form.Control.Feedback type="invalid">
+                                        {errors.audienceScope}
+                                    </Form.Control.Feedback>
+                                </Form.Group>
+                        </>
                     )}
 
                     {formData.incidentMode === 'PLACE' && (
-                        <Form.Group className="mb-3">
-                            <Form.Label>Lieu (optionnel)</Form.Label>
-                            <Form.Select
-                                name="placeId"
-                                value={formData.placeId}
-                                onChange={handleChange}
-                            >
-                                <option value="">Aucun</option>
-                                {placeOptions.map(place => (
-                                    <option key={place.value} value={place.value}>
-                                        {place.label} ({place.value})
-                                    </option>
-                                ))}
-                            </Form.Select>
-                        </Form.Group>
+                        <>
+                            <Form.Group className="mb-3">
+                                <Form.Label>Lieu</Form.Label>
+                                <Form.Select
+                                    name="placeId"
+                                    value={formData.placeId}
+                                    onChange={handleChange}
+                                    disabled={ formData.eventId !== "" || formData.competitionId !== "" }
+                                >
+                                    <option value="">Aucun</option>
+                                    {placeOptions.map(place => (
+                                        <option key={place.value} value={place.value}>
+                                            {place.label} ({place.value})
+                                        </option>
+                                    ))}
+                                </Form.Select>
+                            </Form.Group>
+
+                            <Form.Group className="mb-3">
+                                    <Form.Label>Niveau d’impact *</Form.Label>
+                                    <Form.Select
+                                        name="audienceScope"
+                                        value={formData.audienceScope}
+                                        onChange={handleChange}
+                                        isInvalid={!!errors.audienceScope}
+                                    >
+                                        {audienceOptions.map(option => (
+                                            <option key={option.value} value={option.value}>
+                                                {option.label}
+                                            </option>
+                                        ))}
+                                    </Form.Select>
+                                    <Form.Control.Feedback type="invalid">
+                                        {errors.audienceScope}
+                                    </Form.Control.Feedback>
+                                </Form.Group>
+                            </>
                     )}
 
                     {formData.incidentMode === 'COMPETITION' && (
@@ -276,6 +320,7 @@ const CreateIncidentModal = ({ show, onClose, onCreated }) => {
                                     value={formData.competitionId}
                                     onChange={handleChange}
                                     isInvalid={!!errors.competitionId}
+                                    disabled={( formData.eventId !== "" || formData.placeId !== "" )}
                                 >
                                     <option value="">Sélectionnez une compétition</option>
                                     {competitions.map(comp => (
@@ -315,7 +360,7 @@ const CreateIncidentModal = ({ show, onClose, onCreated }) => {
                     <Button variant="secondary" onClick={handleClose} disabled={submitting}>
                         Annuler
                     </Button>
-                    <Button variant="secondary" type="submit" disabled={submitting}>
+                    <Button variant="secondary" type="submit" disabled={submitting  || ( formData.eventId === "" && formData.competitionId === "" && formData.placeId === "" ) }>
                         {submitting ? (
                             <>
                                 <Spinner animation="border" size="sm" className="me-2" />
