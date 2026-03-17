@@ -1,11 +1,12 @@
 -- ======================
 -- Countries
 -- ======================
-INSERT INTO country (country_code) VALUES ('FR');
-INSERT INTO country (country_code) VALUES ('US');
-INSERT INTO country (country_code) VALUES ('DE');
-INSERT INTO country (country_code) VALUES ('ES');
-INSERT INTO country (country_code) VALUES ('IT');
+INSERT INTO country (country_code) VALUES ('FR'); -- 1
+INSERT INTO country (country_code) VALUES ('US'); -- 2
+INSERT INTO country (country_code) VALUES ('DE'); -- 3
+INSERT INTO country (country_code) VALUES ('ES'); -- 4
+INSERT INTO country (country_code) VALUES ('IT'); -- 5
+INSERT INTO country (country_code) VALUES ('UK'); -- 6
 
 -- ======================
 -- Roles
@@ -15,6 +16,7 @@ INSERT INTO role (role_name) VALUES ('COMMISSAIRE');
 INSERT INTO role (role_name) VALUES ('ATHLETE');
 INSERT INTO role (role_name) VALUES ('VOLONTAIRE');
 INSERT INTO role (role_name) VALUES ('SPECTATEUR');
+
 -- ======================
 -- Severities
 -- ======================
@@ -136,22 +138,51 @@ VALUES (1),
        (14);
 
 -- ======================
--- Users (MODIFIÉ avec BCrypt)
+-- Users Pour les tests (MODIFIÉ avec BCrypt)
 -- ======================
 -- mdp : "test123"
 
 
 INSERT INTO application_user (name, lastname, password, email, country_code, role_name, is_active, is_account_activated, is_account_validated, must_change_password, created_at, created_by, has_signed_charter)
 VALUES
-    -- Admin existant - email: anna@smith.com
-    ('Anna', 'Smith', '$2a$10$vycWMvbko2wycSl3u6bIL.vCeHgNBQfNq7jpVc7pCEnfER6A2vTLi', 'anna@example.com', 'US', 'ADMIN', true, true, false, false, NOW(), 'system', true),
-    -- Nouveaux utilisateurs pour chaque rôle
-    ('Pierre', 'Commissaire', '$2a$10$vycWMvbko2wycSl3u6bIL.vCeHgNBQfNq7jpVc7pCEnfER6A2vTLi', 'commissaire@example.com', 'FR', 'COMMISSAIRE', true, true, false, false, NOW(), 'system',true),
-    ('Marie', 'Athlete', '$2a$10$vycWMvbko2wycSl3u6bIL.vCeHgNBQfNq7jpVc7pCEnfER6A2vTLi', 'athlete@example.com', 'FR', 'ATHLETE', true, true, false, false, NOW(), 'system', false),
-    ('Jean', 'Volontaire', '$2a$10$vycWMvbko2wycSl3u6bIL.vCeHgNBQfNq7jpVc7pCEnfER6A2vTLi', 'volontaire@example.com', 'FR', 'VOLONTAIRE', true, true, false, false, NOW(), 'system', true),
-    ('John', 'Doe', '$2a$10$vycWMvbko2wycSl3u6bIL.vCeHgNBQfNq7jpVc7pCEnfER6A2vTLi', 'john@example.com', 'US', 'ATHLETE', true, true, false, false, NOW(), 'system',true),
-    ('Jane', 'Smith', '$2a$10$vycWMvbko2wycSl3u6bIL.vCeHgNBQfNq7jpVc7pCEnfER6A2vTLi', 'jane@example.com', 'US', 'COMMISSAIRE', true, true, false, false, NOW(), 'system', true),
-    ('Spec', 'tateur', '$2a$10$vycWMvbko2wycSl3u6bIL.vCeHgNBQfNq7jpVc7pCEnfER6A2vTLi', 'spec@example.com', 'US', 'SPECTATEUR', true, true, false, false, NOW(), 'system', true);
+    ('Anna', 'Smith', '$2a$10$vycWMvbko2wycSl3u6bIL.vCeHgNBQfNq7jpVc7pCEnfER6A2vTLi', 'anna@example.com', 'US', 'ADMIN', true, true, false, false, NOW(), 'system', true),  -- 1
+    ('Pierre', 'Commissaire', '$2a$10$vycWMvbko2wycSl3u6bIL.vCeHgNBQfNq7jpVc7pCEnfER6A2vTLi', 'commissaire@example.com', 'FR', 'COMMISSAIRE', true, true, false, false, NOW(), 'system',true), -- 2
+    ('Marie', 'Athlete', '$2a$10$vycWMvbko2wycSl3u6bIL.vCeHgNBQfNq7jpVc7pCEnfER6A2vTLi', 'athlete@example.com', 'FR', 'ATHLETE', true, true, false, false, NOW(), 'system', false), -- 3
+    ('Jean', 'Volontaire', '$2a$10$vycWMvbko2wycSl3u6bIL.vCeHgNBQfNq7jpVc7pCEnfER6A2vTLi', 'volontaire@example.com', 'FR', 'VOLONTAIRE', true, true, false, false, NOW(), 'system', true), -- 4
+    ('John', 'Doe', '$2a$10$vycWMvbko2wycSl3u6bIL.vCeHgNBQfNq7jpVc7pCEnfER6A2vTLi', 'john@example.com', 'US', 'ATHLETE', true, true, false, false, NOW(), 'system',true), -- 5
+    ('Jane', 'Smith', '$2a$10$vycWMvbko2wycSl3u6bIL.vCeHgNBQfNq7jpVc7pCEnfER6A2vTLi', 'jane@example.com', 'US', 'COMMISSAIRE', true, true, false, false, NOW(), 'system', true), -- 6
+    ('Spec', 'tateur', '$2a$10$vycWMvbko2wycSl3u6bIL.vCeHgNBQfNq7jpVc7pCEnfER6A2vTLi', 'spec@example.com', 'US', 'SPECTATEUR', true, true, false, false, NOW(), 'system', true), -- 7
+
+
+-- ======================
+-- Users Pour remplir la BDD
+-- ======================
+
+    ('Robert', 'Bulle', '$2a$10$vycWMvbko2wycSl3u6bIL.vCeHgNBQfNq7jpVc7pCEnfER6A2vTLi', 'robert@example.com', 'FR', 'ATHLETE', true, true, true, false, NOW(), 'system', false), -- 8
+    ('Richard', 'Bateau', '$2a$10$vycWMvbko2wycSl3u6bIL.vCeHgNBQfNq7jpVc7pCEnfER6A2vTLi', 'richard@example.com', 'FR', 'ATHLETE', true, true, true, false, NOW(), 'system', false), -- 9
+    ('Jean', 'Pate', '$2a$10$vycWMvbko2wycSl3u6bIL.vCeHgNBQfNq7jpVc7pCEnfER6A2vTLi', 'jean@example.com', 'FR', 'ATHLETE', true, true, true, false, NOW(), 'system', false), -- 10
+
+    ('Antonio', 'Agua', '$2a$10$vycWMvbko2wycSl3u6bIL.vCeHgNBQfNq7jpVc7pCEnfER6A2vTLi', 'antionio@example.com', 'ES', 'ATHLETE', true, true, true, false, NOW(), 'system', false), -- 11
+    ('Luis', 'Martinez', '$2a$10$vycWMvbko2wycSl3u6bIL.vCeHgNBQfNq7jpVc7pCEnfER6A2vTLi', 'luis@example.com', 'ES', 'ATHLETE', true, true, true, false, NOW(), 'system', false), -- 12
+    ('Alberto', 'Rodriguez', '$2a$10$vycWMvbko2wycSl3u6bIL.vCeHgNBQfNq7jpVc7pCEnfER6A2vTLi', 'alberto@example.com', 'ES', 'ATHLETE', true, true, true, false, NOW(), 'system', false), -- 13
+
+    ('George', 'Been', '$2a$10$vycWMvbko2wycSl3u6bIL.vCeHgNBQfNq7jpVc7pCEnfER6A2vTLi', 'george@example.com', 'UK', 'ATHLETE', true, true, true, false, NOW(), 'system', false), -- 14
+    ('Henry', 'Water', '$2a$10$vycWMvbko2wycSl3u6bIL.vCeHgNBQfNq7jpVc7pCEnfER6A2vTLi', 'henry@example.com', 'UK', 'ATHLETE', true, true, true, false, NOW(), 'system', false), -- 15
+    ('James', 'Bubbles', '$2a$10$vycWMvbko2wycSl3u6bIL.vCeHgNBQfNq7jpVc7pCEnfER6A2vTLi', 'james@example.com', 'UK', 'ATHLETE', true, true, true, false, NOW(), 'system', false), -- 16
+
+    ('Francine', 'Baguette', '$2a$10$vycWMvbko2wycSl3u6bIL.vCeHgNBQfNq7jpVc7pCEnfER6A2vTLi', 'francine@example.com', 'FR', 'ATHLETE', true, true, true, false, NOW(), 'system', false), -- 16
+    ('Clothilde', 'Croissant', '$2a$10$vycWMvbko2wycSl3u6bIL.vCeHgNBQfNq7jpVc7pCEnfER6A2vTLi', 'clothilde@example.com', 'FR', 'ATHLETE', true, true, true, false, NOW(), 'system', false), -- 17
+    ('Odile', 'Fromage', '$2a$10$vycWMvbko2wycSl3u6bIL.vCeHgNBQfNq7jpVc7pCEnfER6A2vTLi', 'odile@example.com', 'FR', 'ATHLETE', true, true, true, false, NOW(), 'system', false), -- 18
+
+    ('Cecilia', 'Perro', '$2a$10$vycWMvbko2wycSl3u6bIL.vCeHgNBQfNq7jpVc7pCEnfER6A2vTLi', 'cecilia@example.com', 'ES', 'ATHLETE', true, true, true, false, NOW(), 'system', false), -- 19
+    ('Dolores', 'Natacion', '$2a$10$vycWMvbko2wycSl3u6bIL.vCeHgNBQfNq7jpVc7pCEnfER6A2vTLi', 'dolores@example.com', 'ES', 'ATHLETE', true, true, true, false, NOW(), 'system', false), -- 20
+    ('Maria', 'Caracol', '$2a$10$vycWMvbko2wycSl3u6bIL.vCeHgNBQfNq7jpVc7pCEnfER6A2vTLi', 'maria@example.com', 'ES', 'ATHLETE', true, true, true, false, NOW(), 'system', false), -- 21
+
+    ('Elizabeth', 'Second', '$2a$10$vycWMvbko2wycSl3u6bIL.vCeHgNBQfNq7jpVc7pCEnfER6A2vTLi', 'elizabeth@example.com', 'UK', 'ATHLETE', true, true, true, false, NOW(), 'system', false), -- 22
+    ('Harper', 'Towel', '$2a$10$vycWMvbko2wycSl3u6bIL.vCeHgNBQfNq7jpVc7pCEnfER6A2vTLi', 'harper@example.com', 'UK', 'ATHLETE', true, true, true, false, NOW(), 'system', false), -- 23
+    ('Charlotte', 'Brown', '$2a$10$vycWMvbko2wycSl3u6bIL.vCeHgNBQfNq7jpVc7pCEnfER6A2vTLi', 'charlotte@example.com', 'UK', 'ATHLETE', true, true, true, false, NOW(), 'system', false); -- 24
+
+
 
 -- ======================
 -- Documents
@@ -165,10 +196,17 @@ VALUES
 -- Teams
 -- ======================
 INSERT INTO team (name_team, country_code)
-VALUES ('Team A', 'FR'),
-       ('Team B', 'US'),
-       ('Team C', 'DE'),
-       ('Team D', 'ES');
+VALUES ('Team A', 'FR'), -- 1
+       ('Team B', 'US'), -- 2
+       ('Team C', 'DE'), -- 3
+       ('Team D', 'ES'), -- 4
+       ('FR Hommes', 'FR'), -- 5
+       ('ES Hommes', 'ES'), -- 6
+       ('UK Hommes', 'UK'), -- 7
+       ('FR Femmes', 'FR'), -- 8
+       ('ES Femmes', 'ES'), -- 9
+       ('UK Femmes', 'UK'); -- 10
+
 
 -- ======================
 -- Membership
@@ -262,22 +300,6 @@ VALUES ('Prepare track', 'Ensure the track surface is clean', 1),
        ('Opening', 'Welcome participants', 13),
        ('Check timing system', 'Verify timing devices', 14),
        ('Clean track', 'Clean the confettis after the race', 14);
-
--- ======================
--- Event-task association
--- ======================
--- Associate tasks to trials and other events
-INSERT INTO is_associated_to (id, id_task)
-VALUES (1, 1),
-       (2, 1),
-       (3, 1),
-       (4, 2),
-       (5, 2),
-       (6, 1),
-       (13, 8),
-       (13, 9),
-       (14, 10),
-       (14, 11);
 
 -- ======================
 -- User tasks
