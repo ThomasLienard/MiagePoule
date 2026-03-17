@@ -17,8 +17,11 @@ public class UpdateEventRequestDTO {
     private Integer id;
     private String name;
     private String description;
+    private String typeEventName;
     private Integer competitionId;
     private TimeSlotDTO timeSlot;
+    Integer commissaireId;
     private PlaceDTO place;
+    private String scoreType;
     private List<RankingDTO> rankings;
 }

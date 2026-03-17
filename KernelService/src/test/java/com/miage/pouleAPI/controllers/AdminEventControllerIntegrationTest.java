@@ -33,7 +33,7 @@ class AdminEventControllerIntegrationTest {
     void shouldAcceptValidEventRequest() throws Exception {
         CreateEventRequestDTO request = new CreateEventRequestDTO(
                 "Nouveau Test" + System.currentTimeMillis(), "Description", "TRIAL", 1,
-                LocalDateTime.now().plusDays(5), LocalDateTime.now().plusDays(5).plusHours(1),
+                LocalDateTime.now().plusDays(5), LocalDateTime.now().plusDays(5).plusHours(1),2,
                 "Stade Unique", "Paris", "Avenue", "99", "75000",
                 "PMR", 10.0, 10.0, true, null
         );
@@ -49,7 +49,7 @@ class AdminEventControllerIntegrationTest {
     void shouldReturnBadRequestWhenNameIsMissing() throws Exception {
         CreateEventRequestDTO invalidRequest = new CreateEventRequestDTO(
                 null, "Description", "TRIAL", 1,
-                LocalDateTime.now().plusDays(5), LocalDateTime.now().plusDays(5).plusHours(1),
+                LocalDateTime.now().plusDays(5), LocalDateTime.now().plusDays(5).plusHours(1),2,
                 "Stade", "Paris", "Rue", "1", "75000",
                 "PMR", 10.0, 10.0, true, null
         );
@@ -65,7 +65,7 @@ class AdminEventControllerIntegrationTest {
     void shouldForbiddenWhenUserIsNotAdmin() throws Exception {
         CreateEventRequestDTO request = new CreateEventRequestDTO(
                 "Test Fraude", "Desc", "TRIAL", 1,
-                LocalDateTime.now().plusDays(2), LocalDateTime.now().plusDays(2).plusHours(1),
+                LocalDateTime.now().plusDays(2), LocalDateTime.now().plusDays(2).plusHours(1),2,
                 "Lieu", "Ville", "Rue", "1", "00000",
                 "NONE", 5.0, 5.0, false, null
         );

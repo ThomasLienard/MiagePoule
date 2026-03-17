@@ -23,6 +23,8 @@ public record CreateEventRequestDTO(
         @NotNull(message = "La date de fin est obligatoire")
         LocalDateTime endTime,
 
+        Integer commissaireId,
+
         String placeName,
         String city,
         String street,
