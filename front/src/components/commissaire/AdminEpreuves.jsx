@@ -1,9 +1,10 @@
 import React, { useState, useEffect } from 'react';
 import { Container, Card, Button, Spinner, Alert, Badge, Modal, Form } from 'react-bootstrap';
 import { useNavigate } from 'react-router-dom';
-import axios from 'axios';
 import participantService from '../../services/participantService';
 import resultService from '../../services/resultService';
+import {eventService} from "../../services/eventService.jsx";
+import axios from "axios";
 
 const AdminEpreuves = () => {
     const [trials, setTrials] = useState([]);
@@ -83,8 +84,7 @@ const AdminEpreuves = () => {
 
         setIsSubmitting(true);
         try {
-            // Appel au endpoint PATCH pour l'annulation
-            await axios.patch(`${import.meta.env.VITE_API_URL}/commissaire/events/${selectedTrial.trialId}/cancel`, {
+            await eventService.cancelEvent(selectedTrial.trialId, {
                 reason: cancelReason
             });
 

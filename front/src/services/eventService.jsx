@@ -1,3 +1,5 @@
+import axios from "axios";
+
 const API_BASE_URL = `${import.meta.env.VITE_API_URL}/public`;
 
 class EventService {
@@ -101,6 +103,16 @@ class EventService {
             throw new Error(`HTTP ${response.status}: Failed to fetch trials for competition`);
         }
         return response.json();
+    }
+
+    async cancelEvent(eventId, data) {
+        try {
+            return await axios.patch(
+                `${import.meta.env.VITE_API_URL}/commissaire/events/${eventId}/cancel`,
+                data);
+        } catch (error) {
+            throw new Error(error.response?.data?.message || 'Erreur lors de la mise à jour');
+        }
     }
 }
 

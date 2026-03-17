@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { Form, Button, Row, Col, Card, Container, Alert, Spinner } from 'react-bootstrap';
 import { useLocation, useNavigate } from 'react-router-dom';
 import axios from 'axios';
+import {getChampionships} from "../../services/championshipService.jsx";
 
 const EditChampionshipPage = () => {
     const location = useLocation();
@@ -25,7 +26,7 @@ const EditChampionshipPage = () => {
     useEffect(() => {
         const fetchData = async () => {
             try {
-                const res = await axios.get(`${import.meta.env.VITE_API_URL}/public/championship`);
+                const res = await getChampionships();
                 setAllChampionships(res.data);
                 if (champIdFromUrl) {
                     const champ = res.data.find(c => c.id === parseInt(champIdFromUrl));

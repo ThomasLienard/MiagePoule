@@ -9,3 +9,7 @@ export const getChampionships = () => {
 export const getChampionshipById = (id) => {
     return axios.get(`${API_BASE}/championship/${id}`).then(res => res.data);
 };
+
+export const createChampionship = (data) => {
+    return axios.post(`${import.meta.env.VITE_API_URL}/admin/champs`, data);
+}

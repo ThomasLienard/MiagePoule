@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { Form, Button, Row, Col, Card, Container, Alert, Spinner } from 'react-bootstrap';
 import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
+import {createChampionship} from "../../services/championshipService.jsx";
 
 const CreateChampionshipPage = () => {
     const navigate = useNavigate();
@@ -46,7 +47,7 @@ const CreateChampionshipPage = () => {
         setLoading(true);
 
         try {
-            await axios.post(`${import.meta.env.VITE_API_URL}/admin/champs`, formData);
+            await createChampionship(formData);
 
             setStatus({ type: 'success', message: 'Championnat planifié avec succès !' });
             setTimeout(() => navigate('/admin'), 2000);

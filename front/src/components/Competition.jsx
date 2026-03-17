@@ -6,6 +6,7 @@ import TrialsAndEventsCard from "./TrialsAndEventsCard.jsx";
 import {isPastEvent} from "../utils/dateFormatter.js";
 import {Button} from "react-bootstrap";
 import {useAuth} from "../contexts/AuthContext.jsx";
+import {getTrial} from "../services/trialService.jsx";
 
 const Competition = () => {
     const {id: idChampionship, idComp: idCompetition} = useParams();
@@ -60,9 +61,9 @@ const Competition = () => {
             const detailedTrials = await Promise.all(
                 trialsData.map(async (trial) => {
                     try {
-                        const response = await fetch(`${import.meta.env.VITE_API_URL}/public/trials/${trial.id}`);
-                        if (response.ok) {
-                            const detailed = await response.json();
+                        const response = await getTrial(trial.id);
+                        if (response.status === 200) {
+                            const detailed = await response.data;
                             return {...detailed, idEvent: trial.idEvent, _isTrial: true};
                         }
                         return {...trial, _isTrial: true};

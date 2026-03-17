@@ -12,6 +12,7 @@ import {
 } from '../../constants/mapSettings';
 import {Card, Col, Row, Spinner, Form, FloatingLabel} from "react-bootstrap";
 import {formatDate, isPastEvent} from "../../utils/dateFormatter.js";
+import {getTrial} from "../../services/trialService.jsx";
 
 const PublicMapPage = () => {
     const [events, setEvents] = useState([]);
@@ -29,7 +30,7 @@ const PublicMapPage = () => {
 
     const {isLoaded, loadError} = useJsApiLoader({
         id: "google-map-script",
-        googleMapsApiKey: import.meta.env.VITE_GOOGLE_MAPS_API_KEY || "AIzaSyA3efzW0xg7YQY9CbCSsJsFOp4On2daNPI",
+        googleMapsApiKey: "AIzaSyA3efzW0xg7YQY9CbCSsJsFOp4On2daNPI",
         libraries: ["places"],
     });
 
@@ -69,9 +70,9 @@ const PublicMapPage = () => {
             const detailedTrials = await Promise.all(
                 basicTrials.map(async (basicTrial) => {
                     try {
-                        const response = await fetch(`${import.meta.env.VITE_API_URL}/public/trials/${basicTrial.id}`);
-                        if (response.ok) {
-                            const detailed = await response.json();
+                        const response = await getTrial(basicTrial.id);
+                        if (response.status === 200) {
+                            const detailed = await response.data;
                             return {...detailed, idEvent: basicTrial.idEvent, _isTrial: true};
                         }
                         return {...basicTrial, _isTrial: true};
