@@ -4,7 +4,6 @@ import { useNavigate } from 'react-router-dom';
 import participantService from '../../services/participantService';
 import resultService from '../../services/resultService';
 import {eventService} from "../../services/eventService.jsx";
-import axios from "axios";
 
 const AdminEpreuves = () => {
     const [trials, setTrials] = useState([]);
@@ -25,15 +24,8 @@ const AdminEpreuves = () => {
 
     const getResultsBadgeVariant = (trialId) => {
         const stats = resultsStats[trialId] ?? { validated: 0, total: 0 };
-
-        if (stats.validated === 0) {
-            return 'secondary';
-        }
-
-        if (stats.validated === stats.total) {
-            return 'success';
-        }
-
+        if (stats.validated === 0) return 'secondary';
+        if (stats.validated === stats.total && stats.total > 0) return 'success';
         return 'warning';
     };
 
@@ -87,12 +79,10 @@ const AdminEpreuves = () => {
             await eventService.cancelEvent(selectedTrial.trialId, {
                 reason: cancelReason
             });
-
             handleCloseCancel();
-            // Rafraîchir la liste : l'épreuve disparaîtra grâce au filtre ci-dessous
             await fetchTrials();
         } catch (err) {
-            console.error("Erreur lors de l'annulation de l'épreuve:", err);
+            console.error("Erreur lors de l'annulation:", err);
             alert("Erreur lors de l'annulation de l'épreuve.");
         } finally {
             setIsSubmitting(false);
@@ -109,14 +99,6 @@ const AdminEpreuves = () => {
         );
     }
 
-    if (error) {
-        return (
-            <Container className="py-4">
-                <Alert variant="danger">{error}</Alert>
-            </Container>
-        );
-    }
-
     return (
         <Container className="py-4">
             <h1 className="mb-4">🏆 Administration des épreuves</h1>
@@ -127,10 +109,10 @@ const AdminEpreuves = () => {
             {error && <Alert variant="danger">{error}</Alert>}
 
             <Card className="shadow-sm">
-                <Card.Header as="h5" className="bg-white">Vos épreuves</Card.Header>
+                <Card.Header as="h5" className="bg-white">Épreuves à gérer</Card.Header>
                 <Card.Body className="overflow-auto" style={{ maxHeight: '70vh' }}>
                     {trials.filter(t => t.status !== 'CANCELLED').length === 0 ? (
-                        <p className="text-center text-muted my-4">Aucune épreuve disponible</p>
+                        <p className="text-center text-muted my-4">Aucune épreuve active à gérer.</p>
                     ) : (
                         <div className="d-flex flex-column gap-3">
                             {trials
@@ -141,7 +123,7 @@ const AdminEpreuves = () => {
                                             <div className="d-flex justify-content-between align-items-center">
                                                 <div>
                                                     <Card.Title className="mb-1">{trial.trialName}</Card.Title>
-                                                    <div className="d-flex gap-2">
+                                                    <div className="d-flex gap-2 flex-wrap">
                                                         <Badge bg={trial.teamTrial ? 'info' : 'success'}>
                                                             {trial.teamTrial ? '👥 Équipe' : '🏃 Solo'}
                                                         </Badge>
@@ -157,26 +139,27 @@ const AdminEpreuves = () => {
                                                         </Badge>
                                                     </div>
                                                 </div>
-                                                <div className="d-flex gap-2">
+                                                <div className="d-flex gap-2 flex-wrap justify-content-end">
                                                     <Button
                                                         variant="outline-secondary"
                                                         size="sm"
                                                         onClick={() => navigate(`/commissaire/trials/${trial.trialId}/participants`)}
                                                     >
-                                                        Modifier participants
+                                                        Modifier les participants
                                                     </Button>
                                                     <Button
                                                         variant="outline-secondary"
                                                         size="sm"
                                                         onClick={() => navigate(`/commissaire/update-event?id=${trial.trialId}`)}
                                                     >
-                                                        Modifier date
+                                                        Modifier les dates
                                                     </Button>
                                                     <Button
                                                         variant="outline-secondary"
+                                                        size="sm"
                                                         onClick={() => navigate(`/commissaire/trials/${trial.trialId}/results`)}
                                                     >
-                                                        Gérer résultats
+                                                        Gérer les résultats
                                                     </Button>
                                                     <Button
                                                         variant="outline-danger"
@@ -188,8 +171,8 @@ const AdminEpreuves = () => {
                                                 </div>
                                             </div>
                                         </Card.Body>
-                                </Card>
-                            ))}
+                                    </Card>
+                                ))}
                         </div>
                     )}
                 </Card.Body>
@@ -202,7 +185,8 @@ const AdminEpreuves = () => {
             >
                 ← Retour
             </Button>
-            {/* MODAL D'ANNULATION */}
+
+            {/* MODAL D'ANNULATION (Unique) */}
             <Modal show={showCancelModal} onHide={handleCloseCancel} centered>
                 <Modal.Header closeButton>
                     <Modal.Title className="text-danger">🚫 Annulation d'épreuve</Modal.Title>
