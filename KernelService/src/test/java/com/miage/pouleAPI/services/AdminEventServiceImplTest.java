@@ -169,12 +169,14 @@ class AdminEventServiceImplTest {
         dto.setTypeEventName("TRIAL");
         dto.setCompetitionId(10);
         dto.setCommissaireId(50);
+        dto.setScoreType("TIME");
         dto.setTimeSlot(new TimeSlotDTO(LocalDateTime.now(), LocalDateTime.now().plusHours(2)));
 
         dto.setPlace(new PlaceDTO(null, "New Place", "Desc", "Street", "1", "City", "75000", true, 0.0, 0.0));
 
         when(eventRepo.findById(eventId)).thenReturn(Optional.of(existingEvent));
         when(competitionRepo.findById(10)).thenReturn(Optional.of(new Competition()));
+        when(typeScoreRepo.findById(anyString())).thenReturn(Optional.of(new TypeScore()));
 
         adminEventService.updateEvent(dto);
 
@@ -195,6 +197,6 @@ class AdminEventServiceImplTest {
     private CreateEventRequestDTO createSampleDTO(String type) {
         return new CreateEventRequestDTO("Test", "Desc", type, 1,
                 LocalDateTime.now(), LocalDateTime.now().plusHours(1), 2,
-                "Stade", "Paris", "Rue", "1", "75000", "PMR", 0.0, 0.0, true);
+                "Stade", "Paris", "Rue", "1", "75000", "PMR", 0.0, 0.0, true, "TIME");
     }
 }

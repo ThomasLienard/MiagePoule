@@ -22,5 +22,6 @@ public class UpdateEventRequestDTO {
     private TimeSlotDTO timeSlot;
     Integer commissaireId;
     private PlaceDTO place;
+    private String scoreType;
     private List<RankingDTO> rankings;
 }

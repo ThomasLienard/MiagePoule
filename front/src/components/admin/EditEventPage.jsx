@@ -29,7 +29,7 @@ const EditEventPage = () => {
     const [formData, setFormData] = useState({
         name: '',
         description: '',
-        typeEventName: 'MEETING',
+        typeEventName: '',
         competitionId: '',
         commissaireId: '',
         startTime: '',
@@ -293,6 +293,14 @@ const EditEventPage = () => {
                                                 ))}
                                             </Form.Select>
                                         </Form.Group>
+                                        <Col md={3}>
+                                            <Form.Label className="fw-bold">Système de Score</Form.Label>
+                                            <Form.Select name="typeScoreName" value={formData.typeScoreName} onChange={handleChange}>
+                                                <option value="">Par défaut</option>
+                                                <option value="TIME">Temps (Chrono)</option>
+                                                <option value="POINTS">Points</option>
+                                            </Form.Select>
+                                        </Col>
                                     </Card.Body>
                                 </Card>
                             )}
