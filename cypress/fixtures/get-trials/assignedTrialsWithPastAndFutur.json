@@ -1,0 +1,18 @@
+{
+  "soloTrials": [
+    {
+      "id": 4,
+      "idEvent": 4,
+      "name": "Marathon Trial Warm-up",
+      "description": "Warm-up session"
+    }
+  ],
+  "teamTrials": [
+    {
+      "id": 1,
+      "idEvent": 1,
+      "name": "100m Trial Heat 1",
+      "description": "First qualification heat"
+    }
+  ]
+}
