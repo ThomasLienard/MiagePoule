@@ -114,6 +114,10 @@ class EventService {
             throw new Error(error.response?.data?.message || 'Erreur lors de la mise à jour');
         }
     }
+
+    async createEvent(eventData) {
+        return axios.post(`${import.meta.env.VITE_API_URL}/admin/events`, eventData);
+    }
 }
 
 export const eventService = new EventService();

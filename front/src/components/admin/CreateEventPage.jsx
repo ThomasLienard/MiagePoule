@@ -1,7 +1,9 @@
 import React, { useState, useEffect } from 'react';
 import { Form, Button, Row, Col, Card, Container, Alert, Spinner } from 'react-bootstrap';
 import { useNavigate } from 'react-router-dom';
-import axios from 'axios';
+import {getChampionshipCompetition, getChampionships} from "../../services/championshipService.jsx";
+import {eventService} from "../../services/eventService.jsx";
+import axios from "axios";
 
 const CreateEventPage = () => {
     const navigate = useNavigate();
@@ -21,7 +23,7 @@ const CreateEventPage = () => {
         typeEventName: '',
         competitionId: '',
         commissaireId: '',
-        typeScoreName: '', // Conservé du merge
+        typeScoreName: '',
         startTime: '',
         endTime: '',
         placeName: '',
@@ -72,7 +74,7 @@ const CreateEventPage = () => {
 
     useEffect(() => {
         if (selectedChampionshipId) {
-            axios.get(`${import.meta.env.VITE_API_URL}/public/championship/${selectedChampionshipId}/comp`)
+            getChampionshipCompetition(selectedChampionshipId)
                 .then(res => setCompetitions(res.data))
                 .catch(() => setCompetitions([]));
         } else {
@@ -101,8 +103,7 @@ const CreateEventPage = () => {
     const handleSubmit = async (e) => {
         const form = e.currentTarget;
         e.preventDefault();
-
-        // On réinitialise le statut au début de chaque tentative
+        setValidated(false);
         setStatus({ type: '', message: '' });
 
         if (form.checkValidity() === false) {
@@ -149,6 +150,8 @@ const CreateEventPage = () => {
             });
 
             // Redirection après un court délai pour laisser l'utilisateur voir le message de succès
+            await eventService.createEvent(formData)
+            setStatus({ type: 'success', message: 'Évènement planifié avec succès !' });
             setTimeout(() => navigate('/admin'), 2000);
 
         } catch (error) {
