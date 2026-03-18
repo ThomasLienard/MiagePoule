@@ -63,16 +63,23 @@ VALUES ('TIME'),
 -- ======================
 INSERT INTO championship (description_championship, name_championship,
                           start_date_championship, end_date_championship)
-VALUES ('World level championship', 'World Cup', '2025-01-01', '2026-01-06'),
-       ('National level championship', 'National League', '2025-01-01', '2026-01-06');
+VALUES ('World level championship', 'World Cup', '2025-01-01', '2026-01-06'), -- 1
+       ('National level championship', 'National League', '2025-01-01', '2026-01-06'), -- 2
+       ('Compétition internationnale de Waterpolo', 'Waterpolo', '2026-01-01', '2026-04-12'), --3
+       ('Compétition de nage', 'Nage', '2026-01-25', '2026-04-30'); --4
+
 
 -- ======================
 -- Competitions
 -- ======================
 INSERT INTO competition (name_competition, description_competition,
                          id_championship, start_date_competition, end_date_competition)
-VALUES ('100m Sprint', 'Short distance run', 1, '2025-01-01', '2026-06-27'),
-       ('Marathon', 'Long distance run', 1, '2025-01-01', '2026-06-27');
+VALUES ('100m Sprint', 'Short distance run', 1, '2025-01-01', '2026-06-27'), -- 1
+       ('Marathon', 'Long distance run', 1, '2025-01-01', '2026-06-27'), -- 2
+       ('Waterpolo féminin', 'Section femme de la compétition de waterpolo', 3, '2026-01-01', '2026-04-12'), -- 3
+       ('Waterpolo masculin', 'Section homme de la compétition de waterpolo', 3, '2026-01-01', '2026-04-12'), --4
+       ('Nage féminin', 'Section femme de la compétition de nage', 4, '2026-01-25', '2026-04-30'), -- 5
+       ('Nage masculin', 'Section homme de la compétition de nage', 4, '2026-01-25', '2026-04-30'); -- 6
 
 -- ======================
 -- Places
@@ -81,43 +88,84 @@ INSERT INTO place (name_place, city_place, zip_code_place, street_place,
                    parking_place, number_place, description_place,
                    latitude_place, longitude_place)
 VALUES ('France Stadium', 'Saint-Denis', '93200', 'Main Street', TRUE, '1',
-        'Central stadium', 48.924459, 2.360164),
+        'Central stadium', 48.924459, 2.360164),--1
        ('Bercy Sports Palace', 'Paris', '75012', 'Boulevard de Bercy', FALSE, '8',
-        'Indoor sports complex', 48.8365, 2.3738),
+        'Indoor sports complex', 48.8365, 2.3738),--2
        ('Champ de Mars', 'Paris', '75007', 'Avenue de la Bourdonnais', TRUE, '2',
-        'Large public greenspace', 48.8550, 2.2980);
+        'Large public greenspace', 48.8550, 2.2980);--3
 
 -- ======================
 -- Time slots
 -- ======================
 INSERT INTO time_slot (start_time, end_time)
-VALUES ('2025-01-01 09:00:00', '2025-01-01 10:00:00'),
-       ('2026-01-01 10:00:00', '2026-01-01 11:00:00'),
-       ('2026-10-09 09:00:00', '2026-10-09 10:00:00'),
-       ('2026-03-09 10:00:00', '2026-03-12 12:00:00'),
-       ('2026-02-16 14:25:00', '2026-02-16 16:25:00'),
-       (CURRENT_TIMESTAMP, CURRENT_TIMESTAMP + INTERVAL '1 day'),
-       (CURRENT_TIMESTAMP + INTERVAL '1 day', CURRENT_TIMESTAMP + INTERVAL '2 day');
+VALUES ('2025-01-01 09:00:00', '2025-01-01 10:00:00'), --1
+       ('2026-01-01 10:00:00', '2026-01-01 11:00:00'), --2
+       ('2026-10-09 09:00:00', '2026-10-09 10:00:00'), --3
+       ('2026-03-09 10:00:00', '2026-03-12 12:00:00'), --4
+       ('2026-02-16 14:25:00', '2026-02-16 16:25:00'), --5
+       (CURRENT_TIMESTAMP, CURRENT_TIMESTAMP + INTERVAL '1 day'), --6
+       (CURRENT_TIMESTAMP + INTERVAL '1 day', CURRENT_TIMESTAMP + INTERVAL '2 day'), --7
+
+       ('2026-01-25 05:00:00', '2026-01-25 07:25:00'), --8
+       ('2026-02-25 08:00:00', '2026-02-25 18:25:00'), --9
+       ('2026-02-26 08:00:00', '2026-02-26 18:25:00'), --10
+       ('2026-03-28 08:00:00', '2026-03-28 18:25:00'), --11
+       ('2026-04-05 08:00:00', '2026-04-05 18:25:00'), --12
+       ('2026-04-10 08:00:00', '2026-04-10 19:25:00'), --13
+       ('2026-04-12 14:00:00', '2026-04-12 17:25:00'); --14
 
 -- ======================
 -- Events
 -- ======================
 INSERT INTO event (name_event, description_event, type_event_name, type_score_name,
                    id_place, id_time_slot, id_competition)
-VALUES ('100m Trial Heat 1', 'First qualification heat', 'TRIAL', 'TIME',1, 1, 1),
-       ('100m Trial Heat 2', 'Second qualification heat', 'TRIAL', 'TIME', 1, 2, 1),
-       ('100m Trial Final', 'Final race', 'TRIAL', 'TIME', 1, 3, 1),
-       ('Marathon Trial Warm-up', 'Warm-up session', 'TRIAL', 'TIME', 2, 2, 2),
-       ('Marathon Qualification', 'Main qualification heat', 'TRIAL', 'TIME', 2, 1, 2),
-       ('Marathon final', 'Main heat', 'TRIAL', 'TIME', 2, 4, 2),
-       ('Training Session A', 'Regular training', 'TRAINING','NA', 3, 1, 1),
-       ('Training Session B', 'Regular training', 'TRAINING','NA', 3, 2, 1),
-       ('Championship Meeting', 'Official gathering', 'MEETING','NA', 3, 3, 2),
-        ('Marathon Final', 'Final race', 'TRIAL', 'TIME', 2, 3, 2),
-       ('Waterpolo Final', 'Final Match', 'TRIAL', 'POINTS', 2, 7, 2),
-        ('200m Sprint Final', 'Finale du 200m sprint — épreuve de démonstration', 'TRIAL', 'TIME', 1, 5, 1),
-       ('Waterpolo quarter-finals', 'Opening', 'TRIAL', 'POINTS', 2, 6, 2),
-       ('Waterpolo demi-finals', 'Opening', 'TRIAL', 'POINTS', 2, 7, 2);
+VALUES ('100m Trial Heat 1', 'First qualification heat', 'TRIAL', 'TIME',1, 1, 1), -- 1
+       ('100m Trial Heat 2', 'Second qualification heat', 'TRIAL', 'TIME', 1, 2, 1), -- 2
+       ('100m Trial Final', 'Final race', 'TRIAL', 'TIME', 1, 3, 1), -- 3
+       ('Marathon Trial Warm-up', 'Warm-up session', 'TRIAL', 'TIME', 2, 2, 2), -- 4
+       ('Marathon Qualification', 'Main qualification heat', 'TRIAL', 'TIME', 2, 1, 2), -- 5
+       ('Marathon final', 'Main heat', 'TRIAL', 'TIME', 2, 4, 2), -- 6
+       ('Training Session A', 'Regular training', 'TRAINING','NA', 3, 1, 1), -- 7
+       ('Training Session B', 'Regular training', 'TRAINING','NA', 3, 2, 1), -- 8
+       ('Championship Meeting', 'Official gathering', 'MEETING','NA', 3, 3, 2), -- 9
+        ('Marathon Final', 'Final race', 'TRIAL', 'TIME', 2, 3, 2), -- 10
+       ('Waterpolo Final', 'Final Match', 'TRIAL', 'POINTS', 2, 7, 2), -- 11
+        ('200m Sprint Final', 'Finale du 200m sprint — épreuve de démonstration', 'TRIAL', 'TIME', 1, 5, 1), -- 12
+       ('Waterpolo quarter-finals', 'Opening', 'TRIAL', 'POINTS', 2, 6, 2), -- 13
+       ('Waterpolo demi-finals', 'Opening', 'TRIAL', 'POINTS', 2, 7, 2), -- 14
+
+    ------------------- Données de remplissage
+       -- Waterpolo
+       ('Waterpolo féminin - Ouverture', 'Ouverture officielle de la compétition', 'MEETING','NA', 3, 8, 3), -- 15
+       ('Waterpolo masculin - Ouverture', 'Ouverture officielle de la compétition', 'MEETING','NA', 3, 8, 4), -- 16
+       ('Poules waterpolo féminin', 'Les poules du warerpolo féminin', 'TRIAL', 'POINTS', 2, 9, 3), -- 17
+       ('Poules waterpolo masculin', 'Les poules du warerpolo masculin', 'TRIAL', 'POINTS', 2, 9, 4), -- 18
+       ('Cinquième de finales waterpolo masculin', 'La description descriptive', 'TRIAL', 'POINTS', 2, 10, 4), -- 19
+       ('Cinquième de finales waterpolo féminin', 'La description descriptive', 'TRIAL', 'POINTS', 2, 10, 3), -- 20
+       ('Quart de finales waterpolo masculin', 'La description descriptive', 'TRIAL', 'POINTS', 2, 11, 4), -- 21
+       ('Quart de finales waterpolo féminin', 'La description descriptive', 'TRIAL', 'POINTS', 2, 11, 3), -- 22
+       ('Demi finales waterpolo masculin', 'La description descriptive', 'TRIAL', 'POINTS', 2, 12, 4), -- 23
+       ('Demi finales waterpolo féminin', 'La description descriptive', 'TRIAL', 'POINTS', 2, 12, 3), -- 24
+       ('Finale waterpolo masculin', 'La description descriptive', 'TRIAL', 'POINTS', 2, 13, 4), -- 25
+       ('Finale waterpolo féminin', 'La description descriptive', 'TRIAL', 'POINTS', 2, 13, 3), -- 26
+       ('Remise de médailles waterpolo féminin', 'Fermeture officielle de la compétition', 'MEETING','NA', 3, 14, 3), -- 27
+       ('Remise de médailles waterpolo masculin', 'Fermeture officielle de la compétition', 'MEETING','NA', 3, 14, 4), -- 28
+        -- Nage
+       -- Waterpolo
+       ('Nage féminin - Ouverture', 'Ouverture officielle de la compétition', 'MEETING','NA', 3, 8, 5), -- 29
+       ('Nage masculin - Ouverture', 'Ouverture officielle de la compétition', 'MEETING','NA', 3, 8, 6), -- 30
+       ('100m nage libe féminin', 'Nager librement', 'TRIAL', 'TIME', 2, 9, 5), -- 31
+       ('100m nage libre masculin', 'Nager librement', 'TRIAL', 'TIME', 2, 9, 6), -- 32
+       ('200 mètres brasse masculin', 'Avec les bras', 'TRIAL', 'TIME', 2, 10, 6), -- 33
+       ('200 mètres brasse féminin', 'Avec les bras', 'TRIAL', 'TIME', 2, 10, 5), -- 34
+       ('200 mètres papillon masculin', 'La description descriptive', 'TRIAL', 'TIME', 2, 11, 6), -- 35
+       ('200 mètres papillon féminin', 'La description descriptive', 'TRIAL', 'TIME', 2, 11, 5), -- 36
+       ('400 mètres quatre nages masculin', 'La description descriptive', 'TRIAL', 'TIME', 2, 12, 6), -- 37
+       ('400 mètres quatre nages féminin', 'La description descriptive', 'TRIAL', 'TIME', 2, 12, 5), -- 38
+       ('1 500 mètres nage libre masculin', 'La description descriptive', 'TRIAL', 'TIME', 2, 13, 6), -- 39
+       ('1 500 mètres nage libre féminin', 'La description descriptive', 'TRIAL', 'TIME', 2, 13, 5), -- 40
+       ('Remise de médailles nage féminin', 'Fermeture officielle de la compétition', 'MEETING','NA', 3, 14, 6), -- 41
+       ('Remise de médailles nage masculin', 'Fermeture officielle de la compétition', 'MEETING','NA', 3, 14, 5); -- 24
 
 -- ======================
 -- Trials
@@ -135,7 +183,29 @@ VALUES (1),
        (11),
        (12),
        (13),
-       (14);
+       (14),
+       (17),
+       (18),
+       (19),
+       (20),
+       (21),
+       (22),
+       (23),
+       (24),
+       (25),
+       (26),
+       (31),
+       (32),
+       (33),
+       (34),
+       (35),
+       (36),
+       (37),
+       (38),
+       (39),
+       (40);
+
+
 
 -- ======================
 -- Users Pour les tests (MODIFIÉ avec BCrypt)
@@ -170,17 +240,17 @@ VALUES
     ('Henry', 'Water', '$2a$10$vycWMvbko2wycSl3u6bIL.vCeHgNBQfNq7jpVc7pCEnfER6A2vTLi', 'henry@example.com', 'UK', 'ATHLETE', true, true, true, false, NOW(), 'system', false), -- 15
     ('James', 'Bubbles', '$2a$10$vycWMvbko2wycSl3u6bIL.vCeHgNBQfNq7jpVc7pCEnfER6A2vTLi', 'james@example.com', 'UK', 'ATHLETE', true, true, true, false, NOW(), 'system', false), -- 16
 
-    ('Francine', 'Baguette', '$2a$10$vycWMvbko2wycSl3u6bIL.vCeHgNBQfNq7jpVc7pCEnfER6A2vTLi', 'francine@example.com', 'FR', 'ATHLETE', true, true, true, false, NOW(), 'system', false), -- 16
-    ('Clothilde', 'Croissant', '$2a$10$vycWMvbko2wycSl3u6bIL.vCeHgNBQfNq7jpVc7pCEnfER6A2vTLi', 'clothilde@example.com', 'FR', 'ATHLETE', true, true, true, false, NOW(), 'system', false), -- 17
-    ('Odile', 'Fromage', '$2a$10$vycWMvbko2wycSl3u6bIL.vCeHgNBQfNq7jpVc7pCEnfER6A2vTLi', 'odile@example.com', 'FR', 'ATHLETE', true, true, true, false, NOW(), 'system', false), -- 18
+    ('Francine', 'Baguette', '$2a$10$vycWMvbko2wycSl3u6bIL.vCeHgNBQfNq7jpVc7pCEnfER6A2vTLi', 'francine@example.com', 'FR', 'ATHLETE', true, true, true, false, NOW(), 'system', false), -- 17
+    ('Clothilde', 'Croissant', '$2a$10$vycWMvbko2wycSl3u6bIL.vCeHgNBQfNq7jpVc7pCEnfER6A2vTLi', 'clothilde@example.com', 'FR', 'ATHLETE', true, true, true, false, NOW(), 'system', false), -- 18
+    ('Odile', 'Fromage', '$2a$10$vycWMvbko2wycSl3u6bIL.vCeHgNBQfNq7jpVc7pCEnfER6A2vTLi', 'odile@example.com', 'FR', 'ATHLETE', true, true, true, false, NOW(), 'system', false), -- 19
 
-    ('Cecilia', 'Perro', '$2a$10$vycWMvbko2wycSl3u6bIL.vCeHgNBQfNq7jpVc7pCEnfER6A2vTLi', 'cecilia@example.com', 'ES', 'ATHLETE', true, true, true, false, NOW(), 'system', false), -- 19
-    ('Dolores', 'Natacion', '$2a$10$vycWMvbko2wycSl3u6bIL.vCeHgNBQfNq7jpVc7pCEnfER6A2vTLi', 'dolores@example.com', 'ES', 'ATHLETE', true, true, true, false, NOW(), 'system', false), -- 20
-    ('Maria', 'Caracol', '$2a$10$vycWMvbko2wycSl3u6bIL.vCeHgNBQfNq7jpVc7pCEnfER6A2vTLi', 'maria@example.com', 'ES', 'ATHLETE', true, true, true, false, NOW(), 'system', false), -- 21
+    ('Cecilia', 'Perro', '$2a$10$vycWMvbko2wycSl3u6bIL.vCeHgNBQfNq7jpVc7pCEnfER6A2vTLi', 'cecilia@example.com', 'ES', 'ATHLETE', true, true, true, false, NOW(), 'system', false), -- 20
+    ('Dolores', 'Natacion', '$2a$10$vycWMvbko2wycSl3u6bIL.vCeHgNBQfNq7jpVc7pCEnfER6A2vTLi', 'dolores@example.com', 'ES', 'ATHLETE', true, true, true, false, NOW(), 'system', false), -- 21
+    ('Maria', 'Caracol', '$2a$10$vycWMvbko2wycSl3u6bIL.vCeHgNBQfNq7jpVc7pCEnfER6A2vTLi', 'maria@example.com', 'ES', 'ATHLETE', true, true, true, false, NOW(), 'system', false), -- 22
 
-    ('Elizabeth', 'Second', '$2a$10$vycWMvbko2wycSl3u6bIL.vCeHgNBQfNq7jpVc7pCEnfER6A2vTLi', 'elizabeth@example.com', 'UK', 'ATHLETE', true, true, true, false, NOW(), 'system', false), -- 22
-    ('Harper', 'Towel', '$2a$10$vycWMvbko2wycSl3u6bIL.vCeHgNBQfNq7jpVc7pCEnfER6A2vTLi', 'harper@example.com', 'UK', 'ATHLETE', true, true, true, false, NOW(), 'system', false), -- 23
-    ('Charlotte', 'Brown', '$2a$10$vycWMvbko2wycSl3u6bIL.vCeHgNBQfNq7jpVc7pCEnfER6A2vTLi', 'charlotte@example.com', 'UK', 'ATHLETE', true, true, true, false, NOW(), 'system', false); -- 24
+    ('Elizabeth', 'Second', '$2a$10$vycWMvbko2wycSl3u6bIL.vCeHgNBQfNq7jpVc7pCEnfER6A2vTLi', 'elizabeth@example.com', 'UK', 'ATHLETE', true, true, true, false, NOW(), 'system', false), -- 23
+    ('Harper', 'Towel', '$2a$10$vycWMvbko2wycSl3u6bIL.vCeHgNBQfNq7jpVc7pCEnfER6A2vTLi', 'harper@example.com', 'UK', 'ATHLETE', true, true, true, false, NOW(), 'system', false), -- 24
+    ('Charlotte', 'Brown', '$2a$10$vycWMvbko2wycSl3u6bIL.vCeHgNBQfNq7jpVc7pCEnfER6A2vTLi', 'charlotte@example.com', 'UK', 'ATHLETE', true, true, true, false, NOW(), 'system', false); -- 25
 
 
 
@@ -213,7 +283,31 @@ VALUES ('Team A', 'FR'), -- 1
 -- ======================
 INSERT INTO is_a_part_of (id, id_team)
 VALUES (1, 1),
-       (2, 2);
+       (2, 2),
+       -- FR Hommes
+        (8,5),
+       (9,5),
+       (10,5),
+       -- ES Hommes
+       (11,6),
+       (12,6),
+       (13,6),
+       -- UK Hommes
+       (14,7),
+       (15,7),
+       (16,7),
+       -- FR Femmes
+       (17,8),
+       (18,8),
+       (19,8),
+       -- ES Femmes
+       (20,9),
+       (21,9),
+       (22,9),
+       -- UK Femmes
+       (23,10),
+       (24,10),
+       (25,10);
 
 -- ======================
 -- Participation
