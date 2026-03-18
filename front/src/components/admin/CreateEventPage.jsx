@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Form, Button, Row, Col, Card, Container, Alert, Spinner } from 'react-bootstrap';
 import { useNavigate } from 'react-router-dom';
-import {getChampionshipCompetition, getChampionships} from "../../services/championshipService.jsx";
+import {getChampionshipCompetition} from "../../services/championshipService.jsx";
 import {eventService} from "../../services/eventService.jsx";
 import axios from "axios";
 
@@ -126,7 +126,7 @@ const CreateEventPage = () => {
                 message: 'La date de fin doit être strictement après la date de début.'
             });
             setValidated(true);
-            return; // On arrête tout ici si les dates sont incohérentes
+            return;
         }
 
         setLoading(true);
@@ -153,7 +153,6 @@ const CreateEventPage = () => {
             await eventService.createEvent(formData)
             setStatus({ type: 'success', message: 'Évènement planifié avec succès !' });
             setTimeout(() => navigate('/admin'), 2000);
-
         } catch (error) {
             console.error("Erreur API:", error);
             setStatus({
