@@ -1,6 +1,9 @@
 package com.miage.pouleAPI.services;
 
 import com.miage.pouleAPI.dtos.event.CreateEventRequestDTO;
+import com.miage.pouleAPI.dtos.event.UpdateEventRequestDTO;
+import com.miage.pouleAPI.dtos.place.PlaceDTO;
+import com.miage.pouleAPI.dtos.timeslot.TimeSlotDTO;
 import com.miage.pouleAPI.entity.*;
 import com.miage.pouleAPI.repositories.*;
 import org.junit.jupiter.api.Test;
@@ -115,7 +118,6 @@ class AdminEventServiceImplTest {
 
     @Test
     void cancelEvent_ShouldUpdateStatusAndAppendReasonToDescription() {
-        // GIVEN
         Integer eventId = 1;
         String initialDesc = "Compétition de natation";
         String cancelReason = "Panne de filtrage";
@@ -130,13 +132,8 @@ class AdminEventServiceImplTest {
         adminEventService.cancelEvent(eventId, cancelReason);
 
         assertEquals("CANCELLED", event.getStatus());
-
-        org.junit.jupiter.api.Assertions.assertTrue(
-                event.getDescription().contains(cancelReason),
-                "La description devrait contenir la raison de l'annulation"
-        );
-
-        org.junit.jupiter.api.Assertions.assertTrue(event.getDescription().startsWith(initialDesc));
+        assertTrue(event.getDescription().contains(cancelReason));
+        assertTrue(event.getDescription().startsWith(initialDesc));
 
         verify(eventRepo).save(event);
     }
@@ -153,6 +150,43 @@ class AdminEventServiceImplTest {
         verify(eventRepo, never()).save(any());
     }
 
+    @Test
+    void updateEvent_ShouldUpdateAllFieldsAndHandleCommissaireLink() {
+        Integer eventId = 1;
+
+        TypeEvent oldType = new TypeEvent();
+        oldType.setName("MEETING");
+
+        Event existingEvent = new Event();
+        existingEvent.setId(eventId);
+        existingEvent.setTypeEvent(oldType);
+        existingEvent.setTimeSlot(new TimeSlot());
+        existingEvent.setPlace(new Place());
+
+        UpdateEventRequestDTO dto = new UpdateEventRequestDTO();
+        dto.setId(eventId);
+        dto.setName("New Name");
+        dto.setTypeEventName("TRIAL");
+        dto.setCompetitionId(10);
+        dto.setCommissaireId(50);
+        dto.setScoreType("TIME");
+        dto.setTimeSlot(new TimeSlotDTO(LocalDateTime.now(), LocalDateTime.now().plusHours(2)));
+
+        dto.setPlace(new PlaceDTO(null, "New Place", "Desc", "Street", "1", "City", "75000", true, 0.0, 0.0));
+
+        when(eventRepo.findById(eventId)).thenReturn(Optional.of(existingEvent));
+        when(competitionRepo.findById(10)).thenReturn(Optional.of(new Competition()));
+        when(typeScoreRepo.findById(anyString())).thenReturn(Optional.of(new TypeScore()));
+
+        adminEventService.updateEvent(dto);
+
+        verify(eventRepo).unlinkAllCommissairesFromEvent(eventId);
+        verify(eventRepo).linkCommissaireToEvent(50, eventId);
+        verify(eventRepo).save(existingEvent);
+        assertEquals("New Name", existingEvent.getName());
+    }
+
+
     private void setupCommonMocks() {
         when(timeSlotRepo.save(any())).thenReturn(new TimeSlot());
         when(typeRepo.findById(anyString())).thenReturn(Optional.of(new TypeEvent()));
@@ -162,7 +196,7 @@ class AdminEventServiceImplTest {
 
     private CreateEventRequestDTO createSampleDTO(String type) {
         return new CreateEventRequestDTO("Test", "Desc", type, 1,
-                LocalDateTime.now(), LocalDateTime.now().plusHours(1),
-                "Stade", "Paris", "Rue", "1", "75000", "PMR", 0.0, 0.0, true, null);
+                LocalDateTime.now(), LocalDateTime.now().plusHours(1), 2,
+                "Stade", "Paris", "Rue", "1", "75000", "PMR", 0.0, 0.0, true, "TIME");
     }
 }

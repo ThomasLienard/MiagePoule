@@ -67,15 +67,33 @@ public class AdminEventServiceImpl implements AdminEventService {
         Competition comp = competitionRepo.findById(req.competitionId())
                 .orElseThrow(() -> new RuntimeException("Compétition non trouvée"));
 
+
         if ("TRIAL".equalsIgnoreCase(req.typeEventName())) {
             Trial trial = new Trial();
             fillEventData(trial, req, type, place, slot, comp);
             trialRepo.save(trial);
+            if (req.commissaireId() != null) {
+                eventRepo.linkCommissaireToEvent(req.commissaireId(), trial.getId());
+            }
         } else {
             Event event = new Event();
             fillEventData(event, req, type, place, slot, comp);
             eventRepo.save(event);
+            if (req.commissaireId() != null) {
+                eventRepo.linkCommissaireToEvent(req.commissaireId(), event.getId());
+            }
         }
+    }
+
+    @Override
+    @Transactional
+    public void cancelEvent(Integer id, String reason) {
+        Event event = eventRepo.findById(id)
+                .orElseThrow(() -> new RuntimeException("Épreuve introuvable"));
+
+        event.setStatus("CANCELLED");
+        event.setDescription(event.getDescription() + '\n' +reason);
+        eventRepo.save(event);
     }
 
     @Override
@@ -92,54 +110,67 @@ public class AdminEventServiceImpl implements AdminEventService {
         existing.setCompetition(comp);
 
         TimeSlot slot = existing.getTimeSlot();
-        slot.setStart(dto.getTimeSlot().getStart());
-        slot.setEnd(dto.getTimeSlot().getEnd());
-        timeSlotRepo.save(slot);
+        if (dto.getTimeSlot() != null) {
+            if (dto.getTimeSlot().getStart() != null) slot.setStart(dto.getTimeSlot().getStart());
+            if (dto.getTimeSlot().getEnd() != null) slot.setEnd(dto.getTimeSlot().getEnd());
+            timeSlotRepo.save(slot);
+        }
 
         PlaceDTO p = dto.getPlace();
+        if (p != null) {
+            Place place = placeRepo.findByNameAndStreetAndCity(p.getName(), p.getStreet(), p.getCity())
+                    .orElse(new Place());
 
-        Place place = placeRepo.findByNameAndStreetAndCity(p.getName(), p.getStreet(), p.getCity())
-                .orElse(new Place());
+            place.setName(p.getName());
+            place.setStreet(p.getStreet());
+            place.setCity(p.getCity());
+            place.setZip(p.getZip());
+            place.setNumber(p.getNumber());
+            place.setParking(p.getParking());
+            place.setDescription(p.getDescription());
 
-        place.setName(p.getName());
-        place.setStreet(p.getStreet());
-        place.setCity(p.getCity());
-        place.setZip(p.getZip());
-        place.setNumber(p.getNumber());
-        place.setParking(p.getParking());
-        place.setDescription(p.getDescription());
-
-        if (p.getLatitude() == null || p.getLongitude() == null) {
-            try {
-                String fullAddress = p.getNumber() + " " + p.getStreet() + ", " + p.getZip() + " " + p.getCity();
-                Double[] coords = geocodingService.getCoordinates(fullAddress);
-                place.setLatitude(coords[0]);
-                place.setLongitude(coords[1]);
-            } catch (Exception e) {
+            if (p.getLatitude() == null || p.getLongitude() == null) {
+                try {
+                    String fullAddress = p.getNumber() + " " + p.getStreet() + ", " + p.getZip() + " " + p.getCity();
+                    Double[] coords = geocodingService.getCoordinates(fullAddress);
+                    place.setLatitude(coords[0]);
+                    place.setLongitude(coords[1]);
+                } catch (Exception e) {
+                    place.setLatitude(p.getLatitude());
+                    place.setLongitude(p.getLongitude());
+                }
+            } else {
                 place.setLatitude(p.getLatitude());
                 place.setLongitude(p.getLongitude());
             }
-        } else {
-            place.setLatitude(p.getLatitude());
-            place.setLongitude(p.getLongitude());
+
+            place = placeRepo.save(place);
+            existing.setPlace(place);
         }
 
-        place = placeRepo.save(place);
+        String currentTypeName = existing.getTypeEvent() != null ? existing.getTypeEvent().getName() : "";
 
-        existing.setPlace(place);
+        String scoreTypeName;
+        if (dto.getScoreType() != null && !dto.getScoreType().isBlank()) {
+            // Utilise le type de score spécifié dans la requête
+            scoreTypeName = dto.getScoreType();
+        } else {
+            // Valeur par défaut selon le type d'événement
+            scoreTypeName = "TRIAL".equalsIgnoreCase(dto.getTypeEventName()) ? "TIME" : "NA";
+        }
+
+        existing.setTypeScore(typeScoreRepo.findById(scoreTypeName)
+                .orElseThrow(() -> new RuntimeException("Type de score non trouvé: " + scoreTypeName)));
+
+        if ("TRIAL".equalsIgnoreCase(currentTypeName) || "TRIAL".equalsIgnoreCase(dto.getTypeEventName())) {
+            eventRepo.unlinkAllCommissairesFromEvent(existing.getId());
+        }
+
+        if ("TRIAL".equalsIgnoreCase(dto.getTypeEventName()) && dto.getCommissaireId() != null) {
+            eventRepo.linkCommissaireToEvent(dto.getCommissaireId(), existing.getId());
+        }
 
         eventRepo.save(existing);
-    }
-
-    @Override
-    @Transactional
-    public void cancelEvent(Integer id, String reason) {
-        Event event = eventRepo.findById(id)
-                .orElseThrow(() -> new RuntimeException("Épreuve introuvable"));
-
-        event.setStatus("CANCELLED");
-        event.setDescription(event.getDescription() + '\n' +reason);
-        eventRepo.save(event);
     }
 
     private void fillEventData(Event e, CreateEventRequestDTO req, TypeEvent t, Place p, TimeSlot s, Competition c) {
@@ -149,7 +180,7 @@ public class AdminEventServiceImpl implements AdminEventService {
         e.setPlace(p);
         e.setTimeSlot(s);
         e.setCompetition(c);
-        
+
         // Détermine le type de score
         String scoreTypeName;
         if (req.typeScoreName() != null && !req.typeScoreName().isBlank()) {
@@ -159,7 +190,7 @@ public class AdminEventServiceImpl implements AdminEventService {
             // Valeur par défaut selon le type d'événement
             scoreTypeName = "TRIAL".equalsIgnoreCase(req.typeEventName()) ? "TIME" : "NA";
         }
-        
+
         e.setTypeScore(typeScoreRepo.findById(scoreTypeName)
                 .orElseThrow(() -> new RuntimeException("Type de score non trouvé: " + scoreTypeName)));
     }

@@ -1,117 +1,147 @@
-describe("Tests - Visualisation des épreuves d'un sportif connecté", () => {
+describe("Tests - Modification d'épreuve (Admin)", () => {
 
     const eventsFixturePath = 'editEventAdmin/allEvents.json'
     const championshipFixturePath = 'editEventAdmin/allChampionships.json'
     const eventDetailFixturePath = 'editEventAdmin/eventDetail.json'
     const competitionsFixturePath = 'editEventAdmin/allCompetitions.json'
 
+    const setDateTimeValue = (selector, value) => {
+        cy.get(selector).then(($el) => {
+            const el = $el[0];
+            const nativeInputValueSetter = Object.getOwnPropertyDescriptor(
+                window.HTMLInputElement.prototype,
+                'value'
+            ).set;
+            nativeInputValueSetter.call(el, value);
+            el.dispatchEvent(new Event('input', { bubbles: true }));
+            el.dispatchEvent(new Event('change', { bubbles: true }));
+        });
+    };
+
     beforeEach(() => {
-        // Désactive l'arrêt du test sur les exceptions non gérées
         cy.on('uncaught:exception', () => false);
 
-        // Visite la page d'accueil
-        cy.visit('/');
-        cy.wait(2000);
+        cy.intercept('GET', '**/public/championship', { fixture: championshipFixturePath }).as('getChampionships');
+        cy.intercept('GET', '**/public/events', { fixture: eventsFixturePath }).as('getEvents');
 
-        // Connexion en tant que athlete
-        cy.contains('Connexion').click();
-        cy.wait(2000);
+        cy.intercept('GET', '**/commissaire/users?role=COMMISSAIRE', {
+            body: [
+                { id: 50, firstName: 'Jean', lastName: 'Dupont', email: 'jean@test.com' },
+                { id: 51, firstName: 'Marc', lastName: 'Durand', email: 'marc@test.com' }
+            ]
+        }).as('getComms');
 
-        // Remplir le formulaire de connexion
+        cy.visit('/login');
         cy.get('input[type="email"]').type('anna@example.com');
-        cy.wait(500);
         cy.get('input[type="password"]').type('test123');
-        cy.wait(500);
-
-        // Soumettre le formulaire
         cy.get('button[type="submit"]').click();
-        cy.wait(3000);
 
-        cy.contains('Administration').click();
-        cy.wait(500);
+        cy.url().should('not.include', '/login');
+        cy.visit('/admin/update-event');
 
-        cy.intercept('GET','**/public/championship',
-            {fixture: championshipFixturePath}
-        ).as('getChampionships')
-
-        cy.intercept('GET','**/public/events',
-            {fixture: eventsFixturePath}
-        ).as('getEvents')
-
-        cy.contains('Modifier un évènement').click();
-        cy.wait("@getChampionships");
-        cy.wait("@getEvents");
-        cy.wait(500);
+        cy.wait(['@getChampionships', '@getEvents', '@getComms']);
     });
 
-    it('Scénario : Modification d\'une épreuve', () => {
-        cy.intercept('GET','**/public/events/1',
-            {fixture: eventDetailFixturePath}
-        ).as('getEventDetail')
+    it('Scénario : Modification d\'une épreuve (Succès standard)', () => {
+        cy.intercept('GET', '**/public/events/1', { fixture: eventDetailFixturePath }).as('getEventDetail');
+        cy.intercept('GET', '**/public/championship/*/comp', { fixture: competitionsFixturePath }).as('getAllCompetitions');
+        cy.intercept('PUT', '**/admin/events/1', { statusCode: 200 }).as('updateEvent');
 
-        cy.intercept('GET','**/public/championship/1/comp',
-            {fixture: competitionsFixturePath}
-        ).as('getAllCompetitions')
-
-        cy.get("select[id='selectEvent']")
-            .select(1)
+        cy.get("select").first().select('1');
 
         cy.wait("@getEventDetail");
         cy.wait("@getAllCompetitions");
 
-        cy.get("select[id='selectChampionat']")
-            .select(1)
+        cy.get("input[name='name']").clear().type("100m Trial Heat 2");
 
-        cy.get("select[id='selectCompetition']")
-            .select(1)
+        setDateTimeValue("input[name='startTime']", "2025-03-21T10:00");
+        setDateTimeValue("input[name='endTime']", "2025-03-21T11:00");
 
-        cy.get("input[name='startTime']")
-            .type("2025-03-21T10:00:00")
+        cy.contains("Enregistrer les modifications").click();
 
-        cy.get("input[name='endTime']")
-            .type("2026-06-21T10:30:00")
+        cy.wait("@updateEvent").then((interception) => {
+            expect(interception.request.body.name).to.equal("100m Trial Heat 2");
+        });
 
-        cy.get("input[id='eventName']")
-            .type("100m Trial Heat 2")
-
-        cy.intercept('PUT', '**/admin/events/1',
-            {statusCode:201}
-        ).as('updateEvent')
-
-        cy.contains("Enregistrer les modifications")
-            .click()
-
-        cy.wait("@updateEvent")
-
-        cy.wait(2000)
-
-        cy.url().should('match', /\/admin/);
+        cy.url().should('include', '/admin');
     });
 
-    it('Scénario : Modification d\'une épreuve - Echec', () => {
-        cy.intercept('GET','**/public/events/1',
-            {fixture: eventDetailFixturePath}
-        ).as('getEventDetail')
+    it('Scénario : Modification d\'une épreuve - Echec (Validation)', () => {
+        cy.intercept('GET', '**/public/events/1', { fixture: eventDetailFixturePath }).as('getEventDetail');
+        cy.intercept('GET', '**/public/championship/*/comp', { fixture: competitionsFixturePath }).as('getAllCompetitions');
 
-        cy.intercept('GET','**/public/championship/1/comp',
-            {fixture: competitionsFixturePath}
-        ).as('getAllCompetitions')
+        cy.get("select").first().select('1');
+        cy.wait(["@getEventDetail", "@getAllCompetitions"]);
 
-        cy.get("select[id='selectEvent']")
-            .select(1)
+        cy.get("input[name='name']").clear();
 
-        cy.wait("@getEventDetail");
-        cy.wait("@getAllCompetitions");
+        cy.intercept('PUT', '**/admin/events/1', {
+            statusCode: 400,
+            body: { message: "Erreur lors de la sauvegarde." }
+        }).as('updateError');
 
-        cy.get("input[id='eventName']")
-            .clear()
+        cy.contains("Enregistrer les modifications").click();
 
-        cy.contains("Enregistrer les modifications")
-            .click()
+        cy.wait('@updateError');
+        cy.get('.alert-danger').should('be.visible').and('contain', "Erreur lors de la sauvegarde.");
+    });
 
-        cy.wait(2000)
+    it('Scénario : Modification du commissaire (uniquement pour un TRIAL)', () => {
+        cy.intercept('GET', '**/public/events/1', { fixture: eventDetailFixturePath }).as('getEventDetail');
+        cy.intercept('GET', '**/public/championship/*/comp', { fixture: competitionsFixturePath }).as('getAllCompetitions');
+        cy.intercept('PUT', '**/admin/events/1', { statusCode: 200 }).as('updateEvent');
 
-        cy.url().should('match', /\/admin\/update-event/);
+        cy.get("select").first().select('1');
+        cy.wait(["@getEventDetail", "@getAllCompetitions"]);
+
+        cy.get("select[name='typeEventName']").select('TRIAL');
+
+        cy.get("select[name='commissaireId']")
+            .should('be.visible')
+            .select('50');
+
+        cy.contains("Enregistrer les modifications").click();
+
+        cy.wait("@updateEvent").then((interception) => {
+            expect(interception.request.body.commissaireId).to.equal(50);
+            expect(interception.request.body.typeEventName).to.equal('TRIAL');
+        });
+    });
+
+    it('Vérification métier : Le commissaire est null si le type n\'est pas TRIAL', () => {
+        cy.intercept('GET', '**/public/events/1', { fixture: eventDetailFixturePath }).as('getEventDetail');
+        cy.intercept('GET', '**/public/championship/*/comp', { fixture: competitionsFixturePath }).as('getAllCompetitions');
+        cy.intercept('PUT', '**/admin/events/1', { statusCode: 200 }).as('updateEvent');
+
+        cy.get("select").first().select('1');
+        cy.wait(["@getEventDetail", "@getAllCompetitions"]);
+
+        cy.get("select[name='typeEventName']").select('MEETING');
+
+        cy.get("select[name='commissaireId']").should('not.exist');
+
+        cy.contains("Enregistrer les modifications").click();
+
+        cy.wait("@updateEvent").then((interception) => {
+            expect(interception.request.body.commissaireId).to.be.null;
+            expect(interception.request.body.typeEventName).to.equal('MEETING');
+        });
+    });
+
+    it('Scénario : Affichage conditionnel du bloc commissaire', () => {
+        cy.get("select").first().select('1');
+
+        // Par défaut, si MEETING, le champ n'existe pas
+        cy.get("select[name='typeEventName']").select('MEETING');
+        cy.get("select[name='commissaireId']").should('not.exist');
+
+        // En TRIAL, il apparaît
+        cy.get("select[name='typeEventName']").select('TRIAL');
+        cy.get("select[name='commissaireId']").should('be.visible');
+
+        // En TRAINING, il disparaît à nouveau
+        cy.get("select[name='typeEventName']").select('TRAINING');
+        cy.get("select[name='commissaireId']").should('not.exist');
     });
 
 });
