@@ -159,7 +159,7 @@ VALUES ('100m Trial Heat 1', 'First qualification heat', 'TRIAL', 'TIME',1, 1, 1
        ('200 mètres brasse masculin', 'Avec les bras', 'TRIAL', 'TIME', 2, 10, 6), -- 33
        ('200 mètres brasse féminin', 'Avec les bras', 'TRIAL', 'TIME', 2, 10, 5), -- 34
        ('200 mètres papillon masculin', 'La description descriptive', 'TRIAL', 'TIME', 2, 11, 6), -- 35
-       ('200 mètres papillon féminin', 'La description descriptive', 'TRIAL', 'TIME', 2, 11, 5), -- 36
+       ('200 mètres papillon féminin', 'La description descriptive', 'TRIAL', 'TIME', 2, 6, 5), -- 36
        ('400 mètres quatre nages masculin', 'La description descriptive', 'TRIAL', 'TIME', 2, 12, 6), -- 37
        ('400 mètres quatre nages féminin', 'La description descriptive', 'TRIAL', 'TIME', 2, 12, 5), -- 38
        ('1 500 mètres nage libre masculin', 'La description descriptive', 'TRIAL', 'TIME', 2, 13, 6), -- 39
@@ -319,7 +319,44 @@ VALUES (1, 1, 11.2, false, true),
        (2, 1, null, true, true),
        (1, 2, 11.8, false, true),
        (2,2, 10.9, false, true),
-       (2,3, null, false, false);
+       (2,3, null, false, false),
+       (8,17,null,true,false),
+       (9,17,42,false,true),
+       (10,17,12,false,true),
+       (5,18,3,false,true),
+       (6,18,3,false,true),
+       (7,18,1,false,true),
+       (8,20,31,false,true),
+       (9,20,23,false,true),
+       (10,20,65,false,true),
+       (5,19,31,false,true),
+       (6,19,23,false,true),
+       (7,19,65,false,true),
+
+       (8,22,null,true,false),
+       (9,22,null,false,false),
+       (10,22,null,false,false),
+       (5,21,null,false,false),
+       (6,21,null,false,false),
+       (7,21,null,false,false),
+       (8,23,null,false,false),
+       (9,23,null,false,false),
+       (10,23,null,false,false),
+       (5,24,null,false,false),
+       (6,24,null,false,false),
+       (7,24,null,false,false),
+       (8,25,null,false,false),
+       (9,25,null,false,false),
+       (10,25,null,false,false),
+       (5,26,null,false,false),
+       (6,26,null,false,false),
+       (7,26,null,false,false),
+       (5,13,null,false,false),
+       (6,13,null,false,false),
+       (7,13,null,false,false);
+
+
+
 -- ======================
 -- Convened athletes
 -- ======================
@@ -331,7 +368,84 @@ VALUES (1, 4, 8100, false, true),
        (4, 5, 11.2, false, true),
        (3, 10, null, false, true),
        (3, 11, 22.4, false, true),
-       (5, 11, 22.1, false, true);
+       (5, 11, 22.1, false, true),
+
+       (8,32,8500,false,true),
+       (9,32,8800,false,true),
+       (12,32,8900,false,true),
+       (13,32,null,true,false),
+       (15,32,3000,false,true),
+       (16,32,6500,false,true),
+
+       (17,31,8500,false,true),
+       (18,31,8500,false,true),
+       (19,31,8900,false,true),
+       (20,31,null,true,false),
+       (23,31,3000,false,true),
+       (25,31,6500,false,true),
+
+       (8,33,3000,false,true),
+       (9,33,8800,false,true),
+       (12,33,2000,false,true),
+       (13,33,null,true,false),
+       (15,33,9990,false,true),
+       (16,33,6500,false,true),
+
+       (17,34,8500,false,true),
+       (18,34,8500,false,true),
+       (19,34,8900,false,true),
+       (20,34,null,true,false),
+       (23,34,3000,false,true),
+       (25,34,null,true,false),
+
+       (8,35,null,false,false),
+       (9,35,null,false,false),
+       (12,35,null,false,false),
+       (13,35,null,false,false),
+       (15,35,null,false,false),
+       (16,35,null,false,false),
+
+       (17,36,null,false,false),
+       (18,36,null,false,false),
+       (19,36,null,false,false),
+       (20,36,null,false,false),
+       (23,36,null,false,false),
+       (25,36,null,false,false),
+
+       (8,37,null,false,false),
+       (9,37,null,false,false),
+       (12,37,null,false,false),
+       (13,37,null,false,false),
+       (15,37,null,false,false),
+       (16,37,null,false,false),
+
+       (17,38,null,false,false),
+       (18,38,null,false,false),
+       (19,38,null,false,false),
+       (20,38,null,false,false),
+       (23,38,null,false,false),
+       (25,38,null,false,false),
+
+       (8,39,null,false,false),
+       (9,39,null,false,false),
+       (12,39,null,false,false),
+       (13,39,null,false,false),
+       (15,39,null,false,false),
+       (16,39,null,false,false),
+
+       (17,40,null,false,false),
+       (18,40,null,false,false),
+       (19,40,null,false,false),
+       (20,40,null,false,false),
+       (23,40,null,false,false),
+       (25,40,null,false,false);
+
+
+
+
+
+
+
 
 -- ======================
 -- Notifications
@@ -377,8 +491,9 @@ VALUES (1, 1),
        (6, 4),
        (6, 5),
        (6, 6),
-       (6, 9);
-
+       (6, 9),
+       (2,36),
+       (2,13);
 -- ======================
 -- Tasks
 -- ======================
