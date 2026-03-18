@@ -118,6 +118,14 @@ class EventService {
     async createEvent(eventData) {
         return axios.post(`${import.meta.env.VITE_API_URL}/admin/events`, eventData);
     }
+
+    async editEvent(id, eventData) {
+        return axios.put(`${import.meta.env.VITE_API_URL}/admin/events/${id}`, eventData);
+    }
+
+    async editEventCommissaire(id, eventData) {
+        return axios.put(`${import.meta.env.VITE_API_URL}/commissaire/events/${id}`, eventData);
+    }
 }
 
 export const eventService = new EventService();

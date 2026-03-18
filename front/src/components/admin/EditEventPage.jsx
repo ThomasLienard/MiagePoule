@@ -1,7 +1,9 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import { Form, Button, Row, Col, Card, Container, Alert, Spinner } from 'react-bootstrap';
 import { useLocation, useNavigate } from 'react-router-dom';
-import axios from 'axios';
+import {getChampionshipCompetition, getChampionships} from "../../services/championshipService.jsx";
+import {eventService} from "../../services/eventService.jsx";
+import commissaireUserService from "../../services/commissaireUserService.jsx";
 
 const EditEventPage = () => {
     const location = useLocation();
@@ -52,11 +54,10 @@ const EditEventPage = () => {
         if (!eventId) return;
         setLoadingDetails(true);
         try {
-            const eventRes = await axios.get(`${import.meta.env.VITE_API_URL}/public/events/${eventId}`);
-            const event = eventRes.data;
+            const event = await eventService.getEventById(eventId);
 
             for (const champ of currentChamps) {
-                const compsRes = await axios.get(`${import.meta.env.VITE_API_URL}/public/championship/${champ.id}/comp`);
+                const compsRes = await getChampionshipCompetition(champ.id)
                 const comps = compsRes.data;
                 const match = comps.find(c => c.name === event.competitionName);
 
@@ -88,6 +89,7 @@ const EditEventPage = () => {
                 }
             }
         } catch (err) {
+            console.log(err)
             setStatus({ type: 'danger', message: "Erreur de chargement des détails." });
         } finally {
             setLoadingDetails(false);
@@ -98,16 +100,16 @@ const EditEventPage = () => {
         const initPage = async () => {
             try {
                 const [champsRes, eventsRes, commsRes] = await Promise.all([
-                    axios.get('http://localhost:8084/public/championship'),
-                    axios.get('http://localhost:8084/public/events'),
-                    axios.get('http://localhost:8084/commissaire/users?role=COMMISSAIRE')
+                    getChampionships(),
+                    eventService.getAll(),
+                    commissaireUserService.getUsersByRole("COMMISSAIRE")
                 ]);
-                setChampionships(champsRes.data);
-                setAllEvents(eventsRes.data);
-                setCommissaires(commsRes.data);
+                setChampionships(champsRes);
+                setAllEvents(eventsRes);
+                setCommissaires(commsRes);
 
                 if (eventIdFromUrl) {
-                    await fetchEventDetails(eventIdFromUrl, champsRes.data);
+                    await fetchEventDetails(eventIdFromUrl, champsRes);
                 }
             } catch (err) {
                 setStatus({ type: 'danger', message: "Erreur serveur lors de l'initialisation." });
@@ -160,12 +162,13 @@ const EditEventPage = () => {
             typeEventName: formData.typeEventName
         };
 
-        const url = isCommissaire
-            ? `${import.meta.env.VITE_API_URL}/commissaire/events/${finalId}`
-            : `${import.meta.env.VITE_API_URL}/admin/events/${finalId}`;
-
         try {
-            await axios.put(url, dataToSubmit);
+            if (isCommissaire) {
+                await eventService.editEventCommissaire(finalId, dataToSubmit);
+            } else {
+                await eventService.editEvent(finalId, dataToSubmit);
+            }
+
             setStatus({ type: 'success', message: 'Mise à jour réussie !' });
             setTimeout(() => navigate(-1), 1500);
         } catch (error) {
@@ -220,7 +223,7 @@ const EditEventPage = () => {
                                                 onChange={async (e) => {
                                                     const champId = e.target.value;
                                                     setSelectedChampionshipId(champId);
-                                                    const res = await axios.get(`${import.meta.env.VITE_API_URL}/public/championship/${champId}/comp`);
+                                                    const res = await getChampionshipCompetition(champId);
                                                     setCompetitions(res.data);
                                                 }}
                                             >

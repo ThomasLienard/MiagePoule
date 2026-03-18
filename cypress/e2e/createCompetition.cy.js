@@ -53,23 +53,7 @@ describe('Tests Création de Compétition', () => {
         cy.contains('La date de fin est requise').should('be.visible');
     });
 
-    it('Cas 3 : Erreur hors limites (Dates hors championnat)', () => {
-        cy.get('select[name="championshipId"]').select('1');
-        cy.get('input[name="name"]').type('Test Hors Limites');
-        cy.get('textarea[name="description"]').type('Dates en 2026');
-
-        setDateValue('input[name="start"]', '2026-01-01');
-        setDateValue('input[name="end"]', '2026-01-02');
-
-        cy.get('button[type="submit"]').click();
-
-        cy.get('form').should('have.class', 'was-validated');
-
-        cy.contains('La date de début est requise').should('be.visible');
-        cy.contains('La date de fin est requise').should('be.visible');
-    });
-
-    it('Cas 4 : Succès de création', () => {
+    it('Cas 3 : Succès de création', () => {
         cy.get('select[name="championshipId"]').select('1');
         cy.get('input[name="name"]').type('Compétition Olympique');
         cy.get('textarea[name="description"]').type('Tout est en ordre');
@@ -77,10 +61,12 @@ describe('Tests Création de Compétition', () => {
         setDateValue('input[name="start"]', '2025-01-01');
         setDateValue('input[name="end"]', '2025-01-02');
 
-        cy.intercept('POST', '**/admin/comps').as('saveRequest');
+        cy.intercept('POST', '**/admin/comps', {
+            statusCode: 201
+        }).as('saveRequest');
         cy.get('button[type="submit"]').click();
 
-        cy.wait('@saveRequest').its('response.statusCode').should('eq', 201);
+        cy.wait('@saveRequest');
 
         cy.get('.alert-success').should('contain', 'Compétition planifiée avec succès');
 

@@ -30,7 +30,7 @@ describe('Tests - Navigation Championnats et Résultats', () => {
         cy.url({ timeout: 10000 }).should('include', '/public/trials');
 
         // 6. Vérification finale
-        cy.contains('Résultats').should('be.visible');
+        cy.contains('Participants').should('be.visible');
     });
 
     it('Vérifie l\'affichage en cas de liste vide', () => {

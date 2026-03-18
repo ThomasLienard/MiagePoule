@@ -13,7 +13,6 @@ import {
 } from "react-bootstrap";
 import { useAuth } from "../../contexts/AuthContext";
 import { AlertCircle, User, FileText, FileSignature } from "lucide-react";
-import axios from "axios";
 import ChangePassword from "./ChangePassword.jsx";
 import DocumentUpload from "./DocumentUpload.jsx";
 import documentService from "../../services/documentService.jsx";

@@ -1,9 +1,9 @@
 import React, { useState, useEffect } from 'react';
 import { Form, Button, Row, Col, Card, Container, Alert, Spinner } from 'react-bootstrap';
 import { useNavigate } from 'react-router-dom';
-import {getChampionshipCompetition} from "../../services/championshipService.jsx";
+import {getChampionshipCompetition, getChampionships} from "../../services/championshipService.jsx";
 import {eventService} from "../../services/eventService.jsx";
-import axios from "axios";
+import commissaireUserService from "../../services/commissaireUserService.jsx";
 
 const CreateEventPage = () => {
     const navigate = useNavigate();
@@ -53,15 +53,13 @@ const CreateEventPage = () => {
     // 1. Chargement des données initiales
     useEffect(() => {
         const fetchData = async () => {
-            const token = localStorage.getItem('token');
-            const config = { headers: { Authorization: `Bearer ${token}` } };
             try {
-                const resChamp = await axios.get('http://localhost:8084/public/championship');
-                setChampionships(resChamp.data);
+                const resChamp = await getChampionships();
+                setChampionships(resChamp);
 
                 try {
-                    const resComm = await axios.get('http://localhost:8084/commissaire/users?role=COMMISSAIRE', config);
-                    setCommissaires(resComm.data);
+                    const resComm = await commissaireUserService.getUsersByRole("COMMISSAIRE");
+                    setCommissaires(resComm);
                 } catch (err) {
                     console.warn("Accès commissaires restreint ou erreur.", err);
                 }
@@ -130,8 +128,6 @@ const CreateEventPage = () => {
         }
 
         setLoading(true);
-        const token = localStorage.getItem('token');
-        const config = { headers: { Authorization: `Bearer ${token}` } };
 
         // Préparation du payload
         const payload = {
@@ -142,7 +138,7 @@ const CreateEventPage = () => {
         };
 
         try {
-            await axios.post('http://localhost:8084/admin/events', payload, config);
+            await eventService.createEvent(payload);
 
             setStatus({
                 type: 'success',

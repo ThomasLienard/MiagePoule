@@ -1,7 +1,6 @@
 import React, { useState } from 'react';
 import { Form, Button, Row, Col, Card, Container, Alert, Spinner } from 'react-bootstrap';
 import { useNavigate } from 'react-router-dom';
-import axios from 'axios';
 import {createChampionship} from "../../services/championshipService.jsx";
 
 const CreateChampionshipPage = () => {

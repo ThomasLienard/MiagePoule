@@ -19,3 +19,7 @@ export const getChampionshipCompetition = (championshipId) => {
 export const createChampionship = (data) => {
     return axios.post(`${import.meta.env.VITE_API_URL}/admin/champs`, data);
 }
+
+export const updateChampionship = (championshipId, data) => {
+    return axios.put(`${import.meta.env.VITE_API_URL}/admin/champs/${championshipId}`, data);
+}
