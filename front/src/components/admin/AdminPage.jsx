@@ -124,8 +124,8 @@ const AdminPage = () => {
                             <Card.Text>
                                 Voir les statistiques de la plateforme et les rapports d'activité.
                             </Card.Text>
-                            <Button variant="secondary" disabled>
-                                Bientôt disponible
+                            <Button as={Link} to="/admin/reporting" variant="secondary">
+                                Consulter le reporting
                             </Button>
                         </Card.Body>
                     </Card>
