@@ -65,7 +65,8 @@ public class AuthService {
         log.info("Rôle de l'utilisateur: {}", role);
 
         // Mettre à jour la date de dernière connexion
-        user.setLastLoginAt(LocalDateTime.now());
+        LocalDateTime now = LocalDateTime.now();
+        user.setLastLoginAt(now);
         userRepo.save(user);
 
         // Inclure l'info mustChangePassword dans le token ou la réponse
@@ -101,7 +102,8 @@ public class AuthService {
         }
 
         // Mettre à jour la date de dernière connexion
-        user.setLastLoginAt(LocalDateTime.now());
+        LocalDateTime now = LocalDateTime.now();
+        user.setLastLoginAt(now);
         userRepo.save(user);
 
         String role = user.getRole().getRoleName();
