@@ -72,7 +72,8 @@ class EventControllerTest {
             timeSlot,
             place,
             new ArrayList<>(),
-                null
+            null,
+            "TRIAL"
         );
     }
 
@@ -234,7 +235,7 @@ class EventControllerTest {
     void testGetEventById_WithoutOptionalFields() {
         // Given
         EventDetailDTO minimalEvent = new EventDetailDTO(
-            1, "Minimal Event", "Description", null, null, null, new ArrayList<>(),null
+            1, "Minimal Event", "Description", null, null, null, new ArrayList<>(),null, "TRIAL"
         );
         when(eventService.getEventById(1)).thenReturn(Optional.of(minimalEvent));
 

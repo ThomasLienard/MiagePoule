@@ -1,9 +1,9 @@
 import React, { useState, useEffect } from 'react';
 import { Container, Card, Button, Spinner, Alert, Badge, Modal, Form } from 'react-bootstrap';
 import { useNavigate } from 'react-router-dom';
-import axios from 'axios';
 import participantService from '../../services/participantService';
 import resultService from '../../services/resultService';
+import {eventService} from "../../services/eventService.jsx";
 
 const AdminEpreuves = () => {
     const [trials, setTrials] = useState([]);
@@ -76,7 +76,7 @@ const AdminEpreuves = () => {
 
         setIsSubmitting(true);
         try {
-            await axios.patch(`http://localhost:8084/commissaire/events/${selectedTrial.trialId}/cancel`, {
+            await eventService.cancelEvent(selectedTrial.trialId, {
                 reason: cancelReason
             });
             handleCloseCancel();

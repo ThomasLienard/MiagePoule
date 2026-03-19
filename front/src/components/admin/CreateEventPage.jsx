@@ -1,7 +1,9 @@
 import React, { useState, useEffect } from 'react';
 import { Form, Button, Row, Col, Card, Container, Alert, Spinner } from 'react-bootstrap';
 import { useNavigate } from 'react-router-dom';
-import axios from 'axios';
+import {getChampionshipCompetition, getChampionships} from "../../services/championshipService.jsx";
+import {eventService} from "../../services/eventService.jsx";
+import commissaireUserService from "../../services/commissaireUserService.jsx";
 
 const CreateEventPage = () => {
     const navigate = useNavigate();
@@ -21,7 +23,7 @@ const CreateEventPage = () => {
         typeEventName: '',
         competitionId: '',
         commissaireId: '',
-        typeScoreName: '', // Conservé du merge
+        typeScoreName: '',
         startTime: '',
         endTime: '',
         placeName: '',
@@ -51,15 +53,13 @@ const CreateEventPage = () => {
     // 1. Chargement des données initiales
     useEffect(() => {
         const fetchData = async () => {
-            const token = localStorage.getItem('token');
-            const config = { headers: { Authorization: `Bearer ${token}` } };
             try {
-                const resChamp = await axios.get('http://localhost:8084/public/championship');
-                setChampionships(resChamp.data);
+                const resChamp = await getChampionships();
+                setChampionships(resChamp);
 
                 try {
-                    const resComm = await axios.get('http://localhost:8084/commissaire/users?role=COMMISSAIRE', config);
-                    setCommissaires(resComm.data);
+                    const resComm = await commissaireUserService.getUsersByRole("COMMISSAIRE");
+                    setCommissaires(resComm);
                 } catch (err) {
                     console.warn("Accès commissaires restreint ou erreur.", err);
                 }
@@ -70,10 +70,9 @@ const CreateEventPage = () => {
         fetchData();
     }, []);
 
-    // 2. Chargement des compétitions quand le championnat change
     useEffect(() => {
         if (selectedChampionshipId) {
-            axios.get(`http://localhost:8084/public/championship/${selectedChampionshipId}/comp`)
+            getChampionshipCompetition(selectedChampionshipId)
                 .then(res => setCompetitions(res.data))
                 .catch(() => setCompetitions([]));
         } else {
@@ -102,11 +101,9 @@ const CreateEventPage = () => {
     const handleSubmit = async (e) => {
         const form = e.currentTarget;
         e.preventDefault();
-
-        // On réinitialise le statut au début de chaque tentative
+        setValidated(false);
         setStatus({ type: '', message: '' });
 
-        // 1. Validation HTML5 (champs marqués "required")
         if (form.checkValidity() === false) {
             e.stopPropagation();
             setValidated(true);
@@ -127,13 +124,10 @@ const CreateEventPage = () => {
                 message: 'La date de fin doit être strictement après la date de début.'
             });
             setValidated(true);
-            return; // On arrête tout ici si les dates sont incohérentes
+            return;
         }
 
-        // 3. Si on arrive ici, le formulaire est valide
         setLoading(true);
-        const token = localStorage.getItem('token');
-        const config = { headers: { Authorization: `Bearer ${token}` } };
 
         // Préparation du payload
         const payload = {
@@ -144,7 +138,7 @@ const CreateEventPage = () => {
         };
 
         try {
-            const response = await axios.post('http://localhost:8084/admin/events', payload, config);
+            await eventService.createEvent(payload);
 
             setStatus({
                 type: 'success',
@@ -152,8 +146,9 @@ const CreateEventPage = () => {
             });
 
             // Redirection après un court délai pour laisser l'utilisateur voir le message de succès
+            await eventService.createEvent(formData)
+            setStatus({ type: 'success', message: 'Évènement planifié avec succès !' });
             setTimeout(() => navigate('/admin'), 2000);
-
         } catch (error) {
             console.error("Erreur API:", error);
             setStatus({
@@ -172,53 +167,101 @@ const CreateEventPage = () => {
             {status.message && <Alert variant={status.type} className="shadow-sm">{status.message}</Alert>}
 
             <Form noValidate validated={validated} onSubmit={handleSubmit}>
-                {/* 1. CONTEXTE */}
                 <Card className="shadow-sm mb-4 border-0">
                     <Card.Body>
                         <h5 className="text-primary fw-bold mb-3">1. Contexte</h5>
                         <Row>
-                            <Col md={6} className="mb-3">
+                            <Form.Group as={Col} md={6} className="mb-3">
                                 <Form.Label className="fw-bold">Championnat</Form.Label>
                                 <Form.Select value={selectedChampionshipId} onChange={handleChampionshipChange} required>
                                     <option value="">Choisir un championnat...</option>
                                     {championships.map(c => <option key={c.id} value={c.id}>{c.name}</option>)}
                                 </Form.Select>
-                            </Col>
-                            <Col md={6} className="mb-3">
+                                <Form.Control.Feedback type="invalid">Veuillez sélectionner un championnat.</Form.Control.Feedback>
+                            </Form.Group>
+
+                            <Form.Group as={Col} md={6} className="mb-3">
                                 <Form.Label className="fw-bold">Compétition</Form.Label>
-                                <Form.Select name="competitionId" value={formData.competitionId} onChange={handleChange} disabled={!selectedChampionshipId} required>
+                                <Form.Select
+                                    name="competitionId"
+                                    value={formData.competitionId}
+                                    onChange={handleChange}
+                                    disabled={!selectedChampionshipId}
+                                    required
+                                >
                                     <option value="">Choisir une compétition...</option>
                                     {competitions.map(comp => <option key={comp.id} value={comp.id}>{comp.name}</option>)}
                                 </Form.Select>
-                            </Col>
+                                <Form.Control.Feedback type="invalid">Veuillez sélectionner une compétition.</Form.Control.Feedback>
+                            </Form.Group>
                         </Row>
                     </Card.Body>
                 </Card>
 
-                {/* 2. DÉTAILS */}
                 <Card className="shadow-sm mb-4 border-0">
                     <Card.Body>
                         <h5 className="text-primary fw-bold mb-3">2. Détails de l'évènement</h5>
                         <Row>
-                            <Col md={6} className="mb-3">
+                            <Form.Group as={Col} md={6} className="mb-3">
                                 <Form.Label className="fw-bold">Nom</Form.Label>
-                                <Form.Control name="name" value={formData.name} onChange={handleChange} required />
-                            </Col>
-                            <Col md={3} className="mb-3">
+                                <Form.Control
+                                    name="name"
+                                    value={formData.name}
+                                    placeholder="Ex: Finale 100m"
+                                    onChange={handleChange}
+                                    required
+                                />
+                                <Form.Control.Feedback type="invalid">Le nom de l'évènement est requis.</Form.Control.Feedback>
+                            </Form.Group>
+                            <Form.Group as={Col} md={3} className="mb-3">
                                 <Form.Label className="fw-bold">Type</Form.Label>
                                 <Form.Select name="typeEventName" value={formData.typeEventName} onChange={handleChange}>
                                     <option value="MEETING">Réunion</option>
                                     <option value="TRAINING">Entraînement</option>
-                                    <option value="TRIAL">Épreuve (TRIAL)</option>
+                                    <option value="TRIAL">Épreuve</option>
                                 </Form.Select>
-                            </Col>
+                            </Form.Group>
                         </Row>
+                        {formData.typeEventName === 'TRIAL' && (
+                        <Row className="mb-3">
+                            <Form.Group as={Col} md={6}>
+                                <Form.Label className="fw-bold">👮 Commissaire Responsable</Form.Label>
+                                <Form.Select
+                                    name="commissaireId"
+                                    value={formData.commissaireId}
+                                    onChange={handleChange}
+                                    required={formData.typeEventName === 'TRIAL'}
+                                >
+                                    <option value="">-- Sélectionner un commissaire --</option>
+                                    {commissaires.map(c => (
+                                        <option key={c.id} value={c.id}>{c.name} {c.lastname} ({c.email})</option>
+                                    ))}
+                                </Form.Select>
+                            </Form.Group>
+                            <Form.Group as={Col} md={6}>
+                                <Form.Label className="fw-bold">Système de Score</Form.Label>
+                                <Form.Select name="typeScoreName" value={formData.typeScoreName} onChange={handleChange}>
+                                    <option value="TIME">Temps</option>
+                                    <option value="POINTS">Points</option>
+                                </Form.Select>
+                            </Form.Group>
+                        </Row>
+                        )}
+
                         <Form.Group className="mb-3">
-                            <Form.Label className="fw-bold">Description de l'activité</Form.Label>
-                            <Form.Control as="textarea" rows={2} name="description" value={formData.description} onChange={handleChange} required />
+                            <Form.Label className="fw-bold">Description</Form.Label>
+                            <Form.Control
+                                as="textarea"
+                                name="description"
+                                value={formData.description}
+                                rows={2}
+                                onChange={handleChange}
+                                required
+                            />
+                            <Form.Control.Feedback type="invalid">Veuillez fournir une description.</Form.Control.Feedback>
                         </Form.Group>
                         <Row>
-                            <Col md={6} className="mb-3">
+                            <Form.Group as={Col} md={6} className="mb-3">
                                 <Form.Label className="fw-bold">Début</Form.Label>
                                 <Form.Control
                                     type="datetime-local"
@@ -227,15 +270,14 @@ const CreateEventPage = () => {
                                     onChange={handleChange}
                                     required
                                     disabled={!selectedComp}
-                                    // GRISAGE : On limite entre le début et la fin de la compétition parente
                                     min={selectedComp ? formatForPicker(selectedComp.start) : ""}
                                     max={selectedComp ? formatForPicker(selectedComp.end) : ""}
                                 />
                                 <Form.Text className="text-muted">
                                     {selectedComp && `Dates compet: ${new Date(selectedComp.start).toLocaleDateString()} au ${new Date(selectedComp.end).toLocaleDateString()}`}
                                 </Form.Text>
-                            </Col>
-                            <Col md={6} className="mb-3">
+                            </Form.Group>
+                            <Form.Group as={Col} md={6} className="mb-3">
                                 <Form.Label className="fw-bold">Fin</Form.Label>
                                 <Form.Control
                                     type="datetime-local"
@@ -244,79 +286,63 @@ const CreateEventPage = () => {
                                     onChange={handleChange}
                                     required
                                     disabled={!selectedComp}
-                                    // GRISAGE : Doit être après le début de l'event ET avant la fin de la compet
                                     min={formData.startTime || (selectedComp ? formatForPicker(selectedComp.start) : "")}
                                     max={selectedComp ? formatForPicker(selectedComp.end) : ""}
                                 />
-                            </Col>
+                                <Form.Control.Feedback type="invalid">Date de fin requise.</Form.Control.Feedback>
+                            </Form.Group>
                         </Row>
                     </Card.Body>
                 </Card>
 
-                {/* 3. LIEU */}
                 <Card className="shadow-sm mb-4 border-0">
                     <Card.Body>
                         <h5 className="text-primary fw-bold mb-3">3. Lieu et Adresse</h5>
                         <Form.Group className="mb-3">
                             <Form.Label className="fw-bold">Nom du lieu</Form.Label>
-                            <Form.Control name="placeName" value={formData.placeName} onChange={handleChange} placeholder="Ex: Stade de France" required />
+                            <Form.Control
+                                name="placeName"
+                                value={formData.placeName}
+                                placeholder="Ex: Stade de France"
+                                onChange={handleChange}
+                                required
+                            />
                         </Form.Group>
                         <Row className="mb-3">
-                            <Col md={3}>
+                            <Form.Group as={Col} md={3}>
                                 <Form.Label className="fw-bold">N°</Form.Label>
-                                <Form.Control name="number" value={formData.number} onChange={handleChange} required />
-                            </Col>
-                            <Col md={9}>
+                                <Form.Control name="number" value={formData.number} placeholder="11" onChange={handleChange} required />
+                            </Form.Group>
+                            <Form.Group as={Col} md={9}>
                                 <Form.Label className="fw-bold">Rue</Form.Label>
-                                <Form.Control name="street" value={formData.street} onChange={handleChange} required />
-                            </Col>
+                                <Form.Control name="street" value={formData.street} placeholder="Avenue Jules Rimet" onChange={handleChange} required />
+                            </Form.Group>
                         </Row>
                         <Row className="mb-3">
-                            <Col md={4}>
+                            <Form.Group as={Col} md={4}>
                                 <Form.Label className="fw-bold">Code Postal</Form.Label>
-                                <Form.Control name="zipCode" value={formData.zipCode} onChange={handleChange} required />
-                            </Col>
-                            <Col md={8}>
+                                <Form.Control name="zipCode" value={formData.zipCode} placeholder="93200" onChange={handleChange} required />
+                            </Form.Group>
+                            <Form.Group as={Col} md={8}>
                                 <Form.Label className="fw-bold">Ville</Form.Label>
-                                <Form.Control name="city" value={formData.city} onChange={handleChange} required />
-                            </Col>
+                                <Form.Control name="city" value={formData.city} placeholder="Saint-Denis" onChange={handleChange} required />
+                            </Form.Group>
                         </Row>
                         <Form.Group className="mb-3">
                             <Form.Label className="fw-bold">Précisions sur l'accès</Form.Label>
                             <Form.Control as="textarea" rows={1} name="descriptionPlace" value={formData.descriptionPlace} onChange={handleChange} />
                         </Form.Group>
-                        <Form.Check type="switch" label="Parking disponible" name="hasParking" checked={formData.hasParking} onChange={handleChange} className="fw-bold" />
+                        <Form.Check
+                            type="switch"
+                            id="hasParking"
+                            name="hasParking"
+                            checked={formData.hasParking}
+                            label="Parking disponible"
+                            className="fw-bold"
+                            onChange={handleChange}
+                        />
                     </Card.Body>
                 </Card>
-
-                {/* 4. COMMISSAIRE (TRIAL uniquement) */}
-                {formData.typeEventName === 'TRIAL' && (
-                    <Card className="shadow-sm mb-4 border-0 border-start border-warning border-4">
-                        <Card.Body>
-                            <h5 className="text-warning fw-bold mb-3">👮 Commissaire Responsable</h5>
-                            <Form.Select
-                                name="commissaireId"
-                                value={formData.commissaireId}
-                                onChange={handleChange}
-                                required={formData.typeEventName === 'TRIAL'}
-                            >
-                                <option value="">-- Sélectionner un commissaire --</option>
-                                {commissaires.map(c => (
-                                    <option key={c.id} value={c.id}>{c.firstName} {c.lastName} ({c.email})</option>
-                                ))}
-                            </Form.Select>
-                        </Card.Body>
-                        <Col md={3} className="mb-3">
-                            <Form.Label className="fw-bold">Système de Score</Form.Label>
-                            <Form.Select name="typeScoreName" value={formData.typeScoreName} onChange={handleChange}>
-                                <option value="">Par défaut</option>
-                                <option value="TIME">Temps (Chrono)</option>
-                                <option value="POINTS">Points</option>
-                            </Form.Select>
-                        </Col>
-                    </Card>
-                )}
-
                 <div className="d-grid gap-2 mb-5">
                     <Button variant="secondary" size="lg" type="submit" disabled={loading} className="shadow">
                         {loading ? <Spinner animation="border" size="sm" /> : 'Confirmer la planification'}

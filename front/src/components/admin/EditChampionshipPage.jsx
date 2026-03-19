@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Form, Button, Row, Col, Card, Container, Alert, Spinner } from 'react-bootstrap';
 import { useLocation, useNavigate } from 'react-router-dom';
-import axios from 'axios';
+import {getChampionships, updateChampionship} from "../../services/championshipService.jsx";
 
 const EditChampionshipPage = () => {
     const location = useLocation();
@@ -25,7 +25,7 @@ const EditChampionshipPage = () => {
     useEffect(() => {
         const fetchData = async () => {
             try {
-                const res = await axios.get('http://localhost:8084/public/championship');
+                const res = await getChampionships();
                 setAllChampionships(res.data);
                 if (champIdFromUrl) {
                     const champ = res.data.find(c => c.id === parseInt(champIdFromUrl));
@@ -56,11 +56,10 @@ const EditChampionshipPage = () => {
         const finalId = parseInt(selectedChampId);
 
         try {
-            // Attention : Vérifie si ton endpoint admin est /admin/championship/{id}
-            await axios.put(`http://localhost:8084/admin/champs/${finalId}`, {
+            await updateChampionship(finalId, {
                 id: finalId,
                 ...formData
-            });
+            })
             setStatus({ type: 'success', message: 'Championnat mis à jour !' });
             setTimeout(() => navigate(-1), 1500);
         } catch (error) {

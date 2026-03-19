@@ -1,7 +1,9 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import { Form, Button, Row, Col, Card, Container, Alert, Spinner } from 'react-bootstrap';
 import { useLocation, useNavigate } from 'react-router-dom';
-import axios from 'axios';
+import {getChampionshipCompetition, getChampionships} from "../../services/championshipService.jsx";
+import {eventService} from "../../services/eventService.jsx";
+import commissaireUserService from "../../services/commissaireUserService.jsx";
 
 const EditEventPage = () => {
     const location = useLocation();
@@ -52,11 +54,10 @@ const EditEventPage = () => {
         if (!eventId) return;
         setLoadingDetails(true);
         try {
-            const eventRes = await axios.get(`http://localhost:8084/public/events/${eventId}`);
-            const event = eventRes.data;
+            const event = await eventService.getEventById(eventId);
 
             for (const champ of currentChamps) {
-                const compsRes = await axios.get(`http://localhost:8084/public/championship/${champ.id}/comp`);
+                const compsRes = await getChampionshipCompetition(champ.id)
                 const comps = compsRes.data;
                 const match = comps.find(c => c.name === event.competitionName);
 
@@ -71,7 +72,7 @@ const EditEventPage = () => {
                     setFormData({
                         name: event.name || '',
                         description: event.description || '',
-                        typeEventName: event.typeEventName || 'MEETING',
+                        typeEventName: event.typeEvent || 'MEETING',
                         competitionId: match.id,
                         commissaireId: event.commissaireId || '',
                         startTime: event.timeSlot?.start ? formatDateTime(event.timeSlot.start) : '',
@@ -88,6 +89,7 @@ const EditEventPage = () => {
                 }
             }
         } catch (err) {
+            console.log(err)
             setStatus({ type: 'danger', message: "Erreur de chargement des détails." });
         } finally {
             setLoadingDetails(false);
@@ -98,16 +100,16 @@ const EditEventPage = () => {
         const initPage = async () => {
             try {
                 const [champsRes, eventsRes, commsRes] = await Promise.all([
-                    axios.get('http://localhost:8084/public/championship'),
-                    axios.get('http://localhost:8084/public/events'),
-                    axios.get('http://localhost:8084/commissaire/users?role=COMMISSAIRE')
+                    getChampionships(),
+                    eventService.getAll(),
+                    commissaireUserService.getUsersByRole("COMMISSAIRE")
                 ]);
-                setChampionships(champsRes.data);
-                setAllEvents(eventsRes.data);
-                setCommissaires(commsRes.data);
+                setChampionships(champsRes);
+                setAllEvents(eventsRes);
+                setCommissaires(commsRes);
 
                 if (eventIdFromUrl) {
-                    await fetchEventDetails(eventIdFromUrl, champsRes.data);
+                    await fetchEventDetails(eventIdFromUrl, champsRes);
                 }
             } catch (err) {
                 setStatus({ type: 'danger', message: "Erreur serveur lors de l'initialisation." });
@@ -160,12 +162,13 @@ const EditEventPage = () => {
             typeEventName: formData.typeEventName
         };
 
-        const url = isCommissaire
-            ? `http://localhost:8084/commissaire/events/${finalId}`
-            : `http://localhost:8084/admin/events/${finalId}`;
-
         try {
-            await axios.put(url, dataToSubmit);
+            if (isCommissaire) {
+                await eventService.editEventCommissaire(finalId, dataToSubmit);
+            } else {
+                await eventService.editEvent(finalId, dataToSubmit);
+            }
+
             setStatus({ type: 'success', message: 'Mise à jour réussie !' });
             setTimeout(() => navigate(-1), 1500);
         } catch (error) {
@@ -188,14 +191,16 @@ const EditEventPage = () => {
             {!isCommissaire && (
                 <Card className="shadow-sm mb-4 bg-light border-0">
                     <Card.Body>
-                        <Form.Label className="fw-bold">Épreuve à gérer</Form.Label>
-                        <Form.Select value={selectedEventId} onChange={(e) => {
-                            setSelectedEventId(e.target.value);
-                            fetchEventDetails(e.target.value, championships);
-                        }}>
-                            <option value="">--- Choisir une épreuve ---</option>
-                            {allEvents.map(ev => <option key={ev.id} value={ev.id}>{ev.name} ({ev.competitionName})</option>)}
-                        </Form.Select>
+                        <Form.Group controlId="selectEvent">
+                            <Form.Label className="fw-bold">Épreuve à gérer</Form.Label>
+                            <Form.Select value={selectedEventId} onChange={(e) => {
+                                setSelectedEventId(e.target.value);
+                                fetchEventDetails(e.target.value, championships);
+                            }}>
+                                <option value="">--- Choisir une épreuve ---</option>
+                                {allEvents.map(ev => <option key={ev.id} value={ev.id}>{ev.name} ({ev.competitionName})</option>)}
+                            </Form.Select>
+                        </Form.Group>
                     </Card.Body>
                 </Card>
             )}
@@ -205,67 +210,75 @@ const EditEventPage = () => {
             ) : (selectedEventId || eventIdFromUrl) && (
                 <Form onSubmit={handleSubmit}>
 
-                    <Card className="mb-4 shadow-sm border-primary">
+                    <Card className="mb-4 shadow-sm border">
                         <Card.Body>
-                            <h5 className="text-primary mb-3">Dates de l'épreuve : {formData.name}</h5>
+                            <h5 className="text-primary fw-bold mb-3">1. Contexte</h5>
                             {!isCommissaire && (
                                 <Row className="mb-3">
                                     <Col md={6}>
-                                        <Form.Label>Championnat</Form.Label>
-                                        <Form.Select
-                                            value={selectedChampionshipId}
-                                            onChange={async (e) => {
-                                                const champId = e.target.value;
-                                                setSelectedChampionshipId(champId);
-                                                const res = await axios.get(`http://localhost:8084/public/championship/${champId}/comp`);
-                                                setCompetitions(res.data);
-                                            }}
-                                        >
-                                            {championships.map(c => <option key={c.id} value={c.id}>{c.name}</option>)}
-                                        </Form.Select>
+                                        <Form.Group controlId="selectChampionat">
+                                            <Form.Label className="fw-bold">Championnat</Form.Label>
+                                            <Form.Select
+                                                value={selectedChampionshipId}
+                                                onChange={async (e) => {
+                                                    const champId = e.target.value;
+                                                    setSelectedChampionshipId(champId);
+                                                    const res = await getChampionshipCompetition(champId);
+                                                    setCompetitions(res.data);
+                                                }}
+                                            >
+                                                {championships.map(c => <option key={c.id} value={c.id}>{c.name}</option>)}
+                                            </Form.Select>
+                                        </Form.Group>
                                     </Col>
                                     <Col md={6}>
-                                        <Form.Label>Compétition</Form.Label>
-                                        <Form.Select
-                                            name="competitionId"
-                                            value={formData.competitionId}
-                                            onChange={(e) => {
-                                                const compId = e.target.value;
-                                                const comp = competitions.find(c => c.id === parseInt(compId));
-                                                setFormData(p => ({...p, competitionId: compId}));
-                                                if (comp) setCompLimits({ start: formatDateTime(comp.start), end: formatDateTime(comp.end) });
-                                            }}
-                                        >
-                                            {competitions.map(comp => <option key={comp.id} value={comp.id}>{comp.name}</option>)}
-                                        </Form.Select>
+                                        <Form.Group controlId="selectCompetition">
+                                            <Form.Label className="fw-bold">Compétition</Form.Label>
+                                            <Form.Select
+                                                name="competitionId"
+                                                value={formData.competitionId}
+                                                onChange={(e) => {
+                                                    const compId = e.target.value;
+                                                    const comp = competitions.find(c => c.id === parseInt(compId));
+                                                    setFormData(p => ({...p, competitionId: compId}));
+                                                    if (comp) setCompLimits({ start: formatDateTime(comp.start), end: formatDateTime(comp.end) });
+                                                }}
+                                            >
+                                                {competitions.map(comp => <option key={comp.id} value={comp.id}>{comp.name}</option>)}
+                                            </Form.Select>
+                                        </Form.Group>
                                     </Col>
                                 </Row>
                             )}
 
                             <Row>
                                 <Col md={6} className="mb-3">
-                                    <Form.Label className="fw-bold">Début</Form.Label>
-                                    <Form.Control
-                                        type="datetime-local"
-                                        name="startTime"
-                                        value={formData.startTime}
-                                        onChange={handleChange}
-                                        min={compLimits.start}
-                                        max={compLimits.end}
-                                        required
-                                    />
+                                    <Form.Group controlId="selectDateDebut">
+                                        <Form.Label className="fw-bold">Début</Form.Label>
+                                        <Form.Control
+                                            type="datetime-local"
+                                            name="startTime"
+                                            value={formData.startTime}
+                                            onChange={handleChange}
+                                            min={compLimits.start}
+                                            max={compLimits.end}
+                                            required
+                                        />
+                                    </Form.Group>
                                 </Col>
                                 <Col md={6} className="mb-3">
-                                    <Form.Label className="fw-bold">Fin</Form.Label>
-                                    <Form.Control
-                                        type="datetime-local"
-                                        name="endTime"
-                                        value={formData.endTime}
-                                        onChange={handleChange}
-                                        min={formData.startTime || compLimits.start}
-                                        max={compLimits.end}
-                                        required
-                                    />
+                                    <Form.Group controlId="selectDateFin">
+                                        <Form.Label className="fw-bold">Fin</Form.Label>
+                                        <Form.Control
+                                            type="datetime-local"
+                                            name="endTime"
+                                            value={formData.endTime}
+                                            onChange={handleChange}
+                                            min={formData.startTime || compLimits.start}
+                                            max={compLimits.end}
+                                            required
+                                        />
+                                    </Form.Group>
                                 </Col>
                             </Row>
                         </Card.Body>
@@ -273,73 +286,91 @@ const EditEventPage = () => {
 
                     {!isCommissaire && (
                         <>
-                            {formData.typeEventName === 'TRIAL' && (
-                                <Card className="mb-4 shadow-sm border-warning">
-                                    <Card.Body>
-                                        <h5 className="text-warning mb-3">👮 Attribution du Personnel</h5>
-                                        <Form.Group>
-                                            <Form.Label className="fw-bold">Commissaire Responsable</Form.Label>
-                                            <Form.Select
-                                                name="commissaireId"
-                                                value={formData.commissaireId}
-                                                onChange={handleChange}
-                                                required={formData.typeEventName === 'TRIAL'}
-                                            >
-                                                <option value="">-- Changer de commissaire --</option>
-                                                {commissaires.map(c => (
-                                                    <option key={c.id} value={c.id}>
-                                                        {c.firstName} {c.lastName} ({c.email})
-                                                    </option>
-                                                ))}
-                                            </Form.Select>
-                                        </Form.Group>
-                                        <Col md={3}>
-                                            <Form.Label className="fw-bold">Système de Score</Form.Label>
-                                            <Form.Select name="typeScoreName" value={formData.typeScoreName} onChange={handleChange}>
-                                                <option value="">Par défaut</option>
-                                                <option value="TIME">Temps (Chrono)</option>
-                                                <option value="POINTS">Points</option>
-                                            </Form.Select>
-                                        </Col>
-                                    </Card.Body>
-                                </Card>
-                            )}
-
                             <Card className="mb-4 shadow-sm">
                                 <Card.Body>
-                                    <h5 className="text-muted mb-3">📍 Informations & Lieu</h5>
+                                    <h5 className="text-primary fw-bold mb-3">2. Détails de l'évènement</h5>
                                     <Row className="mb-3">
-                                        <Col md={8}>
-                                            <Form.Label>Nom de l'épreuve</Form.Label>
-                                            <Form.Control name="name" value={formData.name} onChange={handleChange} />
-                                        </Col>
-                                        <Col md={4}>
-                                            <Form.Label>Type</Form.Label>
+                                        <Form.Group as={Col} md={8} controlId="eventName">
+                                            <Form.Label className="fw-bold">Nom</Form.Label>
+                                            <Form.Control name="name" value={formData.name} onChange={handleChange} required />
+                                        </Form.Group>
+                                        <Form.Group as={Col} md={4} controlId="eventType">
+                                            <Form.Label className="fw-bold">Type</Form.Label>
                                             <Form.Select name="typeEventName" value={formData.typeEventName} onChange={handleChange}>
                                                 <option value="MEETING">Réunion</option>
                                                 <option value="TRAINING">Entraînement</option>
-                                                <option value="TRIAL">Épreuve (TRIAL)</option>
+                                                <option value="TRIAL">Épreuve</option>
                                             </Form.Select>
-                                        </Col>
+                                        </Form.Group>
                                     </Row>
+                                    {formData.typeEventName === 'TRIAL' && (
+                                        <Row className="mb-3">
+                                            <Form.Group as={Col} md={6}>
+                                                <Form.Label className="fw-bold">👮 Commissaire Responsable</Form.Label>
+                                                <Form.Select
+                                                    name="commissaireId"
+                                                    value={formData.commissaireId}
+                                                    onChange={handleChange}
+                                                    required={formData.typeEventName === 'TRIAL'}
+                                                >
+                                                    <option value="">-- Sélectionner un commissaire --</option>
+                                                    {commissaires.map(c => (
+                                                        <option key={c.id} value={c.id}>{c.name} {c.lastname} ({c.email})</option>
+                                                    ))}
+                                                </Form.Select>
+                                            </Form.Group>
+                                            <Form.Group as={Col} md={6}>
+                                                <Form.Label className="fw-bold">Système de Score</Form.Label>
+                                                <Form.Select name="typeScoreName" value={formData.typeScoreName} onChange={handleChange}>
+                                                    <option value="TIME">Temps</option>
+                                                    <option value="POINTS">Points</option>
+                                                </Form.Select>
+                                            </Form.Group>
+                                        </Row>
+                                    )}
                                     <Form.Group className="mb-3">
-                                        <Form.Label>Description</Form.Label>
+                                        <Form.Label className="fw-bold">Description</Form.Label>
                                         <Form.Control as="textarea" rows={2} name="description" value={formData.description} onChange={handleChange} />
                                     </Form.Group>
+                                </Card.Body>
+                            </Card>
+                            <Card className="mb-4 shadow-sm">
+                                <Card.Body>
+                                    <h5 className="text-primary fw-bold mb-3">3. Lieu et Adresse</h5>
                                     <Form.Group className="mb-3">
-                                        <Form.Label>Nom du lieu</Form.Label>
+                                        <Form.Label className="fw-bold">Nom du lieu</Form.Label>
                                         <Form.Control name="placeName" value={formData.placeName} onChange={handleChange} />
                                     </Form.Group>
                                     <Row className="mb-3">
-                                        <Col md={3}><Form.Label>N°</Form.Label><Form.Control name="number" value={formData.number} onChange={handleChange} /></Col>
-                                        <Col md={9}><Form.Label>Rue</Form.Label><Form.Control name="street" value={formData.street} onChange={handleChange} /></Col>
+                                        <Col md={3}>
+                                            <Form.Group controlId="textNumeroRue">
+                                                <Form.Label className="fw-bold">N°</Form.Label>
+                                                <Form.Control name="number" value={formData.number} onChange={handleChange} required />
+                                            </Form.Group>
+                                        </Col>
+                                        <Col md={9}>
+                                            <Form.Group controlId="textNomRue">
+                                                <Form.Label className="fw-bold">Rue</Form.Label>
+                                                <Form.Control name="street" value={formData.street} onChange={handleChange} required />
+                                            </Form.Group>
+                                        </Col>
                                     </Row>
                                     <Row className="mb-3">
-                                        <Col md={4}><Form.Label>CP</Form.Label><Form.Control name="zip" value={formData.zip} onChange={handleChange} /></Col>
-                                        <Col md={8}><Form.Label>Ville</Form.Label><Form.Control name="city" value={formData.city} onChange={handleChange} /></Col>
+                                        <Col md={4}>
+                                            <Form.Group controlId="textZip">
+                                                <Form.Label className="fw-bold">CP</Form.Label>
+                                                <Form.Control name="zip" value={formData.zip} onChange={handleChange} required />
+                                            </Form.Group>
+                                        </Col>
+                                        <Col md={8}>
+                                            <Form.Group controlId="textVille">
+                                                <Form.Label className="fw-bold">Ville</Form.Label>
+                                                <Form.Control name="city" value={formData.city} onChange={handleChange} required />
+                                            </Form.Group>
+                                        </Col>
                                     </Row>
                                     <Form.Group className="mb-3">
-                                        <Form.Label>Description du lieu</Form.Label>
+                                        <Form.Label className="fw-bold">Description du lieu</Form.Label>
                                         <Form.Control as="textarea" rows={2} name="descriptionPlace" value={formData.descriptionPlace} onChange={handleChange} />
                                     </Form.Group>
                                     <Form.Check type="switch" label="Parking disponible" name="parking" checked={formData.parking} onChange={handleChange} />

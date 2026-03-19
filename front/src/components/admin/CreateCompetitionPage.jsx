@@ -1,7 +1,8 @@
 import React, { useEffect, useState } from 'react';
 import { Form, Button, Row, Col, Card, Container, Alert, Spinner } from 'react-bootstrap';
 import { useNavigate } from 'react-router-dom';
-import axios from 'axios';
+import {getChampionships} from "../../services/championshipService.jsx";
+import adminCompService from "../../services/adminCompService.jsx";
 
 const CreateCompetitionPage = () => {
     const navigate = useNavigate();
@@ -19,9 +20,11 @@ const CreateCompetitionPage = () => {
     });
 
     useEffect(() => {
-        axios.get('http://localhost:8084/public/championship')
-            .then(res => setChampionships(res.data))
-            .catch(err => console.error("Erreur championnats", err));
+        const fetchData = async () => {
+            const championships = await getChampionships();
+            setChampionships(championships)
+        }
+        fetchData();
     }, []);
 
     const handleChange = (e) => {
@@ -80,7 +83,7 @@ const CreateCompetitionPage = () => {
                 championshipId: parseInt(formData.championshipId, 10)
             };
 
-            await axios.post('http://localhost:8084/admin/comps', dataToSend);
+            await adminCompService.createComp(dataToSend)
 
             setStatus({ type: 'success', message: 'Compétition planifiée avec succès !' });
             setTimeout(() => navigate('/admin'), 2000);

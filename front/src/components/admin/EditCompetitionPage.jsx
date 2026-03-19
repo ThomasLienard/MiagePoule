@@ -1,7 +1,8 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import { Form, Button, Row, Col, Card, Container, Alert, Spinner } from 'react-bootstrap';
 import { useLocation, useNavigate } from 'react-router-dom';
-import axios from 'axios';
+import {getChampionshipCompetition, getChampionships} from "../../services/championshipService.jsx";
+import AdminCompService from "../../services/adminCompService.jsx";
 
 const EditCompetitionPage = () => {
     const navigate = useNavigate();
@@ -36,7 +37,7 @@ const EditCompetitionPage = () => {
         if (!champId) return;
         setLoadingComps(true);
         try {
-            const res = await axios.get(`http://localhost:8084/public/championship/${champId}/comp`);
+            const res = await getChampionshipCompetition(champId);
             setCompetitions(res.data);
             return res.data;
         } catch (err) {
@@ -50,8 +51,8 @@ const EditCompetitionPage = () => {
     useEffect(() => {
         const init = async () => {
             try {
-                const champsRes = await axios.get('http://localhost:8084/public/championship');
-                setChampionships(champsRes.data);
+                const champsRes = await getChampionships();
+                setChampionships(champsRes);
 
                 // Si on arrive avec un ID dans l'URL, on doit trouver son championnat
                 if (compIdFromUrl) {
@@ -89,10 +90,8 @@ const EditCompetitionPage = () => {
         e.preventDefault();
         setSubmitting(true);
 
-        const url = `http://localhost:8084/admin/comps/${selectedCompId}`;
-
         try {
-            await axios.put(url, {
+            await AdminCompService.updateComp(selectedCompId, {
                 id: parseInt(selectedCompId),
                 ...formData,
                 championshipId: parseInt(formData.championshipId)

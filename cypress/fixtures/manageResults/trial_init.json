@@ -1,0 +1,37 @@
+[
+  {
+    "trialId": 1,
+    "trialName": "100m Trial Final",
+    "participants": [
+      {
+        "id": 2,
+        "name": "Team B",
+        "type": "TEAM",
+        "country": "US",
+        "forfeit": false
+      }
+    ],
+    "potentialParticipants": [
+      {
+        "id": 1,
+        "name": "Team A",
+        "type": "TEAM",
+        "country": "FR"
+      },
+      {
+        "id": 3,
+        "name": "Team C",
+        "type": "TEAM",
+        "country": "DE"
+      },
+      {
+        "id": 4,
+        "name": "Team D",
+        "type": "TEAM",
+        "country": "ES"
+      }
+    ],
+    "status": null,
+    "teamTrial": true
+  }
+]

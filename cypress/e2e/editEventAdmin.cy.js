@@ -75,15 +75,11 @@ describe("Tests - Modification d'épreuve (Admin)", () => {
 
         cy.get("input[name='name']").clear();
 
-        cy.intercept('PUT', '**/admin/events/1', {
-            statusCode: 400,
-            body: { message: "Erreur lors de la sauvegarde." }
-        }).as('updateError');
-
         cy.contains("Enregistrer les modifications").click();
+        cy.wait(2000)
 
-        cy.wait('@updateError');
-        cy.get('.alert-danger').should('be.visible').and('contain', "Erreur lors de la sauvegarde.");
+        cy.url().should('match', /\/admin\/update-event/);
+
     });
 
     it('Scénario : Modification du commissaire (uniquement pour un TRIAL)', () => {

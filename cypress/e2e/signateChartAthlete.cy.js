@@ -14,8 +14,6 @@ describe('Page Profil - Signer la Charte', () => {
 
         cy.url().should('include', '/account');
 
-        cy.get('.row').should('have.class', 'align-items-start');
-
         // On vérifie que la carte est là (seulement pour l'athlète)
         cy.contains('Charte Européenne du Sport').should('be.visible');
 

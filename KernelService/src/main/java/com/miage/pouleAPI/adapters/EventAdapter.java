@@ -49,6 +49,7 @@ public class EventAdapter {
         dto.setName(event.getName());
         dto.setDescription(event.getDescription());
         dto.setStatus(event.getStatus());
+        dto.setTypeEvent(event.getTypeEvent().getName());
         
         // Competition name
         if (event.getCompetition() != null) {

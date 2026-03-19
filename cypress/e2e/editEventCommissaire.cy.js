@@ -61,7 +61,7 @@ describe("Tests - Modification de la date d'un évènement par un commissaire", 
         ).as('getEventDetail')
 
         // Cliquer sur le bouton pour gérer une épreuve
-        cy.get('button').contains("Modifier date").first().click();
+        cy.get('button').contains("Modifier les dates").first().click();
         cy.wait("@getEvents")
         cy.wait("@getChampionships")
         cy.wait("@getCompetitions")
@@ -113,7 +113,7 @@ describe("Tests - Modification de la date d'un évènement par un commissaire", 
         ).as('getEventDetail')
 
         // Cliquer sur le bouton pour gérer une épreuve
-        cy.get('button').contains("Modifier date").first().click();
+        cy.get('button').contains("Modifier les dates").first().click();
         cy.wait("@getEvents")
         cy.wait("@getChampionships")
         cy.wait("@getCompetitions")
@@ -159,7 +159,7 @@ describe("Tests - Modification de la date d'un évènement par un commissaire", 
         ).as('getEventDetail')
 
         // Cliquer sur le bouton pour gérer une épreuve
-        cy.get('button').contains("Modifier date").first().click();
+        cy.get('button').contains("Modifier les dates").first().click();
         cy.wait("@getEvents")
         cy.wait("@getChampionships")
         cy.wait("@getCompetitions")
