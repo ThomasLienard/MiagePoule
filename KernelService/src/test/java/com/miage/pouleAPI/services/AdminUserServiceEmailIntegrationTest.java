@@ -478,9 +478,7 @@ class AdminUserServiceEmailIntegrationTest {
             }).when(maillingService).sendEmail(anyString(), anyString(), anyString());
 
             // When
-            long startTime = System.currentTimeMillis();
             CreateUserResponse response = adminUserService.createUser(request, "admin@test.com");
-            long duration = System.currentTimeMillis() - startTime;
 
             // Then
             assertThat(response.id()).isNotNull();

@@ -590,25 +590,11 @@ class ParticipantServiceTest {
         @Test
         @DisplayName("Devrait retourner vide quand l'athlète n'existe pas")
         void getAthleteById_shouldPasReturnAthlete() {
-            ApplicationUser athleteUser = new ApplicationUser();
-            athleteUser.setId(1);
-            athleteUser.setName("Jean");
-            athleteUser.setLastname("Poule");
-            athleteUser.setCountry(france);
-
-            AthleteDTO expected = new AthleteDTO(
-                    1,
-                    "Jean Poule",
-                    "FR"
-            );
-            when(userRepository.findById(1)).thenReturn(Optional.of(athleteUser));
 
             Optional<AthleteDTO> result = participantService.getAthleteById(1);
 
-            assertThat(result).isPresent();
-            AthleteDTO athleteResult = result.get();
+            assertThat(result).isNotPresent();
 
-            assertThat(athleteResult).isEqualTo(expected);
         }
     }
 }

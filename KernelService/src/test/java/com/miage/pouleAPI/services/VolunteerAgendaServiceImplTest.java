@@ -27,7 +27,6 @@ import java.util.*;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
@@ -455,7 +454,7 @@ class VolunteerAgendaServiceImplTest {
         );
 
         when(userRepository.findByEmail("volunteer@example.com")).thenReturn(Optional.of(volunteer));
-        when(eventRepository.findByCompetitionNameAndEventName(eq("Marathon"), eq("Event Tomorrow")))
+        when(eventRepository.findByCompetitionNameAndEventName("Marathon","Event Tomorrow"))
             .thenReturn(List.of(eventTomorrow));
         when(taskRepository.save(any(Task.class))).thenAnswer(invocation -> {
             Task t = invocation.getArgument(0);
@@ -468,7 +467,7 @@ class VolunteerAgendaServiceImplTest {
         assertThat(response.successfullyProcessed()).isEqualTo(1);
         assertThat(response.failed()).isZero();
         assertThat(response.results()).hasSize(1);
-        assertThat(response.results().get(0).tasksCreated()).isEqualTo(1);
+        assertThat(response.results().getFirst().tasksCreated()).isEqualTo(1);
 
         assertThat(volunteer.getDailyTasks()).hasSize(2);
         assertThat(volunteer.getDailyTasks()).contains(existingTodayTask);
@@ -507,7 +506,7 @@ class VolunteerAgendaServiceImplTest {
         );
 
         when(userRepository.findByEmail("volunteer@example.com")).thenReturn(Optional.of(volunteer));
-        when(eventRepository.findByCompetitionNameAndEventName(eq("100m Sprint"), eq("Event Today")))
+        when(eventRepository.findByCompetitionNameAndEventName("100m Sprint", "Event Today"))
             .thenReturn(List.of(eventToday));
 
         UploadAgendaResponse response = volunteerAgendaService.uploadAgendas(List.of(uploadItem));
@@ -515,8 +514,8 @@ class VolunteerAgendaServiceImplTest {
         assertThat(response.successfullyProcessed()).isZero();
         assertThat(response.failed()).isEqualTo(1);
         assertThat(response.results()).hasSize(1);
-        assertThat(response.results().get(0).success()).isFalse();
-        assertThat(response.results().get(0).message()).contains("n'est pas planifié pour demain");
+        assertThat(response.results().getFirst().success()).isFalse();
+        assertThat(response.results().getFirst().message()).contains("n'est pas planifié pour demain");
 
         assertThat(volunteer.getDailyTasks()).containsExactlyInAnyOrderElementsOf(initialTasks);
 
