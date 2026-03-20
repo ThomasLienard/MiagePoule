@@ -22,7 +22,7 @@ public class Competition implements Subject {
     @Column(name = "id_competition")
     private Integer id;
 
-    @Column(name = "name_competition", nullable = false)
+    @Column(name = "name_competition", nullable = false, unique = true)
     private String name;
 
     @Column(name = "description_competition")

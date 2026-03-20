@@ -1,0 +1,86 @@
+[
+  {
+    "id": 1,
+    "name": "100m Trial Heat 1",
+    "description": "First qualification heat",
+    "competitionName": "100m Sprint"
+  },
+  {
+    "id": 2,
+    "name": "100m Trial Heat 2",
+    "description": "Second qualification heat",
+    "competitionName": "100m Sprint"
+  },
+  {
+    "id": 3,
+    "name": "100m Trial Final",
+    "description": "Final race",
+    "competitionName": "100m Sprint"
+  },
+  {
+    "id": 4,
+    "name": "Marathon Trial Warm-up",
+    "description": "Warm-up session",
+    "competitionName": "Marathon"
+  },
+  {
+    "id": 5,
+    "name": "Marathon Qualification",
+    "description": "Main qualification heat",
+    "competitionName": "Marathon"
+  },
+  {
+    "id": 6,
+    "name": "Marathon final",
+    "description": "Main heat",
+    "competitionName": "Marathon"
+  },
+  {
+    "id": 10,
+    "name": "Marathon Final",
+    "description": "Final race",
+    "competitionName": "Marathon"
+  },
+  {
+    "id": 11,
+    "name": "Waterpolo Final",
+    "description": "Final Match",
+    "competitionName": "Marathon"
+  },
+  {
+    "id": 12,
+    "name": "200m Sprint Final",
+    "description": "Finale du 200m sprint — épreuve de démonstration",
+    "competitionName": "100m Sprint"
+  },
+  {
+    "id": 13,
+    "name": "Waterpolo quarter-finals",
+    "description": "Opening",
+    "competitionName": "Marathon"
+  },
+  {
+    "id": 14,
+    "name": "Waterpolo demi-finals",
+    "description": "Opening",
+    "competitionName": "Marathon"
+  },
+  {
+    "id": 8,
+    "name": "Training Session B",
+    "description": "Regular training",
+    "competitionName": "100m Sprint"
+  },
+  {
+    "id": 9,
+    "name": "Championship Meeting",
+    "description": "Official gathering",
+    "competitionName": "Marathon"
+  },
+  {
+    "id": 7,
+    "name": "Training Session A",
+    "description": "Regular training",
+    "competitionName": "100m Sprint"
+  }
+]

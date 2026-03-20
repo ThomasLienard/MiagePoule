@@ -45,12 +45,12 @@ class CompetitionServiceImplTest {
         );
 
         competitionDTO1 = new CompetitionDTO(
-                championship.getId(),
-                "Competition 1 Description",
-                LocalDate.of(2024, 6, 30),
-                1,
-                "Competition 1",
-                LocalDate.of(2024, 1, 1)
+                championship.getId(),                     // championshipId
+                "Competition 1 Description",              // description
+                LocalDate.of(2024, 6, 30),                // end
+                1,                                        // id
+                "Competition 1",                          // name
+                LocalDate.of(2024, 1, 1)                  // start
         );
 
         competitionDTO2 = new CompetitionDTO(
@@ -65,65 +65,60 @@ class CompetitionServiceImplTest {
 
     @Test
     void findAll_ShouldReturnAllCompetitions() {
-        List<CompetitionDTO> expectedCompetitions = Arrays.asList(competitionDTO1, competitionDTO2);
-        when(competitionJpaAdapter.findAll()).thenReturn(expectedCompetitions);
+        when(competitionJpaAdapter.findAll()).thenReturn(Arrays.asList(competitionDTO1, competitionDTO2));
 
-        List<CompetitionDTO> actualCompetitions = competitionService.findAll();
+        List<CompetitionDTO> actual = competitionService.findAll();
 
-        assertThat(actualCompetitions).isNotNull();
-        assertThat(actualCompetitions).hasSize(2);
-        assertThat(actualCompetitions).containsExactlyInAnyOrder(competitionDTO1, competitionDTO2);
-        verify(competitionJpaAdapter, times(1)).findAll();
+        assertThat(actual).hasSize(2);
+        assertThat(actual).containsExactlyInAnyOrder(competitionDTO1, competitionDTO2);
+        verify(competitionJpaAdapter).findAll();
     }
 
     @Test
     void findAll_ShouldReturnEmptyList_WhenNoCompetitions() {
         when(competitionJpaAdapter.findAll()).thenReturn(List.of());
 
-        List<CompetitionDTO> actualCompetitions = competitionService.findAll();
+        List<CompetitionDTO> actual = competitionService.findAll();
 
-        assertThat(actualCompetitions).isNotNull();
-        assertThat(actualCompetitions).isEmpty();
-        verify(competitionJpaAdapter, times(1)).findAll();
+        assertThat(actual).isEmpty();
+        verify(competitionJpaAdapter).findAll();
     }
 
     @Test
     void findById_ShouldReturnCompetition_WhenExists() {
-        Integer competitionId = 1;
-        when(competitionJpaAdapter.findById(competitionId)).thenReturn(Optional.of(competitionDTO1));
+        when(competitionJpaAdapter.findById(1)).thenReturn(Optional.of(competitionDTO1));
 
-        Optional<CompetitionDTO> actualCompetition = competitionService.findById(competitionId);
+        Optional<CompetitionDTO> actual = competitionService.findById(1);
 
-        assertThat(actualCompetition).isPresent();
-        assertThat(actualCompetition.get()).isEqualTo(competitionDTO1);
-        assertThat(actualCompetition.get().getId()).isEqualTo(competitionId);
-        assertThat(actualCompetition.get().getName()).isEqualTo("Competition 1");
-        assertThat(actualCompetition.get().getChampionshipId()).isEqualTo(championship.getId());
-        verify(competitionJpaAdapter, times(1)).findById(competitionId);
+        assertThat(actual).isPresent();
+        assertThat(actual.get()).isEqualTo(competitionDTO1);
+        assertThat(actual.get().getId()).isEqualTo(1);
+        assertThat(actual.get().getName()).isEqualTo("Competition 1");
+        assertThat(actual.get().getChampionshipId()).isEqualTo(championship.getId());
+        verify(competitionJpaAdapter).findById(1);
     }
 
     @Test
     void findById_ShouldReturnEmpty_WhenNotExists() {
-        Integer competitionId = 999;
-        when(competitionJpaAdapter.findById(competitionId)).thenReturn(Optional.empty());
+        when(competitionJpaAdapter.findById(999)).thenReturn(Optional.empty());
 
-        Optional<CompetitionDTO> actualCompetition = competitionService.findById(competitionId);
+        Optional<CompetitionDTO> actual = competitionService.findById(999);
 
-        assertThat(actualCompetition).isEmpty();
-        verify(competitionJpaAdapter, times(1)).findById(competitionId);
+        assertThat(actual).isEmpty();
+        verify(competitionJpaAdapter).findById(999);
     }
 
     @Test
     void save_ShouldReturnSavedCompetition() {
-        CreateCompetitionRequestDTO newCompetition = new CreateCompetitionRequestDTO(
-                "New Competition",
-                "New Competition Description",
-                championship.getId(),
-                LocalDate.of(2025, 6, 30),
-                LocalDate.of(2025, 1, 1)
+        CreateCompetitionRequestDTO req = new CreateCompetitionRequestDTO(
+                "New Competition",                        // name
+                "New Competition Description",            // description
+                championship.getId(),                     // championshipId
+                LocalDate.of(2025, 6, 30),                // end
+                LocalDate.of(2025, 1, 1)                  // start
         );
 
-        CompetitionDTO savedCompetition = new CompetitionDTO(
+        CompetitionDTO saved = new CompetitionDTO(
                 championship.getId(),
                 "New Competition Description",
                 LocalDate.of(2025, 6, 30),
@@ -132,94 +127,62 @@ class CompetitionServiceImplTest {
                 LocalDate.of(2025, 1, 1)
         );
 
-        when(competitionJpaAdapter.save(any(CreateCompetitionRequestDTO.class))).thenReturn(savedCompetition);
+        when(competitionJpaAdapter.save(any(CreateCompetitionRequestDTO.class))).thenReturn(saved);
 
-        CompetitionDTO result = competitionService.save(newCompetition);
+        CompetitionDTO result = competitionService.save(req);
 
-        assertThat(result).isNotNull();
         assertThat(result.getId()).isEqualTo(3);
         assertThat(result.getName()).isEqualTo("New Competition");
         assertThat(result.getDescription()).isEqualTo("New Competition Description");
         assertThat(result.getStart()).isEqualTo(LocalDate.of(2025, 1, 1));
         assertThat(result.getEnd()).isEqualTo(LocalDate.of(2025, 6, 30));
         assertThat(result.getChampionshipId()).isEqualTo(championship.getId());
-        verify(competitionJpaAdapter, times(1)).save(newCompetition);
+        verify(competitionJpaAdapter).save(req);
     }
 
     @Test
-    void save_ShouldUpdateExistingCompetition() {
-        CreateCompetitionRequestDTO updatedCompetition = new CreateCompetitionRequestDTO(
-                "Updated Competition",
-                "Updated Description",
-                championship.getId(),
-                LocalDate.of(2024, 6, 30),
-                LocalDate.of(2024, 1, 1)
-        );
-
-        CompetitionDTO updatedCompetitionModel = new CompetitionDTO(
+    void update_ShouldCallAdapterUpdate() {
+        CompetitionDTO updateDTO = new CompetitionDTO(
                 championship.getId(),
                 "Updated Description",
                 LocalDate.of(2024, 6, 30),
-                3,
+                1,
                 "Updated Competition",
                 LocalDate.of(2024, 1, 1)
         );
 
-        when(competitionJpaAdapter.save(any(CreateCompetitionRequestDTO.class))).thenReturn(updatedCompetitionModel);
+        when(competitionJpaAdapter.update(any(CompetitionDTO.class))).thenReturn(updateDTO);
 
-        CompetitionDTO result = competitionService.save(updatedCompetition);
+        CompetitionDTO result = competitionService.update(updateDTO);
 
-        assertThat(result).isNotNull();
-        assertThat(result.getId()).isEqualTo(3);
-        assertThat(result.getName()).isEqualTo("Updated Competition");
-        assertThat(result.getDescription()).isEqualTo("Updated Description");
-        verify(competitionJpaAdapter, times(1)).save(updatedCompetition);
+        assertThat(result).isEqualTo(updateDTO);
+        verify(competitionJpaAdapter).update(updateDTO);
     }
 
     @Test
-    void findByChampionship_ShouldReturnCompetitions_WhenChampionshipExists() {
-        Integer championshipId = 1;
-        List<CompetitionDTO> expectedCompetitions = Arrays.asList(competitionDTO1, competitionDTO2);
-        when(competitionJpaAdapter.findByChampionshipId(championshipId)).thenReturn(expectedCompetitions);
+    void findByChampionship_ShouldReturnCompetitions() {
+        when(competitionJpaAdapter.findByChampionshipId(1)).thenReturn(List.of(competitionDTO1, competitionDTO2));
 
-        List<CompetitionDTO> actualCompetitions = competitionService.findByChampionship(championshipId);
+        List<CompetitionDTO> actual = competitionService.findByChampionship(1);
 
-        assertThat(actualCompetitions).isNotNull();
-        assertThat(actualCompetitions).hasSize(2);
-        assertThat(actualCompetitions).containsExactlyInAnyOrder(competitionDTO1, competitionDTO2);
-        assertThat(actualCompetitions).allMatch(c -> c.getChampionshipId().equals(championshipId));
-        verify(competitionJpaAdapter, times(1)).findByChampionshipId(championshipId);
+        assertThat(actual).hasSize(2);
+        assertThat(actual).allMatch(c -> c.getChampionshipId().equals(1));
+        verify(competitionJpaAdapter).findByChampionshipId(1);
     }
 
     @Test
-    void findByChampionship_ShouldReturnEmptyList_WhenNoCompetitionsForChampionship() {
-        Integer championshipId = 999;
-        when(competitionJpaAdapter.findByChampionshipId(championshipId)).thenReturn(List.of());
+    void findByChampionship_ShouldReturnEmptyList_WhenNone() {
+        when(competitionJpaAdapter.findByChampionshipId(999)).thenReturn(List.of());
 
-        List<CompetitionDTO> actualCompetitions = competitionService.findByChampionship(championshipId);
+        List<CompetitionDTO> actual = competitionService.findByChampionship(999);
 
-        assertThat(actualCompetitions).isNotNull();
-        assertThat(actualCompetitions).isEmpty();
-        verify(competitionJpaAdapter, times(1)).findByChampionshipId(championshipId);
+        assertThat(actual).isEmpty();
+        verify(competitionJpaAdapter).findByChampionshipId(999);
     }
 
     @Test
-    void findByChampionship_ShouldReturnOnlyCompetitionsFromSpecificChampionship() {
-        Integer championshipId = 1;
-        List<CompetitionDTO> expectedCompetitions = List.of(competitionDTO1);
-        when(competitionJpaAdapter.findByChampionshipId(championshipId)).thenReturn(expectedCompetitions);
-
-        List<CompetitionDTO> actualCompetitions = competitionService.findByChampionship(championshipId);
-
-        assertThat(actualCompetitions).hasSize(1);
-        assertThat(actualCompetitions.get(0).getChampionshipId()).isEqualTo(championshipId);
-        verify(competitionJpaAdapter, times(1)).findByChampionshipId(championshipId);
-    }
-
-    @Test
-    void constructor_ShouldInitializePort() {
+    void constructor_ShouldInitializeService() {
         CompetitionServiceImpl service = new CompetitionServiceImpl(competitionJpaAdapter);
-
         assertThat(service).isNotNull();
     }
 }

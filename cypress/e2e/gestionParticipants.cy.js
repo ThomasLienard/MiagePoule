@@ -39,7 +39,7 @@ describe('Tests - Gestion des Participants aux Épreuves', () => {
         ).as('getParticipants')
 
         // Cliquer sur le bouton pour gérer une épreuve
-        cy.get('button').contains('Modifier participants').first().click();
+        cy.get('button').contains('Modifier les participants').first().click();
         cy.wait("@getParticipants");
         cy.wait(500);
 
@@ -78,7 +78,7 @@ describe('Tests - Gestion des Participants aux Épreuves', () => {
         ).as('getParticipants')
 
         // Cliquer sur le bouton pour gérer une épreuve
-        cy.get('button').contains('Modifier participants').first().click();
+        cy.get('button').contains('Modifier les participants').first().click();
         cy.wait("@getParticipants");
         cy.wait(500);
 
@@ -136,7 +136,7 @@ describe('Tests - Gestion des Participants aux Épreuves', () => {
         ).as('getParticipants')
 
         // Cliquer sur le bouton pour gérer une épreuve
-        cy.get('button').contains('Modifier participants').first().click();
+        cy.get('button').contains('Modifier les participants').first().click();
         cy.wait("@getParticipants");
         cy.wait(500);
 
@@ -181,7 +181,7 @@ describe('Tests - Gestion des Participants aux Épreuves', () => {
         ).as('getParticipants')
 
         // Cliquer sur le bouton pour gérer une épreuve
-        cy.get('button').contains('Modifier participants').first().click();
+        cy.get('button').contains('Modifier les participants').first().click();
         cy.wait('@getParticipants');
         cy.wait(500);
 
@@ -209,7 +209,7 @@ describe('Tests - Gestion des Participants aux Épreuves', () => {
         ).as('getParticipants')
 
         // Cliquer sur le bouton pour gérer une épreuve
-        cy.get('button').contains('Modifier participants').first().click();
+        cy.get('button').contains('Modifier les participants').first().click();
         cy.wait("@getParticipants");
         cy.wait(500);
 
@@ -258,7 +258,7 @@ describe('Tests - Gestion des Participants aux Épreuves', () => {
         ).as('getParticipants')
 
         // Cliquer sur le bouton pour gérer une épreuve
-        cy.get('button').contains('Modifier participants').first().click();
+        cy.get('button').contains('Modifier les participants').first().click();
         cy.wait("@getParticipants");
         cy.wait(500);
 
@@ -286,7 +286,7 @@ describe('Tests - Gestion des Participants aux Épreuves', () => {
         ).as('getParticipants')
 
         // Cliquer sur le bouton pour gérer une épreuve
-        cy.get('button').contains('Modifier participants').first().click();
+        cy.get('button').contains('Modifier les participants').first().click();
         cy.wait("@getParticipants");
         cy.wait(500);
 
@@ -308,7 +308,7 @@ describe('Tests - Gestion des Participants aux Épreuves', () => {
         ).as('getParticipants')
 
         // Cliquer sur le bouton pour gérer une épreuve
-        cy.get('button').contains('Modifier participants').first().click();
+        cy.get('button').contains('Modifier les participants').first().click();
         cy.wait("@getParticipants");
         cy.wait(500);
 

@@ -1,0 +1,14 @@
+[
+  {
+    "volunteerEmail": "email-invalide",
+    "tasks": []
+  },
+  {
+    "volunteerEmail": "claire.benevole@example.com",
+    "tasks": [
+      {
+        "description": "Mission incomplète"
+      }
+    ]
+  }
+]

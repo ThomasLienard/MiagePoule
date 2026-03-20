@@ -1,5 +1,6 @@
 package com.miage.pouleAPI.adapters;
 
+import com.miage.pouleAPI.dtos.championship.ChampionshipDTO;
 import com.miage.pouleAPI.dtos.competition.CompetitionDTO;
 import com.miage.pouleAPI.dtos.competition.CreateCompetitionRequestDTO;
 import com.miage.pouleAPI.entity.ApplicationUser;
@@ -42,11 +43,20 @@ public class CompetitionJpaAdapter {
         return toDomain(saved);
     }
 
+    public CompetitionDTO update (CompetitionDTO competitionDTO) {
+        Competition entity = toEntity(competitionDTO);
+        return toDomain(repository.save(entity));
+    }
+
     public List<CompetitionDTO> findByChampionshipId(Integer championshipId) {
         return repository.findByChampionship_Id(championshipId)
                 .stream()
                 .map(this::toDomain)
                 .toList();
+    }
+    
+    public Optional<CompetitionDTO> findByName(String name) {
+        return repository.findByName(name).map(this::toDomain);
     }
 
     // Méthodes pour gérer les observateurs

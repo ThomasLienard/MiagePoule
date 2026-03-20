@@ -48,6 +48,8 @@ public class EventAdapter {
         dto.setId(event.getId());
         dto.setName(event.getName());
         dto.setDescription(event.getDescription());
+        dto.setStatus(event.getStatus());
+        dto.setTypeEvent(event.getTypeEvent().getName());
         
         // Competition name
         if (event.getCompetition() != null) {
@@ -90,6 +92,7 @@ public class EventAdapter {
         event.setId(dto.getId());
         event.setName(dto.getName());
         event.setDescription(dto.getDescription());
+        event.setStatus(dto.getStatus());
         
         // Note: Pour une conversion complète, il faudrait récupérer
         // les entités liées (Competition, TimeSlot, Place) depuis la BDD

@@ -20,9 +20,11 @@ public class TrialDetailDTO {
     private String competitionName;
     private TimeSlotDTO timeSlot;
     private PlaceDTO place;
+    private String status;
     private List<RankingDTO> rankings;
     private boolean isTeamEvent;
     private List<SoloParticipantDTO> soloParticipants;
     private List<TeamParticipantDTO> teamParticipants;
+    private String scoreType;
 }
 

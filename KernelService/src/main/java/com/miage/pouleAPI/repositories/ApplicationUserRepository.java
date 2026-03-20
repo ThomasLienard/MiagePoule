@@ -6,11 +6,17 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
 
 @Repository
 public interface ApplicationUserRepository extends JpaRepository<ApplicationUser, Integer> {
+    interface RoleCountProjection {
+        String getRoleName();
+        Long getCount();
+    }
+
     Optional<ApplicationUser> findByEmail(String email);
 
     boolean existsByEmail(String email);
@@ -22,4 +28,13 @@ public interface ApplicationUserRepository extends JpaRepository<ApplicationUser
     
     @Query("SELECT u FROM ApplicationUser u JOIN IsConvenedTo i ON u.id = i.user.id WHERE i.trial.id = :trialId")
     List<ApplicationUser> findAthletesByTrialId(@Param("trialId") Integer trialId);
+
+    @Query("SELECT COUNT(u) FROM ApplicationUser u WHERE u.createdAt >= :start AND u.createdAt < :end")
+    long countCreatedBetween(@Param("start") LocalDateTime start, @Param("end") LocalDateTime end);
+
+    @Query("SELECT COUNT(u) FROM ApplicationUser u WHERE u.lastLoginAt >= :start AND u.lastLoginAt < :end")
+    long countConnectedBetween(@Param("start") LocalDateTime start, @Param("end") LocalDateTime end);
+
+    @Query("SELECT u.role.roleName AS roleName, COUNT(u) AS count FROM ApplicationUser u GROUP BY u.role.roleName")
+    List<RoleCountProjection> countUsersByRole();
 }

@@ -34,6 +34,11 @@ public class ChampionshipJpaAdapter{
         return toDomain(saved);
     }
 
+    public ChampionshipDTO update (ChampionshipDTO championshipDto) {
+        Championship entity = toEntity(championshipDto);
+        return toDomain(repository.save(entity));
+    }
+
     private ChampionshipDTO toDomain(Championship championship){
         if (championship == null){
             return  null;

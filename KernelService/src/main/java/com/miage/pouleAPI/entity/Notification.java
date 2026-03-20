@@ -47,6 +47,7 @@ public class Notification {
     private Severity severity;
 
     @Enumerated(EnumType.STRING)
+    @Column(name="name_type_of_notification", nullable=false)
     private TypeNotification type;
 
     @ManyToMany(mappedBy = "notifications")

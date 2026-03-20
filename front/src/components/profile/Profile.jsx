@@ -13,11 +13,12 @@ import {
 } from "react-bootstrap";
 import { useAuth } from "../../contexts/AuthContext";
 import { AlertCircle, User, FileText, FileSignature } from "lucide-react";
-import axios from "axios";
 import ChangePassword from "./ChangePassword.jsx";
 import DocumentUpload from "./DocumentUpload.jsx";
 import documentService from "../../services/documentService.jsx";
 import authService from "../../services/authService.jsx";
+import {getAllCountries} from "../../services/countryService.jsx";
+import {getAccount, signChart, updateSettings} from "../../services/accountService.jsx";
 
 const Profile = () => {
   const { isAccountValidated, setIsAccountValidated } = useAuth();
@@ -32,9 +33,6 @@ const Profile = () => {
   const [documents, setDocuments] = useState({});
   const [activeTab, setActiveTab] = useState("profile");
   const [hasRead, setHasRead] = useState(false); // État pour forcer le dépliage de la charte
-  const API_URL = "http://localhost:8084";
-  const token = localStorage.getItem("token");
-  const config = { headers: { Authorization: `Bearer ${token}` } };
 
   // Mapper les IDs de type de document
   const documentTypeIds = {
@@ -55,10 +53,9 @@ const Profile = () => {
         }
 
         const [userRes, countriesRes] = await Promise.all([
-          axios.get(`${API_URL}/account`, config),
-          axios.get(`${API_URL}/countries`, config),
+          getAccount(),
+          getAllCountries()
         ]);
-        console.log("Données utilisateur complètes:", userRes.data);
         setUser(userRes.data);
         setFormData(userRes.data);
         setCountries(countriesRes.data);
@@ -113,11 +110,7 @@ const Profile = () => {
   const handleUpdate = async (e) => {
     e.preventDefault();
     try {
-      const response = await axios.put(
-        `${API_URL}/account/settings`,
-        formData,
-        config,
-      );
+      const response = await updateSettings(formData)
 
       setUser(response.data.user);
 
@@ -153,7 +146,7 @@ const Profile = () => {
   const checkAccountValidation = async () => {
     try {
       // Recharger les infos utilisateur pour vérifier le statut
-      const userRes = await axios.get(`${API_URL}/account`, config);
+      const userRes = await getAccount();
       if (userRes.data.isAccountValidated) {
         setIsAccountValidated(true);
         localStorage.setItem("isAccountValidated", "true");
@@ -165,7 +158,7 @@ const Profile = () => {
 
   const handleSignCharter = async () => {
     try {
-      await axios.post(`${API_URL}/account/sign-charter`, {}, config);
+      await signChart();
       setUser({
         ...user,
         hasSignedCharter: true,

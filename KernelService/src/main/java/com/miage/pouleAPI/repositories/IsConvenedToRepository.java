@@ -14,6 +14,12 @@ import java.util.Optional;
 public interface IsConvenedToRepository extends JpaRepository<IsConvenedTo, IsConvenedToId> {
     @Query("SELECT i FROM IsConvenedTo i WHERE i.trial.id = :trialId ORDER BY i.result ASC")
     List<IsConvenedTo> findByTrialIdOrderedByResult(@Param("trialId") Integer trialId);
+    
+    @Query("SELECT i FROM IsConvenedTo i WHERE i.trial.id = :trialId ORDER BY " +
+           "CASE WHEN :sortOrder = 'ASC' THEN i.result END ASC, " +
+           "CASE WHEN :sortOrder = 'DESC' THEN i.result END DESC")
+    List<IsConvenedTo> findByTrialIdOrderedByResultDynamic(@Param("trialId") Integer trialId, 
+                                                            @Param("sortOrder") String sortOrder);
 
     @Query("SELECT i FROM IsConvenedTo i WHERE i.trial.id = :trialId")
     List<IsConvenedTo> findByTrialId(@Param("trialId") Integer trialId);

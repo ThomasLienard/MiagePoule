@@ -1,0 +1,60 @@
+[
+  {
+    "trialId": 1,
+    "trialName": "Concours de sieste",
+    "participants": [
+      {
+        "id": 2,
+        "name": "Team Ballon",
+        "type": "TEAM",
+        "country": "US",
+        "forfeit": false
+      }
+    ],
+    "potentialParticipants": [
+      {
+        "id": 1,
+        "name": "Team Amour",
+        "type": "TEAM",
+        "country": "FR"
+      },
+      {
+        "id": 3,
+        "name": "Team des Siesteurs pro",
+        "type": "TEAM",
+        "country": "DE"
+      },
+      {
+        "id": 4,
+        "name": "Team Monsieur Doudou",
+        "type": "TEAM",
+        "country": "ES"
+      }
+    ],
+    "status": null,
+    "teamTrial": true
+  },
+  {
+    "trialId": 2,
+    "trialName": "Plantage de PC",
+    "participants": [
+      {
+        "id": 5,
+        "name": "Jean Pâte",
+        "type": "ATHLETE",
+        "country": "US",
+        "forfeit": false
+      },
+      {
+        "id": 3,
+        "name": "Arnaud Incognito",
+        "type": "ATHLETE",
+        "country": "FR",
+        "forfeit": false
+      }
+    ],
+    "potentialParticipants": [],
+    "status": null,
+    "teamTrial": false
+  }
+]

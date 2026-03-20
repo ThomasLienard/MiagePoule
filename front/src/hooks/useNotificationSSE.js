@@ -19,7 +19,7 @@ export const useNotificationsSSE = (userId) => {
 
             // 1️⃣ Ouvre la connexion SSE vers le backend (via la gateway)
             const eventSource = new EventSource(
-                `http://localhost:8084/api/notifications/stream/${userId}`
+                `${import.meta.env.VITE_API_URL}/api/notifications/stream/${userId}`
             );
 
             eventSourceRef.current = eventSource;

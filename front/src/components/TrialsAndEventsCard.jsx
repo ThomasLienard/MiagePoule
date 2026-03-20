@@ -3,6 +3,7 @@ import {useNavigate} from "react-router-dom";
 import {formatDate} from "../utils/dateFormatter.js";
 import React from "react";
 import RankingFormat from "./common/RankingFormat.jsx";
+import {formatScore} from "../utils/scoreFormatter.js";
 
 const TrialsAndEventsCard = ({trials, events, title, showForfeitButton, onForfeitClick, rankingMap}) => {
     const navigate = useNavigate();
@@ -53,16 +54,21 @@ const TrialsAndEventsCard = ({trials, events, title, showForfeitButton, onForfei
                                             {rankingMap?.get(trial.id) && (
                                                 <span>
                                                     <RankingFormat rank={rankingMap.get(trial.id).rank}/>
-                                                    {rankingMap.get(trial.id).result
-                                                        ? <span>{rankingMap.get(trial.id).result} </span>
+                                                    {rankingMap.get(trial.id).result !== null && rankingMap.get(trial.id).result !== undefined
+                                                        ? <span>{formatScore(rankingMap.get(trial.id).result, trial.scoreType)} </span>
                                                         : <span>Forfait</span>}
                                                 </span>
                                             )}
+
+                                            {trial.status === "CANCELLED" && (
+                                                <div className="text-danger text-end">Épreuve annulée</div>
+                                            )}
+
                                             {(trial.rankings?.length > 0 && (!rankingMap || !rankingMap.get(trial.id))) && (
                                                 <div
                                                     className="text-success text-end">Résultats disponibles !</div>
                                             )}
-                                            {showForfeitButton && (
+                                            {trial.status !== "CANCELLED" && showForfeitButton && (
                                                 <div className="mt-2">
                                                     {trial.isForfeit ? (
                                                         <span className="badge bg-warning text-dark">Forfait déclaré</span>
