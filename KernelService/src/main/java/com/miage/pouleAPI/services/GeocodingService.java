@@ -43,7 +43,7 @@ public class GeocodingService {
 
     private Double[] executeQuery(String query) {
         try {
-            String url = UriComponentsBuilder.fromHttpUrl("https://nominatim.openstreetmap.org/search")
+            String url = UriComponentsBuilder.fromUriString("https://nominatim.openstreetmap.org/search")
                     .queryParam("q", query)
                     .queryParam("format", "json")
                     .queryParam("limit", 1)
