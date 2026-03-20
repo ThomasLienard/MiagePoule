@@ -13,7 +13,7 @@ import org.springframework.web.util.UriComponentsBuilder;
 @Service
 public class GeocodingService {
     private final String USER_AGENT = "PouleAPI-Lille-StudentProject/1.0";
-    private RestTemplate restTemplate;
+    private final RestTemplate restTemplate;
 
     public GeocodingService(RestTemplateBuilder restTemplateBuilder) {
         this.restTemplate = restTemplateBuilder.build();
