@@ -191,12 +191,12 @@ VALUES (1, 4, '2h15m', false, true),
 -- ======================
 -- Notifications
 -- ======================
-INSERT INTO notification (description_notification, emission_date,
+INSERT INTO notification (title_notification, description_notification, emission_date,
                           id_place, id_event, name_severity, name_type_of_notification)
-VALUES ('Trial 1 starting soon', '2025-01-01 08:30:00', 1, 1, 'WARNING', 'EMAIL'),
-       ('Trial 2 delayed', '2025-01-01 09:45:00', 1, 2, 'WARNING', 'SMS'),
-       ('Trial 3 finals announcement', '2025-01-01 10:00:00', 1, 3, 'INFO', 'SYSTEM'),
-       ('Marathon Trial info', '2025-01-01 08:00:00', 1, 4, 'INFO', 'EMAIL');
+VALUES ('Début Trial 1', 'Trial 1 starting soon', '2025-01-01 08:30:00', 1, 1, 'WARNING', 'EMAIL'),
+       ('Retard Trial 2', 'Trial 2 delayed', '2025-01-01 09:45:00', 1, 2, 'WARNING', 'SMS'),
+       ('Finales Trial 3', 'Trial 3 finals announcement', '2025-01-01 10:00:00', 1, 3, 'INFO', 'SYSTEM'),
+       ('Info Marathon', 'Marathon Trial info', '2025-01-01 08:00:00', 1, 4, 'INFO', 'EMAIL');
 
 -- ======================
 -- User subscriptions

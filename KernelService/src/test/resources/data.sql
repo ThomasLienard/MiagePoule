@@ -190,9 +190,9 @@ VALUES (3, 6, null,    false),
 -- ======================
 -- Notifications
 -- ======================
-INSERT INTO notification (id_notification, description_notification, emission_date,
+INSERT INTO notification (id_notification, title_notification, description_notification, emission_date,
                           id_place, id_event, name_severity, name_type_of_notification)
-VALUES (1, 'Event delayed', '2025-01-01 08:00:00', 1, 2, 'WARNING', 'EMAIL');
+VALUES (1, 'Event delayed', 'Event delayed', '2025-01-01 08:00:00', 1, 2, 'WARNING', 'EMAIL');
 
 -- ======================
 -- User subscriptions

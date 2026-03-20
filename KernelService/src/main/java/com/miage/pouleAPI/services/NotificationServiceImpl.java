@@ -28,6 +28,7 @@ public class NotificationServiceImpl implements com.miage.pouleAPI.services.inte
     @Override
     public void notifyEventStart(Event event) {
         Notification n = new Notification();
+        n.setTitle("Début de l'épreuve " + event.getName());
         n.setDescription("L'épreuve " + event.getName() + " va commencer.");
         n.setType(TypeNotification.INFO);
         n.setEvent(event);
@@ -63,6 +64,7 @@ public class NotificationServiceImpl implements com.miage.pouleAPI.services.inte
     @Override
     public void notifyEventResults(Event event) {
         Notification n = new Notification();
+        n.setTitle("Résultats disponibles : " + event.getName());
         n.setDescription("Les résultats de " + event.getName() + " sont disponibles.");
         n.setType(TypeNotification.RESULT);
         n.setEvent(event);
