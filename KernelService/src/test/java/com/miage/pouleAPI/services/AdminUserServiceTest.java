@@ -289,7 +289,7 @@ class AdminUserServiceTest {
             when(userRepository.findById(1)).thenReturn(Optional.of(testUser));
             when(userRepository.save(any())).thenAnswer(i -> i.getArguments()[0]);
 
-            UpdateUserRequest request = new UpdateUserRequest("NewName", null, null, null, null);
+            UpdateUserRequest request = new UpdateUserRequest(Optional.of("NewName"), Optional.empty(), Optional.empty(), Optional.empty(), Optional.empty());
             UserDto updated = adminUserService.updateUser(1, request);
 
             assertThat(updated.name()).isEqualTo("NewName");
@@ -301,7 +301,7 @@ class AdminUserServiceTest {
             when(userRepository.findById(1)).thenReturn(Optional.of(testUser));
             when(userRepository.save(any())).thenAnswer(i -> i.getArguments()[0]);
 
-            UpdateUserRequest request = new UpdateUserRequest(null, "NewLastname", null, null, null);
+            UpdateUserRequest request = new UpdateUserRequest(Optional.empty(), Optional.of("NewLastname"), Optional.empty(), Optional.empty(), Optional.empty());
             UserDto updated = adminUserService.updateUser(1, request);
 
             assertThat(updated.lastname()).isEqualTo("NewLastname");
@@ -314,7 +314,7 @@ class AdminUserServiceTest {
             when(userRepository.existsByEmail("new@test.com")).thenReturn(false);
             when(userRepository.save(any())).thenAnswer(i -> i.getArguments()[0]);
 
-            UpdateUserRequest request = new UpdateUserRequest(null, null, "new@test.com", null, null);
+            UpdateUserRequest request = new UpdateUserRequest(Optional.empty(), Optional.empty(), Optional.of("new@test.com"), Optional.empty(), Optional.empty());
             UserDto updated = adminUserService.updateUser(1, request);
 
             assertThat(updated.email()).isEqualTo("new@test.com");
@@ -326,7 +326,7 @@ class AdminUserServiceTest {
             when(userRepository.findById(1)).thenReturn(Optional.of(testUser));
             when(userRepository.existsByEmail("used@test.com")).thenReturn(true);
 
-            UpdateUserRequest request = new UpdateUserRequest(null, null, "used@test.com", null, null);
+            UpdateUserRequest request = new UpdateUserRequest(Optional.empty(), Optional.empty(), Optional.of("used@test.com"), Optional.empty(), Optional.empty());
 
             assertThatThrownBy(() -> adminUserService.updateUser(1, request))
                 .isInstanceOf(IllegalArgumentException.class)
@@ -340,7 +340,7 @@ class AdminUserServiceTest {
             when(roleRepository.findById("SPECTATEUR")).thenReturn(Optional.of(spectateurRole));
             when(userRepository.save(any())).thenAnswer(i -> i.getArguments()[0]);
 
-            UpdateUserRequest request = new UpdateUserRequest(null, null, null, "SPECTATEUR", null);
+            UpdateUserRequest request = new UpdateUserRequest(Optional.empty(), Optional.empty(), Optional.empty(), Optional.of("SPECTATEUR"), Optional.empty());
             UserDto updated = adminUserService.updateUser(1, request);
 
             assertThat(updated.roleName()).isEqualTo("SPECTATEUR");
@@ -352,7 +352,7 @@ class AdminUserServiceTest {
             when(userRepository.findById(1)).thenReturn(Optional.of(testUser));
             when(roleRepository.findById("INVALID")).thenReturn(Optional.empty());
 
-            UpdateUserRequest request = new UpdateUserRequest(null, null, null, "INVALID", null);
+            UpdateUserRequest request = new UpdateUserRequest(Optional.empty(), Optional.empty(), Optional.empty(), Optional.of("INVALID"), Optional.empty());
 
             assertThatThrownBy(() -> adminUserService.updateUser(1, request))
                 .isInstanceOf(IllegalArgumentException.class)
@@ -369,20 +369,20 @@ class AdminUserServiceTest {
             when(countryRepository.findById("DE")).thenReturn(Optional.of(germany));
             when(userRepository.save(any())).thenAnswer(i -> i.getArguments()[0]);
 
-            UpdateUserRequest request = new UpdateUserRequest(null, null, null, null, "DE");
+            UpdateUserRequest request = new UpdateUserRequest(Optional.empty(), Optional.empty(), Optional.empty(), Optional.empty(), Optional.of("DE"));
             UserDto updated = adminUserService.updateUser(1, request);
 
             assertThat(updated.countryCode()).isEqualTo("DE");
         }
 
         @Test
-        @DisplayName("Devrait gérer pays inexistant en le mettant à null")
+        @DisplayName("Devrait gérer pays inexistant en le mettant à Optional.empty()")
         void updateUser_shouldSetCountryToNullIfNotFound() {
             when(userRepository.findById(1)).thenReturn(Optional.of(testUser));
             when(countryRepository.findById("XX")).thenReturn(Optional.empty());
             when(userRepository.save(any())).thenAnswer(i -> i.getArguments()[0]);
 
-            UpdateUserRequest request = new UpdateUserRequest(null, null, null, null, "XX");
+            UpdateUserRequest request = new UpdateUserRequest(Optional.empty(), Optional.empty(), Optional.empty(), Optional.empty(), Optional.of("XX"));
             UserDto updated = adminUserService.updateUser(1, request);
 
             assertThat(updated.countryCode()).isNull();
@@ -393,7 +393,7 @@ class AdminUserServiceTest {
         void updateUser_shouldThrowIfUserNotFound() {
             when(userRepository.findById(999)).thenReturn(Optional.empty());
 
-            UpdateUserRequest request = new UpdateUserRequest("Name", null, null, null, null);
+            UpdateUserRequest request = new UpdateUserRequest(Optional.of("Name"), Optional.empty(), Optional.empty(), Optional.empty(), Optional.empty());
 
             assertThatThrownBy(() -> adminUserService.updateUser(999, request))
                 .isInstanceOf(IllegalArgumentException.class)
@@ -406,7 +406,7 @@ class AdminUserServiceTest {
             when(userRepository.findById(1)).thenReturn(Optional.of(testUser));
             when(userRepository.save(any())).thenAnswer(i -> i.getArguments()[0]);
 
-            UpdateUserRequest request = new UpdateUserRequest("", "", "", "", null);
+            UpdateUserRequest request = new UpdateUserRequest(Optional.of(""), Optional.of(""), Optional.of(""), Optional.of(""), Optional.empty());
             UserDto updated = adminUserService.updateUser(1, request);
 
             assertThat(updated.name()).isEqualTo("John");
@@ -420,7 +420,7 @@ class AdminUserServiceTest {
             when(userRepository.findById(1)).thenReturn(Optional.of(testUser));
             when(userRepository.save(any())).thenAnswer(i -> i.getArguments()[0]);
 
-            UpdateUserRequest request = new UpdateUserRequest(null, null, "john.doe@test.com", null, null);
+            UpdateUserRequest request = new UpdateUserRequest(Optional.empty(), Optional.empty(), Optional.of("john.doe@test.com"), Optional.empty(), Optional.empty());
             UserDto updated = adminUserService.updateUser(1, request);
 
             assertThat(updated.email()).isEqualTo("john.doe@test.com");
@@ -675,12 +675,12 @@ class AdminUserServiceTest {
             assertThat(response.failed()).isEqualTo(0);
             assertThat(response.results()).hasSize(2);
 
-            BulkCreateUsersResponse.UserCreationResult result1 = response.results().get(0);
+            UserCreationResult result1 = response.results().get(0);
             assertThat(result1.email()).isEqualTo("jean.dupont@test.com");
             assertThat(result1.success()).isTrue();
             assertThat(result1.temporaryPassword()).isEqualTo("dupont.jean");
 
-            BulkCreateUsersResponse.UserCreationResult result2 = response.results().get(1);
+            UserCreationResult result2 = response.results().get(1);
             assertThat(result2.email()).isEqualTo("marie.martin@test.com");
             assertThat(result2.success()).isTrue();
             assertThat(result2.temporaryPassword()).isEqualTo("martin.marie");
@@ -721,11 +721,11 @@ class AdminUserServiceTest {
             assertThat(response.successfullyCreated()).isEqualTo(1);
             assertThat(response.failed()).isEqualTo(1);
 
-            BulkCreateUsersResponse.UserCreationResult successResult = response.results().get(0);
+            UserCreationResult successResult = response.results().get(0);
             assertThat(successResult.email()).isEqualTo("jean.dupont@test.com");
             assertThat(successResult.success()).isTrue();
 
-            BulkCreateUsersResponse.UserCreationResult failedResult = response.results().get(1);
+            UserCreationResult failedResult = response.results().get(1);
             assertThat(failedResult.email()).isEqualTo("existing@test.com");
             assertThat(failedResult.success()).isFalse();
             assertThat(failedResult.message()).isEqualTo("Un compte avec cet email existe déjà");
@@ -755,7 +755,7 @@ class AdminUserServiceTest {
             assertThat(response.successfullyCreated()).isEqualTo(0);
             assertThat(response.failed()).isEqualTo(1);
 
-            BulkCreateUsersResponse.UserCreationResult result = response.results().get(0);
+            UserCreationResult result = response.results().get(0);
             assertThat(result.email()).isEqualTo("jean.dupont@test.com");
             assertThat(result.success()).isFalse();
             assertThat(result.message()).contains("Rôle non trouvé");
@@ -911,19 +911,19 @@ class AdminUserServiceTest {
             assertThat(response.results()).hasSize(4);
 
             // Vérifier les succès
-            List<BulkCreateUsersResponse.UserCreationResult> successResults = response.results().stream()
-                .filter(BulkCreateUsersResponse.UserCreationResult::success)
+            List<UserCreationResult> successResults = response.results().stream()
+                .filter(UserCreationResult::success)
                 .toList();
             assertThat(successResults).hasSize(2);
-            assertThat(successResults).extracting(BulkCreateUsersResponse.UserCreationResult::email)
+            assertThat(successResults).extracting(UserCreationResult::email)
                 .containsExactlyInAnyOrder("jean.dupont@test.com", "sophie.dubois@test.com");
 
             // Vérifier les échecs
-            List<BulkCreateUsersResponse.UserCreationResult> failedResults = response.results().stream()
+            List<UserCreationResult> failedResults = response.results().stream()
                 .filter(r -> !r.success())
                 .toList();
             assertThat(failedResults).hasSize(2);
-            assertThat(failedResults).extracting(BulkCreateUsersResponse.UserCreationResult::email)
+            assertThat(failedResults).extracting(UserCreationResult::email)
                 .containsExactlyInAnyOrder("existing@test.com", "pierre.bernard@test.com");
 
             verify(userRepository, times(2)).save(any(ApplicationUser.class));

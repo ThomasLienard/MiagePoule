@@ -4,6 +4,7 @@ import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
 import java.time.LocalDateTime;
+import java.util.Optional;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -88,14 +89,14 @@ class AdminDtosTest {
     @DisplayName("UpdateUserRequest devrait stocker toutes les valeurs")
     void updateUserRequest_shouldStoreAllValues() {
         UpdateUserRequest request = new UpdateUserRequest(
-            "NewName", "NewLastname", "new@test.com", "SPECTATEUR", "DE"
+                Optional.of("NewName"), Optional.of("NewLastname"), Optional.of("new@test.com"), Optional.of("SPECTATEUR"), Optional.of("DE")
         );
 
-        assertThat(request.name()).isEqualTo("NewName");
-        assertThat(request.lastname()).isEqualTo("NewLastname");
-        assertThat(request.email()).isEqualTo("new@test.com");
-        assertThat(request.roleName()).isEqualTo("SPECTATEUR");
-        assertThat(request.countryCode()).isEqualTo("DE");
+        assertThat(request.name()).isEqualTo(Optional.of("NewName"));
+        assertThat(request.lastname()).isEqualTo(Optional.of("NewLastname"));
+        assertThat(request.email()).isEqualTo(Optional.of("new@test.com"));
+        assertThat(request.roleName()).isEqualTo(Optional.of("SPECTATEUR"));
+        assertThat(request.countryCode()).isEqualTo(Optional.of("DE"));
     }
 
     @Test
@@ -137,8 +138,8 @@ class AdminDtosTest {
         UserDto dto3 = new UserDto(2, "Jane", "Doe", "jane@test.com", "ATHLETE", "FR",
             true, true, false, false, time, "admin", null, null);
 
-        assertThat(dto1).isEqualTo(dto2);
-        assertThat(dto1).isNotEqualTo(dto3);
+        assertThat(dto1).isEqualTo(dto2)
+                        .isNotEqualTo(dto3);
         assertThat(dto1.hashCode()).isEqualTo(dto2.hashCode());
     }
 
@@ -149,8 +150,8 @@ class AdminDtosTest {
         CreateUserRequest req2 = new CreateUserRequest("John", "Doe", "john@test.com", "ATHLETE", "FR");
         CreateUserRequest req3 = new CreateUserRequest("Jane", "Doe", "jane@test.com", "ATHLETE", "FR");
 
-        assertThat(req1).isEqualTo(req2);
-        assertThat(req1).isNotEqualTo(req3);
+        assertThat(req1).isEqualTo(req2)
+                        .isNotEqualTo(req3);
         assertThat(req1.hashCode()).isEqualTo(req2.hashCode());
     }
 
@@ -161,20 +162,20 @@ class AdminDtosTest {
         CreateUserResponse res2 = new CreateUserResponse(1, "John", "Doe", "john@test.com", "ATHLETE", "temp", "ok");
         CreateUserResponse res3 = new CreateUserResponse(2, "Jane", "Doe", "jane@test.com", "ATHLETE", "temp", "ok");
 
-        assertThat(res1).isEqualTo(res2);
-        assertThat(res1).isNotEqualTo(res3);
+        assertThat(res1).isEqualTo(res2)
+                        .isNotEqualTo(res3);
         assertThat(res1.hashCode()).isEqualTo(res2.hashCode());
     }
 
     @Test
     @DisplayName("UpdateUserRequest equals et hashCode")
     void updateUserRequest_equalsAndHashCode() {
-        UpdateUserRequest req1 = new UpdateUserRequest("John", "Doe", "john@test.com", "ATHLETE", "FR");
-        UpdateUserRequest req2 = new UpdateUserRequest("John", "Doe", "john@test.com", "ATHLETE", "FR");
-        UpdateUserRequest req3 = new UpdateUserRequest("Jane", "Doe", "jane@test.com", "ATHLETE", "FR");
+        UpdateUserRequest req1 = new UpdateUserRequest(Optional.of("John"), Optional.of("Doe"), Optional.of("john@test.com"), Optional.of("ATHLETE"), Optional.of("FR"));
+        UpdateUserRequest req2 = new UpdateUserRequest(Optional.of("John"), Optional.of("Doe"), Optional.of("john@test.com"), Optional.of("ATHLETE"), Optional.of("FR"));
+        UpdateUserRequest req3 = new UpdateUserRequest(Optional.of("Jane"), Optional.of("Doe"), Optional.of("jane@test.com"), Optional.of("ATHLETE"), Optional.of("FR"));
 
-        assertThat(req1).isEqualTo(req2);
-        assertThat(req1).isNotEqualTo(req3);
+        assertThat(req1).isEqualTo(req2)
+                        .isNotEqualTo(req3);
         assertThat(req1.hashCode()).isEqualTo(req2.hashCode());
     }
 
@@ -185,8 +186,8 @@ class AdminDtosTest {
         DeactivateUserRequest req2 = new DeactivateUserRequest("reason1");
         DeactivateUserRequest req3 = new DeactivateUserRequest("reason2");
 
-        assertThat(req1).isEqualTo(req2);
-        assertThat(req1).isNotEqualTo(req3);
+        assertThat(req1).isEqualTo(req2)
+                        .isNotEqualTo(req3);
         assertThat(req1.hashCode()).isEqualTo(req2.hashCode());
     }
 
@@ -197,8 +198,8 @@ class AdminDtosTest {
         ActivateAccountRequest req2 = new ActivateAccountRequest("password1");
         ActivateAccountRequest req3 = new ActivateAccountRequest("password2");
 
-        assertThat(req1).isEqualTo(req2);
-        assertThat(req1).isNotEqualTo(req3);
+        assertThat(req1).isEqualTo(req2)
+                        .isNotEqualTo(req3);
         assertThat(req1.hashCode()).isEqualTo(req2.hashCode());
     }
 
@@ -209,9 +210,9 @@ class AdminDtosTest {
             true, true, false, false, null, "admin", null, null);
 
         String str = dto.toString();
-        assertThat(str).contains("John");
-        assertThat(str).contains("Doe");
-        assertThat(str).contains("john@test.com");
+        assertThat(str).contains("John")
+                       .contains("Doe")
+                       .contains("john@test.com");
     }
 
     @Test
@@ -220,8 +221,8 @@ class AdminDtosTest {
         CreateUserRequest request = new CreateUserRequest("John", "Doe", "john@test.com", "ATHLETE", "FR");
 
         String str = request.toString();
-        assertThat(str).contains("John");
-        assertThat(str).contains("Doe");
-        assertThat(str).contains("john@test.com");
+        assertThat(str).contains("John")
+                       .contains("Doe")
+                       .contains("john@test.com");
     }
 }

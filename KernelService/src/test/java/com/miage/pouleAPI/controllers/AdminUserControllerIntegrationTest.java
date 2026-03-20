@@ -14,6 +14,8 @@ import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.Optional;
+
 import static org.hamcrest.Matchers.*;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
@@ -161,7 +163,7 @@ class AdminUserControllerIntegrationTest {
         @DisplayName("Devrait mettre à jour le nom de l'utilisateur")
         void updateUser_shouldUpdateName() throws Exception {
             UpdateUserRequest request = new UpdateUserRequest(
-                "NouveauNom", null, null, null, null
+                Optional.of("NouveauNom"), null, null, null, null
             );
 
             mockMvc.perform(put("/admin/users/3")  // Marie Athlete
@@ -176,7 +178,7 @@ class AdminUserControllerIntegrationTest {
         @DisplayName("Devrait mettre à jour l'email de l'utilisateur")
         void updateUser_shouldUpdateEmail() throws Exception {
             UpdateUserRequest request = new UpdateUserRequest(
-                null, null, "updated.email@test.com", null, null
+                null, null, Optional.of("updated.email@test.com"), null, null
             );
 
             mockMvc.perform(put("/admin/users/4")  // Jean Volontaire
@@ -191,7 +193,7 @@ class AdminUserControllerIntegrationTest {
         @DisplayName("Devrait retourner erreur si email déjà utilisé")
         void updateUser_shouldReturnErrorIfEmailUsed() throws Exception {
             UpdateUserRequest request = new UpdateUserRequest(
-                null, null, "anna@smith.com", null, null  // Email d'Anna
+                null, null, Optional.of("anna@smith.com"), null, null  // Email d'Anna
             );
 
             mockMvc.perform(put("/admin/users/3")  // Marie Athlete
@@ -206,7 +208,7 @@ class AdminUserControllerIntegrationTest {
         @DisplayName("Devrait changer le rôle de l'utilisateur")
         void updateUser_shouldUpdateRole() throws Exception {
             UpdateUserRequest request = new UpdateUserRequest(
-                null, null, null, "SPECTATEUR", null
+                null, null, null, Optional.of("SPECTATEUR"), null
             );
 
             mockMvc.perform(put("/admin/users/4")  // Jean Volontaire -> Spectateur
