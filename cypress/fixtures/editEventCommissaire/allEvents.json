@@ -1,0 +1,20 @@
+[
+  {
+    "id": 1,
+    "name": "100m Trial Heat 1",
+    "description": "First qualification heat",
+    "competitionName": "100m Sprint"
+  },
+  {
+    "id": 2,
+    "name": "100m Trial Heat 2",
+    "description": "Second qualification heat",
+    "competitionName": "100m Sprint"
+  },
+  {
+    "id": 3,
+    "name": "100m Trial Final",
+    "description": "Final race",
+    "competitionName": "100m Sprint"
+  }
+]

@@ -1,0 +1,25 @@
+[
+  {
+    "volunteerEmail": "volontaire@example.com",
+    "tasks": [
+      {
+        "name": "Distribution de goodies",
+        "description": "Distribuer les goodies aux athlètes",
+        "competitionName": "Marathon",
+        "eventName": "Waterpolo demi-finals"
+      },
+      {
+        "name": "Accueil participants",
+        "description": "Accueillir les participants à l'entrée",
+        "competitionName": "Marathon",
+        "eventName": "Waterpolo demi-finals"
+      },
+      {
+        "name": "Gestion du matériel",
+        "description": "Assurer la gestion du matériel pour les épreuves",
+        "competitionName": "Marathon",
+        "eventName": "Waterpolo Final"
+      }
+    ]
+  }
+]

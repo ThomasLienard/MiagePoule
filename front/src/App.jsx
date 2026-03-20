@@ -8,6 +8,7 @@ import ActivateAccountPage from './components/auth/ActivateAccountPage';
 import ChangePasswordPage from './components/auth/ChangePasswordPage';
 import AdminPage from './components/admin/AdminPage';
 import UserManagement from './components/admin/UserManagement';
+import ReportingPage from './components/admin/ReportingPage';
 
 import Competition from "./components/Competition.jsx";
 import ListChampionships from "./components/ListChampionships.jsx";
@@ -60,6 +61,11 @@ function App() {
                             <Route path="/admin/users" element={
                                 <ProtectedRoute allowedRoles={['ADMIN']}>
                                     <UserManagement />
+                                </ProtectedRoute>
+                            } />
+                            <Route path="/admin/reporting" element={
+                                <ProtectedRoute allowedRoles={['ADMIN']}>
+                                    <ReportingPage />
                                 </ProtectedRoute>
                             } />
                             <Route path="/admin/create-event" element={

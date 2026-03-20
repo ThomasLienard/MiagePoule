@@ -1,6 +1,6 @@
 import axios from "axios";
 
-const API_BASE = "http://localhost:8084/public";
+const API_BASE = `${import.meta.env.VITE_API_URL}/public`;
 
 export const getCompetitionsByChampionship = (championshipId) => {
     return axios
@@ -24,7 +24,7 @@ export const subscribeToCompetition = (championshipId, competitionId, userId) =>
 
 export const getObservers = (userId) => {
     return axios
-        .get(`http://localhost:8084/api/notifications/stream/observers`, {
+        .get(`${import.meta.env.VITE_API_URL}/api/notifications/stream/observers`, {
             params: { userId }
         })
         .then(res => res.data)

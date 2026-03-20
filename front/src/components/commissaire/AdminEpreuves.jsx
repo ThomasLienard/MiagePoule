@@ -1,13 +1,13 @@
 import React, { useState, useEffect } from 'react';
 import { Container, Card, Button, Spinner, Alert, Badge, Modal, Form } from 'react-bootstrap';
 import { useNavigate } from 'react-router-dom';
-import axios from 'axios';
 import participantService from '../../services/participantService';
 import resultService from '../../services/resultService';
+import {eventService} from "../../services/eventService.jsx";
 
 const AdminEpreuves = () => {
     const [trials, setTrials] = useState([]);
-    const [resultsStats, setResultsStats] = useState({}); // { trialId: { validated, total } }
+    const [resultsStats, setResultsStats] = useState({});
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
     const navigate = useNavigate();
@@ -21,6 +21,13 @@ const AdminEpreuves = () => {
     useEffect(() => {
         fetchTrials();
     }, []);
+
+    const getResultsBadgeVariant = (trialId) => {
+        const stats = resultsStats[trialId] ?? { validated: 0, total: 0 };
+        if (stats.validated === 0) return 'secondary';
+        if (stats.validated === stats.total && stats.total > 0) return 'success';
+        return 'warning';
+    };
 
     const fetchTrials = async () => {
         try {
@@ -69,15 +76,13 @@ const AdminEpreuves = () => {
 
         setIsSubmitting(true);
         try {
-            // Appel au endpoint PATCH pour l'annulation
-            await axios.patch(`http://localhost:8084/commissaire/events/${selectedTrial.trialId}/cancel`, {
+            await eventService.cancelEvent(selectedTrial.trialId, {
                 reason: cancelReason
             });
-
             handleCloseCancel();
-            // Rafraîchir la liste : l'épreuve disparaîtra grâce au filtre ci-dessous
             await fetchTrials();
         } catch (err) {
+            console.error("Erreur lors de l'annulation:", err);
             alert("Erreur lors de l'annulation de l'épreuve.");
         } finally {
             setIsSubmitting(false);
@@ -90,14 +95,6 @@ const AdminEpreuves = () => {
                 <Spinner animation="border" role="status">
                     <span className="visually-hidden">Chargement...</span>
                 </Spinner>
-            </Container>
-        );
-    }
-
-    if (error) {
-        return (
-            <Container className="py-4">
-                <Alert variant="danger">{error}</Alert>
             </Container>
         );
     }
@@ -126,16 +123,23 @@ const AdminEpreuves = () => {
                                             <div className="d-flex justify-content-between align-items-center">
                                                 <div>
                                                     <Card.Title className="mb-1">{trial.trialName}</Card.Title>
-                                                    <div className="d-flex gap-2">
+                                                    <div className="d-flex gap-2 flex-wrap">
                                                         <Badge bg={trial.teamTrial ? 'info' : 'success'}>
                                                             {trial.teamTrial ? '👥 Équipe' : '🏃 Solo'}
                                                         </Badge>
                                                         <Badge bg="secondary">
                                                             {trial.participants?.length || 0} participant(s)
                                                         </Badge>
+                                                        <Badge
+                                                            bg={getResultsBadgeVariant(trial.trialId)}
+                                                            text={getResultsBadgeVariant(trial.trialId) === 'warning' ? 'dark' : undefined}
+                                                        >
+                                                            {resultsStats[trial.trialId]?.validated ?? 0}/
+                                                            {resultsStats[trial.trialId]?.total ?? 0} résultat(s) validé(s)
+                                                        </Badge>
                                                     </div>
                                                 </div>
-                                                <div className="d-flex gap-2">
+                                                <div className="d-flex gap-2 flex-wrap justify-content-end">
                                                     <Button
                                                         variant="outline-secondary"
                                                         size="sm"
@@ -148,13 +152,14 @@ const AdminEpreuves = () => {
                                                         size="sm"
                                                         onClick={() => navigate(`/commissaire/update-event?id=${trial.trialId}`)}
                                                     >
-                                                        Modifier date
+                                                        Modifier les dates
                                                     </Button>
                                                     <Button
                                                         variant="outline-secondary"
+                                                        size="sm"
                                                         onClick={() => navigate(`/commissaire/trials/${trial.trialId}/results`)}
                                                     >
-                                                        Gérer résultats
+                                                        Gérer les résultats
                                                     </Button>
                                                     <Button
                                                         variant="outline-danger"
@@ -173,7 +178,15 @@ const AdminEpreuves = () => {
                 </Card.Body>
             </Card>
 
-            {/* MODAL D'ANNULATION */}
+            <Button
+                variant="outline-secondary"
+                className="mt-3"
+                onClick={() => navigate(-1)}
+            >
+                ← Retour
+            </Button>
+
+            {/* MODAL D'ANNULATION (Unique) */}
             <Modal show={showCancelModal} onHide={handleCloseCancel} centered>
                 <Modal.Header closeButton>
                     <Modal.Title className="text-danger">🚫 Annulation d'épreuve</Modal.Title>

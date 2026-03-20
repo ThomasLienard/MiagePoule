@@ -154,7 +154,7 @@ INSERT INTO is_convened_to (id, id_trial, trial_result_athlete, is_forfeit) VALU
 -- Notifications
 -- ======================
 INSERT INTO notification (description_notification, emission_date,
-                          id_place, id_event, name_severity, type)
+                          id_place, id_event, name_severity, name_type_of_notification)
 VALUES ('Event delayed', '2025-01-01 08:00:00', 1, 2, 'WARNING', 'INFO');
 
 -- ======================

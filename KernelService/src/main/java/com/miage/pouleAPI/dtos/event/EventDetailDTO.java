@@ -22,4 +22,5 @@ public class EventDetailDTO {
     private PlaceDTO place;
     private List<RankingDTO> rankings;
     private String status;
+    private String typeEvent;
 }

@@ -1,19 +1,15 @@
 import React, { useState } from "react";
 import { Modal, Button, Form, Alert } from "react-bootstrap";
-import axios from "axios";
+import privacyService from "../../services/privacyService.jsx";
 
 const ChangePassword = ({ show, handleClose }) => {
     const [passwords, setPasswords] = useState({ currentPassword: "", newPassword: "" });
     const [status, setStatus] = useState({ type: "", msg: "" });
 
-    const API_URL = "http://localhost:8084/account/password";
-    const token = localStorage.getItem("token");
-    const config = { headers: { Authorization: `Bearer ${token}` } };
-
     const handleSubmit = async (e) => {
         e.preventDefault();
         try {
-            await axios.put(API_URL, passwords, config);
+            await privacyService.changePassword(passwords);
 
             setStatus({ type: "success", msg: "Mot de passe modifié avec succès !" });
 

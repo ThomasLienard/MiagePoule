@@ -1,6 +1,6 @@
 import axios from 'axios';
 
-const API_BASE_URL = 'http://localhost:8084';
+const API_BASE_URL = import.meta.env.VITE_API_URL;
 
 const getAuthHeaders = () => {
     const token = localStorage.getItem('token');
@@ -25,6 +25,7 @@ const participantService = {
             throw new Error(error.response?.data?.message || 'Erreur lors de la récupération de l\'athlète');
         }
     },
+
 
     /**
      * Récupère toutes les épreuves avec leurs participants
@@ -69,6 +70,7 @@ const participantService = {
             throw new Error(error.response?.data?.message || 'Erreur lors de la récupération des épreuves');
         }
     },
+
 
     /**
      * Récupère les participants avec tous les potentiels (athlètes ET équipes)

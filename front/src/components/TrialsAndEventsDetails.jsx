@@ -1,5 +1,5 @@
 import React, {useState, useEffect} from 'react';
-import { useNavigate, useParams} from 'react-router-dom';
+import {useNavigate, useParams} from 'react-router-dom';
 import {Accordion, Badge, Button, ListGroup, ListGroupItem} from "react-bootstrap";
 import {eventService} from "../services/eventService.jsx";
 import RankingFormat from "./common/RankingFormat.jsx";

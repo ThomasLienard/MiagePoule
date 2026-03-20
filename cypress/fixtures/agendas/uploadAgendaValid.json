@@ -1,0 +1,30 @@
+[
+  {
+    "volunteerEmail": "lea.benevole@example.com",
+    "tasks": [
+      {
+        "name": "Distribution de dossards",
+        "description": "Préparer les enveloppes pour les participants",
+        "competitionName": "Marathon",
+        "eventName": "Waterpolo demi-finals"
+      },
+      {
+        "name": "Accueil participants",
+        "description": "Orienter les participants à l'entrée",
+        "competitionName": "Marathon",
+        "eventName": "Waterpolo demi-finals"
+      }
+    ]
+  },
+  {
+    "volunteerEmail": "marc.benevole@example.com",
+    "tasks": [
+      {
+        "name": "Contrôle accès zone départ",
+        "description": "Vérifier les accréditations",
+        "competitionName": "Marathon",
+        "eventName": "Waterpolo demi-finals"
+      }
+    ]
+  }
+]
