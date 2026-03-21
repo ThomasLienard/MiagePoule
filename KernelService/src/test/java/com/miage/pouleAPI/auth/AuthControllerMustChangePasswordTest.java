@@ -2,6 +2,7 @@ package com.miage.pouleAPI.auth;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.miage.pouleAPI.auth.dto.LoginRequest;
+import com.miage.pouleAPI.auth.dto.LoginResponseWithStatus;
 import com.miage.pouleAPI.services.AdminUserService;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
@@ -44,8 +45,8 @@ class AuthControllerMustChangePasswordTest {
         void login_shouldReturnMustChangePasswordTrue() throws Exception {
             // Arrange
             LoginRequest request = new LoginRequest("newuser@example.com", "doe.john");
-            AuthService.LoginResponseWithStatus response = 
-                new AuthService.LoginResponseWithStatus("jwt-token", true, false, true);
+            LoginResponseWithStatus response =
+                new LoginResponseWithStatus("jwt-token", true, false, true);
 
             when(authService.loginWithStatus(any(LoginRequest.class))).thenReturn(response);
 
@@ -64,8 +65,8 @@ class AuthControllerMustChangePasswordTest {
         void login_shouldReturnMustChangePasswordFalse() throws Exception {
             // Arrange
             LoginRequest request = new LoginRequest("existing@example.com", "password123");
-            AuthService.LoginResponseWithStatus response = 
-                new AuthService.LoginResponseWithStatus("jwt-token", false, true, true);
+            LoginResponseWithStatus response =
+                new LoginResponseWithStatus("jwt-token", false, true, true);
 
             when(authService.loginWithStatus(any(LoginRequest.class))).thenReturn(response);
 
@@ -84,8 +85,8 @@ class AuthControllerMustChangePasswordTest {
         void login_shouldReturnAllRequiredFields() throws Exception {
             // Arrange
             LoginRequest request = new LoginRequest("user@example.com", "password");
-            AuthService.LoginResponseWithStatus response = 
-                new AuthService.LoginResponseWithStatus("some-token", true, true, true);
+            LoginResponseWithStatus response =
+                new LoginResponseWithStatus("some-token", true, true, true);
 
             when(authService.loginWithStatus(any(LoginRequest.class))).thenReturn(response);
 
