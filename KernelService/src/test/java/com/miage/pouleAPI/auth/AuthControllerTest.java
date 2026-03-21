@@ -2,6 +2,7 @@ package com.miage.pouleAPI.auth;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.miage.pouleAPI.auth.dto.LoginRequest;
+import com.miage.pouleAPI.auth.dto.LoginResponseWithStatus;
 import com.miage.pouleAPI.auth.dto.SignUpRequest;
 import com.miage.pouleAPI.auth.dto.SignUpResponse;
 import com.miage.pouleAPI.services.AdminUserService;
@@ -38,8 +39,8 @@ class AuthControllerTest {
     void testLogin_Success() throws Exception {
         // Arrange
         LoginRequest request = new LoginRequest("test@example.com", "password123");
-        AuthService.LoginResponseWithStatus response = 
-            new AuthService.LoginResponseWithStatus("jwt-token-123", false, true, true);
+        LoginResponseWithStatus response =
+            new LoginResponseWithStatus("jwt-token-123", false, true, true);
 
         when(authService.loginWithStatus(any(LoginRequest.class))).thenReturn(response);
 
@@ -55,8 +56,8 @@ class AuthControllerTest {
     void testLogin_EmptyRequest() throws Exception {
         // Arrange
         LoginRequest request = new LoginRequest("", "");
-        AuthService.LoginResponseWithStatus response = 
-            new AuthService.LoginResponseWithStatus("token", false, false, false);
+        LoginResponseWithStatus response =
+            new LoginResponseWithStatus("token", false, false, false);
 
         when(authService.loginWithStatus(any(LoginRequest.class))).thenReturn(response);
 

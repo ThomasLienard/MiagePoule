@@ -1,6 +1,7 @@
 package com.miage.pouleAPI.auth;
 
 import com.miage.pouleAPI.auth.dto.LoginRequest;
+import com.miage.pouleAPI.auth.dto.LoginResponseWithStatus;
 import com.miage.pouleAPI.auth.jwt.JwtService;
 import com.miage.pouleAPI.entity.ApplicationUser;
 import com.miage.pouleAPI.entity.Role;
@@ -71,7 +72,7 @@ class AuthServiceMustChangePasswordTest {
             when(jwtService.generateToken(anyInt(), anyString(), anyString())).thenReturn("test-jwt-token");
 
             // Act
-            AuthService.LoginResponseWithStatus response = authService.loginWithStatus(request);
+            LoginResponseWithStatus response = authService.loginWithStatus(request);
 
             // Assert
             assertThat(response).isNotNull();
@@ -92,7 +93,7 @@ class AuthServiceMustChangePasswordTest {
             when(jwtService.generateToken(anyInt(), anyString(), anyString())).thenReturn("test-jwt-token");
 
             // Act
-            AuthService.LoginResponseWithStatus response = authService.loginWithStatus(request);
+            LoginResponseWithStatus response = authService.loginWithStatus(request);
 
             // Assert
             assertThat(response).isNotNull();
@@ -113,7 +114,7 @@ class AuthServiceMustChangePasswordTest {
             when(jwtService.generateToken(anyInt(), anyString(), anyString())).thenReturn("test-jwt-token");
 
             // Act
-            AuthService.LoginResponseWithStatus response = authService.loginWithStatus(request);
+            LoginResponseWithStatus response = authService.loginWithStatus(request);
 
             // Assert
             assertThat(response.mustChangePassword()).isFalse();
