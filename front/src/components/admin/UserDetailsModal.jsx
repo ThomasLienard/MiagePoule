@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useMemo, useState, useEffect } from 'react';
 import { Modal, Button, Form, Row, Col, Badge, Alert, Spinner, Card, ListGroup, Tabs, Tab } from 'react-bootstrap';
 import { FileText, CheckCircle, XCircle, Download } from 'lucide-react';
 import axios from 'axios';
@@ -190,6 +190,16 @@ const UserDetailsModal = ({
 
     const statusInfo = getStatusInfo();
     const requiredDocs = getRequiredDocuments(user.roleName);
+    const uploadedRequiredDocsCount = useMemo(() => {
+        if (!requiredDocs.length) return 0;
+        const requiredSet = new Set(requiredDocs);
+        const uploadedSet = new Set(
+            documents
+                .filter((d) => requiredSet.has(d.typeName))
+                .map((d) => d.typeName)
+        );
+        return uploadedSet.size;
+    }, [documents, requiredDocs]);
 
     return (
         <Modal show={true} onHide={onClose} size="xl" centered>
@@ -315,7 +325,9 @@ const UserDetailsModal = ({
                         <span>
                             📄 Documents
                             {requiredDocs.length > 0 && (
-                                <Badge bg="secondary" className="ms-2">{documents.length}/{requiredDocs.length}</Badge>
+                                <Badge bg="secondary" className="ms-2">
+                                    {loadingDocuments ? '—' : uploadedRequiredDocsCount}/{requiredDocs.length}
+                                </Badge>
                             )}
                         </span>
                     }>
