@@ -34,9 +34,6 @@ public class EventServiceImpl implements EventService {
         Event event = eventRepository.findById(eventId)
                 .orElseThrow(() -> new RuntimeException("Event not found"));
 
-        // logique métier pour démarrer l'épreuve...
-
-        System.out.println("=============== before notifyEventStart " + event.getName());
         notificationService.notifyEventStart(event);
     }
 
@@ -44,8 +41,6 @@ public class EventServiceImpl implements EventService {
     public void publishResults(int eventId) {
         Event event = eventRepository.findById(eventId)
                 .orElseThrow(() -> new RuntimeException("Event not found"));
-
-        // logique métier pour enregistrer les résultats...
 
         notificationService.notifyEventResults(event);
     }

@@ -1,4 +1,3 @@
-// src/hooks/useNotificationsSSE.js
 import { useEffect, useState, useRef } from "react";
 
 export const useNotificationsSSE = (userId) => {
@@ -68,7 +67,7 @@ export const useNotificationsSSE = (userId) => {
 
         connectSSE();
 
-        // 4️⃣ Nettoyage : ferme la connexion quand le composant se démonte
+        // ferme la connexion quand le composant se démonte
         return () => {
             console.log(`Closing SSE for user ${userId}`);
             if (eventSourceRef.current) {
