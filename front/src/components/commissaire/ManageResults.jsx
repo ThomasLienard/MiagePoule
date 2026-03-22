@@ -7,6 +7,41 @@ import {
 import { useParams, useNavigate } from 'react-router-dom';
 import resultService from '../../services/resultService';
 
+// ── Utilitaires de conversion temps ───────────────────────────────────────────
+/**
+ * Convertit un format hh:mm:ss:ms en millisecondes
+ * @param {string} timeStr - Format "hh:mm:ss:ms" ou "HH:MM:SS:MS"
+ * @returns {number} Nombre de millisecondes
+ */
+const timeStringToMilliseconds = (timeStr) => {
+    if (!timeStr || typeof timeStr !== 'string') return 0;
+    const parts = timeStr.split(':');
+    if (parts.length !== 4) return 0;
+    
+    const hours = parseInt(parts[0], 10) || 0;
+    const minutes = parseInt(parts[1], 10) || 0;
+    const seconds = parseInt(parts[2], 10) || 0;
+    const milliseconds = parseInt(parts[3], 10) || 0;
+    
+    return hours * 3600000 + minutes * 60000 + seconds * 1000 + milliseconds;
+};
+
+/**
+ * Convertit des millisecondes en format hh:mm:ss:ms
+ * @param {number} ms - Nombre de millisecondes
+ * @returns {string} Format "HH:MM:SS:MS"
+ */
+const millisecondsToTimeString = (ms) => {
+    if (!ms || ms < 0) return '00:00:00:000';
+    
+    const hours = Math.floor(ms / 3600000);
+    const minutes = Math.floor((ms % 3600000) / 60000);
+    const seconds = Math.floor((ms % 60000) / 1000);
+    const milliseconds = ms % 1000;
+    
+    return `${String(hours).padStart(2, '0')}:${String(minutes).padStart(2, '0')}:${String(seconds).padStart(2, '0')}:${String(milliseconds).padStart(3, '0')}`;
+};
+
 // ── Sous-composant : état chargement ──────────────────────────────────────────
 const LoadingState = () => (
     <Container className="py-4 text-center">
@@ -31,6 +66,106 @@ StatusBadge.propTypes = {
 StatusBadge.defaultProps = {
     isValidated: false,
     isForfeit:   false,
+};
+
+// ── Sous-composant : input temps (format hh:mm:ss:ms) ──────────────────────────
+const TimeInput = ({ value, disabled, onChange }) => {
+    const timeStr = value ? millisecondsToTimeString(value) : '00:00:00:000';
+    const [hours, minutes, seconds, milliseconds] = timeStr.split(':');
+    
+    const handleChange = (type, val) => {
+        // Limiter les valeurs en entrée
+        let cleanVal = val.replace(/\D/g, ''); // Garder seulement les chiffres
+        
+        if (type === 'hours') {
+            cleanVal = Math.max(0, Math.min(99, parseInt(cleanVal, 10) || 0)).toString();
+        } else if (type === 'milliseconds') {
+            cleanVal = Math.max(0, Math.min(999, parseInt(cleanVal, 10) || 0)).toString();
+            cleanVal = cleanVal.padStart(3, '0');
+        } else {
+            cleanVal = Math.max(0, Math.min(59, parseInt(cleanVal, 10) || 0)).toString();
+        }
+        
+        if (type !== 'milliseconds') {
+            cleanVal = cleanVal.padStart(2, '0');
+        }
+        
+        const newHours = type === 'hours' ? cleanVal : hours;
+        const newMinutes = type === 'minutes' ? cleanVal : minutes;
+        const newSeconds = type === 'seconds' ? cleanVal : seconds;
+        const newMilliseconds = type === 'milliseconds' ? cleanVal : milliseconds;
+        
+        const newTimeStr = `${newHours}:${newMinutes}:${newSeconds}:${newMilliseconds}`;
+        const ms = timeStringToMilliseconds(newTimeStr);
+        onChange(ms);
+    };
+    
+    return (
+        <div className="d-flex gap-1 align-items-center">
+            <Form.Control
+                type="text"
+                inputMode="numeric"
+                maxLength="2"
+                disabled={disabled}
+                className="text-center fw-bold"
+                value={hours}
+                onChange={(e) => handleChange('hours', e.target.value)}
+                style={{ width: '50px' }}
+                placeholder="00"
+                title="Heures"
+            />
+            <span className="fw-bold text-muted">:</span>
+            <Form.Control
+                type="text"
+                inputMode="numeric"
+                maxLength="2"
+                disabled={disabled}
+                className="text-center fw-bold"
+                value={minutes}
+                onChange={(e) => handleChange('minutes', e.target.value)}
+                style={{ width: '50px' }}
+                placeholder="00"
+                title="Minutes"
+            />
+            <span className="fw-bold text-muted">:</span>
+            <Form.Control
+                type="text"
+                inputMode="numeric"
+                maxLength="2"
+                disabled={disabled}
+                className="text-center fw-bold"
+                value={seconds}
+                onChange={(e) => handleChange('seconds', e.target.value)}
+                style={{ width: '50px' }}
+                placeholder="00"
+                title="Secondes"
+            />
+            <span className="fw-bold text-muted">:</span>
+            <Form.Control
+                type="text"
+                inputMode="numeric"
+                maxLength="3"
+                disabled={disabled}
+                className="text-center fw-bold"
+                value={milliseconds}
+                onChange={(e) => handleChange('milliseconds', e.target.value)}
+                style={{ width: '60px' }}
+                placeholder="000"
+                title="Millisecondes"
+            />
+        </div>
+    );
+};
+
+TimeInput.propTypes = {
+    value: PropTypes.number,
+    disabled: PropTypes.bool,
+    onChange: PropTypes.func.isRequired,
+};
+
+TimeInput.defaultProps = {
+    value: 0,
+    disabled: false,
 };
 
 // ── Sous-composant : modal confirmation valider tout ──────────────────────────
@@ -75,9 +210,10 @@ ValidateAllModal.defaultProps = {
 // ── Sous-composant : une ligne de résultat ────────────────────────────────────
 const ResultRow = ({
     participant, editValue, onChange, onSave,
-    onValidate, onInvalidate, actionLoading, canEdit
+    onValidate, onInvalidate, actionLoading, canEdit, scoreType
 }) => {
     const isDisabled = participant.isForfeit || actionLoading || !canEdit;
+    const isTimeFormat = scoreType === 'TIME';
 
     return (
         <Card className={`shadow-sm mb-2 ${participant.isValidated ? 'border-success' : ''} ${participant.isForfeit ? 'border-danger opacity-75' : ''}`}>
@@ -97,24 +233,44 @@ const ResultRow = ({
 
                     {/* Saisie du résultat */}
                     <Col xs={12} md={4}>
-                        <InputGroup size="sm">
-                            <Form.Control
-                                type="text"
-                                placeholder={participant.isForfeit ? 'Forfait' : 'Saisir un résultat…'}
-                                value={editValue ?? ''}
-                                disabled={isDisabled}
-                                onChange={(e) => onChange(participant.participantId, e.target.value)}
-                            />
-                            <Button
-                                variant="outline-secondary"
-                                size="sm"
-                                disabled={isDisabled}
-                                onClick={() => onSave(participant)}
-                                title="Enregistrer ce résultat"
-                            >
-                                enregistrer
-                            </Button>
-                        </InputGroup>
+                        {isTimeFormat ? (
+                            <div className="d-flex gap-2 align-items-center">
+                                <TimeInput
+                                    value={editValue ? parseInt(editValue, 10) : 0}
+                                    disabled={isDisabled}
+                                    onChange={(ms) => onChange(participant.participantId, String(ms))}
+                                />
+                                <Button
+                                    variant="outline-secondary"
+                                    size="sm"
+                                    disabled={isDisabled}
+                                    onClick={() => onSave(participant)}
+                                    title="Enregistrer ce résultat"
+                                    className="flex-shrink-0"
+                                >
+                                    enregistrer
+                                </Button>
+                            </div>
+                        ) : (
+                            <InputGroup size="sm">
+                                <Form.Control
+                                    type="text"
+                                    placeholder={participant.isForfeit ? 'Forfait' : 'Saisir un résultat…'}
+                                    value={editValue ?? ''}
+                                    disabled={isDisabled}
+                                    onChange={(e) => onChange(participant.participantId, e.target.value)}
+                                />
+                                <Button
+                                    variant="outline-secondary"
+                                    size="sm"
+                                    disabled={isDisabled}
+                                    onClick={() => onSave(participant)}
+                                    title="Enregistrer ce résultat"
+                                >
+                                    enregistrer
+                                </Button>
+                            </InputGroup>
+                        )}
                     </Col>
 
                     {/* Statut + actions validation */}
@@ -137,7 +293,7 @@ const ResultRow = ({
                                         variant="outline-success"
                                         size="sm"
                                         disabled={isDisabled || !participant.result}
-                                        onClick={() => onValidate(participant)}
+                                        onClick={() => onSave(participant)}
                                         title="Valider ce résultat"
                                     >
                                         ✔ Valider
@@ -168,12 +324,14 @@ ResultRow.propTypes = {
     onInvalidate:  PropTypes.func.isRequired,
     actionLoading: PropTypes.bool,
     canEdit:       PropTypes.bool,
+    scoreType:     PropTypes.string,
 };
 
 ResultRow.defaultProps = {
     editValue:     '',
     actionLoading: false,
     canEdit:       false,
+    scoreType:     'POINTS',
 };
 
 // ── Composant principal ───────────────────────────────────────────────────────
@@ -444,6 +602,7 @@ const ManageResults = () => {
                                 onInvalidate={handleInvalidate}
                                 actionLoading={actionLoading}
                                 canEdit={canEdit}
+                                scoreType={trialData.scoreType}
                             />
                         ))
                     )}
