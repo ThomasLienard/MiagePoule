@@ -351,6 +351,15 @@ const ManageResults = () => {
         }
     };
 
+    const allResultsRegistered = () => {
+        for (const participant of results) {
+            if (!participant.result) {
+                return false;
+            }
+        }
+        return true;
+    }
+
     // ── Rendu ─────────────────────────────────────────────────────────────────
     if (loading) return <LoadingState />;
 
@@ -393,7 +402,7 @@ const ManageResults = () => {
                     <Button
                         variant="success"
                         onClick={() => setShowValidateAllModal(true)}
-                        disabled={actionLoading || results.length === 0 || !canEdit}
+                        disabled={actionLoading || results.length === 0 || !canEdit || !allResultsRegistered()}
                     >
                          Valider tout
                     </Button>
