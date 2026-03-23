@@ -468,6 +468,26 @@ public class AdminUserService implements AdminUserServiceInterface {
 
         user.setIsAccountValidated(true);
         userRepository.save(user);
+
+        // Envoi de l'email de validation
+        try {
+            String subject = "Validation de votre compte MiagePoule";
+            String body = String.format(
+                "Bonjour %s %s,\n\n" +
+                "Votre compte MiagePoule a ete valide par un administrateur.\n\n" +
+                "Vous pouvez maintenant acceder aux fonctionnalites reservees aux comptes verifies.\n\n" +
+                "Cordialement,\n" +
+                "L'equipe MiagePoule",
+                user.getName(),
+                user.getLastname()
+            );
+            maillingService.sendEmail(user.getEmail(), subject, body);
+            log.info("Email de validation de compte envoye a: {}", user.getEmail());
+        } catch (Exception e) {
+            log.error("Erreur lors de l'envoi de l'email de validation de compte a {}: {}",
+                user.getEmail(), e.getMessage());
+            // On ne bloque pas la validation si l'email echoue
+        }
         
         log.info("Compte utilisateur validé: {} (ID: {})", user.getEmail(), userId);
         return toUserDto(user);
@@ -488,6 +508,27 @@ public class AdminUserService implements AdminUserServiceInterface {
 
         user.setIsAccountValidated(false);
         userRepository.save(user);
+
+        // Envoi de l'email d'invalidation
+        try {
+            String subject = "Invalidation de votre compte MiagePoule";
+            String body = String.format(
+                "Bonjour %s %s,\n\n" +
+                "Votre compte MiagePoule a ete invalide par un administrateur.\n\n" +
+                "Certaines fonctionnalites peuvent desormais etre limitees tant que le compte n'est pas de nouveau valide.\n" +
+                "Si vous pensez qu'il s'agit d'une erreur, merci de contacter l'administration.\n\n" +
+                "Cordialement,\n" +
+                "L'equipe MiagePoule",
+                user.getName(),
+                user.getLastname()
+            );
+            maillingService.sendEmail(user.getEmail(), subject, body);
+            log.info("Email d'invalidation de compte envoye a: {}", user.getEmail());
+        } catch (Exception e) {
+            log.error("Erreur lors de l'envoi de l'email d'invalidation de compte a {}: {}",
+                user.getEmail(), e.getMessage());
+            // On ne bloque pas l'invalidation si l'email echoue
+        }
         
         log.info("Compte utilisateur invalidé: {} (ID: {})", user.getEmail(), userId);
         return toUserDto(user);
