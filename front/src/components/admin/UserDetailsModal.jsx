@@ -324,11 +324,6 @@ const UserDetailsModal = ({
                     <Tab eventKey="documents" title={
                         <span>
                             📄 Documents
-                            {requiredDocs.length > 0 && (
-                                <Badge bg="secondary" className="ms-2">
-                                    {loadingDocuments ? '—' : uploadedRequiredDocsCount}/{requiredDocs.length}
-                                </Badge>
-                            )}
                         </span>
                     }>
                         <div className="mt-3">
