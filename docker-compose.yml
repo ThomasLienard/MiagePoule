@@ -14,6 +14,11 @@ services:
     networks:
       - miage-network
     restart: unless-stopped
+    healthcheck:
+      test: [ "CMD-SHELL", "pg_isready" ]
+      interval: 2s
+      timeout: 5s
+      retries: 5
   adminer:
     image: adminer
     restart: always
@@ -35,10 +40,16 @@ services:
     ports:
       - "8085:8082"
     depends_on:
-      - postgres
+      postgres:
+        condition: service_healthy
     networks:
       - miage-network
     restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8082/public/trials"]
+      interval: 2s
+      timeout: 5s
+      retries: 15
 
   # API Spring Boot
   gateway-api:
@@ -51,15 +62,24 @@ services:
     ports:
       - "8084:8081"
     depends_on:
-      - poule-api
+      poule-api:
+        condition: service_healthy
     networks:
       - miage-network
     restart: unless-stopped
+    healthcheck:
+      test: [ "CMD", "curl", "-f", "http://localhost:8081/public/trials" ]
+      interval: 2s
+      timeout: 5s
+      retries: 15
 
   # Frontend
   frontend:
     build: ./front
     container_name: react_miagepoule
+    depends_on:
+      gateway-api:
+        condition: service_healthy
     ports:
       - "3001:3000"
     networks:
