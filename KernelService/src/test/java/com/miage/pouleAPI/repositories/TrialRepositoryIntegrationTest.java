@@ -17,7 +17,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 @DataJpaTest
 @ActiveProfiles("test")
 @DisplayName("Intégration TrialRepository avec data.sql")
-class TrialRepositoryIT {
+class TrialRepositoryIntegrationTest {
 
     @Autowired
     private TrialRepository trialRepository;
@@ -36,15 +36,15 @@ class TrialRepositoryIT {
     }
 
     @Test
-    @DisplayName("findById(1) doit retourner le trial lié à l'event 2")
+    @DisplayName("findById(2) doit retourner le trial lié à l'event 2")
     void findById_shouldReturnTrialWithEvent() {
-        Optional<Trial> optTrial = trialRepository.findById(1);
+        Optional<Trial> optTrial = trialRepository.findById(2);
 
         assertThat(optTrial).isPresent();
         Trial trial = optTrial.get();
 
         // Vérifie l'id du trial
-        assertThat(trial.getId()).isEqualTo(1);
+        assertThat(trial.getId()).isEqualTo(2);
 
         // Vérifie la relation avec Event (id_event=2 dans data.sql)
         Event event = trial;
@@ -67,7 +67,7 @@ class TrialRepositoryIT {
     @Test
     @DisplayName("Les entités Trial doivent être correctement mappées avec les autres relations")
     void trial_shouldHaveMappedRelations() {
-        Optional<Trial> optTrial = trialRepository.findById(1);
+        Optional<Trial> optTrial = trialRepository.findById(2);
 
         assertThat(optTrial).isPresent();
         Trial trial = optTrial.get();

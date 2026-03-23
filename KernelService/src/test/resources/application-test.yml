@@ -21,6 +21,28 @@ spring:
       separator: ;
       continue-on-error: false
 
+  # Désactive l'envoi d'emails et les threads asynchrones pendant les tests
+  mail:
+    host: localhost
+    port: 3025
+    username: test@test.com
+    password: test
+    properties:
+      mail:
+        smtp:
+          auth: false
+          starttls:
+            enable: false
+          connection-timeout: 5000
+          timeout: 5000
+          write-timeout: 5000
+  
+  task:
+    execution:
+      shutdown:
+        await-termination: true
+        await-termination-period: 5s
+
 security:
   jwt:
     secret: test-secret-key-1234567890-abcdefghijklmnopqrstuvwxyz
