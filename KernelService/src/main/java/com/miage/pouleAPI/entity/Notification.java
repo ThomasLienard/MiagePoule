@@ -25,6 +25,9 @@ public class Notification {
     @Column(name = "id_notification")
     private Integer id;
 
+    @Column(name = "title_notification", nullable = false)
+    private String title;
+
     @Column(name = "description_notification", length = 1500, nullable = false)
     private String description;
 

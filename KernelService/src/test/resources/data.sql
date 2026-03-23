@@ -15,12 +15,17 @@ INSERT INTO role (role_name) VALUES ('COMMISSAIRE');
 INSERT INTO role (role_name) VALUES ('ATHLETE');
 INSERT INTO role (role_name) VALUES ('VOLONTAIRE');
 INSERT INTO role (role_name) VALUES ('SPECTATEUR');
+
 -- ======================
 -- Severities
 -- ======================
-INSERT INTO severity (name_severity, desc_severity) VALUES ('INFO', 'Information message');
-INSERT INTO severity (name_severity, desc_severity) VALUES ('WARNING', 'Warning level');
-INSERT INTO severity (name_severity, desc_severity) VALUES ('CRITICAL', 'Critical event');
+INSERT INTO severity (name_severity, desc_severity)
+VALUES ('INFO', 'Information message'),
+       ('WARNING', 'Warning level'),
+       ('CRITICAL', 'Critical event'),
+       ('LOW', 'Low severity incident'),
+       ('MEDIUM', 'Medium severity incident'),
+       ('HIGH', 'High severity incident');
 
 -- ======================
 -- Type of documents
@@ -149,18 +154,6 @@ INSERT INTO is_convened_to (id, id_trial, trial_result_athlete, is_forfeit) VALU
 -- Marie (id=3) : pas de résultat, John (id=5) : résultat déjà saisi
 INSERT INTO is_convened_to (id, id_trial, trial_result_athlete, is_forfeit) VALUES (3, 6, null, false);
 INSERT INTO is_convened_to (id, id_trial, trial_result_athlete, is_forfeit) VALUES (5, 6, 11.5, false);
-
--- ======================
--- Notifications
--- ======================
-INSERT INTO notification (description_notification, emission_date,
-                          id_place, id_event, name_severity, name_type_of_notification)
-VALUES ('Event delayed', '2025-01-01 08:00:00', 1, 2, 'WARNING', 'INFO');
-
--- ======================
--- User subscriptions
--- ======================
-INSERT INTO subscribe_to (id, id_notification) VALUES (1, 1);
 
 -- ======================
 -- Geolocs

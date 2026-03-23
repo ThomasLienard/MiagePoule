@@ -23,7 +23,10 @@ INSERT INTO role (role_name) VALUES ('SPECTATEUR');
 INSERT INTO severity (name_severity, desc_severity)
 VALUES ('INFO', 'Information message'),
        ('WARNING', 'Warning level'),
-       ('CRITICAL', 'Critical event');
+       ('CRITICAL', 'Critical event'),
+       ('LOW', 'Low severity incident'),
+       ('MEDIUM', 'Medium severity incident'),
+       ('HIGH', 'High severity incident');
 
 -- ======================
 -- Type of documents
@@ -439,29 +442,6 @@ VALUES (1, 4, 8100, false, true),
        (20,40,null,false,false),
        (23,40,null,false,false),
        (25,40,null,false,false);
-
-
-
-
-
-
-
-
--- ======================
--- Notifications
--- ======================
-INSERT INTO notification (description_notification, emission_date,
-                          id_place, id_event, name_severity, name_type_of_notification)
-VALUES ('Trial 1 starting soon', '2025-01-01 08:30:00', 1, 1, 'WARNING', 'EMAIL'),
-       ('Trial 2 delayed', '2025-01-01 09:45:00', 1, 2, 'WARNING', 'SMS'),
-       ('Trial 3 finals announcement', '2025-01-01 10:00:00', 1, 3, 'INFO', 'SYSTEM'),
-       ('Marathon Trial info', '2025-01-01 08:00:00', 1, 4, 'INFO', 'EMAIL');
-
--- ======================
--- User subscriptions
--- ======================
-INSERT INTO subscribe_to (id, id_notification)
-VALUES (1, 1);
 
 -- ======================
 -- Geolocs
