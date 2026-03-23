@@ -1,5 +1,6 @@
 package com.miage.pouleAPI.entity;
 
+import com.miage.pouleAPI.services.TypeNotification;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import java.time.LocalDateTime;
@@ -42,9 +43,9 @@ public class Notification {
     @JoinColumn(name = "name_severity", nullable = false)
     private Severity severity;
 
-    @ManyToOne
-    @JoinColumn(name = "name_type_of_notification", nullable = false)
-    private TypeOfNotification type;
+    @Enumerated(EnumType.STRING)
+    @Column(name="name_type_of_notification", nullable=false)
+    private TypeNotification type;
 
     @ManyToMany(mappedBy = "notifications")
     @JsonIgnore

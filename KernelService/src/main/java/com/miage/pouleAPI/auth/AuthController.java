@@ -1,9 +1,6 @@
 package com.miage.pouleAPI.auth;
 
-import com.miage.pouleAPI.auth.dto.LoginRequest;
-import com.miage.pouleAPI.auth.dto.LoginResponse;
-import com.miage.pouleAPI.auth.dto.SignUpRequest;
-import com.miage.pouleAPI.auth.dto.SignUpResponse;
+import com.miage.pouleAPI.auth.dto.*;
 import com.miage.pouleAPI.dtos.admin.ActivateAccountRequest;
 import com.miage.pouleAPI.services.AdminUserService;
 import jakarta.validation.Valid;
@@ -24,11 +21,12 @@ public class AuthController {
 
     @PostMapping("/login")
     public ResponseEntity<LoginResponse> login(@RequestBody LoginRequest request) {
-        AuthService.LoginResponseWithStatus response = authService.loginWithStatus(request);
+        LoginResponseWithStatus response = authService.loginWithStatus(request);
         return ResponseEntity.ok(new LoginResponse(
             response.token(),
             response.mustChangePassword(),
-            response.isAccountActivated()
+            response.isAccountActivated(),
+            response.isAccountValidated()
         ));
     }
 

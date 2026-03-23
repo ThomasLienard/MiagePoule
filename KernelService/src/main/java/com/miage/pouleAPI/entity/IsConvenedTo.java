@@ -28,8 +28,11 @@ public class IsConvenedTo {
     private Trial trial;
 
     @Column(name = "trial_result_athlete")
-    private String result;
+    private Double result;
 
     @Column(name = "is_forfeit")
     private Boolean isForfeit = false;
+
+    @Column(name = "is_validated")
+    private Boolean isValidated = false;
 }

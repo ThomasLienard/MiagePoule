@@ -1,6 +1,6 @@
 import axios from 'axios';
 
-const API_BASE_URL = 'http://localhost:8084';
+const API_BASE_URL = import.meta.env.VITE_API_URL;
 
 const getAuthHeaders = () => {
     const token = localStorage.getItem('token');
@@ -145,6 +145,34 @@ const adminUserService = {
             return response.data;
         } catch (error) {
             throw new Error(error.response?.data?.message || 'Erreur lors de l\'activation');
+        }
+    },
+
+    // Valider un compte utilisateur (change isAccountValidated à true)
+    validateUserAccount: async (id) => {
+        try {
+            const response = await axios.post(
+                `${API_BASE_URL}/admin/users/${id}/validate-account`,
+                {},
+                { headers: getAuthHeaders() }
+            );
+            return response.data;
+        } catch (error) {
+            throw new Error(error.response?.data?.message || 'Erreur lors de la validation du compte');
+        }
+    },
+
+    // Invalider un compte utilisateur (change isAccountValidated à false)
+    invalidateUserAccount: async (id) => {
+        try {
+            const response = await axios.post(
+                `${API_BASE_URL}/admin/users/${id}/invalidate-account`,
+                {},
+                { headers: getAuthHeaders() }
+            );
+            return response.data;
+        } catch (error) {
+            throw new Error(error.response?.data?.message || 'Erreur lors de l\'invalidation du compte');
         }
     }
 };

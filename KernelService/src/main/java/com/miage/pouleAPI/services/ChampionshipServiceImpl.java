@@ -6,11 +6,13 @@ import com.miage.pouleAPI.dtos.championship.CreateChampionshipRequestDTO;
 import com.miage.pouleAPI.services.interfaces.ChampionshipService;
 
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 import java.util.Optional;
 
 @Service
+@Transactional
 public class ChampionshipServiceImpl implements ChampionshipService {
 
     private final ChampionshipJpaAdapter championshipJpaAdapter;
@@ -32,5 +34,10 @@ public class ChampionshipServiceImpl implements ChampionshipService {
     @Override
     public ChampionshipDTO save(CreateChampionshipRequestDTO championshipDto) {
         return championshipJpaAdapter.save(championshipDto);
+    }
+
+    @Override
+    public ChampionshipDTO update(ChampionshipDTO championshipDto) {
+        return championshipJpaAdapter.update(championshipDto);
     }
 }

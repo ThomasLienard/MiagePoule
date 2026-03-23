@@ -12,6 +12,7 @@ import {
 } from '../../constants/mapSettings';
 import {Card, Col, Row, Spinner, Form, FloatingLabel} from "react-bootstrap";
 import {formatDate, isPastEvent} from "../../utils/dateFormatter.js";
+import {getTrial} from "../../services/trialService.jsx";
 
 const PublicMapPage = () => {
     const [events, setEvents] = useState([]);
@@ -29,7 +30,7 @@ const PublicMapPage = () => {
 
     const {isLoaded, loadError} = useJsApiLoader({
         id: "google-map-script",
-        googleMapsApiKey: import.meta.env.VITE_GOOGLE_MAPS_API_KEY || "AIzaSyA3efzW0xg7YQY9CbCSsJsFOp4On2daNPI",
+        googleMapsApiKey: "AIzaSyDSGBLXF6Qihj3P3vNvM8-dN2QLoW_eIlA",
         libraries: ["places"],
     });
 
@@ -58,7 +59,7 @@ const PublicMapPage = () => {
             const detailedEvents = await Promise.all(
                 basicEvents.map(async (event) => {
                     try {
-                        return await eventService.getById(event.id);
+                        return await eventService.getEventById(event.id);
                     } catch (error) {
                         console.warn(`Failed to load details for event ${event.id}:`, error);
                         return {...event, _isTrial: false};
@@ -69,9 +70,9 @@ const PublicMapPage = () => {
             const detailedTrials = await Promise.all(
                 basicTrials.map(async (basicTrial) => {
                     try {
-                        const response = await fetch(`http://localhost:8084/public/trials/${basicTrial.id}`);
-                        if (response.ok) {
-                            const detailed = await response.json();
+                        const response = await getTrial(basicTrial.id);
+                        if (response.status === 200) {
+                            const detailed = await response.data;
                             return {...detailed, idEvent: basicTrial.idEvent, _isTrial: true};
                         }
                         return {...basicTrial, _isTrial: true};

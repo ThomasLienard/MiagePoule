@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Container, Row, Col, Card, Button, Alert, Spinner, Table, Badge } from 'react-bootstrap';
 import { getAllTeams, deleteTeam, createTeam, updateTeam } from '../../services/teamService';
-import { getAllCountries } from '../../services/countryService';
+import { getAllCountryCodes } from '../../services/countryService';
 import commissaireUserService from '../../services/commissaireUserService';
 import CreateTeamModal from './CreateTeamModal';
 import UpdateTeamModal from './UpdateTeamModal';
@@ -29,7 +29,7 @@ const TeamManagement = () => {
             setLoading(true);
             const [teamsData, countriesData, athletesData] = await Promise.all([
                 getAllTeams(),
-                getAllCountries(),
+                getAllCountryCodes(),
                 commissaireUserService.getUsersByRole('ATHLETE')
             ]);
             setTeams(teamsData);

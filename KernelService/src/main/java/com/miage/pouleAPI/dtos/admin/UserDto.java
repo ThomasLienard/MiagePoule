@@ -11,9 +11,11 @@ public record UserDto(
     String countryCode,
     Boolean isActive,
     Boolean isAccountActivated,
+    Boolean isAccountValidated,
     Boolean mustChangePassword,
     LocalDateTime createdAt,
     String createdBy,
     LocalDateTime deactivatedAt,
-    String deactivationReason
+    String deactivationReason,
+    Boolean hasSignedCharter
 ) {}

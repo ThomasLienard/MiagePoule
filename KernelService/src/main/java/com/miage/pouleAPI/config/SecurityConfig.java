@@ -35,10 +35,12 @@ public class SecurityConfig {
                         .requestMatchers("/auth/**").permitAll()
                         .requestMatchers("/public/**").permitAll()
                         .requestMatchers("/countries/**").permitAll()
+                        .requestMatchers("/api/notifications/stream/**").permitAll()
                         .requestMatchers("/error").permitAll()
 
                         .requestMatchers("/admin/**").hasRole("ADMIN")
-                        .requestMatchers("/commissaire/**").hasRole("COMMISSAIRE")
+                        .requestMatchers("/volunteer/**").hasRole("VOLONTAIRE")
+                        .requestMatchers("/commissaire/**").hasAnyRole("COMMISSAIRE","ADMIN")
 
 
                         .anyRequest().authenticated()

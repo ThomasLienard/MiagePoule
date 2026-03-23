@@ -86,7 +86,7 @@ class AuthServiceTest {
                 .thenReturn("jwt-token");
 
         // Act
-        String token = authService.login(request);
+        String token = authService.loginWithStatus(request).token();
 
         // Assert
         assertNotNull(token);
@@ -103,7 +103,7 @@ class AuthServiceTest {
         when(userRepo.findByEmail("nonexistent@example.com")).thenReturn(Optional.empty());
 
         // Act & Assert
-        assertThrows(BadCredentialsException.class, () -> authService.login(request));
+        assertThrows(BadCredentialsException.class, () -> authService.loginWithStatus(request));
         verify(userRepo, times(1)).findByEmail("nonexistent@example.com");
         verify(passwordEncoder, never()).matches(anyString(), anyString());
         verify(jwtService, never()).generateToken(anyInt(), anyString(), anyString());
@@ -117,7 +117,7 @@ class AuthServiceTest {
         when(passwordEncoder.matches("wrongpassword", "encodedPassword")).thenReturn(false);
 
         // Act & Assert
-        assertThrows(BadCredentialsException.class, () -> authService.login(request));
+        assertThrows(BadCredentialsException.class, () -> authService.loginWithStatus(request));
         verify(userRepo, times(1)).findByEmail("test@example.com");
         verify(passwordEncoder, times(1)).matches("wrongpassword", "encodedPassword");
         verify(jwtService, never()).generateToken(anyInt(), anyString(), anyString());

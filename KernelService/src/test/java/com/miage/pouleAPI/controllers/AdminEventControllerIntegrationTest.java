@@ -2,7 +2,7 @@ package com.miage.pouleAPI.controllers;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.miage.pouleAPI.dtos.event.CreateEventRequestDTO;
-import jakarta.transaction.Transactional;
+import com.miage.pouleAPI.dtos.event.UpdateEventRequestDTO;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
@@ -11,11 +11,12 @@ import org.springframework.http.MediaType;
 import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.web.servlet.MockMvc;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
 
-import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.csrf;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.put;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 @SpringBootTest
@@ -32,13 +33,12 @@ class AdminEventControllerIntegrationTest {
     void shouldAcceptValidEventRequest() throws Exception {
         CreateEventRequestDTO request = new CreateEventRequestDTO(
                 "Nouveau Test" + System.currentTimeMillis(), "Description", "TRIAL", 1,
-                LocalDateTime.now().plusDays(5), LocalDateTime.now().plusDays(5).plusHours(1),
+                LocalDateTime.now().plusDays(5), LocalDateTime.now().plusDays(5).plusHours(1),2,
                 "Stade Unique", "Paris", "Avenue", "99", "75000",
-                "PMR", 10.0, 10.0, true
+                "PMR", 10.0, 10.0, true, null
         );
 
         mockMvc.perform(post("/admin/events")
-                        .with(csrf())
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(request)))
                 .andExpect(status().isCreated());
@@ -49,13 +49,12 @@ class AdminEventControllerIntegrationTest {
     void shouldReturnBadRequestWhenNameIsMissing() throws Exception {
         CreateEventRequestDTO invalidRequest = new CreateEventRequestDTO(
                 null, "Description", "TRIAL", 1,
-                LocalDateTime.now().plusDays(5), LocalDateTime.now().plusDays(5).plusHours(1),
+                LocalDateTime.now().plusDays(5), LocalDateTime.now().plusDays(5).plusHours(1),2,
                 "Stade", "Paris", "Rue", "1", "75000",
-                "PMR", 10.0, 10.0, true
+                "PMR", 10.0, 10.0, true, null
         );
 
         mockMvc.perform(post("/admin/events")
-                        .with(csrf())
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(invalidRequest)))
                 .andExpect(status().isBadRequest());
@@ -66,13 +65,12 @@ class AdminEventControllerIntegrationTest {
     void shouldForbiddenWhenUserIsNotAdmin() throws Exception {
         CreateEventRequestDTO request = new CreateEventRequestDTO(
                 "Test Fraude", "Desc", "TRIAL", 1,
-                LocalDateTime.now().plusDays(2), LocalDateTime.now().plusDays(2).plusHours(1),
+                LocalDateTime.now().plusDays(2), LocalDateTime.now().plusDays(2).plusHours(1),2,
                 "Lieu", "Ville", "Rue", "1", "00000",
-                "NONE", 5.0, 5.0, false
+                "NONE", 5.0, 5.0, false, null
         );
 
         mockMvc.perform(post("/admin/events")
-                        .with(csrf())
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(request)))
                 .andExpect(status().isForbidden());
@@ -81,9 +79,23 @@ class AdminEventControllerIntegrationTest {
     @Test
     void shouldForbiddenWhenNotAuthenticated() throws Exception {
         mockMvc.perform(post("/admin/events")
-                        .with(csrf())
                         .contentType(MediaType.APPLICATION_JSON)
                         .content("{}"))
                 .andExpect(status().isForbidden());
+    }
+
+    @Test
+    @WithMockUser(roles = "ADMIN")
+    void update_shouldModifyEventFullDetails() throws Exception {
+        Integer eventId = 1;
+
+        UpdateEventRequestDTO updateRequest = new UpdateEventRequestDTO();
+        updateRequest.setName("Épreuve Modifiée");
+        updateRequest.setDescription("Nouvelle description admin");
+
+        mockMvc.perform(put("/admin/events/" + eventId)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(updateRequest)))
+                .andExpect(status().isAccepted());
     }
 }

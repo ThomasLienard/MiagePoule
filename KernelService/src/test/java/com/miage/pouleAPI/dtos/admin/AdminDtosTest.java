@@ -18,8 +18,8 @@ class AdminDtosTest {
         
         UserDto dto = new UserDto(
             1, "John", "Doe", "john@test.com", "ATHLETE", "FR",
-            true, true, false, createdAt, "admin@test.com",
-            deactivatedAt, "Raison test"
+            true, true, false, false, createdAt, "admin@test.com",
+            deactivatedAt, "Raison test", false
         );
 
         assertThat(dto.id()).isEqualTo(1);
@@ -42,7 +42,7 @@ class AdminDtosTest {
     void userDto_shouldHandleNullValues() {
         UserDto dto = new UserDto(
             null, null, null, null, null, null,
-            null, null, null, null, null, null, null
+            null, null, null, null, null, null, null, null, null
         );
 
         assertThat(dto.id()).isNull();
@@ -131,11 +131,11 @@ class AdminDtosTest {
     void userDto_equalsAndHashCode() {
         LocalDateTime time = LocalDateTime.now();
         UserDto dto1 = new UserDto(1, "John", "Doe", "john@test.com", "ATHLETE", "FR",
-            true, true, false, time, "admin", null, null);
+            true, true, false, false, time, "admin", null, null, false);
         UserDto dto2 = new UserDto(1, "John", "Doe", "john@test.com", "ATHLETE", "FR",
-            true, true, false, time, "admin", null, null);
+            true, true, false, false, time, "admin", null, null, false);
         UserDto dto3 = new UserDto(2, "Jane", "Doe", "jane@test.com", "ATHLETE", "FR",
-            true, true, false, time, "admin", null, null);
+            true, true, false, false, time, "admin", null, null, false);
 
         assertThat(dto1).isEqualTo(dto2);
         assertThat(dto1).isNotEqualTo(dto3);
@@ -206,7 +206,7 @@ class AdminDtosTest {
     @DisplayName("UserDto toString devrait contenir les valeurs")
     void userDto_toStringShouldContainValues() {
         UserDto dto = new UserDto(1, "John", "Doe", "john@test.com", "ATHLETE", "FR",
-            true, true, false, null, "admin", null, null);
+            true, true, false, false, null, "admin", null, null, false);
 
         String str = dto.toString();
         assertThat(str).contains("John");

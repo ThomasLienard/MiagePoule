@@ -1,0 +1,44 @@
+[
+  {
+    "id": 1,
+    "fileName": "Billet 1_1772717585991_7be00d05.pdf",
+    "originalFileName": "Billet 1.pdf",
+    "typeName": "TICKET",
+    "typeId": 1,
+    "uploadedAt": "2026-03-05 13:33:05",
+    "updatedAt": "2026-03-05 13:33:05",
+    "contentType": "application/pdf",
+    "fileSize": 942100,
+    "description": null,
+    "isEncrypted": true,
+    "downloadUrl": "/api/documents/1/download"
+  },
+  {
+    "id": 2,
+    "fileName": "Billet 2_1772716852530_7c92b4b1.pdf",
+    "originalFileName": "Billet 2.pdf",
+    "typeName": "TICKET",
+    "typeId": 1,
+    "uploadedAt": "2026-03-05 13:20:52",
+    "updatedAt": "2026-03-05 13:20:52",
+    "contentType": "application/pdf",
+    "fileSize": 246514,
+    "description": "Je suis pas un ticket de caisse, je suis mieux que ça",
+    "isEncrypted": true,
+    "downloadUrl": "/api/documents/2/download"
+  },
+  {
+    "id": 3,
+    "fileName": "Super ticket 64_1772723399177_9c6ab3ec.pdf",
+    "originalFileName": "Super ticket 64.pdf",
+    "typeName": "TICKET",
+    "typeId": 1,
+    "uploadedAt": "2026-03-05 15:09:59",
+    "updatedAt": "2026-03-05 15:09:59",
+    "contentType": "application/pdf",
+    "fileSize": 37896,
+    "description": "Aude aux amis",
+    "isEncrypted": true,
+    "downloadUrl": "/api/documents/3/download"
+  }
+]

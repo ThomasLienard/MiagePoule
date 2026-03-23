@@ -23,6 +23,8 @@ public record CreateEventRequestDTO(
         @NotNull(message = "La date de fin est obligatoire")
         LocalDateTime endTime,
 
+        Integer commissaireId,
+
         String placeName,
         String city,
         String street,
@@ -31,5 +33,7 @@ public record CreateEventRequestDTO(
         String descriptionPlace,
         Double latitude,
         Double longitude,
-        boolean hasParking
+        boolean hasParking,
+        
+        String typeScoreName  // Optional: "TIME", "POINTS", etc. Si null, valeur par défaut selon le type d'événement
 ) {}

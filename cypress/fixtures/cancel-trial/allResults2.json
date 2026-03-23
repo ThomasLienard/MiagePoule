@@ -1,0 +1,28 @@
+{
+  "trialId": 2,
+  "trialName": "Plantage de PC",
+  "results": [
+    {
+      "participantId": 3,
+      "participantName": "Arnaud Incognito",
+      "participantType": "ATHLETE",
+      "country": "FR",
+      "result": 22.4,
+      "isValidated": true,
+      "isForfeit": false
+    },
+    {
+      "participantId": 5,
+      "participantName": "Jean Pâte",
+      "participantType": "ATHLETE",
+      "country": "US",
+      "result": 22.1,
+      "isValidated": true,
+      "isForfeit": false
+    }
+  ],
+  "startTime": "2026-10-09T09:00:00",
+  "endTime": "2026-10-09T10:00:00",
+  "scoreType": "POINTS",
+  "teamTrial": false
+}

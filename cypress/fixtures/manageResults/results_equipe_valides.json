@@ -1,0 +1,24 @@
+{
+  "trialId": 2,
+  "trialName": "4x100m Relais Équipe",
+  "teamTrial": true,
+  "startTime": "2025-06-01T10:00:00",
+  "results": [
+    {
+      "participantId": 1,
+      "participantName": "Team Alpha",
+      "participantType": "TEAM",
+      "result": "38.5s",
+      "isValidated": true,
+      "isForfeit": false
+    },
+    {
+      "participantId": 2,
+      "participantName": "Team Beta",
+      "participantType": "TEAM",
+      "result": "39.1s",
+      "isValidated": true,
+      "isForfeit": false
+    }
+  ]
+}

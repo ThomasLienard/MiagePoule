@@ -1,5 +1,6 @@
 package com.miage.pouleAPI.services.interfaces;
 
+import com.miage.pouleAPI.dtos.participant.AthleteDTO;
 import com.miage.pouleAPI.dtos.participant.ParticipantDTO;
 import com.miage.pouleAPI.dtos.participant.TrialParticipantsDTO;
 import com.miage.pouleAPI.dtos.participant.TrialParticipantsFullDTO;
@@ -8,7 +9,9 @@ import java.util.List;
 import java.util.Optional;
 
 public interface ParticipantService {
-    
+
+    Optional<AthleteDTO> getAthleteById(Integer athleteId);
+
     /**
      * Récupère les participants et participants potentiels d'une épreuve
      */
@@ -63,4 +66,10 @@ public interface ParticipantService {
      * Récupère les épreuves pour lesquelles le commissaire peut gérer les participants
      */
     List<TrialParticipantsDTO> getTrialsForCommissaire();
+    
+    /**
+     * Permet à un sportif de déclarer forfait pour une épreuve
+     * Vérifie que l'épreuve n'est pas encore terminée
+     */
+    ParticipantDTO athleteDeclareWithdrawal(Integer trialId, String athleteEmail);
 }

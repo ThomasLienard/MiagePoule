@@ -1,15 +1,11 @@
 import React, { useEffect, useState } from "react";
 import { Container, Table, Form, Badge, Spinner, Alert, Card } from "react-bootstrap";
-import axios from "axios";
+import privacyService from "../../services/privacyService.jsx";
 
 const PrivacySettings = () => {
     const [settings, setSettings] = useState([]);
     const [loading, setLoading] = useState(true);
     const [message, setMessage] = useState({ type: "", text: "" });
-
-    const API_URL = "http://localhost:8084/account/privacy";
-    const token = localStorage.getItem("token");
-    const config = { headers: { Authorization: `Bearer ${token}` } };
 
     useEffect(() => {
         fetchPrivacySettings();
@@ -17,7 +13,7 @@ const PrivacySettings = () => {
 
     const fetchPrivacySettings = async () => {
         try {
-            const response = await axios.get(API_URL, config);
+            const response = await privacyService.getPrivacy();
             setSettings(response.data);
         } catch (error) {
             setMessage({ type: "danger", text: "Erreur lors du chargement des préférences." });
@@ -30,7 +26,7 @@ const PrivacySettings = () => {
         if (isMandatory) return;
 
         try {
-            await axios.put(`${API_URL}/${categoryName}`, { enabled: !currentStatus }, config);
+            privacyService.updateCategory(categoryName, {enabled: !currentStatus})
 
             setSettings(settings.map(s =>
                 s.categoryName === categoryName ? { ...s, enabled: !currentStatus } : s

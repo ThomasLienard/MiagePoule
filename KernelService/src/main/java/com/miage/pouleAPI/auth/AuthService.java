@@ -2,6 +2,7 @@ package com.miage.pouleAPI.auth;
 
 import com.miage.pouleAPI.adapters.UserAdapter;
 import com.miage.pouleAPI.auth.dto.LoginRequest;
+import com.miage.pouleAPI.auth.dto.LoginResponseWithStatus;
 import com.miage.pouleAPI.auth.dto.SignUpRequest;
 import com.miage.pouleAPI.auth.dto.SignUpResponse;
 import com.miage.pouleAPI.auth.jwt.JwtService;
@@ -34,86 +35,25 @@ public class AuthService {
     private final JwtService jwtService;
     private final UserAdapter userAdapter;
 
-    public String login(LoginRequest request) {
-        log.info("Tentative de login pour: {}", request.email());
-
-        var user = userRepo.findByEmail(request.email())
-                .orElseThrow(() -> {
-                    log.error("Utilisateur non trouvé: {}", request.email());
-                    return new BadCredentialsException("User not found");
-                });
-
-        log.info("Utilisateur trouvé: {}", user.getEmail());
-        log.info("Password stocké: {}", user.getPassword());
-        log.info("Password fourni: {}", request.password());
-
-        boolean passwordMatches = passwordEncoder.matches(request.password(), user.getPassword());
-        log.info("Password match: {}", passwordMatches);
-
-        if (!passwordMatches) {
-            log.error("Mot de passe incorrect pour: {}", request.email());
-            throw new BadCredentialsException("Bad credentials");
-        }
-
-        // Vérifier si le compte est actif
-        if (user.getIsActive() != null && !user.getIsActive()) {
-            log.error("Compte désactivé: {}", request.email());
-            throw new BadCredentialsException("Account is deactivated");
-        }
-
-        String role = user.getRole().getRoleName();
-        log.info("Rôle de l'utilisateur: {}", role);
-
-        // Mettre à jour la date de dernière connexion
-        user.setLastLoginAt(LocalDateTime.now());
-        userRepo.save(user);
-
-        // Inclure l'info mustChangePassword dans le token ou la réponse
-        Boolean mustChangePassword = user.getMustChangePassword() != null && user.getMustChangePassword();
-        Boolean isAccountActivated = user.getIsAccountActivated() != null && user.getIsAccountActivated();
-        
-        String token = jwtService.generateToken(user.getId(), user.getEmail(), role);
-        log.info("Token généré pour: {} (mustChangePassword: {}, isAccountActivated: {})", 
-            request.email(), mustChangePassword, isAccountActivated);
-
-        return token;
-    }
-
     public LoginResponseWithStatus loginWithStatus(LoginRequest request) {
         log.info("Tentative de login pour: {}", request.email());
 
-        var user = userRepo.findByEmail(request.email())
+        ApplicationUser user = userRepo.findByEmail(request.email())
                 .orElseThrow(() -> {
                     log.error("Utilisateur non trouvé: {}", request.email());
                     return new BadCredentialsException("User not found");
                 });
 
-        boolean passwordMatches = passwordEncoder.matches(request.password(), user.getPassword());
-        if (!passwordMatches) {
-            log.error("Mot de passe incorrect pour: {}", request.email());
-            throw new BadCredentialsException("Bad credentials");
-        }
-
-        // Vérifier si le compte est actif
-        if (user.getIsActive() != null && !user.getIsActive()) {
-            log.error("Compte désactivé: {}", request.email());
-            throw new BadCredentialsException("Account is deactivated");
-        }
-
-        // Mettre à jour la date de dernière connexion
-        user.setLastLoginAt(LocalDateTime.now());
-        userRepo.save(user);
-
-        String role = user.getRole().getRoleName();
-        Boolean mustChangePassword = user.getMustChangePassword() != null && user.getMustChangePassword();
-        Boolean isAccountActivated = user.getIsAccountActivated() != null && user.getIsAccountActivated();
+        this.validateUser(request, user);
         
-        String token = jwtService.generateToken(user.getId(), user.getEmail(), role);
+        String token = jwtService.generateToken(user.getId(), user.getEmail(), user.getRole().getRoleName());
 
-        return new LoginResponseWithStatus(token, mustChangePassword, isAccountActivated);
+        return new LoginResponseWithStatus(
+                token,
+                this.safeBoolean(user.getMustChangePassword()),
+                this.safeBoolean(user.getIsAccountActivated()),
+                this.safeBoolean(user.getIsAccountValidated()));
     }
-
-    public record LoginResponseWithStatus(String token, Boolean mustChangePassword, Boolean isAccountActivated) {}
 
     public SignUpResponse signUp(SignUpRequest request) {
         log.info("Tentative d'inscription pour: {}", request.email());
@@ -130,33 +70,11 @@ public class AuthService {
                     "Email already exists"
             );
         }
-
-        // Vérifier si le rôle existe
-        Role role = roleRepository.findById(request.roleName())
-                .orElseThrow(() -> {
-                    log.error("Rôle non trouvé: {}", request.roleName());
-                    return new IllegalArgumentException("Role not found: " + request.roleName());
-                });
-
-        // Vérifier si le pays existe
-        Country country = countryRepository.findById(request.countryCode())
-                .orElseThrow(() -> {
-                    log.error("Pays non trouvé: {}", request.countryCode());
-                    return new IllegalArgumentException("Country not found: " + request.countryCode());
-                });
-
         log.info("Création d'un nouvel utilisateur");
 
         // Créer l'utilisateur - l'ID sera auto-généré
-        ApplicationUser user = new ApplicationUser();
-        user.setEmail(request.email());
-        user.setPassword(passwordEncoder.encode(request.password()));
-        user.setName(request.name());
-        user.setLastname(request.lastname());
-        user.setRole(role);
-        user.setCountry(country);
-        user.setIsActive(true);
-        
+        ApplicationUser user = this.createUserFromRequest(request);
+
         // Les spectateurs sont automatiquement validés
         boolean isSpectateur = "SPECTATEUR".equals(request.roleName());
         user.setIsAccountActivated(isSpectateur);
@@ -167,14 +85,14 @@ public class AuthService {
         log.info("Utilisateur créé avec succès: {}", user.getEmail());
 
         // Générer le token JWT
-        String token = jwtService.generateToken(user.getId(), user.getEmail(), role.getRoleName());
+        String token = jwtService.generateToken(user.getId(), user.getEmail(), user.getRole().getRoleName());
 
         return new SignUpResponse(
                 token,
                 user.getEmail(),
                 user.getName(),
                 user.getLastname(),
-                role.getRoleName(),
+                user.getRole().getRoleName(),
                 "User registered successfully"
         );
     }
@@ -206,7 +124,7 @@ public class AuthService {
         return new UpdateProfileResponse(userAdapter.toResponseDTO(user), newToken);
     }
 
-    //Si il y a une erreur rien n'est écrit en BDD
+    //S'il y a une erreur rien n'est écrit en BDD
     @Transactional
     public void changePassword(Integer userId, String currentPassword, String newPassword) {
         ApplicationUser user = userRepo.findById(userId)
@@ -217,5 +135,54 @@ public class AuthService {
         }
         user.setPassword(passwordEncoder.encode(newPassword));
         userRepo.save(user);
+    }
+
+    private boolean safeBoolean(Boolean value) {
+        return value != null && value;
+    }
+
+    private void validateUser(LoginRequest request, ApplicationUser user) {
+        boolean passwordMatches = passwordEncoder.matches(request.password(), user.getPassword());
+        if (!passwordMatches) {
+            log.error("Mot de passe incorrect pour: {}", request.email());
+            throw new BadCredentialsException("Bad credentials");
+        }
+
+        // Vérifier si le compte est actif
+        if (user.getIsActive() != null && !user.getIsActive()) {
+            log.error("Compte désactivé: {}", request.email());
+            throw new BadCredentialsException("Account is deactivated");
+        }
+
+        // Mettre à jour la date de dernière connexion
+        LocalDateTime now = LocalDateTime.now();
+        user.setLastLoginAt(now);
+        userRepo.save(user);
+    }
+
+    private ApplicationUser createUserFromRequest(SignUpRequest request) {
+        ApplicationUser user = new ApplicationUser();
+        // Vérifier si le rôle existe
+        Role role = roleRepository.findById(request.roleName())
+                .orElseThrow(() -> {
+                    log.error("Rôle non trouvé: {}", request.roleName());
+                    return new IllegalArgumentException("Role not found: " + request.roleName());
+                });
+
+        // Vérifier si le pays existe
+        Country country = countryRepository.findById(request.countryCode())
+                .orElseThrow(() -> {
+                    log.error("Pays non trouvé: {}", request.countryCode());
+                    return new IllegalArgumentException("Country not found: " + request.countryCode());
+                });
+
+        user.setEmail(request.email());
+        user.setPassword(passwordEncoder.encode(request.password()));
+        user.setName(request.name());
+        user.setLastname(request.lastname());
+        user.setRole(role);
+        user.setCountry(country);
+        user.setIsActive(true);
+        return user;
     }
 }

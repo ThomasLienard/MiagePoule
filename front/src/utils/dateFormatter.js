@@ -11,7 +11,7 @@ export const formatDate = (start, end) => {
         });
     };
 
-    if (endDate && startDate.toDateString() === endDate.toDateString()) {
+    if (startDate.toDateString() === endDate?.toDateString()) {
         return `${startDate.toLocaleDateString()} ${formatTime(startDate)} - ${formatTime(endDate)}`;
     } else if (endDate) {
         return `${startDate.toLocaleDateString()} ${formatTime(startDate)} - ${endDate.toLocaleDateString()} ${formatTime(endDate)}`;
@@ -23,16 +23,19 @@ export const formatDate = (start, end) => {
 export const getRelativeTime = (dateString) => {
     const date = new Date(dateString);
     const now = new Date();
-    const diffInHours = (date - now) / (1000 * 60 * 60);
 
-    if (diffInHours < 0) {
+    const startOfToday = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+    const startOfTargetDay = new Date(date.getFullYear(), date.getMonth(), date.getDate());
+    const diffInDays = Math.round((startOfTargetDay - startOfToday) / (1000 * 60 * 60 * 24));
+
+    if (diffInDays < 0) {
         return 'Past event';
-    } else if (diffInHours < 24) {
+    } else if (diffInDays === 0) {
         return 'Today';
-    } else if (diffInHours < 48) {
+    } else if (diffInDays === 1) {
         return 'Tomorrow';
-    } else if (diffInHours < 168) {
-        const days = Math.floor(diffInHours / 24);
+    } else if (diffInDays < 7) {
+        const days = diffInDays;
         return `In ${days} day${days > 1 ? 's' : ''}`;
     } else {
         return date.toLocaleDateString();
@@ -40,14 +43,12 @@ export const getRelativeTime = (dateString) => {
 };
 
 export const isPastEvent = (item) => {
-    const eventDate = item.timeSlot?.start || item.date || item.startDate;
+    const eventDate = item.timeSlot?.end || item.date || item.endDate;
     if (!eventDate) return false;
 
     const today = new Date();
-    today.setHours(0, 0, 0, 0);
 
     const itemDate = new Date(eventDate);
-    itemDate.setHours(0, 0, 0, 0);
 
     return itemDate < today;
 };

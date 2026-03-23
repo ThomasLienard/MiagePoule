@@ -1,9 +1,11 @@
-import {Card} from "react-bootstrap";
+import {Card, Button} from "react-bootstrap";
 import {useNavigate} from "react-router-dom";
 import {formatDate} from "../utils/dateFormatter.js";
 import React from "react";
+import RankingFormat from "./common/RankingFormat.jsx";
+import {formatScore} from "../utils/scoreFormatter.js";
 
-const TrialsAndEventsCard = ({trials, events, title}) => {
+const TrialsAndEventsCard = ({trials, events, title, showForfeitButton, onForfeitClick, rankingMap}) => {
     const navigate = useNavigate();
 
     const handleEventClick = (id) => {
@@ -12,6 +14,13 @@ const TrialsAndEventsCard = ({trials, events, title}) => {
 
     const handleTrialClick = (id) => {
         navigate(`/public/trials/${id}`);
+    };
+
+    const handleForfeitClick = (e, trial) => {
+        e.stopPropagation(); // Empêcher la navigation vers les détails
+        if (onForfeitClick) {
+            onForfeitClick(trial);
+        }
     };
 
     return (
@@ -42,9 +51,37 @@ const TrialsAndEventsCard = ({trials, events, title}) => {
                                                 <div
                                                     className="text-body-tertiary">{formatDate(trial.timeSlot.start, trial.timeSlot.end)}</div>
                                             )}
-                                            {trial.rankings?.length > 0 && (
+                                            {rankingMap?.get(trial.id) && (
+                                                <span>
+                                                    <RankingFormat rank={rankingMap.get(trial.id).rank}/>
+                                                    {rankingMap.get(trial.id).result !== null && rankingMap.get(trial.id).result !== undefined
+                                                        ? <span>{formatScore(rankingMap.get(trial.id).result, trial.scoreType)} </span>
+                                                        : <span>Forfait</span>}
+                                                </span>
+                                            )}
+
+                                            {trial.status === "CANCELLED" && (
+                                                <div className="text-danger text-end">Épreuve annulée</div>
+                                            )}
+
+                                            {(trial.rankings?.length > 0 && (!rankingMap || !rankingMap.get(trial.id))) && (
                                                 <div
                                                     className="text-success text-end">Résultats disponibles !</div>
+                                            )}
+                                            {trial.status !== "CANCELLED" && showForfeitButton && (
+                                                <div className="mt-2">
+                                                    {trial.isForfeit ? (
+                                                        <span className="badge bg-warning text-dark">Forfait déclaré</span>
+                                                    ) : (
+                                                        <Button 
+                                                            variant="outline-danger" 
+                                                            size="sm"
+                                                            onClick={(e) => handleForfeitClick(e, trial)}
+                                                        >
+                                                            Déclarer forfait
+                                                        </Button>
+                                                    )}
+                                                </div>
                                             )}
                                         </div>
                                     </Card.Body>

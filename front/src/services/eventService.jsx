@@ -1,4 +1,6 @@
-const API_BASE_URL = "http://localhost:8084/public";
+import axios from "axios";
+
+const API_BASE_URL = `${import.meta.env.VITE_API_URL}/public`;
 
 class EventService {
     async getAll() {
@@ -24,9 +26,18 @@ class EventService {
         }
         return response.json();
     }
-    
 
-    async getById(id) {
+    async getTrialById(id) {
+        if (!id) throw new Error('Trial ID is required');
+
+        const response = await fetch(`${API_BASE_URL}/trials/${id}`);
+        if (!response.ok) {
+            throw new Error(`HTTP ${response.status}: Failed to fetch trial ${id}`);
+        }
+        return response.json();
+    }
+
+    async getEventById(id) {
         if (!id) throw new Error('Event ID is required');
 
         const response = await fetch(`${API_BASE_URL}/events/${id}`);
@@ -52,7 +63,7 @@ class EventService {
 
             for (const basicEvent of basicEvents) {
                 try {
-                    const eventDetails = await this.getById(basicEvent.id);
+                    const eventDetails = await this.getEventById(basicEvent.id);
                     detailedEvents.push(eventDetails);
                     console.log(`Loaded details for event ${basicEvent.id}: ${basicEvent.name}`);
                 } catch (error) {
@@ -92,6 +103,28 @@ class EventService {
             throw new Error(`HTTP ${response.status}: Failed to fetch trials for competition`);
         }
         return response.json();
+    }
+
+    async cancelEvent(eventId, data) {
+        try {
+            return await axios.patch(
+                `${import.meta.env.VITE_API_URL}/commissaire/events/${eventId}/cancel`,
+                data);
+        } catch (error) {
+            throw new Error(error.response?.data?.message || 'Erreur lors de la mise à jour');
+        }
+    }
+
+    async createEvent(eventData) {
+        return axios.post(`${import.meta.env.VITE_API_URL}/admin/events`, eventData);
+    }
+
+    async editEvent(id, eventData) {
+        return axios.put(`${import.meta.env.VITE_API_URL}/admin/events/${id}`, eventData);
+    }
+
+    async editEventCommissaire(id, eventData) {
+        return axios.put(`${import.meta.env.VITE_API_URL}/commissaire/events/${id}`, eventData);
     }
 }
 
