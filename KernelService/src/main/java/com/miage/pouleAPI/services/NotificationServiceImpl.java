@@ -42,14 +42,14 @@ public class NotificationServiceImpl implements com.miage.pouleAPI.services.inte
         notificationRepository.save(n);
 
         // on notifie les observateurs de l'event
-        //event.getCompetition().notifyObservers(n);
-
+        event.getCompetition().notifyObservers(n);
 
         // Ici : création du DTO + envoi SSE
         NotificationDTO dto = NotificationDTO.fromEntity(n);
 
         Collection<CompetitionObserver> observers = competitionObserverRepository.findByCompetition(event.getCompetition());
 
+        //On envoi la notif dans le front
         for (CompetitionObserver observer : observers) {
             sseNotificationService.sendNotification(observer.getId().getUserId(), dto);
         }
