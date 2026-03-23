@@ -8,7 +8,7 @@ describe('Page Profil - Signer la Charte', () => {
     it('doit permettre à un athlète réel de se connecter et signer la charte', () => {
         cy.visit('/login');
 
-        cy.get('input[placeholder="Email"]').type('athlete@example.com');
+        cy.get('input[placeholder="Email"]').type('arnaud@example.com');
         cy.get('input[placeholder="Mot de passe"]').type('test123');
         cy.get('button[type="submit"]').click();
 

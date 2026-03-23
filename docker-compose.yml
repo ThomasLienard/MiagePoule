@@ -46,7 +46,7 @@ services:
       - miage-network
     restart: unless-stopped
     healthcheck:
-      test: ["CMD", "curl", "-f", "http://localhost:8082/actuator/health"]
+      test: ["CMD", "curl", "-f", "http://localhost:8082/public/trials"]
       interval: 2s
       timeout: 5s
       retries: 15
@@ -68,7 +68,7 @@ services:
       - miage-network
     restart: unless-stopped
     healthcheck:
-      test: [ "CMD", "curl", "-f", "http://localhost:8081/actuator/health" ]
+      test: [ "CMD", "curl", "-f", "http://localhost:8081/public/trials" ]
       interval: 2s
       timeout: 5s
       retries: 15

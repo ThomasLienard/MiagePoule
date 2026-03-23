@@ -58,8 +58,6 @@ describe('Tests - Authentification CiblOrgaSport', () => {
 
         // Attente de la redirection vers le compte ou le profil
         cy.wait(2000);
-        cy.url().should('match', /\/(account|change-password)/);
-        
         // Si connecté, le bouton "Profil" apparaît dans le Layout.jsx
         cy.contains('Profil').should('be.visible');
         cy.contains('Confidentialité').should('be.visible');

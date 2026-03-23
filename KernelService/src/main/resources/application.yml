@@ -61,9 +61,3 @@ app:
     max-file-size: 10485760 # 10MB
     allowed-content-types: application/pdf,image/jpeg,image/png,image/jpg
     max-documents-per-user: 50
-
-management:
-  endpoints:
-    web:
-      exposure:
-        include: health
