@@ -146,7 +146,6 @@ const CreateEventPage = () => {
             });
 
             // Redirection après un court délai pour laisser l'utilisateur voir le message de succès
-            await eventService.createEvent(formData)
             setStatus({ type: 'success', message: 'Évènement planifié avec succès !' });
             setTimeout(() => navigate('/admin'), 2000);
         } catch (error) {

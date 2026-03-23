@@ -1,0 +1,4 @@
+Label,# Samples,Average,Min,Max,Std. Dev.,Error %,Throughput,Received KB/sec,Sent KB/sec,Avg. Bytes
+Login,100,127,75,778,93.20,0.000%,6.51339,4.65,1.53,731.0
+Créa event,100,2916,48,4791,1362.82,0.000%,5.65611,2.10,5.52,380.0
+TOTAL,200,1522,48,4791,1696.04,0.000%,10.38368,5.63,6.28,555.5
