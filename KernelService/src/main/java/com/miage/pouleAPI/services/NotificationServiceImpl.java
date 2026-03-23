@@ -120,14 +120,4 @@ public class NotificationServiceImpl implements com.miage.pouleAPI.services.inte
         return saved;
     }
 
-//    public void notifySecurityIncident(Place place, String message, Severity severity) {
-//        Notification n = new Notification();
-//        n.setDescription(message);
-//        n.setType(TypeOfNotification.SECURITY);
-//        n.setPlace(place);
-//        // éventuellement utiliser Severity dans la description ou un champ dédié
-//
-//        notificationRepository.save(n);
-//        place.notifyObservers(n);
-//    }
 }
