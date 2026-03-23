@@ -24,6 +24,10 @@ const DocumentUpload = ({
   const [message, setMessage] = useState({ type: "", text: "" });
   const [preview, setPreview] = useState(null);
 
+  const getDocumentStatus = (doc) => doc?.status ?? doc?.validationStatus ?? doc?.state;
+  const existingStatus = getDocumentStatus(existingDocument);
+  const isExistingValidated = existingStatus === "VALIDATED";
+
   // Types de documents autorisés
   const allowedTypes = {
     CEN_ACCREDITATION: { accept: ".pdf,.jpg,.jpeg,.png", maxSize: 10 },
@@ -156,14 +160,24 @@ const DocumentUpload = ({
           </Alert>
         )}
 
-        {existingDocument && !selectedFile && (
+        {isExistingValidated && !selectedFile && (
           <Alert variant="success" className="py-2 d-flex align-items-center">
             <CheckCircle size={18} className="me-2" />
             <span>Document déjà téléversé</span>
           </Alert>
         )}
 
-        {!existingDocument && (
+        {existingDocument && !isExistingValidated && !selectedFile && (
+          <Alert variant="warning" className="py-2 d-flex align-items-center">
+            <XCircle size={18} className="me-2" />
+            <span>
+              Document déposé mais non validé. Vous pouvez le remplacer en
+              téléversant une nouvelle version.
+            </span>
+          </Alert>
+        )}
+
+        {(!existingDocument || !isExistingValidated) && (
           <>
             <Form.Group className="mb-3">
               <Form.Control

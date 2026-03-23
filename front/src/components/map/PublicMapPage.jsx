@@ -30,7 +30,7 @@ const PublicMapPage = () => {
 
     const {isLoaded, loadError} = useJsApiLoader({
         id: "google-map-script",
-        googleMapsApiKey: "AIzaSyA3efzW0xg7YQY9CbCSsJsFOp4On2daNPI",
+        googleMapsApiKey: "AIzaSyDSGBLXF6Qihj3P3vNvM8-dN2QLoW_eIlA",
         libraries: ["places"],
     });
 

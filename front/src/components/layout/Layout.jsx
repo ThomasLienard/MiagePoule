@@ -5,7 +5,7 @@ import {Navbar, Container, Nav, Badge, Popover, ListGroup} from "react-bootstrap
 import OverlayTrigger from 'react-bootstrap/OverlayTrigger';
 
 export default function Layout() {
-    const { user, logout, isAuthenticated, mustChangePassword } = useAuth();
+    const { user, logout, isAuthenticated, mustChangePassword, isAccountValidated } = useAuth();
     const navigate = useNavigate();
     const location = useLocation();
 
@@ -86,6 +86,7 @@ export default function Layout() {
                                 <Link to="/public/championship"
                                       className="text-decoration-none text-body-secondary">Championnats</Link>
                             </Nav.Link>
+
                             {user?.roles?.includes('ATHLETE') && (
                                 <Nav.Link className="auth-button secondary me-2" as="span">
                                     <Link to={`/public/athlete-trials/${user.id}`}
@@ -115,7 +116,7 @@ export default function Layout() {
                                 </>
                             )}
 
-                            {user?.roles?.includes('COMMISSAIRE') && (
+                            {user?.roles?.includes('COMMISSAIRE') && isAccountValidated && (
                                 <>
                                     <Nav.Link className="auth-button secondary me-2" as="span">
                                         <Link to="/commissaire/trials"

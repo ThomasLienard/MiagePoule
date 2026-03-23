@@ -118,6 +118,28 @@ const UserManagement = () => {
         }
     };
 
+    const handleValidateAccount = async (id) => {
+        try {
+            await adminUserService.validateUserAccount(id);
+            setSuccess('✓ Compte validé avec succès ! L\'utilisateur peut maintenant accéder à toutes les fonctionnalités.');
+            setSelectedUser(null);
+            loadUsers();
+        } catch (err) {
+            setError(err.message);
+        }
+    };
+
+    const handleInvalidateAccount = async (id) => {
+        try {
+            await adminUserService.invalidateUserAccount(id);
+            setSuccess('Compte invalidé. L\'utilisateur n\'aura plus accès aux fonctionnalités avancées.');
+            setSelectedUser(null);
+            loadUsers();
+        } catch (err) {
+            setError(err.message);
+        }
+    };
+
     const filteredUsers = users.filter(user => {
         // Filtrer les spectateurs si l'option est activée
         if (hideSpectators && user.roleName === 'SPECTATEUR') {
@@ -136,7 +158,8 @@ const UserManagement = () => {
     const stats = {
         total: users.length,
         active: users.filter(u => u.isActive).length,
-        pending: users.filter(u => !u.isAccountActivated && u.isActive).length
+        pending: users.filter(u => !u.isAccountActivated && u.isActive).length,
+        validation: users.filter(u => u.isAccountActivated && !u.isAccountValidated && u.isActive).length
     };
 
     return (
@@ -176,7 +199,7 @@ const UserManagement = () => {
 
             {/* Stats cards */}
             <Row className="mb-4">
-                <Col md={4}>
+                <Col md={3}>
                     <Card className="text-center">
                         <Card.Body>
                             <h3>{stats.total}</h3>
@@ -184,7 +207,7 @@ const UserManagement = () => {
                         </Card.Body>
                     </Card>
                 </Col>
-                <Col md={4}>
+                <Col md={3}>
                     <Card className="text-center">
                         <Card.Body>
                             <h3 className="text-success">{stats.active}</h3>
@@ -192,11 +215,19 @@ const UserManagement = () => {
                         </Card.Body>
                     </Card>
                 </Col>
-                <Col md={4}>
+                <Col md={3}>
                     <Card className="text-center">
                         <Card.Body>
                             <h3 className="text-warning">{stats.pending}</h3>
                             <small className="text-muted">En attente d'activation</small>
+                        </Card.Body>
+                    </Card>
+                </Col>
+                <Col md={3}>
+                    <Card className="text-center border-info">
+                        <Card.Body>
+                            <h3 className="text-info">{stats.validation}</h3>
+                            <small className="text-muted">En attente de validation</small>
                         </Card.Body>
                     </Card>
                 </Col>
@@ -292,6 +323,8 @@ const UserManagement = () => {
                     onDeactivate={handleDeactivateUser}
                     onReactivate={handleReactivateUser}
                     onResetPassword={handleResetPassword}
+                    onValidateAccount={handleValidateAccount}
+                    onInvalidateAccount={handleInvalidateAccount}
                 />
             )}
         </Container>

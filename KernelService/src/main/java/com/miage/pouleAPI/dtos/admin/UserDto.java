@@ -16,5 +16,6 @@ public record UserDto(
     LocalDateTime createdAt,
     String createdBy,
     LocalDateTime deactivatedAt,
-    String deactivationReason
+    String deactivationReason,
+    Boolean hasSignedCharter
 ) {}

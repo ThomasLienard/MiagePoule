@@ -1,10 +1,14 @@
 package com.miage.pouleAPI.controllers;
 
 import com.miage.pouleAPI.dtos.admin.*;
+import com.miage.pouleAPI.dtos.document.DocumentDTO;
 import com.miage.pouleAPI.services.AdminUserService;
+import com.miage.pouleAPI.services.interfaces.DocumentService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
@@ -17,6 +21,7 @@ import java.util.List;
 public class AdminUserController {
 
     private final AdminUserService adminUserService;
+    private final DocumentService documentService;
 
     public record ApiResponse(String message) {}
     public record ResetPasswordResponse(String message, String temporaryPassword) {}
@@ -183,6 +188,40 @@ public class AdminUserController {
         } catch (IllegalArgumentException | IllegalStateException e) {
             return ResponseEntity.badRequest()
                 .body(new ApiResponse(e.getMessage()));
+        }
+    }
+
+    /**
+     * Récupère tous les documents d'un utilisateur spécifique
+     */
+    @GetMapping("/{id}/documents")
+    public ResponseEntity<List<DocumentDTO>> getUserDocuments(@PathVariable Integer id) {
+        try {
+            List<DocumentDTO> documents = documentService.getUserDocuments(id);
+            return ResponseEntity.ok(documents);
+        } catch (Exception e) {
+            return ResponseEntity.badRequest().build();
+        }
+    }
+
+    /**
+     * Télécharge un document spécifique d'un utilisateur
+     */
+    @GetMapping("/{userId}/documents/{documentId}/download")
+    public ResponseEntity<byte[]> downloadUserDocument(
+            @PathVariable Integer userId,
+            @PathVariable Integer documentId) {
+        try {
+            byte[] data = documentService.downloadDocument(userId, documentId);
+            DocumentDTO doc = documentService.getDocumentById(userId, documentId);
+
+            HttpHeaders headers = new HttpHeaders();
+            headers.setContentType(MediaType.APPLICATION_OCTET_STREAM);
+            headers.setContentDispositionFormData("attachment", doc.getFileName());
+
+            return new ResponseEntity<>(data, headers, HttpStatus.OK);
+        } catch (Exception e) {
+            return ResponseEntity.notFound().build();
         }
     }
 }

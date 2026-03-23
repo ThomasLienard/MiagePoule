@@ -54,7 +54,7 @@ class AdminUserControllerTest {
             id, name, lastname, email, role, "FR",
             true, true, false, false,
             LocalDateTime.now(), "admin@test.com",
-            null, null
+            null, null, false
         );
     }
 
@@ -182,7 +182,7 @@ class AdminUserControllerTest {
                 1, "John", "Doe", "john@test.com", "ATHLETE", "FR",
                 false, true, false, false,
                 LocalDateTime.now(), "admin@test.com",
-                LocalDateTime.now(), "Violation des règles"
+                LocalDateTime.now(), "Violation des règles", false
             );
             
             when(adminUserService.deactivateUser(1, "Violation des règles")).thenReturn(deactivated);
@@ -276,7 +276,7 @@ class AdminUserControllerTest {
                 1, "John", "Doe", "john@test.com", "ATHLETE", "FR",
                 true, true, true, false,
                 LocalDateTime.now(), "admin@test.com",
-                null, null
+                null, null, false
             );
             when(adminUserService.validateUserAccount(1)).thenReturn(validated);
 
@@ -318,7 +318,7 @@ class AdminUserControllerTest {
                 1, "John", "Doe", "john@test.com", "ATHLETE", "FR",
                 true, true, false, false,
                 LocalDateTime.now(), "admin@test.com",
-                null, null
+                null, null, false
             );
             when(adminUserService.invalidateUserAccount(1)).thenReturn(invalidated);
 
