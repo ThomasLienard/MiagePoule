@@ -1,0 +1,3 @@
+Label,# Samples,Average,Min,Max,Std. Dev.,Error %,Throughput,Received KB/sec,Sent KB/sec,Avg. Bytes
+Créer teams,200,389,20,2611,561.52,0.000%,13.34846,14.94,7.15,1146.0
+TOTAL,200,389,20,2611,561.52,0.000%,13.34846,14.94,7.15,1146.0

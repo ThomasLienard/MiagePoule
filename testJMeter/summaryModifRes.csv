@@ -1,0 +1,3 @@
+Label,# Samples,Average,Min,Max,Std. Dev.,Error %,Throughput,Received KB/sec,Sent KB/sec,Avg. Bytes
+Modifier résultats,200,1005,8,4020,860.23,0.000%,7.59446,4.33,3.87,583.5
+TOTAL,200,1005,8,4020,860.23,0.000%,7.59446,4.33,3.87,583.5
