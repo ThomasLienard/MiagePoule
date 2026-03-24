@@ -14,6 +14,7 @@ import java.time.LocalDateTime;
 @AllArgsConstructor
 public class NotificationDTO {
     private Integer id;
+    private String title;
     private String description;
     private LocalDateTime emissionDate;
     private String type; // TypeNotification.name()
@@ -23,6 +24,7 @@ public class NotificationDTO {
     public static NotificationDTO fromEntity(Notification notification) {
         return new NotificationDTO(
                 notification.getId(),
+                notification.getTitle(),
                 notification.getDescription(),
                 notification.getEmissionDate(),
                 notification.getType().name(),
