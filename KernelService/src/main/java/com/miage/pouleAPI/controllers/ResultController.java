@@ -27,7 +27,7 @@ public class ResultController {
     public record ApiResponse(String message) {}
 
     /**
-     * US1 + US2 - Récupère tous les résultats d'une épreuve (base pour saisie/modification)
+     * Récupère tous les résultats d'une épreuve (base pour saisie/modification)
      * GET /commissaire/trials/{trialId}/results
      */
     @GetMapping("/{trialId}/results")
@@ -38,7 +38,7 @@ public class ResultController {
     }
 
     /**
-     * US1 - Saisit ou modifie le résultat d'un participant (athlète ou équipe)
+     * Saisit ou modifie le résultat d'un participant (athlète ou équipe)
      * PUT /commissaire/trials/{trialId}/results
      */
     @PutMapping("/{trialId}/results")

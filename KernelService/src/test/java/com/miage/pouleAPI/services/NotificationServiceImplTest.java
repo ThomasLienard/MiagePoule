@@ -103,6 +103,7 @@ class NotificationServiceImplTest {
         verify(notificationRepository).save(notificationCaptor.capture());
         Notification savedNotification = notificationCaptor.getValue();
 
+        assertThat(savedNotification.getTitle()).isEqualTo("Début de l'épreuve Test Event");
         assertThat(savedNotification.getDescription()).isEqualTo("L'épreuve Test Event va commencer.");
         assertThat(savedNotification.getType()).isEqualTo(TypeNotification.INFO);
         assertThat(savedNotification.getEvent()).isEqualTo(testEvent);
@@ -143,6 +144,7 @@ class NotificationServiceImplTest {
         verify(notificationRepository).save(notificationCaptor.capture());
         Notification savedNotification = notificationCaptor.getValue();
 
+        assertThat(savedNotification.getTitle()).isEqualTo("Résultats disponibles : Test Event");
         assertThat(savedNotification.getDescription()).isEqualTo("Les résultats de Test Event sont disponibles.");
         assertThat(savedNotification.getType()).isEqualTo(TypeNotification.RESULT);
         assertThat(savedNotification.getEvent()).isEqualTo(testEvent);

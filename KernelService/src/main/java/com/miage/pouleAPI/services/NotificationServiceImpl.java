@@ -28,6 +28,7 @@ public class NotificationServiceImpl implements com.miage.pouleAPI.services.inte
     @Override
     public void notifyEventStart(Event event) {
         Notification n = new Notification();
+        n.setTitle("Début de l'épreuve " + event.getName());
         n.setDescription("L'épreuve " + event.getName() + " va commencer.");
         n.setType(TypeNotification.INFO);
         n.setEvent(event);
@@ -62,6 +63,7 @@ public class NotificationServiceImpl implements com.miage.pouleAPI.services.inte
     @Override
     public void notifyEventResults(Event event) {
         Notification n = new Notification();
+        n.setTitle("Résultats disponibles : " + event.getName());
         n.setDescription("Les résultats de " + event.getName() + " sont disponibles.");
         n.setType(TypeNotification.RESULT);
         n.setEvent(event);
@@ -84,14 +86,37 @@ public class NotificationServiceImpl implements com.miage.pouleAPI.services.inte
         }
     }
 
-//    public void notifySecurityIncident(Place place, String message, Severity severity) {
-//        Notification n = new Notification();
-//        n.setDescription(message);
-//        n.setType(TypeOfNotification.SECURITY);
-//        n.setPlace(place);
-//        // éventuellement utiliser Severity dans la description ou un champ dédié
-//
-//        notificationRepository.save(n);
-//        place.notifyObservers(n);
-//    }
+    @Override
+    public Notification notifyIncident(Notification notification, Competition competition, String scope) {
+        if (competition == null) {
+            // Pas de destinataires connus (aucune compétition associée)
+            return notificationRepository.save(notification);
+        }
+
+        // Persiste la notification
+        Notification saved = notificationRepository.save(notification);
+
+        NotificationDTO dto = NotificationDTO.fromEntity(saved);
+        Collection<CompetitionObserver> observers = competitionObserverRepository.findByCompetition(competition);
+
+        for (CompetitionObserver observer : observers) {
+            String roleName = observer.getUser().getRole().getRoleName();
+            boolean shouldNotify = false;
+
+            if ("TOUS".equalsIgnoreCase(scope)) {
+                shouldNotify = true;
+            } else if ("COMMISSAIRES".equalsIgnoreCase(scope)) {
+                shouldNotify = "COMMISSAIRE".equalsIgnoreCase(roleName);
+            } else if ("COMMISSAIRES_ATHLETES".equalsIgnoreCase(scope)) {
+                shouldNotify = "COMMISSAIRE".equalsIgnoreCase(roleName) || "ATHLETE".equalsIgnoreCase(roleName);
+            }
+
+            if (shouldNotify) {
+                sseNotificationService.sendNotification(observer.getId().getUserId(), dto);
+            }
+        }
+
+        return saved;
+    }
+
 }
