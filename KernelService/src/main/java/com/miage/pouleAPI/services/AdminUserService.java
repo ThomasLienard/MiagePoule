@@ -24,6 +24,22 @@ public class AdminUserService {
 
     private static final String USER_NOT_FOUND = "Utilisateur non trouvé: ";
     private static final String ROLE_NOT_FOUND = "Rôle non trouvé: ";
+    private static final String EMAIL_TEMPLATE = """
+        Bonjour %s %s,
+    
+        Votre compte MiagePoule a été créé avec succès par %s.
+    
+        Voici vos identifiants de connexion :
+        Email : %s
+        Mot de passe provisoire : %s
+    
+        Pour des raisons de sécurité, vous devrez changer ce mot de passe \
+        lors de votre première connexion.
+    
+        Cordialement,
+        L'équipe MiagePoule
+        """;
+
 
     private final ApplicationUserRepository userRepository;
     private final RoleRepository roleRepository;
@@ -41,79 +57,28 @@ public class AdminUserService {
         // Vérifier si l'email existe déjà
         if (userRepository.existsByEmail(request.email())) {
             log.warn("Email déjà utilisé: {}", request.email());
-            return new CreateUserResponse(null, null, null, null, null, null, 
-                "Un compte avec cet email existe déjà");
+            return new CreateUserResponse(null, null, null, null, null, null,
+                    "Un compte avec cet email existe déjà");
         }
 
-        // Vérifier le rôle
-        Role role = roleRepository.findById(request.roleName())
-            .orElseThrow(() -> new IllegalArgumentException(ROLE_NOT_FOUND + request.roleName()));
+        Role role = findRoleOrThrow(request.roleName());
 
-        // Vérifier le pays si fourni
-        Country country = null;
-        if (request.countryCode() != null && !request.countryCode().isBlank()) {
-            country = countryRepository.findById(request.countryCode())
-                .orElse(null);
-        }
-
-        // Générer le mot de passe temporaire: nom.prenom
-        String tempPassword = (request.lastname() + "." + request.name()).toLowerCase()
-            .replaceAll("\\s+", "");
-
-        // Créer l'utilisateur - l'ID sera auto-généré
-        ApplicationUser user = new ApplicationUser();
-        user.setName(request.name());
-        user.setLastname(request.lastname());
-        user.setEmail(request.email());
-        user.setPassword(passwordEncoder.encode(tempPassword));
-        user.setRole(role);
-        user.setCountry(country);
-        user.setIsActive(true);
-        
-        // Les spectateurs sont automatiquement validés
-        boolean isSpectateur = "SPECTATEUR".equals(request.roleName());
-        user.setIsAccountActivated(isSpectateur);
-        user.setMustChangePassword(!isSpectateur);
-        
-        user.setCreatedAt(LocalDateTime.now());
-        user.setCreatedBy(createdBy);
-
+        ApplicationUser user = createUserEntity(request, role, createdBy);
         userRepository.save(user);
-        log.info("Utilisateur créé avec succès: {} (ID: {})", user.getEmail(), user.getId());
 
-        // Envoi de l'email d'activation avec mot de passe provisoire
-        try {
-            String subject = "Activation de votre compte MiagePoule";
-            String body = String.format(
-                "Bonjour %s %s,\n\n" +
-                "Votre compte MiagePoule a été créé avec succès par %s.\n\n" +
-                "Voici vos identifiants de connexion :\n" +
-                "Email : %s\n" +
-                "Mot de passe provisoire : %s\n\n" +
-                "Pour des raisons de sécurité, vous devrez changer ce mot de passe lors de votre première connexion.\n\n" +
-                "Cordialement,\n" +
-                "L'équipe MiagePoule",
-                user.getName(),
-                user.getLastname(),
-                createdBy,
-                user.getEmail(),
-                tempPassword
-            );
-            maillingService.sendEmail(user.getEmail(), subject, body);
-            log.info("Email d'activation envoyé à: {}", user.getEmail());
-        } catch (Exception e) {
-            log.error("Erreur lors de l'envoi de l'email d'activation à {}: {}", user.getEmail(), e.getMessage());
-            // On ne bloque pas la création si l'email échoue
-        }
+        log.info("Utilisateur créé avec succès: {} (ID: {})", user.getEmail(), user.getId());
+        sendActivationEmail(user, createdBy);
+
+        String tempPassword = generateTempPassword(request);
 
         return new CreateUserResponse(
-            user.getId(),
-            user.getName(),
-            user.getLastname(),
-            user.getEmail(),
-            role.getRoleName(),
-            tempPassword,
-            "Compte créé avec succès"
+                user.getId(),
+                user.getName(),
+                user.getLastname(),
+                user.getEmail(),
+                role.getRoleName(),
+                tempPassword,
+                "Compte créé avec succès"
         );
     }
 
@@ -123,121 +88,19 @@ public class AdminUserService {
     @Transactional
     public BulkCreateUsersResponse bulkCreateUsers(BulkCreateUsersRequest request, String createdBy) {
         log.info("Création en masse de {} utilisateurs par {}", request.users().size(), createdBy);
-        
-        List<BulkCreateUsersResponse.UserCreationResult> results = request.users().stream()
-            .map(userRequest -> {
-                try {
-                    // Vérifier si l'email existe déjà
-                    if (userRepository.existsByEmail(userRequest.email())) {
-                        return new BulkCreateUsersResponse.UserCreationResult(
-                            userRequest.email(),
-                            false,
-                            "Un compte avec cet email existe déjà",
-                            null
-                        );
-                    }
 
-                    // Vérifier le rôle
-                    Role role = roleRepository.findById(userRequest.roleName())
-                        .orElse(null);
-                    if (role == null) {
-                        return new BulkCreateUsersResponse.UserCreationResult(
-                            userRequest.email(),
-                            false,
-                            ROLE_NOT_FOUND + userRequest.roleName(),
-                            null
-                        );
-                    }
+        List<UserCreationResult> results = request.users().stream()
+                .map(userRequest -> processSingleUserBulk(userRequest, createdBy))
+                .toList();
 
-                    // Vérifier le pays si fourni
-                    Country country = null;
-                    if (userRequest.countryCode() != null && !userRequest.countryCode().isBlank()) {
-                        country = countryRepository.findById(userRequest.countryCode())
-                            .orElse(null);
-                    }
-
-                    // Générer le mot de passe temporaire
-                    String tempPassword = (userRequest.lastname() + "." + userRequest.name()).toLowerCase()
-                        .replaceAll("\\s+", "");
-
-                    // Créer l'utilisateur
-                    ApplicationUser user = new ApplicationUser();
-                    user.setName(userRequest.name());
-                    user.setLastname(userRequest.lastname());
-                    user.setEmail(userRequest.email());
-                    user.setPassword(passwordEncoder.encode(tempPassword));
-                    user.setRole(role);
-                    user.setCountry(country);
-                    user.setIsActive(true);
-                    
-                    // Les spectateurs sont automatiquement validés
-                    boolean isSpectateur = "SPECTATEUR".equals(userRequest.roleName());
-                    user.setIsAccountActivated(isSpectateur);
-                    user.setMustChangePassword(!isSpectateur);
-                    
-                    user.setCreatedAt(LocalDateTime.now());
-                    user.setCreatedBy(createdBy);
-
-                    userRepository.save(user);
-                    log.info("Utilisateur créé avec succès: {} (ID: {})", user.getEmail(), user.getId());
-
-                    // Envoi de l'email d'activation
-                    try {
-                        String subject = "Activation de votre compte MiagePoule";
-                        String body = String.format(
-                            "Bonjour %s %s,\n\n" +
-                            "Votre compte MiagePoule a été créé avec succès par %s.\n\n" +
-                            "Voici vos identifiants de connexion :\n" +
-                            "Email : %s\n" +
-                            "Mot de passe provisoire : %s\n\n" +
-                            "Pour des raisons de sécurité, vous devrez changer ce mot de passe lors de votre première connexion.\n\n" +
-                            "Cordialement,\n" +
-                            "L'équipe MiagePoule",
-                            user.getName(),
-                            user.getLastname(),
-                            createdBy,
-                            user.getEmail(),
-                            tempPassword
-                        );
-                        maillingService.sendEmail(user.getEmail(), subject, body);
-                        log.info("Email d'activation envoyé à: {}", user.getEmail());
-                    } catch (Exception emailException) {
-                        log.error("Erreur lors de l'envoi de l'email à {}: {}", 
-                            user.getEmail(), emailException.getMessage());
-                        // On ne bloque pas la création si l'email échoue
-                    }
-
-                    return new BulkCreateUsersResponse.UserCreationResult(
-                        userRequest.email(),
-                        true,
-                        "Compte créé avec succès",
-                        tempPassword
-                    );
-                } catch (Exception e) {
-                    log.error("Erreur lors de la création de l'utilisateur {}: {}", 
-                        userRequest.email(), e.getMessage(), e);
-                    return new BulkCreateUsersResponse.UserCreationResult(
-                        userRequest.email(),
-                        false,
-                        "Erreur: " + e.getMessage(),
-                        null
-                    );
-                }
-            })
-            .toList();
-
-        long successCount = results.stream().filter(BulkCreateUsersResponse.UserCreationResult::success).count();
-        long failedCount = results.stream().filter(r -> !r.success()).count();
+        int successCount = (int) results.stream().filter(UserCreationResult::success).count();
+        int failedCount = results.size() - successCount;
 
         log.info("Création en masse terminée: {} succès, {} échecs", successCount, failedCount);
 
-        return new BulkCreateUsersResponse(
-            request.users().size(),
-            (int) successCount,
-            (int) failedCount,
-            results
-        );
+        return new BulkCreateUsersResponse(request.users().size(), successCount, failedCount, results);
     }
+
 
     /**
      * Récupère tous les utilisateurs
@@ -272,31 +135,33 @@ public class AdminUserService {
      */
     @Transactional
     public UserDto updateUser(Integer id, UpdateUserRequest request) {
-        ApplicationUser user = userRepository.findById(id)
-            .orElseThrow(() -> new IllegalArgumentException(USER_NOT_FOUND + id));
+        ApplicationUser user = findUserOrThrow(id);
 
-        if (request.name() != null && !request.name().isBlank()) {
-            user.setName(request.name());
-        }
-        if (request.lastname() != null && !request.lastname().isBlank()) {
-            user.setLastname(request.lastname());
-        }
-        if (request.email() != null && !request.email().isBlank()) {
-            // Vérifier que le nouvel email n'est pas déjà utilisé par un autre
-            if (!request.email().equals(user.getEmail()) && userRepository.existsByEmail(request.email())) {
-                throw new IllegalArgumentException("Cet email est déjà utilisé");
-            }
-            user.setEmail(request.email());
-        }
-        if (request.roleName() != null && !request.roleName().isBlank()) {
-            Role role = roleRepository.findById(request.roleName())
-                .orElseThrow(() -> new IllegalArgumentException(ROLE_NOT_FOUND + request.roleName()));
+        request.name()
+                .filter(s -> !s.isBlank())
+                .ifPresent(user::setName);
+
+        request.lastname()
+                .filter(s -> !s.isBlank())
+                .ifPresent(user::setLastname);
+
+        request.email()
+                .filter(s -> !s.isBlank())
+                .ifPresent(email -> this.validateEmail(email, user));
+
+        request.roleName()
+                .filter(s -> !s.isBlank())
+                .ifPresent(roleName -> {
+            Role role = findRoleOrThrow(roleName);
             user.setRole(role);
-        }
-        if (request.countryCode() != null) {
-            Country country = countryRepository.findById(request.countryCode()).orElse(null);
+        });
+
+        request.countryCode()
+                .filter(s -> !s.isBlank())
+                .ifPresent(countryCode -> {
+            Country country = findCountryOrNull(countryCode) ;
             user.setCountry(country);
-        }
+        });
 
         userRepository.save(user);
         log.info("Utilisateur mis à jour: {}", user.getEmail());
@@ -308,8 +173,7 @@ public class AdminUserService {
      */
     @Transactional
     public UserDto deactivateUser(Integer id, String reason) {
-        ApplicationUser user = userRepository.findById(id)
-            .orElseThrow(() -> new IllegalArgumentException(USER_NOT_FOUND + id));
+        ApplicationUser user = findUserOrThrow(id);
 
         // Empêcher la désactivation des comptes ADMIN
         if (user.getRole() != null && "ADMIN".equals(user.getRole().getRoleName())) {
@@ -330,8 +194,7 @@ public class AdminUserService {
      */
     @Transactional
     public UserDto reactivateUser(Integer id) {
-        ApplicationUser user = userRepository.findById(id)
-            .orElseThrow(() -> new IllegalArgumentException(USER_NOT_FOUND + id));
+        ApplicationUser user = findUserOrThrow(id);
 
         user.setIsActive(true);
         user.setDeactivatedAt(null);
@@ -367,8 +230,7 @@ public class AdminUserService {
      */
     @Transactional
     public String resetPassword(Integer id) {
-        ApplicationUser user = userRepository.findById(id)
-            .orElseThrow(() -> new IllegalArgumentException(USER_NOT_FOUND + id));
+        ApplicationUser user = findUserOrThrow(id);
 
         // Générer un nouveau mot de passe temporaire
         String tempPassword = (user.getLastname() + "." + user.getName()).toLowerCase()
@@ -380,19 +242,20 @@ public class AdminUserService {
 
         userRepository.save(user);
         log.info("Mot de passe réinitialisé pour: {}", user.getEmail());
-        
+
         // Envoi de l'email de notification de réinitialisation
         try {
             String subject = "Réinitialisation de votre mot de passe MiagePoule";
-            String body = String.format(
-                "Bonjour %s %s,\n\n" +
-                "Votre mot de passe a été réinitialisé.\n\n" +
-                "Voici votre nouveau mot de passe temporaire :\n" +
-                "Mot de passe : %s\n\n" +
-                "Pour des raisons de sécurité, vous devrez changer ce mot de passe lors de votre prochaine connexion.\n\n" +
-                "Si vous n'êtes pas à l'origine de cette demande, veuillez contacter un administrateur immédiatement.\n\n" +
-                "Cordialement,\n" +
-                "L'équipe MiagePoule",
+            String body = String.format("""
+                Bonjour %s %s,
+                Votre mot de passe a été réinitialisé.
+                Voici votre nouveau mot de passe temporaire :
+                Mot de passe : %s
+                Pour des raisons de sécurité, vous devrez changer ce mot de passe lors de votre prochaine connexion.
+                Si vous n'êtes pas à l'origine de cette demande, veuillez contacter un administrateur immédiatement.
+                Cordialement,
+                L'équipe MiagePoule
+                """,
                 user.getName(),
                 user.getLastname(),
                 tempPassword
@@ -400,11 +263,11 @@ public class AdminUserService {
             maillingService.sendEmail(user.getEmail(), subject, body);
             log.info("Email de réinitialisation envoyé à: {}", user.getEmail());
         } catch (Exception e) {
-            log.error("Erreur lors de l'envoi de l'email de réinitialisation à {}: {}", 
+            log.error("Erreur lors de l'envoi de l'email de réinitialisation à {}: {}",
                 user.getEmail(), e.getMessage());
             // On ne bloque pas la réinitialisation si l'email échoue
         }
-        
+
         return tempPassword;
     }
 
@@ -414,8 +277,7 @@ public class AdminUserService {
      */
     @Transactional
     public UserDto validateUserAccount(Integer userId) {
-        ApplicationUser user = userRepository.findById(userId)
-            .orElseThrow(() -> new IllegalArgumentException(USER_NOT_FOUND + userId));
+        ApplicationUser user = findUserOrThrow(userId);
 
         if (Boolean.TRUE.equals(user.getIsAccountValidated())) {
             throw new IllegalStateException("Ce compte est déjà validé");
@@ -423,7 +285,7 @@ public class AdminUserService {
 
         user.setIsAccountValidated(true);
         userRepository.save(user);
-        
+
         log.info("Compte utilisateur validé: {} (ID: {})", user.getEmail(), userId);
         return toUserDto(user);
     }
@@ -434,8 +296,7 @@ public class AdminUserService {
      */
     @Transactional
     public UserDto invalidateUserAccount(Integer userId) {
-        ApplicationUser user = userRepository.findById(userId)
-            .orElseThrow(() -> new IllegalArgumentException(USER_NOT_FOUND + userId));
+        ApplicationUser user = findUserOrThrow(userId);
 
         if (Boolean.FALSE.equals(user.getIsAccountValidated())) {
             throw new IllegalStateException("Ce compte est déjà invalidé");
@@ -443,7 +304,7 @@ public class AdminUserService {
 
         user.setIsAccountValidated(false);
         userRepository.save(user);
-        
+
         log.info("Compte utilisateur invalidé: {} (ID: {})", user.getEmail(), userId);
         return toUserDto(user);
     }
@@ -467,4 +328,97 @@ public class AdminUserService {
             Boolean.TRUE.equals(user.getHasSignedCharter())
         );
     }
+
+    private ApplicationUser findUserOrThrow(Integer id) {
+        return userRepository.findById(id)
+                .orElseThrow(() -> new IllegalArgumentException(USER_NOT_FOUND + id));
+    }
+
+    private Role findRoleOrThrow(String roleName) {
+        return roleRepository.findById(roleName)
+                .orElseThrow(() -> new IllegalArgumentException(ROLE_NOT_FOUND + roleName));
+    }
+
+    private void validateEmail(String email, ApplicationUser user) {
+        if (!email.equals(user.getEmail()) && userRepository.existsByEmail(email)) {
+            throw new IllegalArgumentException("Cet email est déjà utilisé");
+        }
+        user.setEmail(email);
+    }
+    private Country findCountryOrNull(String countryCode) {
+        return countryCode != null && !countryCode.isBlank()
+                ? countryRepository.findById(countryCode).orElse(null)
+                : null;
+    }
+
+    private UserCreationResult processSingleUserBulk(
+            CreateUserRequest userRequest, String createdBy) {
+        try {
+            if (userRepository.existsByEmail(userRequest.email())) {
+                return new UserCreationResult(
+                        userRequest.email(), false, "Un compte avec cet email existe déjà", null);
+            }
+
+            Role role = roleRepository.findById(userRequest.roleName()).orElse(null);
+            if (role == null) {
+                return new UserCreationResult(
+                        userRequest.email(), false, ROLE_NOT_FOUND + userRequest.roleName(), null);
+            }
+
+            ApplicationUser user = createUserEntity(userRequest, role, createdBy);
+            userRepository.save(user);
+
+            sendActivationEmail(user, createdBy);
+
+            String tempPassword = generateTempPassword(userRequest);
+            return new UserCreationResult(
+                    userRequest.email(), true, "Compte créé avec succès", tempPassword);
+
+        } catch (Exception e) {
+            log.error("Erreur création utilisateur {}: {}", userRequest.email(), e.getMessage(), e);
+            return new UserCreationResult(
+                    userRequest.email(), false, "Erreur: " + e.getMessage(), null);
+        }
+    }
+
+    private ApplicationUser createUserEntity(CreateUserRequest request, Role role, String createdBy) {
+        Country country = findCountryOrNull(request.countryCode());
+
+        ApplicationUser user = new ApplicationUser();
+        user.setName(request.name());
+        user.setLastname(request.lastname());
+        user.setEmail(request.email());
+        user.setPassword(passwordEncoder.encode(generateTempPassword(request)));
+        user.setRole(role);
+        user.setCountry(country);
+        user.setIsActive(true);
+        user.setIsAccountActivated("SPECTATEUR".equals(request.roleName()));
+        user.setMustChangePassword(!"SPECTATEUR".equals(request.roleName()));
+        user.setCreatedAt(LocalDateTime.now());
+        user.setCreatedBy(createdBy);
+
+        return user;
+    }
+
+    private void sendActivationEmail(ApplicationUser user, String createdBy) {
+        try {
+            String subject = "Activation de votre compte MiagePoule";
+            String body = String.format(EMAIL_TEMPLATE,
+                    user.getName(), user.getLastname(), createdBy,
+                    user.getEmail(), generateTempPasswordFromUser(user));
+            maillingService.sendEmail(user.getEmail(), subject, body);
+            log.info("Email d'activation envoyé à: {}", user.getEmail());
+        } catch (Exception e) {
+            log.error("Erreur email {}: {}", user.getEmail(), e.getMessage());
+        }
+    }
+
+    private String generateTempPassword(CreateUserRequest request) {
+        return (request.lastname() + "." + request.name()).toLowerCase().replaceAll("\\s+", "");
+    }
+
+    private String generateTempPasswordFromUser(ApplicationUser user) {
+        return (user.getLastname() + "." + user.getName()).toLowerCase().replaceAll("\\s+", "");
+    }
+
 }

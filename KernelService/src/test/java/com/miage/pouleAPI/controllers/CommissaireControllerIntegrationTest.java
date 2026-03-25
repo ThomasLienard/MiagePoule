@@ -5,7 +5,6 @@ import com.miage.pouleAPI.dtos.event.CancelEventRequestDTO;
 import com.miage.pouleAPI.dtos.event.UpdateEventRequestDTO;
 import com.miage.pouleAPI.dtos.place.PlaceDTO;
 import com.miage.pouleAPI.dtos.timeslot.TimeSlotDTO;
-import com.miage.pouleAPI.entity.Event;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
@@ -18,7 +17,6 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
 
-import static org.springframework.test.util.AssertionErrors.assertEquals;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.patch;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.put;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;

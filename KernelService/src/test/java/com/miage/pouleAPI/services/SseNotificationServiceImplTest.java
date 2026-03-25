@@ -5,17 +5,17 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
-import org.mockito.ArgumentCaptor;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.web.servlet.mvc.method.annotation.SseEmitter;
 
-import java.io.IOException;
 import java.time.LocalDateTime;
-import java.util.concurrent.atomic.AtomicBoolean;
 
 import static org.junit.jupiter.api.Assertions.*;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
 
 @ExtendWith(MockitoExtension.class)
 @DisplayName("SseNotificationService Tests")
@@ -86,23 +86,23 @@ class SseNotificationServiceImplTest {
 
     @Test
     @DisplayName("subscribe() - Devrait configurer le callback onCompletion")
-    void testSubscribe_OnCompletionCallback() throws IOException {
+    void testSubscribe_OnCompletionCallback() {
+        // Given
+        Integer userId = 1;
+
         // When
-        SseEmitter emitter = sseNotificationService.subscribe(testUserId);
-        
-        // Capture le callback onCompletion
-        ArgumentCaptor<Runnable> completionCaptor = ArgumentCaptor.forClass(Runnable.class);
-        
-        // Simuler la complétion de l'émetteur
-        AtomicBoolean completionCalled = new AtomicBoolean(false);
-        
-        // Then
+        SseEmitter emitter = sseNotificationService.subscribe(userId);
         assertNotNull(emitter);
+
+        // Then : on déclenche la complétion
+        emitter.complete();
+
+        assertTrue(sseNotificationService.getEmitters().containsKey(userId));
     }
 
     @Test
     @DisplayName("sendNotification() - Devrait envoyer une notification avec succès")
-    void testSendNotification_Success() throws IOException {
+    void testSendNotification_Success() {
         // Given
         sseNotificationService.subscribe(testUserId);
 
@@ -175,7 +175,10 @@ class SseNotificationServiceImplTest {
         // Then
         assertNotNull(emitter1);
         assertNotNull(emitter2);
-        // Les deux devraient être valides (le deuxième remplace le premier)
+        assertNotEquals(emitter1, emitter2);
+
+        // La map doit contenir le second
+        assertSame(emitter2, sseNotificationService.getEmitters().get(testUserId));
     }
 
     @Test
@@ -201,6 +204,19 @@ class SseNotificationServiceImplTest {
         assertDoesNotThrow(() -> {
             sseNotificationService.sendNotification(testUserId, null);
         });
+    }
+
+    @Test
+    @DisplayName("sendNotification() - Devrait appeler emitter.send()")
+    void testSendNotification_CallsEmitterSend() throws Exception {
+        // Given
+        sseNotificationService.getEmitters().put(testUserId, mockEmitter);
+
+        // When
+        sseNotificationService.sendNotification(testUserId, testNotification);
+
+        // Then
+        verify(mockEmitter, times(1)).send(any(SseEmitter.SseEventBuilder.class));
     }
 
     @Test

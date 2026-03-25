@@ -6,7 +6,6 @@ import com.miage.pouleAPI.dtos.document.DocumentUploadRequest;
 import com.miage.pouleAPI.entity.ApplicationUser;
 import com.miage.pouleAPI.repositories.ApplicationUserRepository;
 import com.miage.pouleAPI.services.interfaces.DocumentService;
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
@@ -38,9 +37,6 @@ class DocumentControllerTest {
     @Mock
     private UserDetails userDetails;
 
-    @BeforeEach
-    void setUp() {
-    }
 
     @Test
     void uploadDocument_happyPath_returnsCreated() {

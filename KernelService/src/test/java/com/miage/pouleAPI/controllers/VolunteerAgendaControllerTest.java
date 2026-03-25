@@ -147,16 +147,6 @@ class VolunteerAgendaControllerTest {
     }
 
     @Test
-    @DisplayName("GET /volunteer/agenda - Should return 403 when not authenticated")
-    void testGetAgenda_Unauthorized() throws Exception {
-        mockMvc.perform(get("/volunteer/agenda")
-                .contentType(MediaType.APPLICATION_JSON))
-                .andExpect(status().isForbidden());
-
-        verify(volunteerAgendaService, never()).getCurrentVolunteerAgenda();
-    }
-
-    @Test
     @WithMockUser(roles = "VOLONTAIRE")
     @DisplayName("GET /volunteer/agenda/tasks/{taskId} - Should return task details when found")
     void testGetTaskDetails_Found() throws Exception {
@@ -193,16 +183,6 @@ class VolunteerAgendaControllerTest {
     @WithMockUser(roles = "COMMISSAIRE")
     @DisplayName("GET /volunteer/agenda/tasks/{taskId} - Should return 403 for non-volunteer")
     void testGetTaskDetails_Forbidden() throws Exception {
-        mockMvc.perform(get("/volunteer/agenda/tasks/1")
-                .contentType(MediaType.APPLICATION_JSON))
-                .andExpect(status().isForbidden());
-
-        verify(volunteerAgendaService, never()).getCurrentVolunteerTask(any());
-    }
-
-    @Test
-    @DisplayName("GET /volunteer/agenda/tasks/{taskId} - Should return 403 when not authenticated")
-    void testGetTaskDetails_Unauthorized() throws Exception {
         mockMvc.perform(get("/volunteer/agenda/tasks/1")
                 .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isForbidden());

@@ -13,7 +13,7 @@ import org.springframework.web.util.UriComponentsBuilder;
 @Service
 public class GeocodingService {
     private final String USER_AGENT = "PouleAPI-Lille-StudentProject/1.0";
-    private RestTemplate restTemplate;
+    private final RestTemplate restTemplate;
 
     public GeocodingService(RestTemplateBuilder restTemplateBuilder) {
         this.restTemplate = restTemplateBuilder.build();
@@ -43,7 +43,7 @@ public class GeocodingService {
 
     private Double[] executeQuery(String query) {
         try {
-            String url = UriComponentsBuilder.fromHttpUrl("https://nominatim.openstreetmap.org/search")
+            String url = UriComponentsBuilder.fromUriString("https://nominatim.openstreetmap.org/search")
                     .queryParam("q", query)
                     .queryParam("format", "json")
                     .queryParam("limit", 1)

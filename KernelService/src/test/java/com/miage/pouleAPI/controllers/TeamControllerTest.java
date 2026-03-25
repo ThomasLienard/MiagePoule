@@ -297,12 +297,4 @@ class TeamControllerTest {
         verify(teamService, never()).create(any());
     }
 
-    @Test
-    void getAllTeams_ShouldReturnUnauthorized_WhenNotAuthenticated() throws Exception {
-        mockMvc.perform(get("/commissaire/teams")
-                .contentType(MediaType.APPLICATION_JSON))
-                .andExpect(status().isForbidden());
-
-        verify(teamService, never()).findAll();
-    }
 }

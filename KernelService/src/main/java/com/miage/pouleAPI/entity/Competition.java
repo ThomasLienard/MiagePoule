@@ -56,13 +56,13 @@ public class Competition implements Subject {
     }
 
     @Override
-    public void attach(ApplicationUser o) {
-        this.observers.add(o);
+    public void attach(ApplicationUser user) {
+        this.observers.add(user);
     }
 
     @Override
-    public void detach(ApplicationUser o) {
-        this.observers.remove(o);
+    public void detach(ApplicationUser user) {
+        this.observers.remove(user);
     }
 
     @Override

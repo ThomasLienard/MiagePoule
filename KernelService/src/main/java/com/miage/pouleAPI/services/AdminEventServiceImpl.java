@@ -1,9 +1,9 @@
 package com.miage.pouleAPI.services;
 
 import com.miage.pouleAPI.dtos.event.CreateEventRequestDTO;
-import com.miage.pouleAPI.dtos.event.EventDetailDTO;
 import com.miage.pouleAPI.dtos.event.UpdateEventRequestDTO;
 import com.miage.pouleAPI.dtos.place.PlaceDTO;
+import com.miage.pouleAPI.dtos.timeslot.TimeSlotDTO;
 import com.miage.pouleAPI.entity.*;
 import com.miage.pouleAPI.repositories.*;
 import com.miage.pouleAPI.services.interfaces.AdminEventService;
@@ -17,6 +17,7 @@ import java.util.Optional;
 @RequiredArgsConstructor
 public class AdminEventServiceImpl implements AdminEventService {
 
+    public static final String TYPE_TRIAL = "TRIAL";
     private final EventRepository eventRepo;
     private final TrialRepository trialRepo;
     private final PlaceRepository placeRepo;
@@ -68,7 +69,7 @@ public class AdminEventServiceImpl implements AdminEventService {
                 .orElseThrow(() -> new RuntimeException("Compétition non trouvée"));
 
 
-        if ("TRIAL".equalsIgnoreCase(req.typeEventName())) {
+        if (TYPE_TRIAL.equalsIgnoreCase(req.typeEventName())) {
             Trial trial = new Trial();
             fillEventData(trial, req, type, place, slot, comp);
             trialRepo.save(trial);
@@ -96,83 +97,6 @@ public class AdminEventServiceImpl implements AdminEventService {
         eventRepo.save(event);
     }
 
-    @Override
-    @Transactional
-    public void updateEvent(UpdateEventRequestDTO dto) {
-        Event existing = eventRepo.findById(dto.getId())
-                .orElseThrow(() -> new RuntimeException("Event introuvable"));
-
-        existing.setName(dto.getName());
-        existing.setDescription(dto.getDescription());
-
-        Competition comp = competitionRepo.findById(dto.getCompetitionId())
-                .orElseThrow(() -> new RuntimeException("Compétition introuvable"));
-        existing.setCompetition(comp);
-
-        TimeSlot slot = existing.getTimeSlot();
-        if (dto.getTimeSlot() != null) {
-            if (dto.getTimeSlot().getStart() != null) slot.setStart(dto.getTimeSlot().getStart());
-            if (dto.getTimeSlot().getEnd() != null) slot.setEnd(dto.getTimeSlot().getEnd());
-            timeSlotRepo.save(slot);
-        }
-
-        PlaceDTO p = dto.getPlace();
-        if (p != null) {
-            Place place = placeRepo.findByNameAndStreetAndCity(p.getName(), p.getStreet(), p.getCity())
-                    .orElse(new Place());
-
-            place.setName(p.getName());
-            place.setStreet(p.getStreet());
-            place.setCity(p.getCity());
-            place.setZip(p.getZip());
-            place.setNumber(p.getNumber());
-            place.setParking(p.getParking());
-            place.setDescription(p.getDescription());
-
-            if (p.getLatitude() == null || p.getLongitude() == null) {
-                try {
-                    String fullAddress = p.getNumber() + " " + p.getStreet() + ", " + p.getZip() + " " + p.getCity();
-                    Double[] coords = geocodingService.getCoordinates(fullAddress);
-                    place.setLatitude(coords[0]);
-                    place.setLongitude(coords[1]);
-                } catch (Exception e) {
-                    place.setLatitude(p.getLatitude());
-                    place.setLongitude(p.getLongitude());
-                }
-            } else {
-                place.setLatitude(p.getLatitude());
-                place.setLongitude(p.getLongitude());
-            }
-
-            place = placeRepo.save(place);
-            existing.setPlace(place);
-        }
-
-        String currentTypeName = existing.getTypeEvent() != null ? existing.getTypeEvent().getName() : "";
-
-        String scoreTypeName;
-        if (dto.getScoreType() != null && !dto.getScoreType().isBlank()) {
-            // Utilise le type de score spécifié dans la requête
-            scoreTypeName = dto.getScoreType();
-        } else {
-            // Valeur par défaut selon le type d'événement
-            scoreTypeName = "TRIAL".equalsIgnoreCase(dto.getTypeEventName()) ? "TIME" : "NA";
-        }
-
-        existing.setTypeScore(typeScoreRepo.findById(scoreTypeName)
-                .orElseThrow(() -> new RuntimeException("Type de score non trouvé: " + scoreTypeName)));
-
-        if ("TRIAL".equalsIgnoreCase(currentTypeName) || "TRIAL".equalsIgnoreCase(dto.getTypeEventName())) {
-            eventRepo.unlinkAllCommissairesFromEvent(existing.getId());
-        }
-
-        if ("TRIAL".equalsIgnoreCase(dto.getTypeEventName()) && dto.getCommissaireId() != null) {
-            eventRepo.linkCommissaireToEvent(dto.getCommissaireId(), existing.getId());
-        }
-
-        eventRepo.save(existing);
-    }
-
     private void fillEventData(Event e, CreateEventRequestDTO req, TypeEvent t, Place p, TimeSlot s, Competition c) {
         e.setName(req.name());
         e.setDescription(req.description());
@@ -188,10 +112,103 @@ public class AdminEventServiceImpl implements AdminEventService {
             scoreTypeName = req.typeScoreName();
         } else {
             // Valeur par défaut selon le type d'événement
-            scoreTypeName = "TRIAL".equalsIgnoreCase(req.typeEventName()) ? "TIME" : "NA";
+            scoreTypeName = TYPE_TRIAL.equalsIgnoreCase(req.typeEventName()) ? "TIME" : "NA";
         }
 
         e.setTypeScore(typeScoreRepo.findById(scoreTypeName)
                 .orElseThrow(() -> new RuntimeException("Type de score non trouvé: " + scoreTypeName)));
+    }
+
+    @Override
+    @Transactional
+    public void updateEvent(UpdateEventRequestDTO dto) {
+        Event existing = eventRepo.findById(dto.getId())
+                .orElseThrow(() -> new RuntimeException("Event introuvable"));
+
+        existing.setName(dto.getName());
+        existing.setDescription(dto.getDescription());
+        existing.setCompetition(competitionRepo.findById(dto.getCompetitionId())
+                .orElseThrow(() -> new RuntimeException("Compétition introuvable")));
+
+        this.updateTimeSlot(existing.getTimeSlot(), dto.getTimeSlot());
+
+        if (dto.getPlace() != null) {
+            existing.setPlace(updateOrCreatePlace(dto.getPlace()));
+        }
+
+        String scoreTypeName = this.resolveScoreTypeName(dto.getTypeEventName(), dto.getScoreType());
+        existing.setTypeScore(typeScoreRepo.findById(scoreTypeName)
+                .orElseThrow(() -> new RuntimeException("Type de score non trouvé: " + scoreTypeName)));
+
+        this.handleCommissaireChanges(existing.getId(), dto.getTypeEventName(), dto.getCommissaireId());
+
+        eventRepo.save(existing);
+    }
+
+    private void updateTimeSlot(TimeSlot slot, TimeSlotDTO newSlot) {
+        if (newSlot != null) {
+            if (newSlot.getStart() != null) slot.setStart(newSlot.getStart());
+            if (newSlot.getEnd() != null) slot.setEnd(newSlot.getEnd());
+            timeSlotRepo.save(slot);
+        }
+    }
+
+    private void handleCommissaireChanges(Integer eventId, String newTypeEventName, Integer commissaireId) {
+        boolean isTrial = TYPE_TRIAL.equalsIgnoreCase(newTypeEventName);
+
+        if (isTrial) {
+            eventRepo.unlinkAllCommissairesFromEvent(eventId);
+            if (commissaireId != null) {
+                eventRepo.linkCommissaireToEvent(commissaireId, eventId);
+            }
+        }
+    }
+
+    private Place updateOrCreatePlace(PlaceDTO p) {
+        Place place = placeRepo.findByNameAndStreetAndCity(p.getName(), p.getStreet(), p.getCity())
+                .orElse(new Place());
+
+        updatePlaceBasicFields(place, p);
+
+        if (needsGeocoding(p)) {
+            try {
+                geocodePlace(place, p);
+            } catch (Exception e) {
+                // Garde les coords existantes ou null
+            }
+        } else {
+            place.setLatitude(p.getLatitude());
+            place.setLongitude(p.getLongitude());
+        }
+
+        return placeRepo.save(place);
+    }
+
+    private void updatePlaceBasicFields(Place place, PlaceDTO p) {
+        place.setName(p.getName());
+        place.setStreet(p.getStreet());
+        place.setCity(p.getCity());
+        place.setZip(p.getZip());
+        place.setNumber(p.getNumber());
+        place.setParking(p.getParking());
+        place.setDescription(p.getDescription());
+    }
+
+    private boolean needsGeocoding(PlaceDTO p) {
+        return p.getLatitude() == null || p.getLongitude() == null;
+    }
+
+    private void geocodePlace(Place place, PlaceDTO p) {
+        String fullAddress = p.getNumber() + " " + p.getStreet() + ", " + p.getZip() + " " + p.getCity();
+        Double[] coords = geocodingService.getCoordinates(fullAddress);
+        place.setLatitude(coords[0]);
+        place.setLongitude(coords[1]);
+    }
+
+    private String resolveScoreTypeName(String typeEventName, String explicitScoreType) {
+        if (explicitScoreType != null && !explicitScoreType.isBlank()) {
+            return explicitScoreType;
+        }
+        return TYPE_TRIAL.equalsIgnoreCase(typeEventName) ? "TIME" : "NA";
     }
 }

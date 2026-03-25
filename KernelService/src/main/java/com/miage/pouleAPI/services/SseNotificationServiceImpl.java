@@ -15,6 +15,7 @@ import java.util.concurrent.ConcurrentHashMap;
 public class SseNotificationServiceImpl implements SseNotificationService {
 
     private static final Logger logger = LoggerFactory.getLogger(SseNotificationServiceImpl.class);
+
     private final Map<Integer, SseEmitter> emitters = new ConcurrentHashMap<>();
 
     public SseEmitter subscribe(Integer userId) {
@@ -53,5 +54,9 @@ public class SseNotificationServiceImpl implements SseNotificationService {
                 emitters.remove(userId);
             }
         }
+    }
+
+    Map<Integer, SseEmitter> getEmitters() {
+        return emitters;
     }
 }

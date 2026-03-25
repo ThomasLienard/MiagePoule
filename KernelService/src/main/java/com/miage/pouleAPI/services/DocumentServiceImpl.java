@@ -28,6 +28,7 @@ import java.util.stream.Collectors;
 @Slf4j
 public class DocumentServiceImpl implements DocumentService {
 
+    public static final String DOC_TYPE_TICKET = "TICKET";
     private final DocumentRepository documentRepository;
     private final TypeOfDocumentRepository typeOfDocumentRepository;
     private final ApplicationUserRepository applicationUserRepository;
@@ -101,16 +102,14 @@ public class DocumentServiceImpl implements DocumentService {
 
     @Override
     public DocumentDTO getDocumentById(Integer userId, Integer documentId) {
-        Document document = documentRepository.findByUserIdAndId(userId, documentId)
-                .orElseThrow(() -> new EntityNotFoundException("Document not found"));
+        Document document = this.getDocument(userId, documentId);
 
         return mapToDTO(document);
     }
 
     @Override
     public byte[] downloadDocument(Integer userId, Integer documentId) {
-        Document document = documentRepository.findByUserIdAndId(userId, documentId)
-                .orElseThrow(() -> new EntityNotFoundException("Document not found"));
+        Document document = this.getDocument(userId, documentId);
 
         try {
             // Créer l'objet EncryptedData et déchiffrer
@@ -130,8 +129,7 @@ public class DocumentServiceImpl implements DocumentService {
     @Override
     @Transactional
     public void deleteDocument(Integer userId, Integer documentId) {
-        Document document = documentRepository.findByUserIdAndId(userId, documentId)
-                .orElseThrow(() -> new EntityNotFoundException("Document not found"));
+        Document document = this.getDocument(userId, documentId);
 
         documentRepository.delete(document);
     }
@@ -159,7 +157,7 @@ public class DocumentServiceImpl implements DocumentService {
                     .orElseThrow(() -> new EntityNotFoundException("Document type not found with id: " + typeId));
 
             // Vérifier que c'est bien un ticket
-            if (!type.getName().equals("TICKET")) {
+            if (!type.getName().equals(DOC_TYPE_TICKET)) {
                 throw new IllegalArgumentException("Invalid document type. Expected TICKET type.");
             }
 
@@ -187,7 +185,7 @@ public class DocumentServiceImpl implements DocumentService {
     @Override
     public List<DocumentDTO> getUserTickets(Integer userId) {
         // Récupérer tous les documents de type TICKET pour l'utilisateur
-        List<Document> tickets = documentRepository.findByUserIdAndTypeName(userId, "TICKET");
+        List<Document> tickets = documentRepository.findByUserIdAndTypeName(userId, DOC_TYPE_TICKET);
         return tickets.stream()
                 .map(this::mapToDTO)
                 .collect(Collectors.toList());
@@ -195,11 +193,10 @@ public class DocumentServiceImpl implements DocumentService {
 
     @Override
     public DocumentDTO getTicketById(Integer userId, Integer documentId) {
-        Document ticket = documentRepository.findByUserIdAndId(userId, documentId)
-                .orElseThrow(() -> new EntityNotFoundException("Ticket not found"));
+        Document ticket = getDocument(userId, documentId);
 
         // Vérifier que c'est bien un ticket
-        if (!ticket.getType().getName().equals("TICKET")) {
+        if (!ticket.getType().getName().equals(DOC_TYPE_TICKET)) {
             throw new IllegalArgumentException("Document is not a ticket");
         }
 
@@ -208,11 +205,10 @@ public class DocumentServiceImpl implements DocumentService {
 
     @Override
     public byte[] downloadTicket(Integer userId, Integer documentId) {
-        Document ticket = documentRepository.findByUserIdAndId(userId, documentId)
-                .orElseThrow(() -> new EntityNotFoundException("Ticket not found"));
+        Document ticket = getDocument(userId, documentId);
 
         // Vérifier que c'est bien un ticket
-        if (!ticket.getType().getName().equals("TICKET")) {
+        if (!ticket.getType().getName().equals(DOC_TYPE_TICKET)) {
             throw new IllegalArgumentException("Document is not a ticket");
         }
 
@@ -234,11 +230,10 @@ public class DocumentServiceImpl implements DocumentService {
     @Override
     @Transactional
     public void deleteTicket(Integer userId, Integer documentId) {
-        Document ticket = documentRepository.findByUserIdAndId(userId, documentId)
-                .orElseThrow(() -> new EntityNotFoundException("Ticket not found"));
+        Document ticket = getDocument(userId, documentId);
 
         // Vérifier que c'est bien un ticket
-        if (!ticket.getType().getName().equals("TICKET")) {
+        if (!ticket.getType().getName().equals(DOC_TYPE_TICKET)) {
             throw new IllegalArgumentException("Document is not a ticket");
         }
 
@@ -279,16 +274,10 @@ public class DocumentServiceImpl implements DocumentService {
                     throw new SecurityException("Only VOLUNTEERS and COMMISSIONERS can upload CEN accreditations");
                 }
                 break;
-            case "PASSPORT":
-            case "MEDICAL_CERTIFICATE":
+            case "PASSPORT","MEDICAL_CERTIFICATE":
                 if (!userRole.equals("ATHLETE")) {
                     throw new SecurityException("Only ATHLETES can upload passports and medical certificates");
                 }
-                break;
-            case "TICKET":
-            case "EVENT_TICKET":
-            case "SEASON_PASS":
-                // Tous les rôles peuvent uploader des tickets
                 break;
             default:
                 throw new SecurityException("Unauthorized document type for your role");
@@ -352,5 +341,10 @@ public class DocumentServiceImpl implements DocumentService {
         dto.setIsEncrypted(document.getIsEncrypted());
         dto.setDownloadUrl("/api/documents/" + document.getId() + "/download");
         return dto;
+    }
+
+    private Document getDocument(Integer userId, Integer documentId) {
+        return documentRepository.findByUserIdAndId(userId, documentId)
+                .orElseThrow(() -> new EntityNotFoundException("Ticket not found"));
     }
 }

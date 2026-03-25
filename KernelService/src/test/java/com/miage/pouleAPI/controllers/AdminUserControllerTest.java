@@ -19,6 +19,7 @@ import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 import java.time.LocalDateTime;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Optional;
 
 import static org.mockito.ArgumentMatchers.*;
 import static org.mockito.Mockito.when;
@@ -141,7 +142,7 @@ class AdminUserControllerTest {
         @Test
         @DisplayName("Devrait mettre à jour l'utilisateur")
         void updateUser_shouldUpdateUser() throws Exception {
-            UpdateUserRequest request = new UpdateUserRequest("NewName", "NewLastname", null, null, null);
+            UpdateUserRequest request = new UpdateUserRequest(Optional.of("NewName"), Optional.of("NewLastname"), null, null, null);
             UserDto updated = createUserDto(1, "NewName", "NewLastname", "john@test.com", "ATHLETE");
             
             when(adminUserService.updateUser(eq(1), any(UpdateUserRequest.class))).thenReturn(updated);
@@ -157,7 +158,7 @@ class AdminUserControllerTest {
         @Test
         @DisplayName("Devrait retourner 400 si erreur de mise à jour")
         void updateUser_shouldReturn400OnError() throws Exception {
-            UpdateUserRequest request = new UpdateUserRequest(null, null, "used@test.com", null, null);
+            UpdateUserRequest request = new UpdateUserRequest(null, null, Optional.of("used@test.com"), null, null);
             
             when(adminUserService.updateUser(eq(1), any(UpdateUserRequest.class)))
                 .thenThrow(new IllegalArgumentException("Cet email est déjà utilisé"));

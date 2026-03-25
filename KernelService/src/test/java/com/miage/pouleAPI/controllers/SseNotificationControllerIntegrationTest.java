@@ -31,14 +31,14 @@ class SseNotificationControllerIntegrationTest {
 
     @Test
     @DisplayName("GET /api/notifications/stream/{userId} - Doit retourner 200 OK avec content-type TEXT_EVENT_STREAM")
-    void streamNotifications_integration_success() throws Exception {
+    void testStreamNotifications_integration_success() throws Exception {
         mockMvc.perform(get("/api/notifications/stream/{userId}", 1))
                 .andExpect(status().isOk());
     }
 
     @Test
     @DisplayName("GET /api/notifications/stream/{userId} - Doit créer une connexion SSE valide pour l'utilisateur")
-    void streamNotifications_integration_createsValidSseConnection() throws Exception {
+    void testStreamNotifications_integration_createsValidSseConnection() throws Exception {
         // When
         var mvcResult = mockMvc.perform(get("/api/notifications/stream/{userId}", 1))
                 .andExpect(status().isOk())
@@ -50,7 +50,7 @@ class SseNotificationControllerIntegrationTest {
 
     @Test
     @DisplayName("GET /api/notifications/stream/{userId} - Devrait accepter différents userIds")
-    void streamNotifications_integration_differentUserIds() throws Exception {
+    void testStreamNotifications_integration_differentUserIds() throws Exception {
         // Test avec userId = 1
         mockMvc.perform(get("/api/notifications/stream/{userId}", 1))
                 .andExpect(status().isOk());
@@ -66,14 +66,14 @@ class SseNotificationControllerIntegrationTest {
 
     @Test
     @DisplayName("GET /api/notifications/stream/{userId} - Devrait gérer les userIds volumineux")
-    void streamNotifications_integration_largeUserId() throws Exception {
+    void testStreamNotifications_integration_largeUserId() throws Exception {
         mockMvc.perform(get("/api/notifications/stream/{userId}", Integer.MAX_VALUE))
                 .andExpect(status().isOk());
     }
 
     @Test
     @DisplayName("Stream notifications - Vérifier que le service de notification peut envoyer des messages")
-    void streamNotifications_integration_sendNotification() throws Exception {
+    void testStreamNotifications_integration_sendNotification()  {
         // Given
         Integer userId = 42;
         SseEmitter emitter = sseNotificationService.subscribe(userId);
@@ -93,7 +93,7 @@ class SseNotificationControllerIntegrationTest {
 
     @Test
     @DisplayName("GET /api/notifications/stream/{userId} - Endpoint doit être public et accessible")
-    void streamNotifications_integration_endpointAccessible() throws Exception {
+    void testStreamNotifications_integration_endpointAccessible() throws Exception {
         // This test verifies the endpoint is properly mapped and accessible
         mockMvc.perform(get("/api/notifications/stream/1"))
                 .andExpect(status().isOk());
@@ -101,14 +101,14 @@ class SseNotificationControllerIntegrationTest {
 
     @Test
     @DisplayName("GET /api/notifications/stream/{userId} - Content-Type header doit être TEXT_EVENT_STREAM")
-    void streamNotifications_integration_correctContentType() throws Exception {
+    void testStreamNotifications_integration_correctContentType() throws Exception {
         mockMvc.perform(get("/api/notifications/stream/{userId}", 1))
                 .andExpect(status().isOk());
     }
 
     @Test
     @DisplayName("Multiple users - Chaque utilisateur devrait obtenir sa propre connexion SSE")
-    void streamNotifications_integration_multipleUsersSeparateStreams() throws Exception {
+    void testStreamNotifications_integration_multipleUsersSeparateStreams() throws Exception {
         // User 1 subscribes
         mockMvc.perform(get("/api/notifications/stream/{userId}", 1))
                 .andExpect(status().isOk());
@@ -126,7 +126,7 @@ class SseNotificationControllerIntegrationTest {
 
     @Test
     @DisplayName("GET /api/notifications/stream/{userId} - Devrait avoir un timeout approprié")
-    void streamNotifications_integration_emitterConfiguration() throws Exception {
+    void testStreamNotifications_integration_emitterConfiguration() {
         // When
         SseEmitter emitter = sseNotificationService.subscribe(99);
 
@@ -137,10 +137,11 @@ class SseNotificationControllerIntegrationTest {
 
     @Test
     @DisplayName("Stream notifications - Peut recevoir plusieurs notifications en séquence")
-    void streamNotifications_integration_multipleMessages() throws Exception {
+    void testStreamNotifications_integration_multipleMessages() {
         // Given
         Integer userId = 77;
         SseEmitter emitter = sseNotificationService.subscribe(userId);
+        assertThat(emitter).isNotNull();
 
         NotificationDTO notification1 = new NotificationDTO();
         notification1.setId(1);
@@ -162,7 +163,7 @@ class SseNotificationControllerIntegrationTest {
 
     @Test
     @DisplayName("GET /api/notifications/stream/{userId} - Should support concurrent subscriptions")
-    void streamNotifications_integration_concurrentUsers() throws Exception {
+    void testStreamNotifications_integration_concurrentUsers() throws Exception {
         // Simulate multiple concurrent subscriptions
         for (int i = 1; i <= 10; i++) {
             mockMvc.perform(get("/api/notifications/stream/{userId}", i))

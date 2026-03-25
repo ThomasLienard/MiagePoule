@@ -55,11 +55,10 @@ public class ParticipantServiceImpl implements ParticipantService {
             dto.setStatus(trial.getStatus());
             
             // Déterminer si c'est une épreuve en équipe ou solo
-            boolean hasTeamParticipation = participateAtRepository.hasTeamParticipation(trialId);
+            boolean isTeamTrial = participateAtRepository.hasTeamParticipation(trialId);
             
             // L'épreuve est en équipe si elle a déjà des participations d'équipe
             // Sinon elle est considérée comme solo (ou indéterminée si vide)
-            boolean isTeamTrial = hasTeamParticipation;
             dto.setTeamTrial(isTeamTrial);
             
             if (isTeamTrial) {

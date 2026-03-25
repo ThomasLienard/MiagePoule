@@ -7,11 +7,4 @@ public record BulkCreateUsersResponse(
     int successfullyCreated,
     int failed,
     List<UserCreationResult> results
-) {
-    public record UserCreationResult(
-        String email,
-        boolean success,
-        String message,
-        String temporaryPassword
-    ) {}
-}
+) {}

@@ -14,7 +14,6 @@ import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 import org.springframework.web.servlet.mvc.method.annotation.SseEmitter;
 
 import static org.junit.jupiter.api.Assertions.*;
-import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.*;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
@@ -124,7 +123,7 @@ class SseNotificationControllerTest {
 
     @Test
     @DisplayName("GET /api/notifications/stream/{userId} - Devrait supporter plusieurs connexiones simultanées")
-    void testStreamNotifications_ConcurrentConnections() throws Exception {
+    void testStreamNotifications_ConcurrentConnections() {
         // Given
         Integer userId1 = 1;
         Integer userId2 = 2;
