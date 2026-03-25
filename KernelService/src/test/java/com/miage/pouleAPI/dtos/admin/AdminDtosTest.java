@@ -92,11 +92,12 @@ class AdminDtosTest {
                 Optional.of("NewName"), Optional.of("NewLastname"), Optional.of("new@test.com"), Optional.of("SPECTATEUR"), Optional.of("DE")
         );
 
-        assertThat(request.name()).isEqualTo(Optional.of("NewName"));
-        assertThat(request.lastname()).isEqualTo(Optional.of("NewLastname"));
-        assertThat(request.email()).isEqualTo(Optional.of("new@test.com"));
-        assertThat(request.roleName()).isEqualTo(Optional.of("SPECTATEUR"));
-        assertThat(request.countryCode()).isEqualTo(Optional.of("DE"));
+        // Utilisation de .contains() qui est fait pour les Optional dans AssertJ
+        assertThat(request.name()).contains("NewName");
+        assertThat(request.lastname()).contains("NewLastname");
+        assertThat(request.email()).contains("new@test.com");
+        assertThat(request.roleName()).contains("SPECTATEUR");
+        assertThat(request.countryCode()).contains("DE");
     }
 
     @Test
