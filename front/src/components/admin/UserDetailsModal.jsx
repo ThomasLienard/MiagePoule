@@ -1,7 +1,77 @@
-import React, { useMemo, useState, useEffect } from 'react';
+import React, { useState, useEffect } from 'react';
+import PropTypes from 'prop-types';
 import { Modal, Button, Form, Row, Col, Badge, Alert, Spinner, Card, ListGroup, Tabs, Tab } from 'react-bootstrap';
 import { FileText, CheckCircle, XCircle, Download } from 'lucide-react';
 import axios from 'axios';
+
+const FooterActions = ({ user, submitting, onClose, onResetPassword, onEdit, onValidate, onInvalidate, onDeactivate, onReactivate }) => (
+    <>
+        <Button variant="secondary" onClick={onClose}>Fermer</Button>
+
+        {!user.isAccountActivated && user.isActive && (
+            <Button variant="warning" onClick={() => onResetPassword(user.id)}>
+                🔑 Réinitialiser MDP
+            </Button>
+        )}
+
+        <Button variant="info" onClick={onEdit}>✏️ Modifier</Button>
+
+        {user.isAccountActivated && user.isAccountValidated && (
+            <Button variant="warning" onClick={onInvalidate} disabled={submitting}>
+                {submitting && <Spinner animation="border" size="sm" className="me-2" />}
+                ❌ Invalider le compte
+            </Button>
+        )}
+
+        {user.isAccountActivated && !user.isAccountValidated && (
+            <Button variant="success" onClick={onValidate} disabled={submitting}>
+                {submitting && <Spinner animation="border" size="sm" className="me-2" />}
+                ✅ Valider le compte
+            </Button>
+        )}
+
+        {user.isActive && user.roleName !== 'ADMIN' && (
+            <Button variant="danger" onClick={onDeactivate}>🚫 Désactiver</Button>
+        )}
+
+        {!user.isActive && (
+            <Button variant="success" onClick={onReactivate} disabled={submitting}>
+                {submitting && <Spinner animation="border" size="sm" className="me-2" />}
+                ✅ Réactiver
+            </Button>
+        )}
+    </>
+);
+
+const userShape = PropTypes.shape({
+    id: PropTypes.number,
+    name: PropTypes.string,
+    lastname: PropTypes.string,
+    email: PropTypes.string,
+    roleName: PropTypes.string,
+    countryCode: PropTypes.string,
+    isActive: PropTypes.bool,
+    isAccountActivated: PropTypes.bool,
+    isAccountValidated: PropTypes.bool,
+    mustChangePassword: PropTypes.bool,
+    hasSignedCharter: PropTypes.bool,
+    deactivationReason: PropTypes.string,
+    deactivatedAt: PropTypes.string,
+    createdAt: PropTypes.string,
+    createdBy: PropTypes.string,
+});
+
+FooterActions.propTypes = {
+    user: userShape.isRequired,
+    submitting: PropTypes.bool,
+    onClose: PropTypes.func.isRequired,
+    onResetPassword: PropTypes.func.isRequired,
+    onEdit: PropTypes.func.isRequired,
+    onValidate: PropTypes.func.isRequired,
+    onInvalidate: PropTypes.func.isRequired,
+    onDeactivate: PropTypes.func.isRequired,
+    onReactivate: PropTypes.func.isRequired,
+};
 
 const UserDetailsModal = ({ 
     user, 
@@ -79,7 +149,7 @@ const UserDetailsModal = ({
             link.click();
             link.remove();
         } catch (error) {
-            alert('Erreur lors du téléchargement du document');
+            alert('Erreur lors du téléchargement du document\n' + error.message);
         }
     };
 
@@ -190,16 +260,6 @@ const UserDetailsModal = ({
 
     const statusInfo = getStatusInfo();
     const requiredDocs = getRequiredDocuments(user.roleName);
-    const uploadedRequiredDocsCount = useMemo(() => {
-        if (!requiredDocs.length) return 0;
-        const requiredSet = new Set(requiredDocs);
-        const uploadedSet = new Set(
-            documents
-                .filter((d) => requiredSet.has(d.typeName))
-                .map((d) => d.typeName)
-        );
-        return uploadedSet.size;
-    }, [documents, requiredDocs]);
 
     return (
         <Modal show={true} onHide={onClose} size="xl" centered>
@@ -455,94 +515,45 @@ const UserDetailsModal = ({
             <Modal.Footer>
                 {isEditing ? (
                     <>
-                        <Button
-                            variant="secondary"
-                            onClick={() => setIsEditing(false)}
-                            disabled={submitting}
-                        >
+                        <Button variant="secondary" onClick={() => setIsEditing(false)} disabled={submitting}>
                             Annuler
                         </Button>
-                        <Button
-                            variant="secondary"
-                            onClick={handleSave}
-                            disabled={submitting}
-                        >
+                        <Button variant="secondary" onClick={handleSave} disabled={submitting}>
                             {submitting && <Spinner animation="border" size="sm" className="me-2" />}
                             Enregistrer
                         </Button>
                     </>
                 ) : (
-                    <>
-                        <Button variant="secondary" onClick={onClose}>
-                            Fermer
-                        </Button>
-
-                        {!user.isAccountActivated && user.isActive && (
-                            <Button
-                                variant="warning"
-                                onClick={() => onResetPassword(user.id)}
-                            >
-                                🔑 Réinitialiser MDP
-                            </Button>
-                        )}
-
-                        <Button
-                            variant="info"
-                            onClick={() => setIsEditing(true)}
-                        >
-                            ✏️ Modifier
-                        </Button>
-
-                        {/* Boutons de validation du compte */}
-                        {user.isAccountActivated && (
-                            <>
-                                {user.isAccountValidated ? (
-                                    <Button
-                                        variant="warning"
-                                        onClick={handleInvalidateAccount}
-                                        disabled={submitting}
-                                    >
-                                        {submitting && <Spinner animation="border" size="sm" className="me-2" />}
-                                        ❌ Invalider le compte
-                                    </Button>
-                                ) : (
-                                    <Button
-                                        variant="success"
-                                        onClick={handleValidateAccount}
-                                        disabled={submitting}
-                                    >
-                                        {submitting && <Spinner animation="border" size="sm" className="me-2" />}
-                                        ✅ Valider le compte
-                                    </Button>
-                                )}
-                            </>
-                        )}
-
-                        {user.isActive ? (
-                            // Ne pas afficher le bouton désactiver pour les ADMIN
-                            user.roleName !== 'ADMIN' && (
-                                <Button
-                                    variant="danger"
-                                    onClick={() => setShowDeactivateConfirm(true)}
-                                >
-                                    🚫 Désactiver
-                                </Button>
-                            )
-                        ) : (
-                            <Button
-                                variant="success"
-                                onClick={handleReactivate}
-                                disabled={submitting}
-                            >
-                                {submitting && <Spinner animation="border" size="sm" className="me-2" />}
-                                ✅ Réactiver
-                            </Button>
-                        )}
-                    </>
+                    <FooterActions
+                        user={user}
+                        submitting={submitting}
+                        onClose={onClose}
+                        onResetPassword={onResetPassword}
+                        onEdit={() => setIsEditing(true)}
+                        onValidate={handleValidateAccount}
+                        onInvalidate={handleInvalidateAccount}
+                        onDeactivate={() => setShowDeactivateConfirm(true)}
+                        onReactivate={handleReactivate}
+                    />
                 )}
             </Modal.Footer>
         </Modal>
     );
+};
+
+UserDetailsModal.propTypes = {
+    user: userShape.isRequired,
+    roles: PropTypes.arrayOf(PropTypes.shape({
+        value: PropTypes.string,
+        label: PropTypes.string,
+    })).isRequired,
+    onClose: PropTypes.func.isRequired,
+    onUpdate: PropTypes.func.isRequired,
+    onDeactivate: PropTypes.func.isRequired,
+    onReactivate: PropTypes.func.isRequired,
+    onResetPassword: PropTypes.func.isRequired,
+    onValidateAccount: PropTypes.func.isRequired,
+    onInvalidateAccount: PropTypes.func.isRequired,
 };
 
 export default UserDetailsModal;
