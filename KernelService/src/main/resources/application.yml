@@ -4,6 +4,11 @@ spring:
     username: miageuser
     password: miagepassword
     driver-class-name: org.postgresql.Driver
+    hikari:
+      maximum-pool-size: 30
+      connection-timeout: 20000
+      minimum-idle: 5
+
 
   # properties for email configuration
   mail:

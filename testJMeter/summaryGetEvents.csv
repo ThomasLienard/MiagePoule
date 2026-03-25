@@ -1,0 +1,3 @@
+Label,# Samples,Average,Min,Max,Std. Dev.,Error %,Throughput,Received KB/sec,Sent KB/sec,Avg. Bytes
+Consulter liste championnats,1000,8871,39,16152,3191.54,0.000%,17.48649,15.15,2.85,887.0
+TOTAL,1000,8871,39,16152,3191.54,0.000%,17.48649,15.15,2.85,887.0
