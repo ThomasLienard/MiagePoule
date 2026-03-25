@@ -7,14 +7,6 @@ import {
 import { useParams, useNavigate } from 'react-router-dom';
 import resultService from '../../services/resultService';
 
-    const allResultsRegistered = () => {
-        for (const participant of results) {
-            if (!participant.result) {
-                return false;
-            }
-        }
-        return true;
-    }
 // ── Helpers pour format TIME ──────────────────────────────────────────────────
 
 // ms → {hours, minutes, seconds, milliseconds}
@@ -39,40 +31,40 @@ const timePartsToMs = (parts) => {
     );
 };
 
-// ── Sous-composant : inputs TIME séparés (CORRIGÉ) ────────────────────────────
-const TimeInputs = ({
-    value,
-    onChange,
-    disabled
-}) => {
-    // Toujours avoir des parts valides
-    const parts = value && value.ms >= 0
-        ? msToTimeParts(value.ms)
-        : { hours: 0, minutes: 0, seconds: 0, milliseconds: 0 };
+// ── Sous-composant : inputs TIME séparés ──────────────────────────────────────
+const TimeInputs = ({ value: propValue, onChange, disabled }) => {
+    // ÉTAT LOCAL pour parts → reactive !
+    const [parts, setParts] = useState({ hours: 0, minutes: 0, seconds: 0, milliseconds: 0 });
+
+    // Sync avec propValue
+    useEffect(() => {
+        if (propValue?.ms >= 0) {
+            setParts(msToTimeParts(propValue.ms));
+        } else {
+            setParts({ hours: 0, minutes: 0, seconds: 0, milliseconds: 0 });
+        }
+    }, [propValue?.ms]);
 
     const handlePartChange = (part, newValue) => {
         if (disabled) return;
 
-        // Gérer les valeurs vides et les flèches
-        const numValue = newValue === '' ? 0 : parseInt(newValue) || 0;
+        const numValue = newValue === '' ? 0 : parseInt(newValue, 10) || 0;
         let clampedValue = numValue;
-
         switch (part) {
-            case 'hours':
-                clampedValue = Math.max(0, Math.min(99, numValue));
-                break;
-            case 'minutes':
-            case 'seconds':
-                clampedValue = Math.max(0, Math.min(59, numValue));
-                break;
-            case 'milliseconds':
-                clampedValue = Math.max(0, Math.min(999, numValue));
-                break;
+            case 'hours': clampedValue = Math.max(0, Math.min(99, numValue)); break;
+            case 'minutes': case 'seconds': clampedValue = Math.max(0, Math.min(59, numValue)); break;
+            case 'milliseconds': clampedValue = Math.max(0, Math.min(999, numValue)); break;
+            default: return;
         }
 
         const newParts = { ...parts, [part]: clampedValue };
-        const newMs = timePartsToMs(newParts);
-        onChange(newMs);
+        setParts(newParts);
+        onChange(timePartsToMs(newParts));
+    };
+
+    const handleWheel = (part, max) => (e) => {
+        const delta = e.deltaY > 0 ? -1 : 1;
+        handlePartChange(part, Math.max(0, Math.min(max, (parseInt(e.target.value) || 0) + delta)));
     };
 
     const isValid = parts.hours > 0 || parts.minutes > 0 || parts.seconds > 0 || parts.milliseconds > 0;
@@ -91,12 +83,7 @@ const TimeInputs = ({
                 value={parts.hours}
                 disabled={disabled}
                 onChange={(e) => handlePartChange('hours', e.target.value)}
-                onWheel={(e) => {
-                    e.preventDefault();
-                    const delta = e.deltaY > 0 ? -1 : 1;
-                    const current = parseInt(e.target.value) || 0;
-                    handlePartChange('hours', Math.max(0, Math.min(99, current + delta)));
-                }}
+                onWheel={handleWheel('hours', 99)}
             />
 
             <InputGroup.Text className="bg-light px-1">:</InputGroup.Text>
@@ -112,12 +99,7 @@ const TimeInputs = ({
                 value={parts.minutes}
                 disabled={disabled}
                 onChange={(e) => handlePartChange('minutes', e.target.value)}
-                onWheel={(e) => {
-                    e.preventDefault();
-                    const delta = e.deltaY > 0 ? -1 : 1;
-                    const current = parseInt(e.target.value) || 0;
-                    handlePartChange('minutes', Math.max(0, Math.min(59, current + delta)));
-                }}
+                onWheel={handleWheel('minutes', 59)}
             />
 
             <InputGroup.Text className="bg-light px-1">:</InputGroup.Text>
@@ -133,12 +115,7 @@ const TimeInputs = ({
                 value={parts.seconds}
                 disabled={disabled}
                 onChange={(e) => handlePartChange('seconds', e.target.value)}
-                onWheel={(e) => {
-                    e.preventDefault();
-                    const delta = e.deltaY > 0 ? -1 : 1;
-                    const current = parseInt(e.target.value) || 0;
-                    handlePartChange('seconds', Math.max(0, Math.min(59, current + delta)));
-                }}
+                onWheel={handleWheel('seconds', 59)}
             />
 
             <InputGroup.Text className="bg-light px-1">.</InputGroup.Text>
@@ -154,12 +131,7 @@ const TimeInputs = ({
                 value={parts.milliseconds}
                 disabled={disabled}
                 onChange={(e) => handlePartChange('milliseconds', e.target.value)}
-                onWheel={(e) => {
-                    e.preventDefault();
-                    const delta = e.deltaY > 0 ? -1 : 1;
-                    const current = parseInt(e.target.value) || 0;
-                    handlePartChange('milliseconds', Math.max(0, Math.min(999, current + delta)));
-                }}
+                onWheel={handleWheel('milliseconds', 999)}
             />
 
             {!isValid && !disabled && (
@@ -186,7 +158,7 @@ const LoadingState = () => (
     </Container>
 );
 
-const StatusBadge = ({ isValidated, isForfeit }) => {
+const StatusBadge = ({ isValidated = false, isForfeit = false }) => {
     if (isForfeit) return <Badge bg="danger">Forfait</Badge>;
     if (isValidated) return <Badge bg="success">✔ Validé</Badge>;
     return <Badge bg="secondary">Non validé</Badge>;
@@ -197,14 +169,9 @@ StatusBadge.propTypes = {
     isForfeit:   PropTypes.bool,
 };
 
-StatusBadge.defaultProps = {
-    isValidated: false,
-    isForfeit:   false,
-};
-
-const ScorePlaceholder = ({ scoreType, isForfeit }) => {
+const getScorePlaceholder = (scoreType, isForfeit) => {
     if (isForfeit) return 'Forfait';
-    return scoreType === 'SCORE' ? 'Saisir un résultat…' : '';
+    return scoreType === 'POINT' ? 'Saisir un résultat…' : '';
 };
 
 const ValidateAllModal = ({ show, trialName, loading, onHide, onConfirm }) => (
@@ -240,18 +207,17 @@ ValidateAllModal.propTypes = {
 
 // ── Composant ligne de résultat ───────────────────────────────────────────────
 const ResultRow = ({
-    participant,
-    editValue,
-    scoreType,
-    onChange,
-    onSave,
-    onValidate,
-    onInvalidate,
-    actionLoading,
-    canEdit
-}) => {
+                       participant,
+                       editValue,
+                       scoreType,
+                       onChange,
+                       onSave,
+                       onValidate,
+                       onInvalidate,
+                       actionLoading,
+                       canEdit
+                   }) => {
     const isDisabled = participant.isForfeit || actionLoading || !canEdit;
-
     const isValid = scoreType === 'TIME'
         ? editValue?.ms > 0
         : !!editValue;
@@ -273,16 +239,27 @@ const ResultRow = ({
 
                     <Col xs={12} md={4}>
                         {scoreType === 'TIME' ? (
-                            <TimeInputs
-                                value={editValue}
-                                onChange={(ms) => onChange(participant.participantId, ms)}
-                                disabled={isDisabled}
-                            />
+                            <div className="d-flex align-items-center gap-1">
+                                <TimeInputs
+                                    value={editValue}
+                                    onChange={onChange}
+                                    disabled={isDisabled}
+                                />
+                                <Button
+                                    variant="outline-secondary"
+                                    size="sm"
+                                    disabled={isDisabled}
+                                    onClick={() => onSave(participant)}
+                                    title="Enregistrer ce résultat"
+                                >
+                                    enregistrer
+                                </Button>
+                            </div>
                         ) : (
                             <InputGroup size="sm">
                                 <Form.Control
                                     type="text"
-                                    placeholder={ScorePlaceholder({ scoreType, isForfeit: participant.isForfeit })}
+                                    placeholder={getScorePlaceholder(scoreType, participant.isForfeit)}
                                     value={editValue || ''}
                                     disabled={isDisabled}
                                     onChange={(e) => onChange(e.target.value)}
@@ -342,7 +319,7 @@ ResultRow.propTypes = {
         isValidated: PropTypes.bool,
         isForfeit: PropTypes.bool,
     }).isRequired,
-    scoreType: PropTypes.oneOf(['TIME', 'SCORE']).isRequired,
+    scoreType: PropTypes.oneOf(['TIME', 'POINT']).isRequired,
     editValue: PropTypes.oneOfType([
         PropTypes.string,
         PropTypes.shape({ ms: PropTypes.number })
@@ -381,9 +358,9 @@ const ManageResults = () => {
             const init = {};
             (data.results || []).forEach(r => {
                 if (data.scoreType === 'TIME' && r.result) {
-                    init[r.participantId] = { ms: parseInt(r.result) || 0 };
+                    init[r.participantId] = { ms: Math.round((Number(r.result) || 0) * 1000) };
                 } else {
-                    init[r.participantId] = r.result ?? '';
+                    init[r.participantId] = r.result?.toString() ?? '';
                 }
             });
             setEditValues(init);
@@ -398,12 +375,19 @@ const ManageResults = () => {
         fetchResults();
     }, [fetchResults]);
 
-    const handleChange = (participantId, msValue) => {
+    const handleChange = useCallback((participantId, newValue) => {
+        let finalValue;
+        if (trialData?.scoreType === 'TIME') {
+            finalValue = { ms: Number(newValue) || 0 };
+        } else {
+            finalValue = newValue !== undefined ? newValue.toString() : '';
+        }
+
         setEditValues(prev => ({
             ...prev,
-            [participantId]: { ms: Number(msValue) || 0 }
+            [participantId]: finalValue
         }));
-    };
+    }, [trialData?.scoreType]);
 
     const handleSave = async (participant) => {
         setActionLoading(true);
@@ -411,7 +395,7 @@ const ManageResults = () => {
         setSuccess(null);
         try {
             const resultToSend = trialData?.scoreType === 'TIME'
-                ? editValues[participant.participantId]?.ms ?? 0
+                ? (editValues[participant.participantId]?.ms ?? 0) / 1000
                 : editValues[participant.participantId];
 
             const updated = await resultService.setResult(
@@ -443,7 +427,7 @@ const ManageResults = () => {
                 .filter(r => !r.isForfeit)
                 .map(r => {
                     const resultValue = trialData?.scoreType === 'TIME'
-                        ? editValues[r.participantId]?.ms ?? 0
+                        ? (editValues[r.participantId]?.ms ?? 0) / 1000
                         : editValues[r.participantId];
                     return {
                         participantId: r.participantId,
@@ -529,7 +513,7 @@ const ManageResults = () => {
             const init = {};
             (updated.results || []).forEach(r => {
                 if (updated.scoreType === 'TIME' && r.result) {
-                    init[r.participantId] = { ms: parseInt(r.result) || 0 };
+                    init[r.participantId] = { ms: Math.round((Number(r.result) || 0) * 1000) };
                 } else {
                     init[r.participantId] = r.result ?? '';
                 }
@@ -568,25 +552,23 @@ const ManageResults = () => {
             </Container>
         );
     }
-
-    const { trialName, teamTrial, scoreType = 'SCORE', results = [] } = trialData;
+    const { trialName, teamTrial, scoreType = 'POINT', results = [] } = trialData;
     const validatedCount = results.filter(r => !r.isForfeit && r.isValidated).length;
     const totalCount = results.filter(r => !r.isForfeit).length;
 
-        return (
-            <Container className="py-4">
-                {/* En-tête */}
-                <div className="d-flex justify-content-between align-items-start flex-wrap gap-2 mb-3">
-                    <div>
-                        <h1 className="mb-1">Résultats — {trialName}</h1>
-                        <div className="d-flex gap-2 flex-wrap">
-                            <Badge bg={teamTrial ? 'info' : 'success'}>
-                                {teamTrial ? '👥 Épreuve Équipe' : '🏃 Épreuve Solo'}
-                            </Badge>
-                            <Badge bg={scoreType === 'TIME' ? 'warning' : 'primary'}>
-                                {scoreType === 'TIME' ? '⏱️ Temps' : '🎯 Score'}
-                            </Badge>
-                            <Badge bg={validatedCount === totalCount && totalCount > 0 ? 'success' : 'secondary'}>
+    return (
+        <Container className="py-4">
+            <div className="d-flex justify-content-between align-items-start flex-wrap gap-2 mb-3">
+                <div>
+                    <h1 className="mb-1">Résultats — {trialName}</h1>
+                    <div className="d-flex gap-2 flex-wrap">
+                        <Badge bg={teamTrial ? 'info' : 'success'}>
+                            {teamTrial ? '👥 Épreuve Équipe' : '🏃 Épreuve Solo'}
+                        </Badge>
+                        <Badge bg={scoreType === 'TIME' ? 'warning' : 'primary'}>
+                            {scoreType === 'TIME' ? '⏱️ Temps' : '🎯 Score'}
+                        </Badge>
+                        <Badge bg={validatedCount === totalCount && totalCount > 0 ? 'success' : 'secondary'}>
                                 {validatedCount}/{totalCount} validé(s)
                             </Badge>
                         </div>
@@ -637,7 +619,6 @@ const ManageResults = () => {
                         {teamTrial ? 'Résultats par équipe' : 'Résultats par athlète'}
                         {scoreType === 'TIME' && (
                             <small className="text-muted ms-2">
-                                (H:MM:SS.mmm → ms au backend)
                             </small>
                         )}
                     </Card.Header>
@@ -652,8 +633,8 @@ const ManageResults = () => {
                                     key={`${participant.participantType}-${participant.participantId}`}
                                     participant={participant}
                                     scoreType={scoreType}
-                                    editValue={editValues[participant.participantId]}
-                                    onChange={handleChange}
+                                    editValue={editValues[participant.participantId] ?? (scoreType === 'TIME' ? { ms: 0 } : '')}
+                                    onChange={(newValue) => handleChange(participant.participantId, newValue)}
                                     onSave={handleSave}
                                     onValidate={handleValidate}
                                     onInvalidate={handleInvalidate}

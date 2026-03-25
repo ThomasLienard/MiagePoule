@@ -23,7 +23,10 @@ INSERT INTO role (role_name) VALUES ('SPECTATEUR');
 INSERT INTO severity (name_severity, desc_severity)
 VALUES ('INFO', 'Information message'),
        ('WARNING', 'Warning level'),
-       ('CRITICAL', 'Critical event');
+       ('CRITICAL', 'Critical event'),
+       ('LOW', 'Low severity incident'),
+       ('MEDIUM', 'Medium severity incident'),
+       ('HIGH', 'High severity incident');
 
 -- ======================
 -- Type of documents
@@ -215,13 +218,13 @@ VALUES (1),
 
 INSERT INTO application_user (name, lastname, password, email, country_code, role_name, is_active, is_account_activated, is_account_validated, must_change_password, created_at, created_by, has_signed_charter)
 VALUES
-    ('Anna', 'Smith', '$2a$10$vycWMvbko2wycSl3u6bIL.vCeHgNBQfNq7jpVc7pCEnfER6A2vTLi', 'anna@example.com', 'US', 'ADMIN', true, true, false, false, NOW(), 'system', true),  -- 1
-    ('Pierre', 'Commissaire', '$2a$10$vycWMvbko2wycSl3u6bIL.vCeHgNBQfNq7jpVc7pCEnfER6A2vTLi', 'commissaire@example.com', 'FR', 'COMMISSAIRE', true, true, false, false, NOW(), 'system',true), -- 2
-    ('Marie', 'Athlete', '$2a$10$vycWMvbko2wycSl3u6bIL.vCeHgNBQfNq7jpVc7pCEnfER6A2vTLi', 'athlete@example.com', 'FR', 'ATHLETE', true, true, false, false, NOW(), 'system', false), -- 3
-    ('Jean', 'Volontaire', '$2a$10$vycWMvbko2wycSl3u6bIL.vCeHgNBQfNq7jpVc7pCEnfER6A2vTLi', 'volontaire@example.com', 'FR', 'VOLONTAIRE', true, true, false, false, NOW(), 'system', true), -- 4
-    ('John', 'Doe', '$2a$10$vycWMvbko2wycSl3u6bIL.vCeHgNBQfNq7jpVc7pCEnfER6A2vTLi', 'john@example.com', 'US', 'ATHLETE', true, true, false, false, NOW(), 'system',true), -- 5
-    ('Jane', 'Smith', '$2a$10$vycWMvbko2wycSl3u6bIL.vCeHgNBQfNq7jpVc7pCEnfER6A2vTLi', 'jane@example.com', 'US', 'COMMISSAIRE', true, true, false, false, NOW(), 'system', true), -- 6
-    ('Spec', 'tateur', '$2a$10$vycWMvbko2wycSl3u6bIL.vCeHgNBQfNq7jpVc7pCEnfER6A2vTLi', 'spec@example.com', 'US', 'SPECTATEUR', true, true, false, false, NOW(), 'system', true), -- 7
+    ('Anna', 'Smith', '$2a$10$vycWMvbko2wycSl3u6bIL.vCeHgNBQfNq7jpVc7pCEnfER6A2vTLi', 'anna@example.com', 'US', 'ADMIN', true, true, true, false, NOW(), 'system', true),  -- 1
+    ('Pierre', 'Commissaire', '$2a$10$vycWMvbko2wycSl3u6bIL.vCeHgNBQfNq7jpVc7pCEnfER6A2vTLi', 'commissaire@example.com', 'FR', 'COMMISSAIRE', true, true, true, false, NOW(), 'system',true), -- 2
+    ('Marie', 'Athlete', '$2a$10$vycWMvbko2wycSl3u6bIL.vCeHgNBQfNq7jpVc7pCEnfER6A2vTLi', 'athlete@example.com', 'FR', 'ATHLETE', true, true, true, false, NOW(), 'system', false), -- 3
+    ('Jean', 'Volontaire', '$2a$10$vycWMvbko2wycSl3u6bIL.vCeHgNBQfNq7jpVc7pCEnfER6A2vTLi', 'volontaire@example.com', 'FR', 'VOLONTAIRE', true, true, true, false, NOW(), 'system', true), -- 4
+    ('John', 'Doe', '$2a$10$vycWMvbko2wycSl3u6bIL.vCeHgNBQfNq7jpVc7pCEnfER6A2vTLi', 'john@example.com', 'US', 'ATHLETE', true, true, true, false, NOW(), 'system',true), -- 5
+    ('Jane', 'Smith', '$2a$10$vycWMvbko2wycSl3u6bIL.vCeHgNBQfNq7jpVc7pCEnfER6A2vTLi', 'jane@example.com', 'US', 'COMMISSAIRE', true, true, true, false, NOW(), 'system', true), -- 6
+    ('Spec', 'tateur', '$2a$10$vycWMvbko2wycSl3u6bIL.vCeHgNBQfNq7jpVc7pCEnfER6A2vTLi', 'spec@example.com', 'US', 'SPECTATEUR', true, true, true, false, NOW(), 'system', true), -- 7
 
 
 -- ======================
@@ -250,7 +253,8 @@ VALUES
 
     ('Elizabeth', 'Second', '$2a$10$vycWMvbko2wycSl3u6bIL.vCeHgNBQfNq7jpVc7pCEnfER6A2vTLi', 'elizabeth@example.com', 'UK', 'ATHLETE', true, true, true, false, NOW(), 'system', false), -- 23
     ('Harper', 'Towel', '$2a$10$vycWMvbko2wycSl3u6bIL.vCeHgNBQfNq7jpVc7pCEnfER6A2vTLi', 'harper@example.com', 'UK', 'ATHLETE', true, true, true, false, NOW(), 'system', false), -- 24
-    ('Charlotte', 'Brown', '$2a$10$vycWMvbko2wycSl3u6bIL.vCeHgNBQfNq7jpVc7pCEnfER6A2vTLi', 'charlotte@example.com', 'UK', 'ATHLETE', true, true, true, false, NOW(), 'system', false); -- 25
+    ('Charlotte', 'Brown', '$2a$10$vycWMvbko2wycSl3u6bIL.vCeHgNBQfNq7jpVc7pCEnfER6A2vTLi', 'charlotte@example.com', 'UK', 'ATHLETE', true, true, true, false, NOW(), 'system', false), -- 25
+    ('Arnaud', 'Moustache', '$2a$10$vycWMvbko2wycSl3u6bIL.vCeHgNBQfNq7jpVc7pCEnfER6A2vTLi', 'arnaud@example.com', 'FR', 'ATHLETE', true, true, false, false, NOW(), 'system', false); -- 26
 
 
 
@@ -439,29 +443,6 @@ VALUES (1, 4, 8100, false, true),
        (20,40,null,false,false),
        (23,40,null,false,false),
        (25,40,null,false,false);
-
-
-
-
-
-
-
-
--- ======================
--- Notifications
--- ======================
-INSERT INTO notification (description_notification, emission_date,
-                          id_place, id_event, name_severity, name_type_of_notification)
-VALUES ('Trial 1 starting soon', '2025-01-01 08:30:00', 1, 1, 'WARNING', 'EMAIL'),
-       ('Trial 2 delayed', '2025-01-01 09:45:00', 1, 2, 'WARNING', 'SMS'),
-       ('Trial 3 finals announcement', '2025-01-01 10:00:00', 1, 3, 'INFO', 'SYSTEM'),
-       ('Marathon Trial info', '2025-01-01 08:00:00', 1, 4, 'INFO', 'EMAIL');
-
--- ======================
--- User subscriptions
--- ======================
-INSERT INTO subscribe_to (id, id_notification)
-VALUES (1, 1);
 
 -- ======================
 -- Geolocs

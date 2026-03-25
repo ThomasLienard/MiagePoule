@@ -15,12 +15,29 @@ const UserList = ({ users, onSelectUser, onResetPassword }) => {
 
     const getStatusBadge = (user) => {
         if (!user.isActive) {
-            return <Badge bg="danger">Désactivé</Badge>;
+            return <Badge bg="danger">🚫 Désactivé</Badge>;
         }
         if (!user.isAccountActivated) {
-            return <Badge bg="warning">En attente</Badge>;
+            return <Badge bg="warning">⏳ En attente</Badge>;
         }
-        return <Badge bg="success">Actif</Badge>;
+        return <Badge bg="success">✅ Actif</Badge>;
+    };
+
+    const getValidationBadge = (user) => {
+        // La validation ne s'applique qu'aux comptes activés
+        if (!user.isAccountActivated || !user.isActive) {
+            return <Badge bg="secondary">N/A</Badge>;
+        }
+
+        // Les spectateurs sont toujours validés
+        if (user.roleName === 'SPECTATEUR' || user.roleName === 'ADMIN') {
+            return <Badge bg="secondary">N/A</Badge>;
+        }
+
+        if (user.isAccountValidated) {
+            return <Badge bg="success">✅ Validé</Badge>;
+        }
+        return <Badge bg="info">⏳ À valider</Badge>;
     };
 
     if (users.length === 0) {
@@ -44,6 +61,7 @@ const UserList = ({ users, onSelectUser, onResetPassword }) => {
                         <th>Email</th>
                         <th>Rôle</th>
                         <th>Statut</th>
+                        <th>Validation</th>
                         <th>Actions</th>
                     </tr>
                 </thead>
@@ -56,6 +74,7 @@ const UserList = ({ users, onSelectUser, onResetPassword }) => {
                             <td>{user.email}</td>
                             <td>{getRoleBadge(user.roleName)}</td>
                             <td>{getStatusBadge(user)}</td>
+                            <td>{getValidationBadge(user)}</td>
                             <td>
                                 <Button
                                     variant="outline-secondary"

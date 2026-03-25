@@ -352,7 +352,7 @@ describe('ManageResults – Gestion des résultats d\'une épreuve', () => {
     // =========================================================================
 
     it('cliquer "Valider tout" ouvre la modal de confirmation', () => {
-        visitResults('manageResults/results_partiel.json');
+        visitResults('manageResults/results_complet.json');
         cy.contains('button', /Valider tout/).click();
         cy.wait(500);
         cy.get('.modal').should('be.visible');
@@ -361,7 +361,7 @@ describe('ManageResults – Gestion des résultats d\'une épreuve', () => {
     });
 
     it('"Annuler" dans la modal ferme la modal sans appel API', () => {
-        visitResults('manageResults/results_partiel.json');
+        visitResults('manageResults/results_complet.json');
         cy.contains('button', /Valider tout/).click();
         cy.wait(500);
         cy.get('.modal').should('be.visible');
@@ -371,7 +371,7 @@ describe('ManageResults – Gestion des résultats d\'une épreuve', () => {
     });
 
     it('confirmer dans la modal → appel POST validate-all et message de succès', () => {
-        visitResults('manageResults/results_partiel.json');
+        visitResults('manageResults/results_complet.json');
 
         const validatedAll = {
             trialId: 1,
@@ -398,7 +398,7 @@ describe('ManageResults – Gestion des résultats d\'une épreuve', () => {
     });
 
     it('après validation globale, le badge compteur passe à "2/2 validé(s)" (bg-success)', () => {
-        visitResults('manageResults/results_partiel.json');
+        visitResults('manageResults/results_complet.json');
 
         cy.intercept('POST', '**/commissaire/trials/1/results/validate-all', {
             body: {

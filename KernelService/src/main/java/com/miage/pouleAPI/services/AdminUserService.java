@@ -324,7 +324,8 @@ public class AdminUserService {
             user.getCreatedAt(),
             user.getCreatedBy(),
             user.getDeactivatedAt(),
-            user.getDeactivationReason()
+            user.getDeactivationReason(),
+            Boolean.TRUE.equals(user.getHasSignedCharter())
         );
     }
 
