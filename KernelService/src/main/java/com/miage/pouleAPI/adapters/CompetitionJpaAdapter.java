@@ -66,7 +66,7 @@ public class CompetitionJpaAdapter {
         ApplicationUser user = userRepository.findById(userId)
                 .orElseThrow(() -> new RuntimeException("User not found"));
 
-        competition.getObservers().add(user);
+        competition.attach(user);
         repository.save(competition);
     }
 
@@ -76,7 +76,7 @@ public class CompetitionJpaAdapter {
         ApplicationUser user = userRepository.findById(userId)
                 .orElseThrow(() -> new RuntimeException("User not found"));
 
-        competition.getObservers().remove(user);
+        competition.detach(user);
         repository.save(competition);
     }
 

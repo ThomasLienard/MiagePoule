@@ -1,5 +1,6 @@
 package com.miage.pouleAPI.services;
 
+import com.miage.pouleAPI.entity.Competition;
 import com.miage.pouleAPI.entity.Event;
 import com.miage.pouleAPI.repositories.EventRepository;
 import com.miage.pouleAPI.services.interfaces.EventService;

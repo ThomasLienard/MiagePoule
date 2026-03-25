@@ -11,7 +11,7 @@ export default function Layout() {
 
     // Hook notifications SSE
     const userId = user?.id ?? null;
-    const { unreadCount, markAllAsRead, notifications } = useNotificationsSSE(userId);
+    const { unreadCount, notifications, markAllAsRead } = useNotificationsSSE(userId);
 
     const handleNotificationClick = (eventId) => {
         if (eventId) {

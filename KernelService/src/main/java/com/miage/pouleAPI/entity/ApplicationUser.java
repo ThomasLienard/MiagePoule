@@ -140,7 +140,7 @@ public class ApplicationUser implements Observer {
 
     @Override
     public void update(Notification notification) {
-
+        this.notifications.add(notification);
     }
 
     @OneToMany(mappedBy = "user", cascade = CascadeType.ALL)
