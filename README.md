@@ -11,6 +11,7 @@ Projet MiagePoule - Application de gestion d'evenements sportifs.
 ## Informations utiles
 - Google drive : https://drive.google.com/drive/u/0/folders/1j6wGk7S6pKEYNrGJsizqw5gH3CUtYePK
 - Suivi des heures de chacun : https://docs.google.com/spreadsheets/d/12Pm5g05zaR8LFwijVBRfq72DI7AqkXp7ooYLMCOAcBw/edit?gid=0#gid=0
+- Application déployée : http://miagepoule-front.s3-website-eu-west-1.amazonaws.com/
 
 ### Pseudos github: 
 
